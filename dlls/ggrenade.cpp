@@ -206,8 +206,15 @@ void CGrenade::DangerSoundThink( void )
 		return;
 	}
 
+	// After some time have passed since you shot the grenade,
+	// it has to lose the owner so it can be damaged by owner's bullets.
+	// Not doing this will cause the grenade to stuck inside the owner.
+	if (gpGlobals->time - initialThrowingTime >= 0.3) {
+		pev->owner = NULL;
+	}
+
 	CSoundEnt::InsertSound ( bits_SOUND_DANGER, pev->origin + pev->velocity * 0.5, pev->velocity.Length( ), 0.2 );
-	pev->nextthink = gpGlobals->time + 0.2;
+	pev->nextthink = gpGlobals->time + 0.1;
 
 	if (pev->waterlevel != 0)
 	{
@@ -385,6 +392,18 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	pGrenade->SetTouch( &CGrenade::ExplodeTouch );
 
 	pGrenade->pev->dmg = gSkillData.plrDmgM203Grenade;
+
+	// Allow grenade to receive damage so it can be destroyed by bullets and explosions
+	pGrenade->pev->takedamage = DAMAGE_YES;
+	pGrenade->pev->health = 1;
+
+	// Setting up correct an actual size is essential for damage detection
+	// No idea why it has to get proper size again though,
+	// because doing this in Spawn function doesn't work
+	UTIL_SetSize(pGrenade->pev, Vector(-2, -2, -4), Vector(2, 2, 4));
+
+	// Store the moment when you shoot the grenade for purpose in DangerSoundThink
+	pGrenade->initialThrowingTime = gpGlobals->time;
 
 	return pGrenade;
 }
