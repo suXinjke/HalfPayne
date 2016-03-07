@@ -3812,6 +3812,8 @@ void CBasePlayer::ItemPostFrame()
 	if ( m_pTank != NULL )
 		return;
 
+	ImpulseCommands();
+
 	// HACKHACK: To make the axe fire 0.3 sec after fire is pressed
 	// See if the axe should fire now
 	if (m_flAxeFire && m_flAxeFire <= gpGlobals->time)
@@ -3825,7 +3827,7 @@ void CBasePlayer::ItemPostFrame()
 		return;
 	}
 
-	ImpulseCommands();
+	
 
 	if (!m_pActiveItem)
 		return;

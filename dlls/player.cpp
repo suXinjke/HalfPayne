@@ -1860,6 +1860,8 @@ void CBasePlayer::PreThink(void)
 	if ( g_fGameOver )
 		return;         // intermission or finale
 
+	slowMotion->UpdateSlowMotion();
+
 	UTIL_MakeVectors(pev->v_angle);             // is this still used?
 	
 	ItemPreFrame( );
@@ -2938,6 +2940,8 @@ void CBasePlayer::Spawn( void )
 	m_flNextChatTime = gpGlobals->time;
 
 	g_pGameRules->PlayerSpawn( this );
+
+	slowMotion = new SlowMotion();
 }
 
 
@@ -3434,8 +3438,13 @@ void CBasePlayer::ImpulseCommands( )
 	PlayerUse();
 		
 	int iImpulse = (int)pev->impulse;
+	
 	switch (iImpulse)
 	{
+	case 22:
+		slowMotion->ToggleSlowMotion();
+		break;
+
 	case 99:
 		{
 
@@ -3867,6 +3876,8 @@ void CBasePlayer::ItemPostFrame()
 	if ( m_pTank != NULL )
 		return;
 
+	ImpulseCommands();
+
 #if defined( CLIENT_WEAPONS )
     if ( m_flNextAttack > 0 )
 #else
@@ -3876,7 +3887,7 @@ void CBasePlayer::ItemPostFrame()
 		return;
 	}
 
-	ImpulseCommands();
+	
 
 	if (!m_pActiveItem)
 		return;

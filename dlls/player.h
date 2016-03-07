@@ -17,6 +17,7 @@
 
 
 #include "pm_materials.h"
+#include "slowmotion.h"
 
 
 #define PLAYER_FATAL_FALL_SPEED		1024// approx 60 feet
@@ -323,6 +324,7 @@ public:
 	
 	float m_flNextChatTime;
 	
+	SlowMotion *slowMotion;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
