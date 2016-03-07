@@ -17,7 +17,7 @@
 
 
 #include "pm_materials.h"
-#include "slowmotion.h"
+#include <SDL2/SDL_timer.h>
 
 
 #define PLAYER_FATAL_FALL_SPEED		1024// approx 60 feet
@@ -25,6 +25,8 @@
 #define DAMAGE_FOR_FALL_SPEED		(float) 100 / ( PLAYER_FATAL_FALL_SPEED - PLAYER_MAX_SAFE_FALL_SPEED )// damage per unit per second.
 #define PLAYER_MIN_BOUNCE_SPEED		200
 #define PLAYER_FALL_PUNCH_THRESHHOLD (float)350 // won't punch player's screen/make scrape noise unless player falling at least this fast.
+
+#define TICK_INTERVAL 10
 
 //
 // Player PHYSICS FLAGS bits
@@ -199,6 +201,9 @@ public:
 
 	char m_szTeamName[TEAM_NAME_LENGTH];
 
+	Uint32 nextTime; // required for FPS cap
+	bool slowMotionEnabled;
+
 	virtual void Spawn( void );
 	void Pain( void );
 
@@ -240,6 +245,8 @@ public:
 	virtual int		ObjectCaps( void ) { return CBaseMonster :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 	virtual void	Precache( void );
 	BOOL			IsOnLadder( void );
+	void			ApplyFPSCap();
+	void			ToggleSlowMotion();
 	BOOL			FlashlightIsOn( void );
 	void			FlashlightTurnOn( void );
 	void			FlashlightTurnOff( void );
@@ -323,8 +330,6 @@ public:
 	char m_SbarString1[ SBAR_STRING_SIZE ];
 	
 	float m_flNextChatTime;
-	
-	SlowMotion *slowMotion;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
