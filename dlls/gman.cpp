@@ -32,7 +32,7 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	void SetYawSpeed( void );
-	int  Classify ( void );
+	int Classify ( void );
 	void HandleAnimEvent( MonsterEvent_t *pEvent );
 	int ISoundMask ( void );
 
@@ -42,8 +42,7 @@ public:
 
 	void StartTask( Task_t *pTask );
 	void RunTask( Task_t *pTask );
-	int  TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType );
-	void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
+	void Killed(entvars_t *pevAttacker, int iGib);
 
 	void PlayScriptedSentence( const char *pszSentence, float duration, float volume, float attenuation, BOOL bConcurrent, CBaseEntity *pListener );
 
@@ -68,7 +67,7 @@ IMPLEMENT_SAVERESTORE( CGMan, CBaseMonster );
 //=========================================================
 int	CGMan :: Classify ( void )
 {
-	return	CLASS_NONE;
+	return	CLASS_HUMAN_PASSIVE;
 }
 
 //=========================================================
@@ -124,8 +123,8 @@ void CGMan :: Spawn()
 
 	pev->solid			= SOLID_SLIDEBOX;
 	pev->movetype		= MOVETYPE_STEP;
-	m_bloodColor		= DONT_BLEED;
-	pev->health			= 100;
+	m_bloodColor		= BLOOD_COLOR_RED;
+	pev->health			= 1;
 	m_flFieldOfView		= 0.5;// indicates the width of this monster's forward view cone ( as a dotproduct result )
 	m_MonsterState		= MONSTERSTATE_NONE;
 
@@ -200,33 +199,9 @@ void CGMan :: RunTask( Task_t *pTask )
 	}
 }
 
-
-//=========================================================
-// Override all damage
-//=========================================================
-int CGMan :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType )
-{
-	pev->health = pev->max_health / 2; // always trigger the 50% damage aitrigger
-
-	if ( flDamage > 0 )
-	{
-		SetConditions(bits_COND_LIGHT_DAMAGE);
-	}
-
-	if ( flDamage >= 20 )
-	{
-		SetConditions(bits_COND_HEAVY_DAMAGE);
-	}
-	return TRUE;
+void CGMan::Killed(entvars_t *pevAttacker, int iGib) {
+	GibMonster();
 }
-
-
-void CGMan::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType)
-{
-	UTIL_Ricochet( ptr->vecEndPos, 1.0 );
-	AddMultiDamage( pevAttacker, this, flDamage, bitsDamageType );
-}
-
 
 void CGMan::PlayScriptedSentence( const char *pszSentence, float duration, float volume, float attenuation, BOOL bConcurrent, CBaseEntity *pListener )
 {
