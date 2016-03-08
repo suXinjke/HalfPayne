@@ -125,8 +125,17 @@ void CShotgun::ItemPostFrame() {
 		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 95 + RANDOM_LONG(0, 0x1f));
 		m_flPumpTime = 0;
 	}
-	if (shotOnce && !(m_pPlayer->pev->button & (IN_ATTACK | IN_ATTACK2))) {
-		shotOnce = false;
+
+	if (shotOnce && !(m_pPlayer->pev->button & (IN_ATTACK )) ) {
+		if (m_flNextPrimaryAttack <= 0.0f) {
+			shotOnce = false;
+		}
+	}
+
+	if (shotSecondaryOnce && !(m_pPlayer->pev->button & (IN_ATTACK2))) {
+		if (m_flNextSecondaryAttack <= 0.0f) {
+			shotSecondaryOnce = false;
+		}
 	}
 	
 	CBasePlayerWeapon::ItemPostFrame();
@@ -207,12 +216,13 @@ void CShotgun::PrimaryAttack()
 	m_fInSpecialReload = 0;
 
 	shotOnce = true;
+	shotSecondaryOnce = true;
 }
 
 
 void CShotgun::SecondaryAttack( void )
 {
-	if (shotOnce) {
+	if (shotSecondaryOnce) {
 		return;
 	}
 	// don't fire underwater
@@ -286,7 +296,7 @@ void CShotgun::SecondaryAttack( void )
 
 	m_fInSpecialReload = 0;
 
-	shotOnce = true;
+	shotSecondaryOnce = true;
 
 }
 

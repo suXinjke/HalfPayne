@@ -669,6 +669,7 @@ public:
 
 private:
 	bool shotOnce;
+	bool shotSecondaryOnce;
 	unsigned short m_usDoubleFire;
 	unsigned short m_usSingleFire;
 };
