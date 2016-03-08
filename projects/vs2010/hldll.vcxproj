@@ -187,7 +187,6 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClCompile Include="..\..\dlls\shotgun.cpp" />
     <ClCompile Include="..\..\dlls\singleplay_gamerules.cpp" />
     <ClCompile Include="..\..\dlls\skill.cpp" />
-    <ClCompile Include="..\..\dlls\slowmotion.cpp" />
     <ClCompile Include="..\..\dlls\sound.cpp" />
     <ClCompile Include="..\..\dlls\soundent.cpp" />
     <ClCompile Include="..\..\dlls\spectator.cpp" />
@@ -242,7 +241,6 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClInclude Include="..\..\dlls\scripted.h" />
     <ClInclude Include="..\..\dlls\scriptevent.h" />
     <ClInclude Include="..\..\dlls\skill.h" />
-    <ClInclude Include="..\..\dlls\slowmotion.h" />
     <ClInclude Include="..\..\dlls\soundent.h" />
     <ClInclude Include="..\..\dlls\spectator.h" />
     <ClInclude Include="..\..\dlls\squadmonster.h" />
