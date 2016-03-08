@@ -74,6 +74,7 @@ void CPython::Spawn( )
 	SET_MODEL(ENT(pev), "models/w_357.mdl");
 
 	m_iDefaultAmmo = PYTHON_DEFAULT_GIVE;
+	shotOnce = false;
 
 	FallInit();// get ready to fall down.
 }
@@ -130,6 +131,14 @@ void CPython::Holster( int skiplocal /* = 0 */ )
 	SendWeaponAnim( PYTHON_HOLSTER );
 }
 
+void CPython::ItemPostFrame( void ) {
+	if (shotOnce && !(m_pPlayer->pev->button & IN_ATTACK)) {
+		shotOnce = false;
+	}
+	
+	CBasePlayerWeapon::ItemPostFrame();
+}
+
 void CPython::SecondaryAttack( void )
 {
 #ifdef CLIENT_DLL
@@ -157,6 +166,10 @@ void CPython::SecondaryAttack( void )
 
 void CPython::PrimaryAttack()
 {
+	if (shotOnce) {
+		return;
+	}
+
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
@@ -210,7 +223,8 @@ void CPython::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flNextPrimaryAttack = 0.75;
+	m_flNextPrimaryAttack = 0.4;
+	shotOnce = true;
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
 }
 

@@ -537,6 +537,7 @@ public:
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
 	int AddToPlayer( CBasePlayer *pPlayer );
+	void ItemPostFrame( void );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
 	BOOL Deploy( void );
@@ -556,6 +557,7 @@ public:
 	}
 
 private:
+	bool shotOnce;
 	unsigned short m_usFirePython;
 };
 
