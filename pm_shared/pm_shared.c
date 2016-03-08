@@ -1410,6 +1410,7 @@ PM_AirMove
 
 ===================
 */
+
 void PM_AirMove (void)
 {
 	int			i;
@@ -1452,6 +1453,7 @@ void PM_AirMove (void)
 
 	// Add in any base velocity to the current velocity.
 	VectorAdd (pmove->velocity, pmove->basevelocity, pmove->velocity );
+
 
 	PM_FlyMove ();
 }
@@ -2606,6 +2608,118 @@ void PM_Jump (void)
 	pmove->oldbuttons |= IN_JUMP;	// don't jump again until released
 }
 
+// Copy paste of PM_Jump
+// Dive is simillar to long jump, but can be done in any direction
+void PM_Dive(void)
+{
+	int i;
+
+	if (pmove->dead)
+	{
+		pmove->oldbuttons |= IN_ALT1;	// don't jump again until released
+		return;
+	}
+
+	// See if we are waterjumping.  If so, decrement count and return.
+	if (pmove->waterjumptime)
+	{
+		pmove->waterjumptime -= pmove->cmd.msec;
+		if (pmove->waterjumptime < 0)
+		{
+			pmove->waterjumptime = 0;
+		}
+		return;
+	}
+
+	// If we are in the water most of the way...
+	if (pmove->waterlevel >= 2)
+	{	// swimming, not jumping
+		pmove->onground = -1;
+
+		if (pmove->watertype == CONTENTS_WATER)    // We move up a certain amount
+			pmove->velocity[2] = 100;
+		else if (pmove->watertype == CONTENTS_SLIME)
+			pmove->velocity[2] = 80;
+		else  // LAVA
+			pmove->velocity[2] = 50;
+
+		// play swiming sound
+		if (pmove->flSwimTime <= 0)
+		{
+			// Don't play sound again for 1 second
+			pmove->flSwimTime = 1000;
+			switch (pmove->RandomLong(0, 3))
+			{
+			case 0:
+				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				break;
+			case 1:
+				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				break;
+			case 2:
+				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				break;
+			case 3:
+				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+				break;
+			}
+		}
+
+		return;
+	}
+
+	// No more effect
+	if (pmove->onground == -1)
+	{
+		// Flag that we jumped.
+		// HACK HACK HACK
+		// Remove this when the game .dll no longer does physics code!!!!
+		pmove->oldbuttons |= IN_ALT1;	// don't jump again until released
+		return;		// in air, so no effect
+	}
+
+	if (pmove->oldbuttons & IN_ALT1)
+		return;		// don't pogo stick
+
+	// In the air now.
+	pmove->onground = -1;
+
+	PM_PreventMegaBunnyJumping();
+
+	pmove->punchangle[0] = -5;
+
+	// Determine in which direction we have to apply the velocity
+	vec3_t resultVector = { 0.0f, 0.0f, 0.0f };
+	for (i = 0; i < 2; i++){	
+		if (pmove->cmd.buttons & IN_FORWARD) {
+			resultVector[i] += pmove->forward[i];
+		}
+		if (pmove->cmd.buttons & IN_BACK) {
+			resultVector[i] -= pmove->forward[i];
+		}
+		if (pmove->cmd.buttons & IN_MOVELEFT) {
+			resultVector[i] -= pmove->right[i];
+		}
+		if (pmove->cmd.buttons & IN_MOVERIGHT) {
+			resultVector[i] += pmove->right[i];
+		}	
+	}
+	VectorNormalize(&resultVector);
+
+	for (i = 0; i < 2; i++)
+	{
+		pmove->velocity[i] = resultVector[i] * PLAYER_LONGJUMP_SPEED * 1.3;
+	}
+
+	pmove->velocity[2] = sqrt(2 * 800 * 30.0);
+
+	// Decay it for simulation
+	PM_FixupGravityVelocity();
+
+	// Flag that we jumped.
+	pmove->oldbuttons |= IN_ALT1;	// don't jump again until released
+}
+
 /*
 =============
 PM_CheckWaterJump
@@ -3115,6 +3229,15 @@ void PM_PlayerMove ( qboolean server )
 				pmove->oldbuttons &= ~IN_JUMP;
 			}
 
+			if (pmove->cmd.buttons & IN_ALT1)
+			{
+				PM_Dive();
+			}
+			else
+			{
+				pmove->oldbuttons &= ~IN_ALT1;
+			}
+
 			// Perform regular water movement
 			PM_WaterMove();
 			
@@ -3138,6 +3261,18 @@ void PM_PlayerMove ( qboolean server )
 			else
 			{
 				pmove->oldbuttons &= ~IN_JUMP;
+			}
+
+			if (pmove->cmd.buttons & IN_ALT1)
+			{
+				if (!pLadder)
+				{
+					PM_Dive();
+				}
+			}
+			else
+			{
+				pmove->oldbuttons &= ~IN_ALT1;
 			}
 
 			// Fricion is handled before we add in any base velocity. That way, if we are on a conveyor, 
