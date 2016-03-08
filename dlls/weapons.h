@@ -475,6 +475,7 @@ public:
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
 
+	void ItemPostFrame(void);
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
 	void GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim );
@@ -493,6 +494,7 @@ public:
 
 private:
 	int m_iShell;
+	int shotOnce;
 	
 
 	unsigned short m_usFireGlock1;

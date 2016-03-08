@@ -46,6 +46,7 @@ void CGlock::Spawn( )
 	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
 
 	m_iDefaultAmmo = GLOCK_DEFAULT_GIVE;
+	shotOnce = false;
 
 	FallInit();// get ready to fall down.
 }
@@ -93,18 +94,32 @@ BOOL CGlock::Deploy( )
 	return DefaultDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW, "onehanded", /*UseDecrement() ? 1 : 0*/ 0 );
 }
 
+void CGlock::ItemPostFrame(void) {
+	if ( shotOnce && !(m_pPlayer->pev->button & IN_ATTACK))
+	{
+		shotOnce = false;
+	}
+
+	CBasePlayerWeapon::ItemPostFrame();
+}
+
 void CGlock::SecondaryAttack( void )
 {
-	GlockFire( 0.1, 0.2, FALSE );
+	// Commented in favor of shooting by yourself, clicking the button rapidly
+	// GlockFire( 0.1, 0.2, FALSE );
 }
 
 void CGlock::PrimaryAttack( void )
 {
-	GlockFire( 0.01, 0.3, TRUE );
+	GlockFire( 0.01, 0.175, TRUE );
 }
 
 void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 {
+	if (shotOnce) {
+		return;
+	}
+
 	if (m_iClip <= 0)
 	{
 		if (m_fFireOnEmpty)
@@ -162,6 +177,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), fUseAutoAim ? m_usFireGlock1 : m_usFireGlock2, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, ( m_iClip == 0 ) ? 1 : 0, 0 );
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(flCycleTime);
+	shotOnce = true;
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
