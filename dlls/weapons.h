@@ -638,6 +638,7 @@ public:
 
 	void Spawn( void );
 	void Precache( void );
+	void ItemPostFrame( void );
 	int iItemSlot( ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
 	int AddToPlayer( CBasePlayer *pPlayer );
@@ -661,6 +662,7 @@ public:
 	}
 
 private:
+	bool shotOnce;
 	unsigned short m_usDoubleFire;
 	unsigned short m_usSingleFire;
 };

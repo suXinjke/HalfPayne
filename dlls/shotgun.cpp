@@ -116,8 +116,27 @@ BOOL CShotgun::Deploy( )
 	return DefaultDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW, "shotgun" );
 }
 
+void CShotgun::ItemPostFrame() {
+	// Copy paste from WeaponIdle. WeaponIdle won't be called 
+	// while you hold the attack button, but we still have to play the reload sound
+	if ( shotOnce && m_flPumpTime && m_flPumpTime < gpGlobals->time)
+	{
+		// play pumping sound
+		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 95 + RANDOM_LONG(0, 0x1f));
+		m_flPumpTime = 0;
+	}
+	if (shotOnce && !(m_pPlayer->pev->button & (IN_ATTACK | IN_ATTACK2))) {
+		shotOnce = false;
+	}
+	
+	CBasePlayerWeapon::ItemPostFrame();
+}
+
 void CShotgun::PrimaryAttack()
 {
+	if (shotOnce) {
+		return;
+	}
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
@@ -168,6 +187,7 @@ void CShotgun::PrimaryAttack()
 		vecDir = m_pPlayer->FireBulletsPlayer( 6, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 
+
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
 
 
@@ -185,11 +205,16 @@ void CShotgun::PrimaryAttack()
 	else
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
 	m_fInSpecialReload = 0;
+
+	shotOnce = true;
 }
 
 
 void CShotgun::SecondaryAttack( void )
 {
+	if (shotOnce) {
+		return;
+	}
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
@@ -261,6 +286,8 @@ void CShotgun::SecondaryAttack( void )
 
 	m_fInSpecialReload = 0;
 
+	shotOnce = true;
+
 }
 
 
@@ -278,10 +305,10 @@ void CShotgun::Reload( void )
 	{
 		SendWeaponAnim( SHOTGUN_START_RELOAD );
 		m_fInSpecialReload = 1;
-		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.6;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.6;
-		m_flNextPrimaryAttack = GetNextAttackDelay(1.0);
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.0;
+		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.2;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
+		m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
+		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
 		return;
 	}
 	else if (m_fInSpecialReload == 1)
@@ -298,8 +325,8 @@ void CShotgun::Reload( void )
 
 		SendWeaponAnim( SHOTGUN_RELOAD );
 
-		m_flNextReload = UTIL_WeaponTimeBase() + 0.5;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
+		m_flNextReload = UTIL_WeaponTimeBase() + 0.25;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.25;
 	}
 	else
 	{
