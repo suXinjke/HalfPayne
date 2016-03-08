@@ -117,6 +117,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_pTank, FIELD_EHANDLE ),
 	DEFINE_FIELD( CBasePlayer, m_iHideHUD, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -1857,6 +1859,8 @@ void CBasePlayer::PreThink(void)
 
 	g_pGameRules->PlayerThink( this );
 
+	ApplyFPSCap();
+
 	if ( g_fGameOver )
 		return;         // intermission or finale
 
@@ -2938,6 +2942,9 @@ void CBasePlayer::Spawn( void )
 	m_flNextChatTime = gpGlobals->time;
 
 	g_pGameRules->PlayerSpawn( this );
+
+	nextTime = SDL_GetTicks() + TICK_INTERVAL;
+	slowMotionEnabled = false;
 }
 
 
@@ -3062,6 +3069,8 @@ int CBasePlayer::Restore( CRestore &restore )
 	//			Barring that, we clear it out here instead of using the incorrect restored time value.
 	m_flNextAttack = UTIL_WeaponTimeBase();
 #endif
+
+	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 
 	return status;
 }
@@ -3354,6 +3363,29 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 	return NULL;
 }
 
+void CBasePlayer::ToggleSlowMotion() {
+	slowMotionEnabled = !slowMotionEnabled;
+	if (slowMotionEnabled) {
+		SERVER_COMMAND("host_framerate 0.0025\n");
+	}
+	else {
+		SERVER_COMMAND("host_framerate 0.01\n");
+	}
+}
+
+// Done using SDL
+// Required for smooth host_framerate appliance and slow motion
+// Slow motion with host_framerate has not been tested with FPS below 100
+void CBasePlayer::ApplyFPSCap() {
+	Uint32 timeLeft = 0;
+
+	Uint32 now = SDL_GetTicks();
+	if (nextTime > now) {
+		timeLeft = nextTime - now;
+	}
+	SDL_Delay(timeLeft);
+	nextTime += TICK_INTERVAL;
+}
 
 BOOL CBasePlayer :: FlashlightIsOn( void )
 {
@@ -3434,8 +3466,13 @@ void CBasePlayer::ImpulseCommands( )
 	PlayerUse();
 		
 	int iImpulse = (int)pev->impulse;
+	
 	switch (iImpulse)
 	{
+	case 22:
+		ToggleSlowMotion();
+		break;
+
 	case 99:
 		{
 
@@ -3867,6 +3904,8 @@ void CBasePlayer::ItemPostFrame()
 	if ( m_pTank != NULL )
 		return;
 
+	ImpulseCommands();
+
 #if defined( CLIENT_WEAPONS )
     if ( m_flNextAttack > 0 )
 #else
@@ -3876,7 +3915,7 @@ void CBasePlayer::ItemPostFrame()
 		return;
 	}
 
-	ImpulseCommands();
+	
 
 	if (!m_pActiveItem)
 		return;
