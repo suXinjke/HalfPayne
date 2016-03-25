@@ -77,6 +77,9 @@ typedef struct hull_s
 #define VEC_DUCK_HULL_MIN	-18
 #define VEC_DUCK_HULL_MAX	18
 #define VEC_DUCK_VIEW		12
+#define VEC_DIVE_VIEW		6
+#define VEC_DIVE_HULL_MIN	-9
+#define VEC_DIVE_HULL_MAX	9
 #define PM_DEAD_VIEWHEIGHT	-8
 #define MAX_CLIMB_SPEED		200
 #define STUCK_MOVEUP		1
@@ -152,6 +155,10 @@ static char grgszTextureName[CTEXTURESMAX][CBTEXTURENAMEMAX];
 static char grgchTextureType[CTEXTURESMAX];
 
 int g_onladder = 0;
+
+int isDiving = 0;
+
+void PM_DuckWhileDiving(void);
 
 void PM_SwapTextures( int i, int j )
 {
@@ -1073,6 +1080,23 @@ void PM_WalkMove ()
 		VectorScale (wishvel, pmove->maxspeed/wishspeed, wishvel);
 		wishspeed = pmove->maxspeed;
 	}
+
+	// When diving
+	if (isDiving) {
+		if (Length(pmove->velocity) > 0) {
+			wishspeed = 0.0f;
+		}
+		else {
+			// Done sliding across the floor - disable the slowmotion
+			pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION;
+
+			if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
+				// Stand up and stop diving
+				isDiving = 0;
+			}
+		}
+	}
+	
 
 	// Set pmove velocity
 	pmove->velocity[2] = 0;
@@ -2056,6 +2080,62 @@ void PM_Duck( void )
 	}
 }
 
+void PM_DuckWhileDiving(void)
+{
+	int i;
+	float time;
+	float duckFraction;
+
+	if (pmove->flags & FL_DUCKING)
+	{
+		pmove->cmd.forwardmove *= PLAYER_DUCKING_MULTIPLIER;
+		pmove->cmd.sidemove *= PLAYER_DUCKING_MULTIPLIER;
+		pmove->cmd.upmove *= PLAYER_DUCKING_MULTIPLIER;
+	}
+
+
+	// Use 1 second so super long jump will work
+	pmove->flDuckTime = 1000;
+	pmove->bInDuck = true;
+
+	time = max(0.0, (1.0 - (float)pmove->flDuckTime / 1000.0));
+
+	if (pmove->bInDuck)
+	{
+		// Finish ducking immediately if duck time is over or not on ground
+		if (((float)pmove->flDuckTime / 1000.0 <= (1.0 - TIME_TO_DUCK)) ||
+			(pmove->onground == -1))
+		{
+			pmove->usehull = 1;
+			pmove->view_ofs[2] = VEC_DIVE_VIEW;
+			pmove->flags |= FL_DUCKING;
+			pmove->bInDuck = false;
+
+			// HACKHACK - Fudge for collision bug - no time to fix this properly
+			if (pmove->onground != -1)
+			{
+				for (i = 0; i < 3; i++)
+				{
+					pmove->origin[i] -= (pmove->player_mins[1][i] - pmove->player_mins[0][i]);
+				}
+				// See if we are stuck?
+				PM_FixPlayerCrouchStuck(STUCK_MOVEUP);
+
+				// Recatagorize position since ducking can change origin
+				PM_CatagorizePosition();
+			}
+		}
+		else
+		{
+			float fMore = (VEC_DIVE_HULL_MIN - VEC_HULL_MIN);
+
+			// Calc parametric time
+			duckFraction = PM_SplineFraction(time, (1.0 / TIME_TO_DUCK));
+			//pmove->view_ofs[2] = ((VEC_DIVE_VIEW - fMore) * duckFraction) + (VEC_VIEW * (1 - duckFraction));
+		}
+	}
+}
+
 void PM_LadderMove( physent_t *pLadder )
 {
 	vec3_t		ladderCenter;
@@ -2473,6 +2553,10 @@ PM_Jump
 */
 void PM_Jump (void)
 {
+	if (isDiving) {
+		return;
+	}
+
 	int i;
 	qboolean tfc = false;
 
@@ -2620,6 +2704,11 @@ void PM_Dive(void)
 		return;
 	}
 
+	// Don't dive again when you're diving
+	if (isDiving) {
+		return;
+	}
+
 	// See if we are waterjumping.  If so, decrement count and return.
 	if (pmove->waterjumptime)
 	{
@@ -2628,43 +2717,6 @@ void PM_Dive(void)
 		{
 			pmove->waterjumptime = 0;
 		}
-		return;
-	}
-
-	// If we are in the water most of the way...
-	if (pmove->waterlevel >= 2)
-	{	// swimming, not jumping
-		pmove->onground = -1;
-
-		if (pmove->watertype == CONTENTS_WATER)    // We move up a certain amount
-			pmove->velocity[2] = 100;
-		else if (pmove->watertype == CONTENTS_SLIME)
-			pmove->velocity[2] = 80;
-		else  // LAVA
-			pmove->velocity[2] = 50;
-
-		// play swiming sound
-		if (pmove->flSwimTime <= 0)
-		{
-			// Don't play sound again for 1 second
-			pmove->flSwimTime = 1000;
-			switch (pmove->RandomLong(0, 3))
-			{
-			case 0:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-				break;
-			case 1:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-				break;
-			case 2:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-				break;
-			case 3:
-				pmove->PM_PlaySound(CHAN_BODY, "player/pl_wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-				break;
-			}
-		}
-
 		return;
 	}
 
@@ -2711,13 +2763,18 @@ void PM_Dive(void)
 		pmove->velocity[i] = resultVector[i] * PLAYER_LONGJUMP_SPEED * 1.3;
 	}
 
-	pmove->velocity[2] = sqrt(2 * 800 * 30.0);
+	pmove->velocity[2] = sqrt(2 * 800 * 36.0);
 
 	// Decay it for simulation
 	PM_FixupGravityVelocity();
 
 	// Flag that we jumped.
 	pmove->oldbuttons |= IN_ALT1;	// don't jump again until released
+
+	// Now diving
+	isDiving = 1;
+	// Turn the slowmotion on
+	pmove->iuser4 = IUSER4_ENABLE_SLOW_MOTION;
 }
 
 /*
@@ -3117,7 +3174,12 @@ void PM_PlayerMove ( qboolean server )
 
 	PM_UpdateStepSound();
 
-	PM_Duck();
+	// Is diving?
+	if (isDiving) {
+		PM_DuckWhileDiving();
+	} else {
+		PM_Duck();
+	}
 	
 	// Don't run ladder code if dead or on a train
 	if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) )
@@ -3229,13 +3291,9 @@ void PM_PlayerMove ( qboolean server )
 				pmove->oldbuttons &= ~IN_JUMP;
 			}
 
-			if (pmove->cmd.buttons & IN_ALT1)
-			{
-				PM_Dive();
-			}
-			else
-			{
-				pmove->oldbuttons &= ~IN_ALT1;
+			// Stop diving when you're in the water
+			if (isDiving) {
+				isDiving = 0;
 			}
 
 			// Perform regular water movement
@@ -3295,6 +3353,8 @@ void PM_PlayerMove ( qboolean server )
 			{
 				PM_AirMove();  // Take into account movement when in air.
 			}
+
+			
 
 			// Set final flags.
 			PM_CatagorizePosition();

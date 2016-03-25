@@ -1860,6 +1860,7 @@ void CBasePlayer::PreThink(void)
 	g_pGameRules->PlayerThink( this );
 
 	ApplyFPSCap();
+	HandleIUser4();
 
 	if ( g_fGameOver )
 		return;         // intermission or finale
@@ -2064,6 +2065,24 @@ void CBasePlayer::PreThink(void)
 
 /* */
 
+void CBasePlayer::HandleIUser4()
+{
+	switch (pev->iuser4) {
+	
+		case IUSER4_ENABLE_SLOW_MOTION:
+			SetSlowMotion(true);
+			break;
+		case IUSER4_DISABLE_SLOW_MOTION:
+			SetSlowMotion(false);
+			break;
+
+		default:
+			break;
+	}
+
+	pev->iuser4 = IUSER4_NOTHING;
+
+}
 
 void CBasePlayer::CheckTimeBasedDamage() 
 {
@@ -3364,7 +3383,17 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-	slowMotionEnabled = !slowMotionEnabled;
+	SetSlowMotion(!slowMotionEnabled);
+}
+
+void CBasePlayer::SetSlowMotion(bool slowMotionEnabled) {
+	if (slowMotionEnabled == this->slowMotionEnabled) {
+		return;
+	}
+	else {
+		this->slowMotionEnabled = slowMotionEnabled;
+	}
+
 	if (slowMotionEnabled) {
 		SERVER_COMMAND("host_framerate 0.0025\n");
 	}

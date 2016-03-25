@@ -678,6 +678,14 @@
 #define TE_BOUNCE_SHELL		1
 #define TE_BOUNCE_SHOTSHELL	2
 
+// For my iUser4 handler
+enum
+{
+	IUSER4_NOTHING,
+	IUSER4_ENABLE_SLOW_MOTION,
+	IUSER4_DISABLE_SLOW_MOTION
+};
+
 // Rendering constants
 enum 
 {	

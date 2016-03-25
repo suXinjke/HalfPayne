@@ -247,6 +247,7 @@ public:
 	BOOL			IsOnLadder( void );
 	void			ApplyFPSCap();
 	void			ToggleSlowMotion();
+	void			SetSlowMotion( bool slowMotionEnabled );
 	BOOL			FlashlightIsOn( void );
 	void			FlashlightTurnOn( void );
 	void			FlashlightTurnOff( void );
@@ -314,6 +315,8 @@ public:
 	int GetCustomDecalFrames( void );
 
 	void TabulateAmmo( void );
+
+	void HandleIUser4();
 
 	float m_flStartCharge;
 	float m_flAmmoStartCharge;
