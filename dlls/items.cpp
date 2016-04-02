@@ -217,6 +217,9 @@ class CItemBattery : public CItem
 	}
 	BOOL MyTouch( CBasePlayer *pPlayer )
 	{
+		// In the world of Half-Payne you don't need armor
+		return FALSE;
+
 		if ( pPlayer->pev->deadflag != DEAD_NO )
 		{
 			return FALSE;
