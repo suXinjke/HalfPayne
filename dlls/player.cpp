@@ -3109,6 +3109,8 @@ int CBasePlayer::Restore( CRestore &restore )
 	m_flNextAttack = UTIL_WeaponTimeBase();
 #endif
 
+	SetSlowMotion( slowMotionEnabled, true );
+
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 
 	return status;
@@ -3406,8 +3408,8 @@ void CBasePlayer::ToggleSlowMotion() {
 	SetSlowMotion(!slowMotionEnabled);
 }
 
-void CBasePlayer::SetSlowMotion(bool slowMotionEnabled) {
-	if (slowMotionEnabled == this->slowMotionEnabled) {
+void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
+	if (slowMotionEnabled == this->slowMotionEnabled && !forced) {
 		return;
 	}
 	else {
