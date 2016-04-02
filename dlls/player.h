@@ -337,6 +337,12 @@ public:
 	char m_SbarString1[ SBAR_STRING_SIZE ];
 	
 	float m_flNextChatTime;
+
+	// Painkillers
+#define MAX_PAINKILLERS 9
+	int painkillerCount;
+	int TakePainkiller();
+	void UsePainkiller();
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

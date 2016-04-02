@@ -73,7 +73,8 @@ BOOL CHealthKit::MyTouch( CBasePlayer *pPlayer )
 		return FALSE;
 	}
 
-	if ( pPlayer->TakeHealth( gSkillData.healthkitCapacity, DMG_GENERIC ) )
+	//if ( pPlayer->TakeHealth( gSkillData.healthkitCapacity, DMG_GENERIC ) )
+	if ( pPlayer->TakePainkiller() )
 	{
 		MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev );
 			WRITE_STRING( STRING(pev->classname) );

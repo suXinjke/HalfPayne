@@ -125,6 +125,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, isDiving, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -387,6 +389,29 @@ int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 {
 	return CBaseMonster :: TakeHealth (flHealth, bitsDamageType);
 
+}
+
+int CBasePlayer::TakePainkiller()
+{
+	if ( painkillerCount >= MAX_PAINKILLERS ) {
+		return 0;
+	}
+	
+	painkillerCount++;
+	return 1;
+}
+
+void CBasePlayer::UsePainkiller()
+{
+	if ( painkillerCount <= 0 ) {
+		return;
+	}
+
+	if ( TakeHealth( 20, DMG_GENERIC ) ) {
+		painkillerCount--;
+
+		// TODO: send flash event to hud
+	}
 }
 
 Vector CBasePlayer :: GetGunPosition( )
@@ -1870,6 +1895,8 @@ void CBasePlayer::PreThink(void)
 	ApplyFPSCap();
 	HandleIUser4();
 
+	ALERT( at_notice, "Painkillers: %d\n", painkillerCount );
+
 	if ( g_fGameOver )
 		return;         // intermission or finale
 
@@ -2936,6 +2963,8 @@ void CBasePlayer::Spawn( void )
 	slowMotionCharge = 99;
 	slowMotionUpdateTime = 1;
 
+	painkillerCount = 0;
+
 // dont let uninitialized value here hurt the player
 	m_flFallVelocity = 0;
 
@@ -3527,6 +3556,10 @@ void CBasePlayer::ImpulseCommands( )
 	{
 	case 22:
 		ToggleSlowMotion();
+		break;
+
+	case 23:
+		UsePainkiller();
 		break;
 
 	case 99:
