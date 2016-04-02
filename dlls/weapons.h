@@ -573,6 +573,7 @@ public:
 	int iItemSlot( void ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
 	int AddToPlayer( CBasePlayer *pPlayer );
+	void ItemPostFrame( void );
 
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
@@ -582,6 +583,7 @@ public:
 	void WeaponIdle( void );
 	float m_flNextAnimTime;
 	int m_iShell;
+	int bulletsShot;
 
 	virtual BOOL UseDecrement( void )
 	{ 

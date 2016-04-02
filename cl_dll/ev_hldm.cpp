@@ -670,6 +670,8 @@ void EV_FireMP5( event_args_t *args )
 	vec3_t up, right, forward;
 	float flSpread = 0.01;
 
+	float bulletsShot = args->iparam1;
+
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
@@ -685,7 +687,8 @@ void EV_FireMP5( event_args_t *args )
 		EV_MuzzleFlash();
 		gEngfuncs.pEventAPI->EV_WeaponAnimation( MP5_FIRE1 + gEngfuncs.pfnRandomLong(0,2), 2 );
 
-		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -2, 2 ) );
+		// Punch is higher with more bullets you shot (bulletsShot up to 3)
+		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -bulletsShot * 0.6, 0 ) );
 	}
 
 	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
