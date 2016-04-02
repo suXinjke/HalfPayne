@@ -3110,6 +3110,9 @@ int CBasePlayer::Restore( CRestore &restore )
 #endif
 
 	SetSlowMotion( slowMotionEnabled, true );
+	if ( isDiving ) {
+		pev->vuser4[2] = VUSER4_Z_SET_DIVING_ON;
+	}
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 

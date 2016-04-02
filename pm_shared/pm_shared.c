@@ -159,6 +159,7 @@ int g_onladder = 0;
 int isDiving = 0;
 
 void PM_DuckWhileDiving(void);
+void HandleVUser4( void );
 
 void PM_SwapTextures( int i, int j )
 {
@@ -3205,6 +3206,8 @@ void PM_PlayerMove ( qboolean server )
 	}
 #endif
 
+	HandleVUser4( );
+
 	// Handle movement
 	switch ( pmove->movetype )
 	{
@@ -3559,4 +3562,18 @@ void PM_Init( struct playermove_s *ppmove )
 	PM_InitTextureTypes();
 
 	pm_shared_initialized = 1;
+}
+
+void HandleVUser4()
+{
+	int z = pmove->vuser4[2];
+	switch ( z ) {
+		case VUSER4_Z_SET_DIVING_ON:
+			isDiving = 1;
+		default:
+			break;
+	}
+
+	pmove->vuser4[2] = 0.0f;
+
 }

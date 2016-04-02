@@ -687,6 +687,13 @@ enum
 
 };
 
+// For my vUser4 handler
+enum
+{
+	VUSER4_NOTHING,
+	VUSER4_Z_SET_DIVING_ON
+};
+
 // Rendering constants
 enum 
 {	
