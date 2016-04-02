@@ -1088,7 +1088,7 @@ void PM_WalkMove ()
 		}
 		else {
 			// Done sliding across the floor - disable the slowmotion
-			pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION;
+			pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
 
 			if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
 				// Stand up and stop diving
@@ -2774,7 +2774,7 @@ void PM_Dive(void)
 	// Now diving
 	isDiving = 1;
 	// Turn the slowmotion on
-	pmove->iuser4 = IUSER4_ENABLE_SLOW_MOTION;
+	pmove->iuser4 = IUSER4_ENABLE_SLOW_MOTION_FROM_DIVING;
 }
 
 /*

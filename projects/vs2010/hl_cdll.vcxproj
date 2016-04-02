@@ -59,13 +59,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc6\vgui.lib;wsock32.lib;..\..\lib\public\sdl2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc6\vgui.lib;..\..\lib\public\sdl2.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\kernel32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\wsock32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\user32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\gdi32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\winspool.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\comdlg32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\advapi32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\shell32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\ole32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\oleaut32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\uuid.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\odbc32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\odbccp32.lib</AdditionalDependencies>
       <BaseAddress>
       </BaseAddress>
     </Link>
@@ -143,6 +143,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\cl_dlls
     <ClCompile Include="..\..\cl_dll\menu.cpp" />
     <ClCompile Include="..\..\cl_dll\message.cpp" />
     <ClCompile Include="..\..\cl_dll\saytext.cpp" />
+    <ClCompile Include="..\..\cl_dll\slowmotion.cpp" />
     <ClCompile Include="..\..\cl_dll\statusbar.cpp" />
     <ClCompile Include="..\..\cl_dll\status_icons.cpp" />
     <ClCompile Include="..\..\cl_dll\StudioModelRenderer.cpp" />

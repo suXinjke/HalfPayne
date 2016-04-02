@@ -68,6 +68,9 @@ extern CGraph	WorldGraph;
 #define	FLASH_DRAIN_TIME	 1.2 //100 units/3 minutes
 #define	FLASH_CHARGE_TIME	 0.2 // 100 units/20 seconds  (seconds per unit)
 
+#define SLOWMOTION_DRAIN_TIME 0.02
+#define SLOWMOTION_CHARGE_TIME 0.1
+
 // Global Savedata for player
 TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] = 
 {
@@ -119,6 +122,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, isDiving, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -161,6 +167,7 @@ int gmsgInitHUD = 0;
 int gmsgShowGameTitle = 0;
 int gmsgCurWeapon = 0;
 int gmsgHealth = 0;
+int gmsgSlowMotion = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgTrain = 0;
@@ -206,6 +213,7 @@ void LinkUserMessages( void )
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgHealth = REG_USER_MSG( "Health", 1 );
+	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -2069,13 +2077,20 @@ void CBasePlayer::HandleIUser4()
 {
 	switch (pev->iuser4) {
 	
-		case IUSER4_ENABLE_SLOW_MOTION:
+		case IUSER4_ENABLE_SLOW_MOTION_FROM_DIVING:
+			// I'm yet to figure out how to prevent diving
+			// from pm_shared if you don't have enough slowMotionCharge
+			if (slowMotionCharge < 20) {
+				break;
+			}
 			SetSlowMotion(true);
+			isDiving = true;
+			slowMotionCharge -= 20;
 			break;
-		case IUSER4_DISABLE_SLOW_MOTION:
+		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
 			SetSlowMotion(false);
+			isDiving = false;
 			break;
-
 		default:
 			break;
 	}
@@ -2916,6 +2931,11 @@ void CBasePlayer::Spawn( void )
 	m_iFlashBattery = 99;
 	m_flFlashLightTime = 1; // force first message
 
+	isDiving = false;
+
+	slowMotionCharge = 99;
+	slowMotionUpdateTime = 1;
+
 // dont let uninitialized value here hurt the player
 	m_flFallVelocity = 0;
 
@@ -3396,9 +3416,11 @@ void CBasePlayer::SetSlowMotion(bool slowMotionEnabled) {
 
 	if (slowMotionEnabled) {
 		SERVER_COMMAND("host_framerate 0.0025\n");
+		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 	}
 	else {
 		SERVER_COMMAND("host_framerate 0.01\n");
+		slowMotionUpdateTime = SLOWMOTION_CHARGE_TIME + gpGlobals->time;
 	}
 }
 
@@ -4088,6 +4110,9 @@ void CBasePlayer :: UpdateClientData( void )
 		m_iClientHealth = pev->health;
 	}
 
+	MESSAGE_BEGIN(MSG_ONE, gmsgSlowMotion, NULL, pev);
+		WRITE_BYTE(slowMotionCharge);
+	MESSAGE_END();
 
 	if (pev->armorvalue != m_iClientBattery)
 	{
@@ -4162,6 +4187,36 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_BEGIN( MSG_ONE, gmsgFlashBattery, NULL, pev );
 		WRITE_BYTE(m_iFlashBattery);
 		MESSAGE_END();
+	}
+
+	// Update slowmotion meter
+	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !isDiving)
+	{
+		if (slowMotionEnabled)
+		{
+			if (slowMotionCharge)
+			{
+				slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
+				slowMotionCharge--;
+
+				if (!slowMotionCharge) 
+				{
+					SetSlowMotion(false);
+				}
+			}
+		}
+		else
+		{
+			if (slowMotionCharge < 100)
+			{
+				slowMotionUpdateTime = SLOWMOTION_CHARGE_TIME + gpGlobals->time;
+				slowMotionCharge++;
+			}
+			else 
+			{
+				slowMotionUpdateTime = 0;
+			}
+		}
 	}
 
 

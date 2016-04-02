@@ -168,6 +168,16 @@ private:
 
 #define FADE_TIME 100
 
+class CHudSlowMotion : public CHudBase
+{
+public:
+	virtual int Init(void);
+	virtual int Draw(float fTime);
+	int MsgFunc_SlowMotion(const char *pszName, int iSize, void *pbuf);
+
+private:
+	int slowMotionCharge;
+};
 
 //
 //-----------------------------------------------------
@@ -611,6 +621,7 @@ public:
 	CHudTextMessage m_TextMessage;
 	CHudStatusIcons m_StatusIcons;
 	CHudBenchmark	m_Benchmark;
+	CHudSlowMotion  m_SlowMotion;
 
 	void Init( void );
 	void VidInit( void );

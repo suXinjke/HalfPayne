@@ -116,6 +116,9 @@ public:
 	float				m_flFlashLightTime;	// Time until next battery draw/Recharge
 	int					m_iFlashBattery;		// Flashlight Battery Draw
 
+	float				slowMotionUpdateTime;
+	int					slowMotionCharge;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;
@@ -203,6 +206,7 @@ public:
 
 	Uint32 nextTime; // required for FPS cap
 	bool slowMotionEnabled;
+	bool isDiving; // mirror from movement
 
 	virtual void Spawn( void );
 	void Pain( void );
