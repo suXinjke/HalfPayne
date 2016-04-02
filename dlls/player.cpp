@@ -398,6 +398,12 @@ int CBasePlayer::TakePainkiller()
 	}
 	
 	painkillerCount++;
+	MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pev );
+		WRITE_STRING( "item_healthkit" ); // hardcoded, but I don't have to do custom messages in that case
+	MESSAGE_END( );
+
+	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills.wav", 1, ATTN_NORM );
+
 	return 1;
 }
 
@@ -1894,8 +1900,6 @@ void CBasePlayer::PreThink(void)
 
 	ApplyFPSCap();
 	HandleIUser4();
-
-	ALERT( at_notice, "Painkillers: %d\n", painkillerCount );
 
 	if ( g_fGameOver )
 		return;         // intermission or finale
