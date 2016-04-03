@@ -602,7 +602,11 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 		// I should find out who used this grenade
 		// put player owner flag into grenade entity class?
 		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
-
+			CGrenade *grenade = ( CGrenade* ) CBaseEntity::Instance( pevAttacker );
+			if ( grenade->player ) {
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( grenade->player );
+				player->OnKilledMonster( this );
+			}
 		}
 
 		// I should find out who killed a monster using explosions

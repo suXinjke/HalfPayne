@@ -367,6 +367,7 @@ void CGrenade:: Spawn( void )
 
 	pev->dmg = 100;
 	m_fRegisteredSound = FALSE;
+	player = NULL;
 }
 
 
@@ -404,6 +405,12 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 
 	// Store the moment when you shoot the grenade for purpose in DangerSoundThink
 	pGrenade->initialThrowingTime = gpGlobals->time;
+
+	if ( pevOwner ) {
+		if ( strcmp( STRING( pevOwner->classname ), "player" ) == 0 ) {
+			pGrenade->player = ENT( pevOwner );
+		}
+	}
 
 	return pGrenade;
 }
@@ -457,6 +464,12 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 	// Store the moment when you throw the grenade for purpose in TumbleThink
 	pGrenade->initialThrowingTime = gpGlobals->time;
 
+	if ( pevOwner ) {
+		if ( strcmp( STRING( pevOwner->classname ), "player" ) == 0 ) {
+			pGrenade->player = ENT( pevOwner );
+		}
+	}
+	
 	return pGrenade;
 }
 
