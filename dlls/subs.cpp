@@ -204,6 +204,12 @@ void FireTargets( const char *targetName, CBaseEntity *pActivator, CBaseEntity *
 		if ( pTarget && !(pTarget->pev->flags & FL_KILLME) )	// Don't use dying ents
 		{
 			ALERT( at_aiconsole, "Found: %s, firing (%s)\n", STRING(pTarget->pev->classname), targetName );
+			if ( strcmp( STRING( pCaller->pev->classname ), "func_breakable" ) == 0 ) {
+				CBaseEntity *breakable = CBaseEntity::Instance( pCaller->pev );
+				if ( breakable->pev->euser1 ) {
+					pTarget->pev->euser1 = breakable->pev->euser1;
+				}
+			}
 			pTarget->Use( pActivator, pCaller, useType, value );
 		}
 	}
