@@ -171,6 +171,8 @@ void CBreakable::Spawn( void )
 	// Flag unbreakable glass as "worldbrush" so it will block ALL tracelines
 	if ( !IsBreakable() && pev->rendermode != kRenderNormal )
 		pev->flags |= FL_WORLDBRUSH;
+
+	pev->euser1 = NULL;
 }
 
 
@@ -565,6 +567,26 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 	pev->health -= flDamage;
 	if (pev->health <= 0)
 	{
+		if ( pevAttacker ) {
+			// Destroyed by player? Remember that in euser1
+			if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
+				pev->euser1 = ENT( pevAttacker );
+			}
+
+			// Destroyed by grenade that was thrown by player? Remember that in euser1
+			if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
+				if ( pevAttacker->euser1 ) {
+					pev->euser1 = pevAttacker->euser1;
+				}
+			}
+			
+			// Destroyed by env_explosion that was caused by player? Remember that in euser1
+			if ( strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 ) {
+				if ( pevAttacker->euser1 ) {
+					pev->euser1 = pevAttacker->euser1;
+				}
+			}
+		}
 		Killed( pevAttacker, GIB_NORMAL );
 		Die();
 		return 0;

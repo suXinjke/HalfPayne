@@ -599,22 +599,22 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 			player->OnKilledMonster( this );
 		}
 
-		// I should find out who used this grenade
-		// put player owner flag into grenade entity class?
+		// Killed by player grenade?
 		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
 			CGrenade *grenade = ( CGrenade* ) CBaseEntity::Instance( pevAttacker );
-			if ( grenade->player ) {
-				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( grenade->player );
+			if ( grenade->pev->euser1 ) {
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( grenade->pev->euser1 );
 				player->OnKilledMonster( this );
 			}
 		}
 
-		// I should find out who killed a monster using explosions
-		// put player owner flag into breakable entity class when it breaks?
-		// and then pass this flag into explosion creation
-		// which can checked here
+		// Killed by player caused explosion?
 		if ( strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 ) {
-
+			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
+			if ( explosion->pev->euser1 ) {
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( explosion->pev->euser1 );
+				player->OnKilledMonster( this );
+			}
 		}
 	}
 }
