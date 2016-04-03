@@ -419,7 +419,7 @@ void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
 	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
 	}
-	else if ( strcmp( victimName, "monster_bullsquid" ) == 0 ) {
+	else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
 	}
 	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
