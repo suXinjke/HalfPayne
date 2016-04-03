@@ -353,6 +353,7 @@ void CHud :: Init( void )
 	m_Ammo.Init();
 	m_Health.Init();
 	m_SlowMotion.Init();
+	m_Painkiller.Init();
 	m_SayText.Init();
 	m_Spectator.Init();
 	m_Geiger.Init();

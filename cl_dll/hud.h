@@ -168,6 +168,17 @@ private:
 
 #define FADE_TIME 100
 
+class CHudPainkiller : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual int Draw( float fTime );
+	int MsgFunc_PillCount( const char *pszName, int iSize, void *pbuf );
+
+private:
+	int painkillerCount;
+};
+
 class CHudSlowMotion : public CHudBase
 {
 public:
@@ -178,6 +189,8 @@ public:
 private:
 	int slowMotionCharge;
 };
+
+
 
 //
 //-----------------------------------------------------
@@ -622,6 +635,7 @@ public:
 	CHudStatusIcons m_StatusIcons;
 	CHudBenchmark	m_Benchmark;
 	CHudSlowMotion  m_SlowMotion;
+	CHudPainkiller  m_Painkiller;
 
 	void Init( void );
 	void VidInit( void );
