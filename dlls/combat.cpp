@@ -29,6 +29,7 @@
 #include "animation.h"
 #include "weapons.h"
 #include "func_break.h"
+#include "player.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 extern DLL_GLOBAL int			g_iSkillLevel;
@@ -588,8 +589,39 @@ void CBaseMonster::CallGibMonster( void )
 Killed
 ============
 */
+void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
+	
+	// Check for MONSTERSTATE_DEAD flag so it won't be called during death animation
+	// because you can actually kill a dying monster again
+	if ( pevAttacker && m_IdealMonsterState != MONSTERSTATE_DEAD ) {
+		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
+			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
+			player->OnKilledMonster( this );
+		}
+
+		// Killed by player grenade?
+		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
+			CGrenade *grenade = ( CGrenade* ) CBaseEntity::Instance( pevAttacker );
+			if ( grenade->pev->euser1 ) {
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( grenade->pev->euser1 );
+				player->OnKilledMonster( this );
+			}
+		}
+
+		// Killed by player caused explosion?
+		if ( strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 ) {
+			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
+			if ( explosion->pev->euser1 ) {
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( explosion->pev->euser1 );
+				player->OnKilledMonster( this );
+			}
+		}
+	}
+}
 void CBaseMonster :: Killed( entvars_t *pevAttacker, int iGib )
 {
+	KilledTryToNotifyPlayer( pevAttacker );
+
 	unsigned int	cCount = 0;
 	BOOL			fDone = FALSE;
 

@@ -115,6 +115,8 @@ void CEnvExplosion::KeyValue( KeyValueData *pkvd )
 	}
 	else
 		CBaseEntity::KeyValue( pkvd );
+
+	pev->euser1 = NULL;
 }
 
 void CEnvExplosion::Spawn( void )
@@ -149,6 +151,10 @@ void CEnvExplosion::Spawn( void )
 
 void CEnvExplosion::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 { 
+	// If explosion was caused by player, mark this explosion as caused by player too
+	if ( pCaller->pev->euser1 ) {
+		pev->euser1 = pCaller->pev->euser1;
+	}
 	TraceResult tr;
 
 	pev->model = iStringNull;//invisible

@@ -292,6 +292,7 @@ public:
 	float UpdateTarget ( entvars_t *pevTarget );
 	virtual Activity GetDeathActivity ( void );
 	Activity GetSmallFlinchActivity( void );
+	void KilledTryToNotifyPlayer( entvars_t *pevAttacker );
 	virtual void Killed( entvars_t *pevAttacker, int iGib );
 	virtual void GibMonster( void );
 	BOOL		 ShouldGibMonster( int iGib );

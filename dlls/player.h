@@ -65,6 +65,25 @@
 
 #define TEAM_NAME_LENGTH	16
 
+#define MAX_SLOWMOTION_CHARGE 100
+#define SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER 20
+#define SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT 20
+#define SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE 15
+#define SLOWMOTION_CHARGE_FOR_APACHE 100
+#define SLOWMOTION_CHARGE_FOR_BARNACLE 2
+#define SLOWMOTION_CHARGE_FOR_BIG_MOMMA 100
+#define SLOWMOTION_CHARGE_FOR_BULLSQUID 10
+#define SLOWMOTION_CHARGE_FOR_GARGANTUA 100
+#define SLOWMOTION_CHARGE_FOR_HEADCRAB 5
+#define SLOWMOTION_CHARGE_FOR_HOUNDEYE 5
+#define SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN 20
+#define SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT 20
+#define SLOWMOTION_CHARGE_FOR_ICHTYOSAUR 100
+#define SLOWMOTION_CHARGE_FOR_MINITURRET 15
+#define SLOWMOTION_CHARGE_FOR_SENTRY 15
+#define SLOWMOTION_CHARGE_FOR_SNARK 5
+#define SLOWMOTION_CHARGE_FOR_ZOMBIE 10
+
 typedef enum
 {
 	PLAYER_IDLE,
@@ -118,6 +137,7 @@ public:
 
 	float				slowMotionUpdateTime;
 	int					slowMotionCharge;
+	bool				infiniteSlowMotion;
 
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
@@ -220,6 +240,8 @@ public:
 	virtual int TakeHealth( float flHealth, int bitsDamageType );
 	virtual void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
 	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType);
+	void TakeSlowmotionCharge( int slowMotionCharge );
+	void OnKilledMonster( CBaseMonster *victim );
 	virtual void	Killed( entvars_t *pevAttacker, int iGib );
 	virtual Vector BodyTarget( const Vector &posSrc ) { return Center( ) + pev->view_ofs * RANDOM_FLOAT( 0.5, 1.1 ); };		// position to shoot at
 	virtual void StartSneaking( void ) { m_tSneaking = gpGlobals->time - 1; }
