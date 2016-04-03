@@ -69,7 +69,6 @@ extern CGraph	WorldGraph;
 #define	FLASH_CHARGE_TIME	 0.2 // 100 units/20 seconds  (seconds per unit)
 
 #define SLOWMOTION_DRAIN_TIME 0.02
-#define SLOWMOTION_CHARGE_TIME 0.1
 
 // Global Savedata for player
 TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] = 
@@ -387,6 +386,73 @@ int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 {
 	return CBaseMonster :: TakeHealth (flHealth, bitsDamageType);
 
+}
+
+void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
+{
+	this->slowMotionCharge += slowMotionCharge;
+	this->slowMotionCharge = min( this->slowMotionCharge, MAX_SLOWMOTION_CHARGE );
+}
+
+// oh god why
+// Increase slowmotion charge based on monster you've killed
+void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
+{
+	// Reward with slowmotion charge based on monster the player has killed
+	const char *victimName = STRING( victim->pev->classname );
+
+	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
+	}
+	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
+	}
+	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
+	}
+	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_APACHE );
+	}
+	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
+	}
+	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
+	}
+	else if ( strcmp( victimName, "monster_bullsquid" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
+	}
+	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
+	}
+	else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
+	}
+	else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
+	}
+	else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
+	}
+	else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
+	}
+	else if ( strcmp( victimName, "monster_ichtyosaur" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
+	}
+	else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
+	}
+	else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
+	}
+	else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
+	}
+	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
+	}
+	
 }
 
 Vector CBasePlayer :: GetGunPosition( )
@@ -2933,8 +2999,9 @@ void CBasePlayer::Spawn( void )
 
 	isDiving = false;
 
-	slowMotionCharge = 99;
+	slowMotionCharge = 0;
 	slowMotionUpdateTime = 1;
+	infiniteSlowMotion = 0;
 
 // dont let uninitialized value here hurt the player
 	m_flFallVelocity = 0;
@@ -3419,13 +3486,12 @@ void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
 		this->slowMotionEnabled = slowMotionEnabled;
 	}
 
-	if (slowMotionEnabled) {
+	if (slowMotionEnabled && slowMotionCharge > 0) {
 		SERVER_COMMAND("host_framerate 0.0025\n");
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 	}
 	else {
 		SERVER_COMMAND("host_framerate 0.01\n");
-		slowMotionUpdateTime = SLOWMOTION_CHARGE_TIME + gpGlobals->time;
 	}
 }
 
@@ -3527,6 +3593,10 @@ void CBasePlayer::ImpulseCommands( )
 	{
 	case 22:
 		ToggleSlowMotion();
+		break;
+
+	case 24:
+		infiniteSlowMotion = !infiniteSlowMotion;
 		break;
 
 	case 99:
@@ -4209,19 +4279,11 @@ void CBasePlayer :: UpdateClientData( void )
 					SetSlowMotion(false);
 				}
 			}
-		}
-		else
-		{
-			if (slowMotionCharge < 100)
-			{
-				slowMotionUpdateTime = SLOWMOTION_CHARGE_TIME + gpGlobals->time;
-				slowMotionCharge++;
-			}
-			else 
-			{
-				slowMotionUpdateTime = 0;
-			}
-		}
+		}	
+	}
+	
+	if ( infiniteSlowMotion ) {
+		slowMotionCharge = 100;
 	}
 
 

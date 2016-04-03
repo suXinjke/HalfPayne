@@ -320,6 +320,7 @@ void CBarnacle :: BarnacleThink ( void )
 //=========================================================
 void CBarnacle :: Killed( entvars_t *pevAttacker, int iGib )
 {
+	KilledTryToNotifyPlayer( pevAttacker );
 	CBaseMonster *pVictim;
 
 	pev->solid = SOLID_NOT;
