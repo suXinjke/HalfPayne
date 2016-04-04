@@ -918,7 +918,7 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "slowmo/slowmo_end.wav" );
 	PRECACHE_SOUND( "slowmo/slowmo_heartbeat.wav" );
 	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
-
+	PRECACHE_SOUND( "var/death.wav" );
 }
 
 /*

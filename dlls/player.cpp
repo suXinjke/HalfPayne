@@ -381,8 +381,7 @@ void CBasePlayer :: DeathSound( void )
 		break;
 	}
 
-	// play one of the suit death alarms
-	EMIT_GROUPNAME_SUIT(ENT(pev), "HEV_DEAD");
+	EMIT_SOUND( ENT( pev ), CHAN_AUTO, "var/death.wav", 1, ATTN_NORM );
 }
 
 // override takehealth
@@ -1038,6 +1037,8 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	// UNDONE: Put this in, but add FFADE_PERMANENT and make fade time 8.8 instead of 4.12
 	// UTIL_ScreenFade( edict(), Vector(128,0,0), 6, 15, 255, FFADE_OUT | FFADE_MODULATE );
 
+	DeathSound();
+
 	if ( ( pev->health < -40 && iGib != GIB_NEVER ) || iGib == GIB_ALWAYS )
 	{
 		pev->solid			= SOLID_NOT;
@@ -1045,8 +1046,6 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 		pev->effects |= EF_NODRAW;
 		return;
 	}
-
-	DeathSound();
 	
 	pev->angles.x = 0;
 	pev->angles.z = 0;
@@ -1440,6 +1439,7 @@ void CBasePlayer::PlayerDeathThink(void)
 // if the player has been dead for one second longer than allowed by forcerespawn, 
 // forcerespawn isn't on. Send the player off to an intermission camera until they 
 // choose to respawn.
+	
 	if ( g_pGameRules->IsMultiplayer() && ( gpGlobals->time > (m_fDeadTime + 6) ) && !(m_afPhysicsFlags & PFLAG_OBSERVER) )
 	{
 		// go to dead camera. 
