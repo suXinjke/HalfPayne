@@ -2183,9 +2183,10 @@ void CBasePlayer::HandleIUser4()
 			if (slowMotionCharge < 20) {
 				break;
 			}
-			SetSlowMotion(true);
 			isDiving = true;
+			SetSlowMotion(true);
 			slowMotionCharge -= 20;
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM );
 			break;
 		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
 			SetSlowMotion(false);
@@ -3087,6 +3088,7 @@ void CBasePlayer::Spawn( void )
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 	slowMotionEnabled = false;
+	slowMotionNextHeartbeatSound = 0;
 }
 
 
@@ -3519,15 +3521,28 @@ void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
 		return;
 	}
 	else {
-		this->slowMotionEnabled = slowMotionEnabled;
+		if ( slowMotionEnabled && slowMotionCharge > 0 ) {
+			this->slowMotionEnabled = true;
+		}
+		else {
+			this->slowMotionEnabled = false;
+		}
 	}
 
-	if (slowMotionEnabled && slowMotionCharge > 0) {
+	if ( this->slowMotionEnabled ) {
 		SERVER_COMMAND("host_framerate 0.0025\n");
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
+		if ( !isDiving ) {
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
+		}
 	}
 	else {
 		SERVER_COMMAND("host_framerate 0.01\n");
+
+		// Don't play the sound if you're trying to turn slowmotion on with no charge
+		if ( slowMotionCharge > 0 ) {
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
+		}
 	}
 }
 
@@ -4319,9 +4334,19 @@ void CBasePlayer :: UpdateClientData( void )
 				if (!slowMotionCharge) 
 				{
 					SetSlowMotion(false);
+					EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
 				}
 			}
 		}	
+	}
+
+	// Play heartbeat sounds during slowmotion
+	if ( slowMotionEnabled ) {
+		if ( slowMotionNextHeartbeatSound <= gpGlobals->time )
+		{
+			slowMotionNextHeartbeatSound = gpGlobals->time + 0.3;
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_heartbeat.wav", 1.0, ATTN_NORM );
+		}
 	}
 	
 	if ( infiniteSlowMotion ) {

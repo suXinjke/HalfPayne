@@ -912,6 +912,13 @@ void ClientPrecache( void )
 
 	if (giPrecacheGrunt)
 		UTIL_PrecacheOther("monster_human_grunt");
+
+	PRECACHE_SOUND( "items/pills.wav" );
+	PRECACHE_SOUND( "slowmo/slowmo_start.wav" );
+	PRECACHE_SOUND( "slowmo/slowmo_end.wav" );
+	PRECACHE_SOUND( "slowmo/slowmo_heartbeat.wav" );
+	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
+
 }
 
 /*

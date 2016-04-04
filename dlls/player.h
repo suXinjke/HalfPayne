@@ -226,6 +226,7 @@ public:
 
 	Uint32 nextTime; // required for FPS cap
 	bool slowMotionEnabled;
+	float slowMotionNextHeartbeatSound;
 	bool isDiving; // mirror from movement
 
 	virtual void Spawn( void );

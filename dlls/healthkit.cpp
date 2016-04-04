@@ -64,7 +64,6 @@ void CHealthKit::Precache( void )
 {
 	PRECACHE_MODEL("models/w_medkit.mdl");
 	PRECACHE_SOUND("items/smallmedkit1.wav");
-	PRECACHE_SOUND( "items/pills.wav" );
 }
 
 BOOL CHealthKit::MyTouch( CBasePlayer *pPlayer )
@@ -176,7 +175,6 @@ void CWallHealth::Precache()
 	PRECACHE_SOUND("items/medshot4.wav");
 	PRECACHE_SOUND("items/medshotno1.wav");
 	PRECACHE_SOUND("items/medcharge4.wav");
-	PRECACHE_SOUND("items/pills.wav");
 }
 
 
