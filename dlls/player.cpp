@@ -4370,7 +4370,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// Update slowmotion meter
-	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !isDiving)
+	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !isDiving && pev->deadflag == DEAD_NO)
 	{
 		if (slowMotionEnabled)
 		{
@@ -4390,7 +4390,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// Play heartbeat sounds during slowmotion
-	if ( slowMotionEnabled ) {
+	if ( slowMotionEnabled && pev->deadflag == DEAD_NO ) {
 		if ( slowMotionNextHeartbeatSound <= gpGlobals->time )
 		{
 			slowMotionNextHeartbeatSound = gpGlobals->time + 0.3;
