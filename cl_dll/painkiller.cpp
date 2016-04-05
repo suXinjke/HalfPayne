@@ -27,7 +27,7 @@ int CHudPainkiller::VidInit( void )
 
 int CHudPainkiller::Draw( float flTime )
 {
-	int r = 255, g = 255, b = 255;
+	int r = 200, g = 200, b = 200;
 
 	if (gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly() )
 		return 1;
