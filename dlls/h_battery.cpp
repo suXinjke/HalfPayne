@@ -84,6 +84,7 @@ void CRecharge::KeyValue( KeyValueData *pkvd )
 
 void CRecharge::Spawn()
 {
+	return;
 	Precache( );
 
 	pev->solid		= SOLID_BSP;

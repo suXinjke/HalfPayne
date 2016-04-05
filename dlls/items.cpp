@@ -206,6 +206,7 @@ class CItemBattery : public CItem
 {
 	void Spawn( void )
 	{ 
+		return;
 		Precache( );
 		SET_MODEL(ENT(pev), "models/w_battery.mdl");
 		CItem::Spawn( );

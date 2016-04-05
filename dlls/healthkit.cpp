@@ -167,7 +167,7 @@ void CWallHealth::Spawn()
 	m_iJuice = gSkillData.healthchargerCapacity;
 	pev->frame = 0;			
 
-	painkillersLeft = ceil( gSkillData.healthchargerCapacity / 10.0f );
+	painkillersLeft = ceil( gSkillData.healthchargerCapacity / 10.0f ) - 1;
 }
 
 void CWallHealth::Precache()
