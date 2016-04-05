@@ -33,6 +33,12 @@
 #include "cl_dll.h"
 #include "ammo.h"
 
+#define BOTTOM_LEFT_CORNER_OFFSET 20
+#define HEALTH_SPRITE_WIDTH 64
+#define HOURGLASS_SPRITE_WIDTH 16
+#define PAINKILLER_SPRITE_WIDTH 16
+#define BOTTOM_LEFT_SPACING 4
+
 #define DHN_DRAWZERO 1
 #define DHN_2DIGITS  2
 #define DHN_3DIGITS  4
@@ -172,11 +178,13 @@ class CHudPainkiller : public CHudBase
 {
 public:
 	virtual int Init( void );
+	virtual int VidInit( void );
 	virtual int Draw( float fTime );
 	int MsgFunc_PillCount( const char *pszName, int iSize, void *pbuf );
 
 private:
 	int painkillerCount;
+	int painKillerSprite;
 };
 
 class CHudSlowMotion : public CHudBase

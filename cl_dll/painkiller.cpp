@@ -18,16 +18,37 @@ int CHudPainkiller::Init( void )
 	return 1;
 }
 
+int CHudPainkiller::VidInit( void )
+{
+	painKillerSprite = gHUD.GetSpriteIndex( "painkiller" );
+
+	return 1;
+}
+
 int CHudPainkiller::Draw( float flTime )
 {
-	int r = 255, g = 0, b = 0;
-	int x = 42;
-	int y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight * 2 * 2;
+	int r = 255, g = 255, b = 255;
 
-	if (gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly())
+	if (gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly() )
 		return 1;
 
-	gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, painkillerCount, r, g, b);
+	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) ) || painkillerCount <= 0 )
+	{
+		return 1;
+	}
+	
+	wrect_t painkillerRect = gHUD.GetSpriteRect( painKillerSprite );
+	int painkillerRectHeight = painkillerRect.bottom - painkillerRect.top;
+
+	int x = BOTTOM_LEFT_CORNER_OFFSET + HEALTH_SPRITE_WIDTH + BOTTOM_LEFT_SPACING + HOURGLASS_SPRITE_WIDTH + BOTTOM_LEFT_SPACING;
+	int y = ScreenHeight - painkillerRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
+
+	SPR_Set( gHUD.GetSprite( painKillerSprite ), 255, 255, 255 );
+	SPR_Draw( 0, x, y, &painkillerRect );
+
+	x -= PAINKILLER_SPRITE_WIDTH;
+	y = ScreenHeight - BOTTOM_LEFT_CORNER_OFFSET - gHUD.m_iFontHeight - 2;
+	gHUD.DrawHudNumber(x, y, DHN_3DIGITS , painkillerCount, r, g, b);
 
 	return 1;
 }

@@ -238,8 +238,8 @@ int CHudHealth::Draw(float flTime)
 		float healthPercent = ( m_iHealth / 100.0f );
 		float damagePercent = 1.0f - healthPercent;
 
-		int x = 20;
-		int y = ScreenHeight - painRectHeight - 20;
+		int x = BOTTOM_LEFT_CORNER_OFFSET;
+		int y = ScreenHeight - painRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
 
 		if ( m_iHealth > 0 ) {
 			painRect.bottom *= healthPercent;

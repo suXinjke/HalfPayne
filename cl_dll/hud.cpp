@@ -502,6 +502,7 @@ void CHud :: VidInit( void )
 
 	m_Ammo.VidInit();
 	m_Health.VidInit();
+	m_Painkiller.VidInit();
 	m_Spectator.VidInit();
 	m_Geiger.VidInit();
 	m_Train.VidInit();
