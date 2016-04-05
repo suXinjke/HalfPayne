@@ -3550,6 +3550,7 @@ void CBasePlayer::ToggleSlowMotion() {
 		}
 		SetSlowMotion( true );
 		if ( !isDiving && pev->deadflag == DEAD_NO ) {
+			UTIL_ScreenFade( this, Vector( 0, 0, 0 ), 0.02, 0.02, 120.0, FFADE_IN );
 			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
 		}
 		slowMotionEnabled = !slowMotionEnabled;
