@@ -914,6 +914,7 @@ void ClientPrecache( void )
 		UTIL_PrecacheOther("monster_human_grunt");
 
 	PRECACHE_SOUND( "items/pills.wav" );
+	PRECACHE_SOUND( "items/pills_use.wav" );
 	PRECACHE_SOUND( "slowmo/slowmo_start.wav" );
 	PRECACHE_SOUND( "slowmo/slowmo_end.wav" );
 	PRECACHE_SOUND( "slowmo/slowmo_heartbeat.wav" );

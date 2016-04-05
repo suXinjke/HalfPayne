@@ -418,7 +418,9 @@ void CBasePlayer::UsePainkiller()
 	if ( TakeHealth( 20, DMG_GENERIC ) ) {
 		painkillerCount--;
 
-		// TODO: send flash event to hud
+		// white screen flash
+		UTIL_ScreenFade( this, Vector( 255, 255, 255 ), 0.08, 0.08, 120.0, FFADE_IN );
+		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM );
 	}
 }
 
