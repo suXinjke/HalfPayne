@@ -1044,12 +1044,13 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 		pev->solid			= SOLID_NOT;
 		GibMonster();	// This clears pev->model
 		pev->effects |= EF_NODRAW;
-		return;
+		pev->movetype = MOVETYPE_NONE; // so the death cam will be onspot
 	}
-	
+
 	pev->angles.x = 0;
 	pev->angles.z = 0;
 
+	SetSlowMotion( true );
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
 }
@@ -1395,15 +1396,29 @@ void CBasePlayer::PlayerDeathThink(void)
 		// we aren't calling into any of their code anymore through the player pointer.
 		PackDeadPlayerItems();
 	}
-
+	
+	// activate thirdperson
+	CVAR_SET_FLOAT( "cam_command", 1.0f );
+	
+	// block mouse input
+	pev->fixangle = 1;
+	
+	// spin the camera
+	deathCameraYaw += 0.25;
+	CVAR_SET_FLOAT( "cam_idealyaw", deathCameraYaw );
+	if ( deathCameraYaw >= 360 ) {
+		deathCameraYaw = 0;
+	}
 
 	if (pev->modelindex && (!m_fSequenceFinished) && (pev->deadflag == DEAD_DYING))
 	{
 		StudioFrameAdvance( );
 
-		m_iRespawnFrames++;				// Note, these aren't necessarily real "frames", so behavior is dependent on # of client movement commands
-		if ( m_iRespawnFrames < 120 )   // Animations should be no longer than this
-			return;
+		// Commented this out so the death animation would always finish
+		//m_iRespawnFrames++;				// Note, these aren't necessarily real "frames", so behavior is dependent on # of client movement commands
+		//if ( m_iRespawnFrames < 120 )   // Animations should be no longer than this
+		//	return;
+		return;
 	}
 
 	// once we're done animating our death and we're on the ground, we want to set movetype to None so our dead body won't do collisions and stuff anymore
@@ -2185,11 +2200,13 @@ void CBasePlayer::HandleIUser4()
 			}
 			isDiving = true;
 			SetSlowMotion(true);
+			slowMotionEnabled = true;
 			slowMotionCharge -= 20;
 			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM );
 			break;
 		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
 			SetSlowMotion(false);
+			slowMotionEnabled = false;
 			isDiving = false;
 			break;
 		default:
@@ -3040,6 +3057,12 @@ void CBasePlayer::Spawn( void )
 
 	painkillerCount = 0;
 
+	deathCameraYaw = 0.0f;
+	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
+	CVAR_SET_FLOAT( "cam_idealpitch", 0.0f );
+	CVAR_SET_FLOAT( "cam_idealdist", 70.0f );
+	CVAR_SET_FLOAT( "cam_command", 2.0f );
+
 // dont let uninitialized value here hurt the player
 	m_flFallVelocity = 0;
 
@@ -3220,6 +3243,12 @@ int CBasePlayer::Restore( CRestore &restore )
 	}
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
+
+	deathCameraYaw = 0.0f;
+	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
+	CVAR_SET_FLOAT( "cam_idealpitch", 0.0f );
+	CVAR_SET_FLOAT( "cam_idealdist", 70.0f );
+	CVAR_SET_FLOAT( "cam_command", 2.0f );
 
 	return status;
 }
@@ -3513,34 +3542,61 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-	SetSlowMotion(!slowMotionEnabled);
+	if ( !slowMotionEnabled ) {
+		if ( slowMotionCharge <= 0 ) {
+			return;
+		}
+		SetSlowMotion( true );
+		if ( !isDiving && pev->deadflag == DEAD_NO ) {
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
+		}
+		slowMotionEnabled = !slowMotionEnabled;
+	}
+	else {
+		SetSlowMotion( false );
+		slowMotionEnabled = !slowMotionEnabled;
+	}
+	
+	//SetSlowMotion(!slowMotionEnabled);
+	
 }
 
 void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
-	if (slowMotionEnabled == this->slowMotionEnabled && !forced) {
-		return;
-	}
-	else {
-		if ( slowMotionEnabled && slowMotionCharge > 0 ) {
-			this->slowMotionEnabled = true;
-		}
-		else {
-			this->slowMotionEnabled = false;
-		}
-	}
+	//if (slowMotionEnabled == this->slowMotionEnabled && !forced) {
+	//	return;
+	//}
+	//else {
+	//	if ( slowMotionEnabled && slowMotionCharge > 0 ) {
+	//		this->slowMotionEnabled = true;
+	//	}
+	//	else {
+	//		this->slowMotionEnabled = false;
+	//	}
+	//}
 
-	if ( this->slowMotionEnabled ) {
-		SERVER_COMMAND("host_framerate 0.0025\n");
+	//if ( this->slowMotionEnabled ) {
+	//	SERVER_COMMAND("host_framerate 0.0025\n");
+	//	slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
+	//	if ( !isDiving && pev->deadflag == DEAD_NO ) {
+	//		EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
+	//	}
+	//}
+	//else {
+	//	SERVER_COMMAND("host_framerate 0.01\n");
+
+	//	// Don't play the sound if you're trying to turn slowmotion on with no charge
+	//	if ( slowMotionCharge > 0 && pev->deadflag == DEAD_NO ) {
+	//		EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
+	//	}
+	//}
+
+	if ( slowMotionEnabled ) {
+		SERVER_COMMAND( "host_framerate 0.0025\n" );
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
-		if ( !isDiving ) {
-			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
-		}
 	}
 	else {
-		SERVER_COMMAND("host_framerate 0.01\n");
-
-		// Don't play the sound if you're trying to turn slowmotion on with no charge
-		if ( slowMotionCharge > 0 ) {
+		SERVER_COMMAND( "host_framerate 0.01\n" );
+		if ( this->slowMotionEnabled != slowMotionEnabled && pev->deadflag == DEAD_NO ) {
 			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
 		}
 	}
@@ -4334,6 +4390,7 @@ void CBasePlayer :: UpdateClientData( void )
 				if (!slowMotionCharge) 
 				{
 					SetSlowMotion(false);
+					slowMotionEnabled = false;
 					EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
 				}
 			}

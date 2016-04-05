@@ -366,6 +366,9 @@ public:
 	int painkillerCount;
 	int TakePainkiller();
 	void UsePainkiller();
+
+	// Death camera
+	float deathCameraYaw;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
