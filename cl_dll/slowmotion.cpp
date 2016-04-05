@@ -18,16 +18,44 @@ int CHudSlowMotion::Init(void)
 	return 1;
 }
 
+int CHudSlowMotion::VidInit( void )
+{
+	hourglassStrokeSprite = gHUD.GetSpriteIndex( "hourglass_stroke" );
+	hourglassFillSprite = gHUD.GetSpriteIndex( "hourglass_fill" );
+
+	return 1;
+}
+
 int CHudSlowMotion::Draw(float flTime)
 {
-	int r = 255, g = 255, b = 255;
-	int x = 42;
-	int y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight * 2;
+	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) ) )
+	{
+		return 1;
+	}
+
+	wrect_t hourglassRect = gHUD.GetSpriteRect( hourglassStrokeSprite );
+	int hourglassRectHeight = hourglassRect.bottom - hourglassRect.top;
+
+	int x = BOTTOM_LEFT_CORNER_OFFSET + HEALTH_SPRITE_WIDTH;
+	int y = ScreenHeight - hourglassRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
 
 	if (gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly())
 		return 1;
 
-	gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, slowMotionCharge, r, g, b);
+	SPR_Set( gHUD.GetSprite( hourglassStrokeSprite ), 20, 20, 20 );
+	SPR_DrawAdditive( 0, x, y, &hourglassRect );
+
+	float slowmotionPercent = ( slowMotionCharge / 100.0f );
+	float slowmotionLackPercent = 1.0f - slowmotionPercent;
+	
+	if ( slowmotionPercent > 0.0f ) {
+		hourglassRect = gHUD.GetSpriteRect( hourglassFillSprite );
+		int hourglassHeight = hourglassRectHeight * slowmotionLackPercent;
+		hourglassRect.top = hourglassHeight;
+		
+		SPR_Set( gHUD.GetSprite( hourglassStrokeSprite ), 180, 180, 180 );
+		SPR_DrawAdditive( 0, x, y + hourglassHeight, &hourglassRect );
+	}
 
 	return 1;
 }

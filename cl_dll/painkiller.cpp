@@ -46,7 +46,7 @@ int CHudPainkiller::Draw( float flTime )
 	SPR_Set( gHUD.GetSprite( painKillerSprite ), 255, 255, 255 );
 	SPR_Draw( 0, x, y, &painkillerRect );
 
-	x -= PAINKILLER_SPRITE_WIDTH;
+	x -= PAINKILLER_SPRITE_WIDTH + 4;
 	y = ScreenHeight - BOTTOM_LEFT_CORNER_OFFSET - gHUD.m_iFontHeight - 2;
 	gHUD.DrawHudNumber(x, y, DHN_3DIGITS , painkillerCount, r, g, b);
 

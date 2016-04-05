@@ -191,11 +191,14 @@ class CHudSlowMotion : public CHudBase
 {
 public:
 	virtual int Init(void);
+	virtual int VidInit( void );
 	virtual int Draw(float fTime);
 	int MsgFunc_SlowMotion(const char *pszName, int iSize, void *pbuf);
 
 private:
 	int slowMotionCharge;
+	int hourglassStrokeSprite;
+	int hourglassFillSprite;
 };
 
 
