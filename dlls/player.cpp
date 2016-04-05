@@ -1412,15 +1412,9 @@ void CBasePlayer::PlayerDeathThink(void)
 		deathCameraYaw = 0;
 	}
 
-	if (pev->modelindex && (!m_fSequenceFinished) && (pev->deadflag == DEAD_DYING))
+	if (pev->modelindex && (!m_fSequenceFinished) )
 	{
 		StudioFrameAdvance( );
-
-		// Commented this out so the death animation would always finish
-		//m_iRespawnFrames++;				// Note, these aren't necessarily real "frames", so behavior is dependent on # of client movement commands
-		//if ( m_iRespawnFrames < 120 )   // Animations should be no longer than this
-		//	return;
-		return;
 	}
 
 	// once we're done animating our death and we're on the ground, we want to set movetype to None so our dead body won't do collisions and stuff anymore
@@ -1430,11 +1424,6 @@ void CBasePlayer::PlayerDeathThink(void)
 
 	if (pev->deadflag == DEAD_DYING)
 		pev->deadflag = DEAD_DEAD;
-	
-	StopAnimation();
-
-	pev->effects |= EF_NOINTERP;
-	pev->framerate = 0.0;
 
 	BOOL fAnyButtonDown = (pev->button & ~IN_SCORE );
 	
