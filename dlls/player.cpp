@@ -4347,7 +4347,7 @@ void CBasePlayer :: UpdateClientData( void )
 			if (m_iFlashBattery)
 			{
 				m_flFlashLightTime = FLASH_DRAIN_TIME + gpGlobals->time;
-				m_iFlashBattery--;
+				//m_iFlashBattery--;
 				
 				if (!m_iFlashBattery)
 					FlashlightTurnOff();
