@@ -110,6 +110,7 @@ public:
 	int m_iHealth;
 	int m_HUD_dmg_bio;
 	int m_HUD_cross;
+	int healthSprite;
 	float m_fAttackFront, m_fAttackRear, m_fAttackLeft, m_fAttackRight;
 	void GetPainColor( int &r, int &g, int &b );
 	float m_fFade;
