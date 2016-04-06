@@ -434,6 +434,7 @@ void WeaponsResource :: SelectSlot( int iSlot, int fAdvance, int iDirection )
 		return;
 
 	WEAPON *p = NULL;
+	WEAPON *currentWeapon = gHUD.m_Ammo.m_pWeapon;
 	bool fastSwitch = CVAR_GET_FLOAT( "hud_fastswitch" ) != 0;
 
 	if ( (gpActiveSel == NULL) || (gpActiveSel == (WEAPON *)1) || (iSlot != gpActiveSel->iSlot) )
@@ -443,11 +444,40 @@ void WeaponsResource :: SelectSlot( int iSlot, int fAdvance, int iDirection )
 
 		if ( p && fastSwitch ) // check for fast weapon switch mode
 		{
-			// if fast weapon switch is on, then weapons can be selected in a single keypress
-			// but only if there is only one item in the bucket
-			WEAPON *p2 = GetNextActivePos( p->iSlot, p->iSlotPos );
-			if ( !p2 )
-			{	// only one active item in bucket, so change directly to weapon
+			// try to figure out if there's your current weapon in selected slot group
+			WEAPON *potential = p;
+			while ( true ) {
+				// weapon has been found
+				if ( currentWeapon == potential && currentWeapon != 0 ) {
+					break;
+				}
+
+				// go to the next weapon
+				if ( potential ) {
+					potential = GetNextActivePos( potential->iSlot, potential->iSlotPos );
+				}
+				// no weapons left in the group
+				else {
+					break;
+				}
+			}
+
+			// Select next weapon in the current slot group after current weapon
+			if ( potential ) 
+			{
+				WEAPON *p2 = GetNextActivePos( potential->iSlot, potential->iSlotPos );
+
+				// Go back to the first weapon in the slot gorup if this is the last weapon
+				if ( !p2 ) {
+					p2 = GetFirstPos( iSlot );
+				}
+				ServerCmd( p2->szName );
+				g_weaponselect = p2->iId;
+				return;
+			}
+			// From the OTHER slot group - just select the first weapon
+			else
+			{
 				ServerCmd( p->szName );
 				g_weaponselect = p->iId;
 				return;
