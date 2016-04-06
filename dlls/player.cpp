@@ -966,6 +966,8 @@ void CBasePlayer::RemoveAllItems( BOOL removeSuit )
 	for ( i = 0; i < MAX_AMMO_SLOTS;i++)
 		m_rgAmmo[i] = 0;
 
+	painkillerCount = 0;
+
 	UpdateClientData();
 	// send Selected Weapon Message to our client
 	MESSAGE_BEGIN( MSG_ONE, gmsgCurWeapon, NULL, pev );
