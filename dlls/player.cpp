@@ -70,6 +70,10 @@ extern CGraph	WorldGraph;
 
 #define SLOWMOTION_DRAIN_TIME 0.02
 
+#define HEALTH_TIME_UNTIL_CHARGE 3
+#define HEALTH_CHARGE_TIME 0.2
+#define HEALTH_MAX_CHARGE 20
+
 // Global Savedata for player
 TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] = 
 {
@@ -126,6 +130,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -780,6 +787,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 				SetSuitUpdate("!HEV_HLTH1", FALSE, SUIT_NEXT_IN_10MIN);	// health dropping
 		}
 
+	lastDamageTime = gpGlobals->time + HEALTH_TIME_UNTIL_CHARGE;
 	return fTookDamage;
 }
 
@@ -3103,6 +3111,9 @@ void CBasePlayer::Spawn( void )
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 	slowMotionEnabled = false;
 	slowMotionNextHeartbeatSound = 0;
+
+	lastDamageTime = 0.0f;
+	healthChargeTime = 1.0f;
 }
 
 
@@ -4367,6 +4378,15 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_BEGIN( MSG_ONE, gmsgFlashBattery, NULL, pev );
 		WRITE_BYTE(m_iFlashBattery);
 		MESSAGE_END();
+	}
+
+	// Charge health if it's less than 20
+	if ( lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time )
+	{
+		if ( pev->health < 20 ) {
+			healthChargeTime = HEALTH_CHARGE_TIME + gpGlobals->time;
+			pev->health++;
+		}
 	}
 
 	// Update slowmotion meter

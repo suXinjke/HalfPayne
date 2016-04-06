@@ -84,6 +84,7 @@
 #define SLOWMOTION_CHARGE_FOR_SNARK 5
 #define SLOWMOTION_CHARGE_FOR_ZOMBIE 10
 
+
 typedef enum
 {
 	PLAYER_IDLE,
@@ -369,6 +370,10 @@ public:
 
 	// Death camera
 	float deathCameraYaw;
+
+	// Health charge
+	float lastDamageTime;
+	float healthChargeTime;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
