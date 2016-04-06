@@ -214,6 +214,8 @@ void CApache :: Killed( entvars_t *pevAttacker, int iGib )
 	{
 		m_flNextRocket = gpGlobals->time + 15.0;
 	}
+
+	KilledTryToNotifyPlayer( pevAttacker );
 }
 
 void CApache :: DyingThink( void )
