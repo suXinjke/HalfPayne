@@ -435,14 +435,27 @@ void WeaponsResource :: SelectSlot( int iSlot, int fAdvance, int iDirection )
 
 	WEAPON *p = NULL;
 	WEAPON *currentWeapon = gHUD.m_Ammo.m_pWeapon;
-	bool fastSwitch = CVAR_GET_FLOAT( "hud_fastswitch" ) != 0;
+	int fastSwitch = CVAR_GET_FLOAT( "hud_fastswitch" );
 
 	if ( (gpActiveSel == NULL) || (gpActiveSel == (WEAPON *)1) || (iSlot != gpActiveSel->iSlot) )
 	{
 		PlaySound( "common/wpn_hudon.wav", 1 );
 		p = GetFirstPos( iSlot );
 
-		if ( p && fastSwitch ) // check for fast weapon switch mode
+		if ( p && fastSwitch == 1 ) // HL1 classic fastswitch behaviour
+		{
+			// if fast weapon switch is on, then weapons can be selected in a single keypress
+			// but only if there is only one item in the bucket
+			WEAPON *p2 = GetNextActivePos( p->iSlot, p->iSlotPos );
+			if ( !p2 )
+			{	// only one active item in bucket, so change directly to weapon
+				ServerCmd( p->szName );
+				g_weaponselect = p->iId;
+				return;
+			}
+		}
+
+		if ( p && fastSwitch == 2 ) // HL2 style fastswitch behaviour
 		{
 			// try to figure out if there's your current weapon in selected slot group
 			WEAPON *potential = p;
