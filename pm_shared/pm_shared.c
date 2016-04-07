@@ -1084,6 +1084,7 @@ void PM_WalkMove ()
 
 	// When diving
 	if (isDiving) {
+
 		if (Length(pmove->velocity) > 0) {
 			wishspeed = 0.0f;
 		}
@@ -3301,6 +3302,7 @@ void PM_PlayerMove ( qboolean server )
 
 			// Stop diving when you're in the water
 			if (isDiving) {
+				pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
 				isDiving = 0;
 			}
 
