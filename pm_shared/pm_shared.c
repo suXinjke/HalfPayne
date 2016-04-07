@@ -157,6 +157,7 @@ static char grgchTextureType[CTEXTURESMAX];
 int g_onladder = 0;
 
 int isDiving = 0;
+int doneDiving = 0;
 
 void PM_DuckWhileDiving(void);
 void HandleVUser4( void );
@@ -1090,11 +1091,15 @@ void PM_WalkMove ()
 		}
 		else {
 			// Done sliding across the floor - disable the slowmotion
-			pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
+			if ( !doneDiving ) {
+				pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
+				doneDiving = 1;
+			}
 
 			if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
 				// Stand up and stop diving
 				isDiving = 0;
+				doneDiving = 0;
 			}
 		}
 	}
