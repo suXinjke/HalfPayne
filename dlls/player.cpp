@@ -1983,7 +1983,6 @@ void CBasePlayer::PreThink(void)
 
 	g_pGameRules->PlayerThink( this );
 
-	ApplyFPSCap();
 	HandleIUser4();
 
 	if ( g_fGameOver )
@@ -4227,6 +4226,7 @@ reflecting all of the HUD state info.
 */
 void CBasePlayer :: UpdateClientData( void )
 {
+	ApplyFPSCap( );
 	if (m_fInitHUD)
 	{
 		m_fInitHUD = FALSE;
