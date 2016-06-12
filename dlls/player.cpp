@@ -3711,10 +3711,10 @@ void CBasePlayer::ImpulseCommands( )
 	case 24:
 		infiniteSlowMotion = !infiniteSlowMotion;
 		if ( infiniteSlowMotion ) {
-			ALERT( at_console, "Infinite slowmotion ON\n" );
+			g_engfuncs.pfnServerPrint( "Infinite slowmotion ON\n" );
 		}
 		else {
-			ALERT( at_console, "Infinite slowmotion OFF\n" );
+			g_engfuncs.pfnServerPrint( "Infinite slowmotion OFF\n" );
 		}
 		break;
 
