@@ -3110,8 +3110,10 @@ void CBasePlayer::Spawn( void )
 	g_pGameRules->PlayerSpawn( this );
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
+	
 	slowMotionEnabled = false;
 	slowMotionNextHeartbeatSound = 0;
+	SetSlowMotion( false );
 
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
