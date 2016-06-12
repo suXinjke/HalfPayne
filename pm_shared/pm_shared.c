@@ -2721,6 +2721,11 @@ void PM_Dive(void)
 		return;
 	}
 
+	if ( !( ( pmove->cmd.buttons & IN_FORWARD ) || ( pmove->cmd.buttons & IN_BACK ) ||
+		( pmove->cmd.buttons & IN_MOVELEFT ) || ( pmove->cmd.buttons & IN_MOVERIGHT ) ) ) {
+		return;
+	}
+
 	// See if we are waterjumping.  If so, decrement count and return.
 	if (pmove->waterjumptime)
 	{
@@ -2747,8 +2752,6 @@ void PM_Dive(void)
 
 	// In the air now.
 	pmove->onground = -1;
-
-	PM_PreventMegaBunnyJumping();
 
 	pmove->punchangle[0] = -5;
 
