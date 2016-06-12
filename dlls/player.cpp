@@ -3710,6 +3710,12 @@ void CBasePlayer::ImpulseCommands( )
 		break;
 	case 24:
 		infiniteSlowMotion = !infiniteSlowMotion;
+		if ( infiniteSlowMotion ) {
+			ALERT( at_console, "Infinite slowmotion ON\n" );
+		}
+		else {
+			ALERT( at_console, "Infinite slowmotion OFF\n" );
+		}
 		break;
 
 	case 99:
