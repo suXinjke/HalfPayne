@@ -442,63 +442,94 @@ void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 	this->slowMotionCharge = min( this->slowMotionCharge, MAX_SLOWMOTION_CHARGE );
 }
 
+void CBasePlayer::IncreaseTimeScore( float bonusTime, bool isHeadshot ) {
+	if ( playingTimeattack ) {
+		timeScore += bonusTime;
+		if ( isHeadshot ) {
+			timeScore += TIMEATTACK_HEADSHOT_BONUS_TIME;
+		}
+	}
+}
+
 // oh god why
 // Increase slowmotion charge based on monster you've killed
+// Give player bonus time in Black Mesa Minute
 void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
 {
-	// Reward with slowmotion charge based on monster the player has killed
 	const char *victimName = STRING( victim->pev->classname );
+	bool isHeadshot = victim->m_LastHitGroup == HITGROUP_HEAD;
 
 	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_APACHE );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_ichtyosaur" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 	else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
+		bool snarkOwnedByPlayer = victim->pev->owner != 0;
+		
+		if ( !snarkOwnedByPlayer ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
+			IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
+		}
 	}
 	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
+		IncreaseTimeScore( TIMEATTACK_KILL_BONUS_TIME, isHeadshot );
 	}
 }
 
@@ -2885,15 +2916,17 @@ pt_end:
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
 
-	float timeDelta = ( gpGlobals->time - lastGlobalTime );
-	if ( fabs( timeDelta ) > 0.1 ) {
-		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
-		lastGlobalTime = gpGlobals->time;
-	}
-	else {
-		timeScore -= timeDelta;
-		lastGlobalTime = gpGlobals->time;
-		//ALERT( at_notice, "%f\n", timeScore );
+	if ( playingTimeattack ) {
+		float timeDelta = ( gpGlobals->time - lastGlobalTime );
+		if ( fabs( timeDelta ) > 0.1 ) {
+			// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
+			lastGlobalTime = gpGlobals->time;
+		}
+		else {
+			timeScore -= timeDelta;
+			lastGlobalTime = gpGlobals->time;
+			//ALERT( at_notice, "%f\n", timeScore );
+		}
 	}
 }
 

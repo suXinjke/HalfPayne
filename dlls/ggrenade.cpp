@@ -26,6 +26,7 @@
 #include "nodes.h"
 #include "soundent.h"
 #include "decals.h"
+#include "player.h"
 
 
 //===================grenade
@@ -149,6 +150,15 @@ void CGrenade::Smoke( void )
 
 void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 {
+	// Destroying enemy grenade nets bonus time for the player
+	const char *ownerName = STRING( VARS( this->actualOwner )->classname );
+	if ( strcmp( ownerName, "player" ) != 0 ) {
+		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
+			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
+			player->IncreaseTimeScore( TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME );
+		}
+	}
+
 	Detonate( );
 }
 
@@ -380,6 +390,7 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = UTIL_VecToAngles (pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
+	pGrenade->actualOwner = ENT( pevOwner );
 	
 	// make monsters afaid of it while in the air
 	pGrenade->SetThink( &CGrenade::DangerSoundThink );
@@ -423,6 +434,7 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = UTIL_VecToAngles(pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
+	pGrenade->actualOwner = ENT( pevOwner );
 	
 	pGrenade->SetTouch( &CGrenade::BounceTouch );	// Bounce if touched
 	
