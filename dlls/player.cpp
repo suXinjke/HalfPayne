@@ -74,6 +74,8 @@ extern CGraph	WorldGraph;
 #define HEALTH_CHARGE_TIME 0.2
 #define HEALTH_MAX_CHARGE 20
 
+#define TIMELEFT_UPDATE_TIME 0.001
+
 // Global Savedata for player
 TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] = 
 {
@@ -135,6 +137,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, playingTimeattack, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, timeScore, FIELD_FLOAT ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -2881,6 +2884,17 @@ pt_end:
 
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
+
+	float timeDelta = ( gpGlobals->time - lastGlobalTime );
+	if ( fabs( timeDelta ) > 0.1 ) {
+		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
+		lastGlobalTime = gpGlobals->time;
+	}
+	else {
+		timeScore -= timeDelta;
+		lastGlobalTime = gpGlobals->time;
+		//ALERT( at_notice, "%f\n", timeScore );
+	}
 }
 
 
@@ -3060,6 +3074,7 @@ void CBasePlayer::Spawn( void )
 	painkillerCount = 0;
 	
 	playingTimeattack = 0;
+	timeScore = 60.0f;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -3122,7 +3137,6 @@ void CBasePlayer::Spawn( void )
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
 }
-
 
 void CBasePlayer :: Precache( void )
 {
@@ -4239,6 +4253,7 @@ reflecting all of the HUD state info.
 void CBasePlayer :: UpdateClientData( void )
 {
 	ApplyFPSCap( );
+
 	if (m_fInitHUD)
 	{
 		m_fInitHUD = FALSE;
