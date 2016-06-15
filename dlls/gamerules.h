@@ -248,6 +248,14 @@ public:
 	virtual int PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pTarget );
 };
 
+// CBlackMesaMinute - rules for time/score attack gamemode
+class CBlackMesaMinute : public CHalfLifeRules {
+
+public:
+	virtual BOOL ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] );
+	virtual void PlayerSpawn( CBasePlayer *pPlayer );
+};
+
 //=========================================================
 // CHalfLifeMultiplay - rules for the basic half life multiplayer
 // competition

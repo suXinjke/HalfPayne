@@ -374,6 +374,8 @@ public:
 	// Health charge
 	float lastDamageTime;
 	float healthChargeTime;
+
+	int playingTimeattack;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

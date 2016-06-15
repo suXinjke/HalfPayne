@@ -94,6 +94,15 @@ BOOL CHalfLifeRules :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem 
 //=========================================================
 BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
+	// Prevent loading of Black Mesa Minute saves
+	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
+		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
+		if ( player->playingTimeattack ) {
+			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
+			return FALSE;
+		}
+	}
+	
 	return TRUE;
 }
 
@@ -325,4 +334,27 @@ int CHalfLifeRules::PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pTarg
 BOOL CHalfLifeRules :: FAllowMonsters( void )
 {
 	return TRUE;
+}
+
+
+
+// Black Mesa Minute
+
+BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
+{
+	// Prevent loading of Black Mesa Minute saves
+	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
+		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
+		if ( player->playingTimeattack ) {
+			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
+{
+	pPlayer->playingTimeattack = 1;
 }
