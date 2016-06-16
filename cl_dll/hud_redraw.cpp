@@ -235,6 +235,12 @@ int CHud :: DrawHudString(int xpos, int ypos, int iMaxX, char *szIt, int r, int 
 	return xpos + gEngfuncs.pfnDrawString( xpos, ypos, szIt, r, g, b);
 }
 
+int CHud::DrawHudStringKeepRight( int xpos, int ypos, int iMaxX, char *szIt, int r, int g, int b )
+{
+	xpos -= GetStringWidth( szIt );
+	return xpos + gEngfuncs.pfnDrawString( xpos, ypos, szIt, r, g, b );
+}
+
 int CHud :: DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b )
 {
 	char szString[32];
@@ -399,3 +405,18 @@ int CHud::GetNumberSpriteHeight()
 	return GetSpriteRect( m_HUD_number_0 ).bottom - GetSpriteRect( m_HUD_number_0 ).top;
 }
 
+int CHud::GetStringWidth( const char *string ) 
+{
+	int pixelLength = 0;
+
+	for ( int i = 0; i < strlen( string ); i++ ) {
+		int charCode = ( char ) string[i];
+		if ( charCode > 255 ) {
+			continue;
+		}
+
+		pixelLength += gHUD.m_scrinfo.charWidths[charCode];
+	}
+
+	return pixelLength;
+}

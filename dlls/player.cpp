@@ -184,6 +184,7 @@ int gmsgHealth = 0;
 int gmsgSlowMotion = 0;
 int gmsgPainkillerCount = 0;
 int gmsgTimerValue = 0;
+int gmsgTimerMsg = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgTrain = 0;
@@ -234,6 +235,7 @@ void LinkUserMessages( void )
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
 	gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
+	gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -450,6 +452,15 @@ void CBasePlayer::IncreaseTimeScore( float bonusTime, bool isHeadshot ) {
 		timeScore += bonusTime;
 		if ( isHeadshot ) {
 			timeScore += TIMEATTACK_HEADSHOT_BONUS_TIME;
+
+			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
+				WRITE_STRING( "HEADSHOT BONUS" );
+			MESSAGE_END();
+		}
+		else {
+			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
+				WRITE_STRING( "TIME BONUS" );
+			MESSAGE_END( );
 		}
 	}
 }
@@ -2928,6 +2939,10 @@ pt_end:
 		else {
 			timeScore -= timeDelta;
 			lastGlobalTime = gpGlobals->time;
+			
+			if ( timeScore <= 0.0f ) {
+				ClientKill( ENT( this->pev ) );
+			}
 		}
 	}
 }

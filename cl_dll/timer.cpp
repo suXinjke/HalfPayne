@@ -4,10 +4,12 @@
 #include "com_weapons.h"
 
 DECLARE_MESSAGE( m_Timer, TimerValue )
+DECLARE_MESSAGE( m_Timer, TimerMsg )
 
 int CHudTimer::Init(void)
 {
 	HOOK_MESSAGE( TimerValue );
+	HOOK_MESSAGE( TimerMsg );
 
 	m_iFlags |= HUD_ACTIVE;
 	
@@ -31,10 +33,13 @@ int CHudTimer::Draw( float flTime )
 	if ( gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly( ) || CL_IsDead() )
 		return 1;
 
-	int x = ScreenWidth - UPPER_RIGHT_CORNER_OFFSET - gHUD.GetNumberSpriteWidth() * 8;
+	int x = ScreenWidth - UPPER_RIGHT_CORNER_OFFSET;
 	int y = UPPER_RIGHT_CORNER_OFFSET;
 
-	DrawFormattedTime( x, y, r, g, b );
+	DrawFormattedTime( x - gHUD.GetNumberSpriteWidth( ) * 8, y, r, g, b );
+
+	y += 24;
+	DrawMessages( x, y, r, g, b );
 
 	return 1;
 }
@@ -95,10 +100,41 @@ void CHudTimer::DrawFormattedTime( int x, int y, int r, int g, int b )
 	}
 }
 
+void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
+{
+	for ( int i = messages.size() - 1; i >= 0; i-- ) {
+		CHudTimerMessage timerMessage = messages.at( i );
+
+		if ( gHUD.m_flTime >= timerMessage.removalTime ) {
+			messages.erase( messages.begin() + i );
+		}
+	}
+
+	for ( int i = messages.size( ) - 1; i >= 0; i-- ) {
+		CHudTimerMessage timerMessage = messages.at( i );
+
+		char* message = const_cast<char*>( timerMessage.message.c_str( ) );
+		gHUD.DrawHudStringKeepRight( x, y, 200, message, r, g, b );
+
+		y += gHUD.m_scrinfo.iCharHeight - 2;
+	}
+}
+
 int CHudTimer::MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ(pbuf, iSize);
 	time = READ_FLOAT();
+
+	m_iFlags |= HUD_ACTIVE;
+
+	return 1;
+}
+
+int CHudTimer::MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	const char* message = READ_STRING();
+	messages.push_back( CHudTimerMessage( std::string( message ), gHUD.m_flTime ) );
 
 	m_iFlags |= HUD_ACTIVE;
 

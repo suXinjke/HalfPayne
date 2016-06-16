@@ -34,6 +34,7 @@
 #include "wrect.h"
 #include "cl_dll.h"
 #include "ammo.h"
+#include <vector>
 
 #define BOTTOM_LEFT_CORNER_OFFSET 20
 #define UPPER_RIGHT_CORNER_OFFSET 20
@@ -206,6 +207,18 @@ private:
 	int hourglassFillSprite;
 };
 
+class CHudTimerMessage
+{
+public:
+	CHudTimerMessage( const std::string &message, float initialTime ) {
+		this->message = message;
+		this->removalTime = initialTime + 3.0f;
+	}
+
+	std::string message;
+	float removalTime;
+};
+
 class CHudTimer : public CHudBase
 {
 public:
@@ -213,10 +226,14 @@ public:
 	virtual int VidInit( void );
 	virtual int Draw( float fTime );
 	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
 
 private:
 	float time;
 	void DrawFormattedTime( int x, int y, int r, int g, int b );
+	void DrawMessages( int x, int y, int r, int g, int b );
+
+	std::vector<CHudTimerMessage> messages;
 };
 
 //
@@ -622,11 +639,13 @@ public:
 	void DrawDecimalSeparator( int x, int y, int r, int g, int b );
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, char *szString, int r, int g, int b );
+	int DrawHudStringKeepRight( int x, int y, int iMaxX, char *szString, int r, int g, int b );
 	int DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString, int r, int g, int b );
 	int DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
 	int GetNumWidth(int iNumber, int iFlags);
 	int GetNumberSpriteWidth();
 	int GetNumberSpriteHeight();
+	int GetStringWidth( const char *string );
 
 private:
 	// the memory for these arrays are allocated in the first call to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
