@@ -36,6 +36,7 @@
 #include "game.h"
 #include "pm_shared.h"
 #include "hltv.h"
+#include "client.h"
 
 // #define DUCKFIX
 
@@ -2927,7 +2928,6 @@ pt_end:
 		else {
 			timeScore -= timeDelta;
 			lastGlobalTime = gpGlobals->time;
-			//ALERT( at_notice, "%f\n", timeScore );
 		}
 	}
 }
@@ -4451,7 +4451,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// Charge health if it's less than 20
-	if ( lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time )
+	if ( lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time && pev->deadflag == DEAD_NO )
 	{
 		if ( pev->health < 20 ) {
 			healthChargeTime = HEALTH_CHARGE_TIME + gpGlobals->time;
