@@ -249,9 +249,56 @@ int CHud :: DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString,
 	return xpos - gEngfuncs.pfnDrawStringReverse( xpos, ypos, szString, r, g, b);
 }
 
+void CHud::DrawDot( int x, int y, int r, int g, int b )
+{
+	const int Dot320[] = {
+		143, 199, 122,
+		255, 255, 218,
+		120, 169, 95
+	};
+	const int Dot640[] = {
+		21, 114, 128, 83, 21,
+		150, 255, 255, 255, 104,
+		239, 255, 255, 255, 192,
+		226, 255, 255, 255, 165,
+		114, 255, 255, 255, 65,
+		29, 43, 89, 29, 29
+	};
+
+	if ( ScreenWidth < 640 ) {
+		for ( int i = 0; i < 3; ++i ) {
+			for ( int j = 0; j < 3; ++j ) {
+				gEngfuncs.pfnFillRGBA( x + j, y + i, 1, 1, r, g, b, Dot320[i * 3 + j] );
+			}
+		}
+	}
+	else {
+		for ( int i = 0; i < 6; ++i ) {
+			for ( int j = 0; j < 5; ++j ) {
+				gEngfuncs.pfnFillRGBA( x + j, y + i, 1, 1, r, g, b, Dot640[i * 5 + j] );
+			}
+		}
+	}
+}
+
+void CHud::DrawDecimalSeparator( int x, int y, int r, int g, int b )
+{
+	x += ( GetNumberSpriteWidth() - 6 ) / 2;
+	y += GetNumberSpriteHeight() - 5;
+	DrawDot( x + 1, y, r, g, b );
+}
+
+void CHud::DrawColon( int x, int y, int r, int g, int b )
+{
+	x += ( GetNumberSpriteWidth() - 6 ) / 2;
+	DrawDot( x + 1, y + 2, r, g, b );
+	y += GetNumberSpriteHeight() - 5;
+	DrawDot( x + 1, y - 2, r, g, b );
+}
+
 int CHud :: DrawHudNumber( int x, int y, int iFlags, int iNumber, int r, int g, int b)
 {
-	int iWidth = GetSpriteRect(m_HUD_number_0).right - GetSpriteRect(m_HUD_number_0).left;
+	int iWidth = GetNumberSpriteWidth();
 	int k;
 	
 	if (iNumber > 0)
@@ -316,7 +363,6 @@ int CHud :: DrawHudNumber( int x, int y, int iFlags, int iNumber, int r, int g, 
 	return x;
 }
 
-
 int CHud::GetNumWidth( int iNumber, int iFlags )
 {
 	if (iFlags & (DHN_3DIGITS))
@@ -343,4 +389,13 @@ int CHud::GetNumWidth( int iNumber, int iFlags )
 
 }	
 
+int CHud::GetNumberSpriteWidth()
+{
+	return GetSpriteRect( m_HUD_number_0 ).right - GetSpriteRect( m_HUD_number_0 ).left;
+}
+
+int CHud::GetNumberSpriteHeight()
+{
+	return GetSpriteRect( m_HUD_number_0 ).bottom - GetSpriteRect( m_HUD_number_0 ).top;
+}
 

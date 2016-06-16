@@ -151,6 +151,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\cl_dlls
     <ClCompile Include="..\..\cl_dll\StudioModelRenderer.cpp" />
     <ClCompile Include="..\..\cl_dll\studio_util.cpp" />
     <ClCompile Include="..\..\cl_dll\text_message.cpp" />
+    <ClCompile Include="..\..\cl_dll\timer.cpp" />
     <ClCompile Include="..\..\cl_dll\train.cpp" />
     <ClCompile Include="..\..\cl_dll\tri.cpp" />
     <ClCompile Include="..\..\cl_dll\util.cpp" />

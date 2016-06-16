@@ -36,6 +36,7 @@
 #include "ammo.h"
 
 #define BOTTOM_LEFT_CORNER_OFFSET 20
+#define UPPER_RIGHT_CORNER_OFFSET 20
 #define HEALTH_SPRITE_WIDTH 64
 #define HEALTH_SPRITE_HEIGHT 128
 #define HOURGLASS_SPRITE_WIDTH 16
@@ -205,7 +206,18 @@ private:
 	int hourglassFillSprite;
 };
 
+class CHudTimer : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual int VidInit( void );
+	virtual int Draw( float fTime );
+	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
 
+private:
+	float time;
+	void DrawFormattedTime( int x, int y, int r, int g, int b );
+};
 
 //
 //-----------------------------------------------------
@@ -605,11 +617,16 @@ public:
 	cvar_t	*m_pCvarDraw;
 
 	int m_iFontHeight;
+	void DrawDot( int x, int y, int r, int g, int b );
+	void DrawColon( int x, int y, int r, int g, int b );
+	void DrawDecimalSeparator( int x, int y, int r, int g, int b );
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, char *szString, int r, int g, int b );
 	int DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString, int r, int g, int b );
 	int DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
 	int GetNumWidth(int iNumber, int iFlags);
+	int GetNumberSpriteWidth();
+	int GetNumberSpriteHeight();
 
 private:
 	// the memory for these arrays are allocated in the first call to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
@@ -651,6 +668,7 @@ public:
 	CHudBenchmark	m_Benchmark;
 	CHudSlowMotion  m_SlowMotion;
 	CHudPainkiller  m_Painkiller;
+	CHudTimer		m_Timer;
 
 	void Init( void );
 	void VidInit( void );

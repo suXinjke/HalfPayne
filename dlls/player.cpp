@@ -182,6 +182,7 @@ int gmsgCurWeapon = 0;
 int gmsgHealth = 0;
 int gmsgSlowMotion = 0;
 int gmsgPainkillerCount = 0;
+int gmsgTimerValue = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgTrain = 0;
@@ -231,6 +232,7 @@ void LinkUserMessages( void )
 	gmsgHealth = REG_USER_MSG( "Health", 1 );
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
+	gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -4366,6 +4368,12 @@ void CBasePlayer :: UpdateClientData( void )
 	MESSAGE_BEGIN( MSG_ONE, gmsgPainkillerCount, NULL, pev );
 		WRITE_BYTE( painkillerCount );
 	MESSAGE_END();
+
+	if ( playingTimeattack ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pev );
+			WRITE_FLOAT( timeScore );
+		MESSAGE_END();
+	}
 
 	if (pev->armorvalue != m_iClientBattery)
 	{
