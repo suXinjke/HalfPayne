@@ -219,6 +219,21 @@ void CGrenade::DangerSoundThink( void )
 		return;
 	}
 
+	// Dirty hack.
+	// If grenade size is not 0, 0, 0 - it'll pass through
+	// Gargantua most of the times for some reason (should be inside the game engine).
+	// So have a sphere looking for Gargantua on this grenade, if it finds it - reset grenade size to 0, 0, 0 so it'll properly explode.
+	CBaseEntity *pEntity = NULL;
+	Vector vecSrc = pev->origin;
+	float flRadius = 8.0f;
+	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, vecSrc, flRadius ) ) != NULL )
+	{
+		if ( strcmp( STRING( pEntity->pev->classname ), "monster_gargantua" ) == 0 ) {
+			UTIL_SetSize( pev, Vector( 0, 0, 0 ), Vector( 0, 0, 0 ) );
+			break;
+		}
+	}
+
 	// After some time have passed since you shot the grenade,
 	// it has to lose the owner so it can be damaged by owner's bullets.
 	// Not doing this will cause the grenade to stuck inside the owner.
@@ -227,11 +242,11 @@ void CGrenade::DangerSoundThink( void )
 	}
 
 	CSoundEnt::InsertSound ( bits_SOUND_DANGER, pev->origin + pev->velocity * 0.5, pev->velocity.Length( ), 0.2 );
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.01;
 
 	if (pev->waterlevel != 0)
 	{
-		pev->velocity = pev->velocity * 0.5;
+		pev->velocity = pev->velocity * 0.95;
 	}
 }
 
