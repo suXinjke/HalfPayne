@@ -2041,6 +2041,8 @@ void CBaseMonster :: MonsterInit ( void )
 	m_flDistTooFar		= 1024.0;
 	m_flDistLook		= 2048.0;
 
+	killedByExplosion = false;
+
 	// set eye position
 	SetEyePosition();
 

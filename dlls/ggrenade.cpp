@@ -85,11 +85,14 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 	MESSAGE_END();
 
 	CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0 );
-	entvars_t *pevOwner;
-	if ( pev->owner )
-		pevOwner = VARS( pev->owner );
-	else
-		pevOwner = NULL;
+	entvars_t *pevOwner = NULL;
+
+	// This has been commented out so the game will always think that Monster has been killed by the grenade, not 'player'
+	// By considering that attacker is inflictor itself
+	//if ( pev->owner )
+	//	pevOwner = VARS( pev->owner );
+	//else
+	//	pevOwner = NULL;
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
 
@@ -416,6 +419,7 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	// Store the moment when you shoot the grenade for purpose in DangerSoundThink
 	pGrenade->initialThrowingTime = gpGlobals->time;
 
+	// Is this player owned greande? Store it in euser1 instead
 	if ( pevOwner ) {
 		if ( strcmp( STRING( pevOwner->classname ), "player" ) == 0 ) {
 			pGrenade->pev->euser1 = ENT( pevOwner );
@@ -475,6 +479,7 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 	// Store the moment when you throw the grenade for purpose in TumbleThink
 	pGrenade->initialThrowingTime = gpGlobals->time;
 
+	// Is this player owned greande? Store it in euser1 instead
 	if ( pevOwner ) {
 		if ( strcmp( STRING( pevOwner->classname ), "player" ) == 0 ) {
 			pGrenade->pev->euser1 = ENT( pevOwner );

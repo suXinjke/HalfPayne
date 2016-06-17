@@ -603,6 +603,8 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
 			CGrenade *grenade = ( CGrenade* ) CBaseEntity::Instance( pevAttacker );
 			if ( grenade->pev->euser1 ) {
+				this->killedByExplosion = true;
+
 				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( grenade->pev->euser1 );
 				player->OnKilledMonster( this );
 			}
@@ -612,6 +614,8 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 		if ( strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 ) {
 			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
 			if ( explosion->pev->euser1 ) {
+				this->killedByExplosion = true;
+
 				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( explosion->pev->euser1 );
 				player->OnKilledMonster( this );
 			}
@@ -937,7 +941,7 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		SetConditions( bits_COND_LIGHT_DAMAGE );
 		return 0;
 	}
-
+	
 	if ( pev->health <= 0 )
 	{
 		g_pevLastInflictor = pevInflictor;

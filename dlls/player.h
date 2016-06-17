@@ -87,6 +87,7 @@
 #define TIMEATTACK_KILL_BONUS_TIME 5
 #define TIMEATTACK_HEADSHOT_BONUS_TIME 1
 #define TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME 1
+#define TIMEATTACK_EXPLOSION_BONUS_TIME 10
 
 typedef enum
 {
@@ -383,7 +384,7 @@ public:
 	float timeScore;
 	float lastGlobalTime;
 
-	void IncreaseTimeScore( float bonusTime, bool isHeadshot = false );
+	void IncreaseTimeScore( bool isHeadshot = false, bool killedByExplosion = false );
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
