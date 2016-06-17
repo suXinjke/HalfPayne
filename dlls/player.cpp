@@ -2948,7 +2948,7 @@ pt_end:
 			timeScore -= timeDelta;
 			lastGlobalTime = gpGlobals->time;
 			
-			if ( timeScore <= 0.0f ) {
+			if ( timeScore <= 0.0f && pev->deadflag == DEAD_NO ) {
 				ClientKill( ENT( this->pev ) );
 			}
 		}
@@ -3132,7 +3132,7 @@ void CBasePlayer::Spawn( void )
 	painkillerCount = 0;
 	
 	playingTimeattack = 0;
-	timeScore = 60.0f;
+	timeScore = 2.0f;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
