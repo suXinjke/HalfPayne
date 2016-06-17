@@ -447,7 +447,7 @@ void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 	this->slowMotionCharge = min( this->slowMotionCharge, MAX_SLOWMOTION_CHARGE );
 }
 
-void CBasePlayer::IncreaseTimeScore( bool isHeadshot, bool killedByExplosion ) {
+void CBasePlayer::IncreaseTimeScore( bool isHeadshot, bool killedByExplosion, bool destroyedGrenade ) {
 	if ( playingTimeattack ) {
 		
 		if ( killedByExplosion ) {
@@ -462,7 +462,15 @@ void CBasePlayer::IncreaseTimeScore( bool isHeadshot, bool killedByExplosion ) {
 			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
 				WRITE_STRING( "HEADSHOT BONUS" );
 			MESSAGE_END();
-		} else {
+		}
+		else if ( destroyedGrenade ) {
+			timeScore += TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME;
+
+			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
+				WRITE_STRING( "PROJECTILE BONUS" );
+			MESSAGE_END( );
+		}
+		else {
 			timeScore += TIMEATTACK_KILL_BONUS_TIME;
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
@@ -3132,7 +3140,7 @@ void CBasePlayer::Spawn( void )
 	painkillerCount = 0;
 	
 	playingTimeattack = 0;
-	timeScore = 2.0f;
+	timeScore = 60.0f;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );

@@ -384,7 +384,7 @@ public:
 	float timeScore;
 	float lastGlobalTime;
 
-	void IncreaseTimeScore( bool isHeadshot = false, bool killedByExplosion = false );
+	void IncreaseTimeScore( bool isHeadshot = false, bool killedByExplosion = false, bool destroyedGrenade = false );
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

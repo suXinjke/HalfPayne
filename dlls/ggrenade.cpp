@@ -158,7 +158,7 @@ void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 	if ( strcmp( ownerName, "player" ) != 0 ) {
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
 			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
-			player->IncreaseTimeScore( TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME );
+			player->IncreaseTimeScore( false, false, true );
 		}
 	}
 
