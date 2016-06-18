@@ -572,7 +572,7 @@ void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
 		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
-	else if ( strcmp( victimName, "monster_ichtyosaur" ) == 0 ) {
+	else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
 		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
