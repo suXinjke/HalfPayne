@@ -68,6 +68,7 @@ public:
 	inline BOOL IsActive( void ) { return (pev->spawnflags & SF_TANK_ACTIVE)?TRUE:FALSE; }
 	inline void TankActivate( void ) { pev->spawnflags |= SF_TANK_ACTIVE; pev->nextthink = pev->ltime + 0.1; m_fireLast = 0; }
 	inline void TankDeactivate( void ) { pev->spawnflags &= ~SF_TANK_ACTIVE; m_fireLast = 0; StopRotSound(); }
+	void KilledTryToNotifyPlayer();
 	inline BOOL CanFire( void ) { return (gpGlobals->time - m_lastSightTime) < m_persist; }
 	BOOL		InRange( float range );
 
@@ -481,6 +482,14 @@ void CFuncTank :: Think( void )
 		StopRotSound();
 }
 
+void CFuncTank::KilledTryToNotifyPlayer() {
+	edict_t *playerEdict = FIND_CLIENT_IN_PVS( edict( ) );
+	CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( playerEdict );
+	if ( player ) {
+		player->OnKilledEntity( this );
+	}
+}
+
 void CFuncTank::TrackTarget( void )
 {
 	TraceResult tr;
@@ -501,8 +510,10 @@ void CFuncTank::TrackTarget( void )
 	{
 		if ( IsActive() )
 			pev->nextthink = pev->ltime + 0.1;
-		else
+		else {
+			KilledTryToNotifyPlayer();
 			return;
+		}
 
 		if ( FNullEnt( pPlayer ) )
 		{

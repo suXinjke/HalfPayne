@@ -69,7 +69,7 @@
 #define SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER 20
 #define SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT 20
 #define SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE 15
-#define SLOWMOTION_CHARGE_FOR_APACHE 100
+#define SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE 100
 #define SLOWMOTION_CHARGE_FOR_BARNACLE 2
 #define SLOWMOTION_CHARGE_FOR_BIG_MOMMA 100
 #define SLOWMOTION_CHARGE_FOR_BULLSQUID 10
@@ -249,6 +249,7 @@ public:
 	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType);
 	void TakeSlowmotionCharge( int slowMotionCharge );
 	void OnKilledMonster( CBaseMonster *victim );
+	void OnKilledEntity( CBaseEntity *victim );
 	virtual void	Killed( entvars_t *pevAttacker, int iGib );
 	virtual Vector BodyTarget( const Vector &posSrc ) { return Center( ) + pev->view_ofs * RANDOM_FLOAT( 0.5, 1.1 ); };		// position to shoot at
 	virtual void StartSneaking( void ) { m_tSneaking = gpGlobals->time - 1; }

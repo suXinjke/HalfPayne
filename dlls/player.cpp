@@ -537,7 +537,7 @@ void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
 		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_APACHE );
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
 		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
@@ -595,6 +595,20 @@ void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
 	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
 		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+	}
+}
+
+// oh god why
+// this is a duplicate of OnKilledMonster, but for CBaseEntity
+// only for entities like Tanks or APCs
+void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
+{
+	const char *victimName = STRING( victim->pev->classname );
+	Vector deathPos = victim->EyePosition( ) + Vector( 0, 0, 20 );
+
+	if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
+		IncreaseTimeScore( deathPos, false, true, false, false );
 	}
 }
 
