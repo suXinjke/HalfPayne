@@ -447,7 +447,7 @@ void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 	this->slowMotionCharge = min( this->slowMotionCharge, MAX_SLOWMOTION_CHARGE );
 }
 
-void CBasePlayer::IncreaseTimeScore( const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade ) {
+void CBasePlayer::IncreaseTimeScore( const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
 	if ( playingTimeattack ) {
 		
 		if ( killedByExplosion ) {
@@ -461,7 +461,20 @@ void CBasePlayer::IncreaseTimeScore( const Vector &eventPos, bool isHeadshot, bo
 				WRITE_COORD( eventPos.y );
 				WRITE_COORD( eventPos.z );
 			MESSAGE_END();
-		} else if ( isHeadshot ) {
+		}
+		else if ( killedByCrowbar ) {
+			int timeToAdd = TIMEATTACK_KILL_CROWBAR_BONUS_TIME;
+			timeScore += timeToAdd;
+
+			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
+				WRITE_STRING( "TIME BONUS" );
+				WRITE_LONG( timeToAdd );
+				WRITE_COORD( eventPos.x );
+				WRITE_COORD( eventPos.y );
+				WRITE_COORD( eventPos.z );
+			MESSAGE_END( );
+		}
+		else if ( isHeadshot ) {
 			int timeToAdd = TIMEATTACK_KILL_BONUS_TIME + TIMEATTACK_HEADSHOT_BONUS_TIME;
 			timeScore += timeToAdd;
 
@@ -509,78 +522,79 @@ void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
 	Vector deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
 	bool isHeadshot = victim->m_LastHitGroup == HITGROUP_HEAD;
 	bool killedByExplosion = victim->killedByExplosion;
+	bool killedByCrowbar = victim->killedByCrowbar;
 
 	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_APACHE );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_ichtyosaur" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 	else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
 		bool snarkOwnedByPlayer = victim->pev->owner != 0;
 		
 		if ( !snarkOwnedByPlayer ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
-			IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+			IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 		}
 	}
 	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
-		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion );
+		IncreaseTimeScore( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
 	}
 }
 
