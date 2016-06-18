@@ -241,6 +241,12 @@ int CHud::DrawHudStringKeepRight( int xpos, int ypos, int iMaxX, char *szIt, int
 	return xpos + gEngfuncs.pfnDrawString( xpos, ypos, szIt, r, g, b );
 }
 
+int CHud::DrawHudStringKeepCenter( int xpos, int ypos, int iMaxX, char *szIt, int r, int g, int b )
+{
+	xpos -= GetStringWidth( szIt ) / 2;
+	return xpos + gEngfuncs.pfnDrawString( xpos, ypos, szIt, r, g, b );
+}
+
 int CHud :: DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b )
 {
 	char szString[32];

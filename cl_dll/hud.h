@@ -207,16 +207,34 @@ private:
 	int hourglassFillSprite;
 };
 
+#define TIMER_MESSAGE_REMOVAL_TIME 3.0f
+#define TIME_ADDED_REMOVAL_TIME 1.0f
+#define TIME_ADDED_FLASHING_TIME 0.1f
+
 class CHudTimerMessage
 {
 public:
-	CHudTimerMessage( const std::string &message, float initialTime ) {
+	CHudTimerMessage( const std::string &message, int timeAdded, const Vector &coords, float initialTime ) {
 		this->message = message;
-		this->removalTime = initialTime + 3.0f;
+		this->coords = coords;
+		this->timerMessageRemovalTime = initialTime + TIMER_MESSAGE_REMOVAL_TIME;
+		this->timeAddedRemovalTime = initialTime + TIME_ADDED_REMOVAL_TIME;
+
+		this->timeAddedFlash1Time = TIME_ADDED_FLASHING_TIME;
+		this->timeAddedFlash2Time = TIME_ADDED_FLASHING_TIME * 2;
+
+		char timeAddedCString[6];
+		sprintf( timeAddedCString, "00:%02d", timeAdded ); // mm:ss
+		timeAddedString = std::string( timeAddedCString );
 	}
 
 	std::string message;
-	float removalTime;
+	std::string timeAddedString;
+	Vector coords;
+	float timerMessageRemovalTime;
+	float timeAddedRemovalTime;
+	float timeAddedFlash1Time;
+	float timeAddedFlash2Time;
 };
 
 class CHudTimer : public CHudBase
@@ -640,6 +658,7 @@ public:
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, char *szString, int r, int g, int b );
 	int DrawHudStringKeepRight( int x, int y, int iMaxX, char *szString, int r, int g, int b );
+	int DrawHudStringKeepCenter( int x, int y, int iMaxX, char *szString, int r, int g, int b );
 	int DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString, int r, int g, int b );
 	int DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
 	int GetNumWidth(int iNumber, int iFlags);

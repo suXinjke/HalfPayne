@@ -2,6 +2,7 @@
 #include "cl_util.h"
 #include "parsemsg.h"
 #include "com_weapons.h"
+#include "triangleapi.h"
 
 DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
@@ -105,7 +106,7 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 	for ( int i = messages.size() - 1; i >= 0; i-- ) {
 		CHudTimerMessage timerMessage = messages.at( i );
 
-		if ( gHUD.m_flTime >= timerMessage.removalTime ) {
+		if ( fabs( timerMessage.timerMessageRemovalTime - gHUD.m_flTime ) >= TIMER_MESSAGE_REMOVAL_TIME ) {
 			messages.erase( messages.begin() + i );
 		}
 	}
@@ -113,10 +114,33 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 	for ( int i = messages.size( ) - 1; i >= 0; i-- ) {
 		CHudTimerMessage timerMessage = messages.at( i );
 
-		char* message = const_cast<char*>( timerMessage.message.c_str( ) );
+		char* message = const_cast<char*>( timerMessage.message.c_str() );
 		gHUD.DrawHudStringKeepRight( x, y, 200, message, r, g, b );
 
 		y += gHUD.m_scrinfo.iCharHeight - 2;
+
+		float timePassed = TIME_ADDED_REMOVAL_TIME - max( 0.0f, timerMessage.timeAddedRemovalTime - gHUD.m_flTime );
+		int alpha = 200 - ( ( timePassed - TIME_ADDED_FLASHING_TIME * 2 ) / ( TIME_ADDED_REMOVAL_TIME - TIME_ADDED_FLASHING_TIME * 2 ) ) * 200;
+
+
+		if ( ( timePassed >= timerMessage.timeAddedFlash1Time && timePassed <= timerMessage.timeAddedFlash2Time ) 
+			|| ( timePassed >= TIME_ADDED_REMOVAL_TIME ) ) {
+			continue;
+		}
+		
+		Vector screen;
+		if ( gEngfuncs.pTriAPI->WorldToScreen( timerMessage.coords, screen ) ) {
+			// Don't draw if offscreen
+			continue;
+		}
+
+		// fade out
+		if ( timePassed >= timerMessage.timeAddedFlash2Time ) {
+			ScaleColors( r, g, b, alpha );
+		}
+
+		char* timeAdded = const_cast<char*>( timerMessage.timeAddedString.c_str() );
+		gHUD.DrawHudStringKeepCenter( XPROJECT( screen.x ), YPROJECT( screen.y ), 200, timeAdded, r, g, b );
 	}
 }
 
@@ -134,7 +158,13 @@ int CHudTimer::MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ( pbuf, iSize );
 	const char* message = READ_STRING();
-	messages.push_back( CHudTimerMessage( std::string( message ), gHUD.m_flTime ) );
+	int timeAdded = READ_LONG();
+	float coordsX = READ_COORD();
+	float coordsY = READ_COORD();
+	float coordsZ = READ_COORD();
+
+	Vector coords( coordsX, coordsY, coordsZ );
+	messages.push_back( CHudTimerMessage( std::string( message ), timeAdded, coords, gHUD.m_flTime ) );
 
 	m_iFlags |= HUD_ACTIVE;
 
