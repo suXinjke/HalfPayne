@@ -155,7 +155,7 @@ public:
 
 	int m_iXPosition;
 	int m_iNumberXPosition;
-	HSPRITE m_sprAmmoSprite;
+	SPRITE_HANDLE m_sprAmmoSprite;
 	int m_HUD_Ammo;
 	wrect_t *m_prc1;
 
@@ -228,7 +228,7 @@ public:
 	int MsgFunc_Train(const char *pszName, int iSize, void *pbuf);
 
 private:
-	HSPRITE m_hSprite;
+	SPRITE_HANDLE m_hSprite;
 	int m_iPos;
 
 };
@@ -279,8 +279,8 @@ protected:
 		MAX_STATUSBAR_LINES = 2,
 	};
 
-	HSPRITE m_hArmor;
-	HSPRITE m_hHealth;
+	SPRITE_HANDLE m_hArmor;
+	SPRITE_HANDLE m_hHealth;
 	int m_iArmorSpriteIndex;
 	int m_iHealthSpriteIndex;
 
@@ -403,8 +403,8 @@ public:
 	int MsgFunc_Battery(const char *pszName,  int iSize, void *pbuf );
 	
 private:
-	HSPRITE m_hSprite1;
-	HSPRITE m_hSprite2;
+	SPRITE_HANDLE m_hSprite1;
+	SPRITE_HANDLE m_hSprite2;
 	wrect_t *m_prc1;
 	wrect_t *m_prc2;
 	int	  m_iBat;	
@@ -513,7 +513,7 @@ private:
 	typedef struct
 	{
 		char szSpriteName[MAX_ICONSPRITENAME_LENGTH];
-		HSPRITE spr;
+		SPRITE_HANDLE spr;
 		wrect_t rc;
 		unsigned char r, g, b;
 	} icon_sprite_t;
@@ -533,7 +533,7 @@ class CHud
 {
 private:
 	HUDLIST						*m_pHudList;
-	HSPRITE						m_hsprLogo;
+	SPRITE_HANDLE						m_hsprLogo;
 	int							m_iLogo;
 	client_sprite_t				*m_pSpriteList;
 	int							m_iSpriteCount;
@@ -543,7 +543,7 @@ private:
 
 public:
 
-	HSPRITE						m_hsprCursor;
+	SPRITE_HANDLE						m_hsprCursor;
 	float m_flTime;	   // the current client time
 	float m_fOldTime;  // the time at which the HUD was last redrawn
 	double m_flTimeDelta; // the difference between flTime and fOldTime
@@ -575,13 +575,13 @@ public:
 private:
 	// the memory for these arrays are allocated in the first call to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
 	// freed in ~CHud()
-	HSPRITE *m_rghSprites;	/*[HUD_SPRITE_COUNT]*/			// the sprites loaded from hud.txt
+	SPRITE_HANDLE *m_rghSprites;	/*[HUD_SPRITE_COUNT]*/			// the sprites loaded from hud.txt
 	wrect_t *m_rgrcRects;	/*[HUD_SPRITE_COUNT]*/
 	char *m_rgszSpriteNames; /*[HUD_SPRITE_COUNT][MAX_SPRITE_NAME_LENGTH]*/
 	
 	struct cvar_s *default_fov;
 public:
-	HSPRITE GetSprite( int index ) 
+	SPRITE_HANDLE GetSprite( int index ) 
 	{
 		return (index < 0) ? 0 : m_rghSprites[index];
 	}

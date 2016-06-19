@@ -117,7 +117,7 @@ void VectorMA (const float *veca, float scale, const float *vecb, float *vecc)
 }
 
 
-HSPRITE LoadSprite(const char *pszName)
+SPRITE_HANDLE LoadSprite(const char *pszName)
 {
 	int i;
 	char sz[256]; 
