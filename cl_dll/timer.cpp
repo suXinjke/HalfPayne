@@ -6,14 +6,17 @@
 
 DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
+DECLARE_MESSAGE( m_Timer, TimerEnd )
 
 int CHudTimer::Init(void)
 {
 	HOOK_MESSAGE( TimerValue );
 	HOOK_MESSAGE( TimerMsg );
+	HOOK_MESSAGE( TimerEnd );
 
 	m_iFlags |= HUD_ACTIVE;
 	
+	ended = false;
 	time = 0.0f;
 	m_iFlags = 0;
 	
@@ -37,10 +40,26 @@ int CHudTimer::Draw( float flTime )
 	int x = ScreenWidth - UPPER_RIGHT_CORNER_OFFSET;
 	int y = UPPER_RIGHT_CORNER_OFFSET;
 
-	DrawFormattedTime( x - gHUD.GetNumberSpriteWidth( ) * 8, y, r, g, b );
+	int formattedTimeSpriteWidth = gHUD.GetNumberSpriteWidth() * 8;
+	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
 
-	y += 24;
-	DrawMessages( x, y, r, g, b );
+	if ( !ended ) {
+		
+		DrawFormattedTime( x - formattedTimeSpriteWidth, y, r, g, b );
+
+		y += 24;
+		DrawMessages( x, y, r, g, b );
+
+	} else { 
+		
+		x = ( ScreenWidth / 2 ) ;
+		y = ( ScreenHeight / 2 );
+
+		DrawEndScreen();
+		DrawFormattedTime( x - ( formattedTimeSpriteWidth / 2 ), y, r, g, b );
+
+		gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight, 200, "BLACK MESA MINUTE COMPLETED", r, g, b );
+	}
 
 	return 1;
 }
@@ -144,6 +163,12 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 	}
 }
 
+void CHudTimer::DrawEndScreen()
+{
+	// Black overlay
+	gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, 0, 0, 0, 255 );
+}
+
 int CHudTimer::MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ(pbuf, iSize);
@@ -166,6 +191,17 @@ int CHudTimer::MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf )
 	Vector coords( coordsX, coordsY, coordsZ );
 	messages.push_back( CHudTimerMessage( std::string( message ), timeAdded, coords, gHUD.m_flTime ) );
 
+	m_iFlags |= HUD_ACTIVE;
+
+	return 1;
+}
+
+int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	ended = READ_BYTE();
+	time = READ_FLOAT();
+	
 	m_iFlags |= HUD_ACTIVE;
 
 	return 1;

@@ -245,11 +245,14 @@ public:
 	virtual int Draw( float fTime );
 	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf );
 
 private:
+	bool ended;
 	float time;
 	void DrawFormattedTime( int x, int y, int r, int g, int b );
 	void DrawMessages( int x, int y, int r, int g, int b );
+	void DrawEndScreen();
 
 	std::vector<CHudTimerMessage> messages;
 };

@@ -186,6 +186,7 @@ int gmsgSlowMotion = 0;
 int gmsgPainkillerCount = 0;
 int gmsgTimerValue = 0;
 int gmsgTimerMsg = 0;
+int gmsgTimerEnd = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgTrain = 0;
@@ -237,6 +238,7 @@ void LinkUserMessages( void )
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
 	gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
 	gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
+	gmsgTimerEnd = REG_USER_MSG( "TimerEnd", 5 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -524,10 +526,10 @@ void CBasePlayer::BMM_End() {
 	pev->flags |= FL_NOTARGET;
 	RemoveAllItems( true );
 
-	// send message to hud
-	// fadeout
-	// save record
-	ALERT( at_notice, "RUN OVER: %f seconds\n", bmmCurrentTime );
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pev );
+		WRITE_BYTE( true );
+		WRITE_FLOAT( bmmCurrentTime );
+	MESSAGE_END( );
 }
 
 void CBasePlayer::GiveAll() {
