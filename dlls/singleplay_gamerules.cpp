@@ -373,7 +373,8 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 			pPlayer->GiveAll();
 		}
 		else {
-			pPlayer->GiveNamedItem( loadoutItem.c_str( ) );
+			const char *item = allowedItems[GetAllowedItemIndex( loadoutItem.c_str() )];
+			pPlayer->GiveNamedItem( item );
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );

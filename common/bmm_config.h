@@ -8,6 +8,46 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #include <vector>
 #include <fstream>
 
+static const char *allowedItems[] = {
+	"item_suit",
+	"item_battery",
+	"item_healthkit",
+	"weapon_crowbar",
+	"weapon_9mmhandgun",
+	"ammo_9mmclip",
+	"weapon_shotgun",
+	"ammo_buckshot",
+	"weapon_9mmAR",
+	"ammo_9mmAR",
+	"ammo_ARgrenades",
+	"weapon_handgrenade",
+	"weapon_tripmine",
+	"weapon_357",
+	"ammo_357",
+	"weapon_crossbow",
+	"ammo_crossbow",
+	"weapon_egon",
+	"weapon_gauss",
+	"ammo_gaussclip",
+	"weapon_rpg",
+	"ammo_rpgclip",
+	"weapon_satchel",
+	"weapon_snark",
+	"weapon_hornetgun"
+};
+
+static int GetAllowedItemIndex( const char *allowedItem ) {
+
+	for ( int i = 0; i < sizeof( allowedItems ) / sizeof( allowedItems[0] ); i++ )
+	{
+		if ( strcmp( allowedItem, allowedItems[i] ) == 0 ) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
 static std::string Trim( const std::string& str,
 	const std::string& whitespace = " \t" ) {
 	const auto strBegin = str.find_first_not_of( whitespace );
