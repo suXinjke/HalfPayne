@@ -378,4 +378,6 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
+
+	pPlayer->TakeSlowmotionCharge( 100 );
 }
