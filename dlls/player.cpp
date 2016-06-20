@@ -3681,7 +3681,8 @@ void CBasePlayer::GiveNamedItem( const char *pszName )
 		ALERT ( at_console, "NULL Ent in GiveNamedItem!\n" );
 		return;
 	}
-	VARS( pent )->origin = pev->origin;
+	pent->v.effects |= EF_NODRAW;
+	VARS( pent )->origin = pev->origin + Vector( 0, 0, 40.0f );
 	pent->v.spawnflags |= SF_NORESPAWN;
 
 	DispatchSpawn( pent );
