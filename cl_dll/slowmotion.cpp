@@ -28,8 +28,10 @@ int CHudSlowMotion::VidInit( void )
 
 int CHudSlowMotion::Draw(float flTime)
 {
-	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) ) )
-	{
+	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
+		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )
+		|| gEngfuncs.IsSpectateOnly() ) {
+		
 		return 1;
 	}
 
@@ -38,9 +40,6 @@ int CHudSlowMotion::Draw(float flTime)
 
 	int x = BOTTOM_LEFT_CORNER_OFFSET + HEALTH_SPRITE_WIDTH;
 	int y = ScreenHeight - hourglassRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
-
-	if (gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly())
-		return 1;
 
 	SPR_Set( gHUD.GetSprite( hourglassStrokeSprite ), 20, 20, 20 );
 	SPR_DrawAdditive( 0, x, y, &hourglassRect );

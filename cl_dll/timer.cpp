@@ -32,10 +32,16 @@ int CHudTimer::VidInit( void )
 
 int CHudTimer::Draw( float flTime )
 {
-	int r = 200, g = 200, b = 200;
+	
 
-	if ( gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly( ) || CL_IsDead() )
+	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
+		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_ALL )
+		|| gEngfuncs.IsSpectateOnly() ) {
+	
 		return 1;
+	}
+
+	int r = 200, g = 200, b = 200;
 
 	int x = ScreenWidth - UPPER_RIGHT_CORNER_OFFSET;
 	int y = UPPER_RIGHT_CORNER_OFFSET;

@@ -27,16 +27,16 @@ int CHudPainkiller::VidInit( void )
 
 int CHudPainkiller::Draw( float flTime )
 {
-	int r = 200, g = 200, b = 200;
+	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
+		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )
+		|| gEngfuncs.IsSpectateOnly()
+		|| painkillerCount <= 0 ) {
 
-	if (gHUD.m_iHideHUDDisplay || gEngfuncs.IsSpectateOnly() )
-		return 1;
-
-	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) ) || painkillerCount <= 0 )
-	{
 		return 1;
 	}
 	
+	int r = 200, g = 200, b = 200;
+
 	wrect_t painkillerRect = gHUD.GetSpriteRect( painKillerSprite );
 	int painkillerRectHeight = painkillerRect.bottom - painkillerRect.top;
 

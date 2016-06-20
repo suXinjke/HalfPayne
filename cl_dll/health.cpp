@@ -66,7 +66,6 @@ int CHudHealth::Init(void)
 
 	memset(m_dmg, 0, sizeof(DAMAGE_IMAGE) * NUM_DMG_TYPES);
 
-
 	gHUD.AddHudElem(this);
 	return 1;
 }
@@ -87,7 +86,7 @@ void CHudHealth::Reset( void )
 
 int CHudHealth::VidInit(void)
 {
-	m_hSprite = 0;
+	m_hSprite = LoadSprite( PAIN_NAME );
 
 	m_HUD_dmg_bio = gHUD.GetSpriteIndex( "dmg_bio" ) + 1;
 	m_HUD_cross = gHUD.GetSpriteIndex( "cross" );
@@ -170,91 +169,36 @@ void CHudHealth::GetPainColor( int &r, int &g, int &b )
 
 int CHudHealth::Draw(float flTime)
 {
-	//int r, g, b;
-	//int a = 0, x, y;
-	//int HealthWidth;
-
-	if ( (gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH) || gEngfuncs.IsSpectateOnly() )
+	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
+		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )
+		|| gEngfuncs.IsSpectateOnly() ) {
+	
 		return 1;
+	}
 
-	if ( !m_hSprite )
-		m_hSprite = LoadSprite(PAIN_NAME);
+	wrect_t painRect = gHUD.GetSpriteRect( healthSprite );
+	wrect_t painRect2 = gHUD.GetSpriteRect( healthSprite );
+	int painRectHeight = painRect.bottom - painRect.top;
 
-	//
-	//// Has health changed? Flash the health #
-	//if (m_fFade)
-	//{
-	//	m_fFade -= (gHUD.m_flTimeDelta * 20);
-	//	if (m_fFade <= 0)
-	//	{
-	//		a = MIN_ALPHA;
-	//		m_fFade = 0;
-	//	}
+	float healthPercent = ( m_iHealth / 100.0f );
+	float damagePercent = 1.0f - healthPercent;
 
-	//	// Fade the health number back to dim
+	int x = BOTTOM_LEFT_CORNER_OFFSET;
+	int y = ScreenHeight - painRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
 
-	//	a = MIN_ALPHA +  (m_fFade/FADE_TIME) * 128;
+	if ( m_iHealth > 0 ) {
+		painRect.bottom *= healthPercent;
+		SPR_Set( gHUD.GetSprite( healthSprite ), 255, 255, 255 );
+		SPR_DrawAdditive( 0, x, y, &painRect );
+	}
 
-	//}
-	//else
-	//	a = MIN_ALPHA;
+	if ( damagePercent > 0.0f ) {
+		int damageHeight = painRectHeight * damagePercent;
+		int healthOffset = painRectHeight * healthPercent;
+		painRect2.top = painRect2.bottom - damageHeight;
 
-	//// If health is getting low, make it bright red
-	//if (m_iHealth <= 15)
-	//	a = 255;
-	//	
-	//GetPainColor( r, g, b );
-	//ScaleColors(r, g, b, a );
-
-	//// Only draw health if we have the suit.
-	//if (gHUD.m_iWeaponBits & (1<<(WEAPON_SUIT)))
-	//{
-	//	HealthWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
-	//	int CrossWidth = gHUD.GetSpriteRect(m_HUD_cross).right - gHUD.GetSpriteRect(m_HUD_cross).left;
-
-	//	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-	//	x = CrossWidth /2;
-
-	//	SPR_Set(gHUD.GetSprite(m_HUD_cross), r, g, b);
-	//	SPR_DrawAdditive(0, x, y, &gHUD.GetSpriteRect(m_HUD_cross));
-
-	//	x = CrossWidth + HealthWidth / 2;
-
-	//	x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iHealth, r, g, b);
-
-	//	x += HealthWidth/2;
-
-	//	int iHeight = gHUD.m_iFontHeight;
-	//	int iWidth = HealthWidth/10;
-	//	//FillRGBA(x, y, iWidth, iHeight, 255, 160, 0, a);
-	//}
-
-	if ( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
-	{
-		wrect_t painRect = gHUD.GetSpriteRect( healthSprite );
-		wrect_t painRect2 = gHUD.GetSpriteRect( healthSprite );
-		int painRectHeight = painRect.bottom - painRect.top;
-
-		float healthPercent = ( m_iHealth / 100.0f );
-		float damagePercent = 1.0f - healthPercent;
-
-		int x = BOTTOM_LEFT_CORNER_OFFSET;
-		int y = ScreenHeight - painRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
-
-		if ( m_iHealth > 0 ) {
-			painRect.bottom *= healthPercent;
-			SPR_Set( gHUD.GetSprite( healthSprite ), 255, 255, 255 );
-			SPR_DrawAdditive( 0, x, y, &painRect );
-		}
-
-		if ( damagePercent > 0.0f ) {
-			int damageHeight = painRectHeight * damagePercent;
-			int healthOffset = painRectHeight * healthPercent;
-			painRect2.top = painRect2.bottom - damageHeight;
-
-			SPR_Set( gHUD.GetSprite( healthSprite ), 255, 0, 0 );
-			SPR_DrawAdditive( 0, x, y + healthOffset, &painRect2 );
-		}
+		SPR_Set( gHUD.GetSprite( healthSprite ), 255, 0, 0 );
+		SPR_DrawAdditive( 0, x, y + healthOffset, &painRect2 );
 	}
 
 	DrawDamage(flTime);
