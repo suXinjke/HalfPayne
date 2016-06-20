@@ -213,6 +213,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClCompile Include="..\..\pm_shared\pm_shared.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\common\bmm_config.h" />
     <ClInclude Include="..\..\dlls\activity.h" />
     <ClInclude Include="..\..\dlls\activitymap.h" />
     <ClInclude Include="..\..\dlls\animation.h" />

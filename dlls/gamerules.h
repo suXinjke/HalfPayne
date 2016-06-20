@@ -18,6 +18,9 @@
 
 //#include "weapons.h"
 //#include "items.h"
+
+#include "bmm_config.h"
+
 class CBasePlayerItem;
 class CBasePlayer;
 class CItem;
@@ -254,6 +257,9 @@ class CBlackMesaMinute : public CHalfLifeRules {
 public:
 	virtual BOOL ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] );
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
+
+private:
+	BlackMesaMinuteConfig bmmConfig;
 };
 
 //=========================================================

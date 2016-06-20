@@ -4,6 +4,7 @@
 
 // Quake is a trademark of Id Software, Inc., (c) 1996 Id Software, Inc. All
 // rights reserved.
+
 #include "hud.h"
 #include "cl_util.h"
 #include "camera.h"
@@ -21,9 +22,9 @@ extern "C"
 #include <string.h>
 #include <ctype.h>
 #include "Exports.h"
+#include "bmm_config.h"
 
 #include "vgui_TeamFortressViewport.h"
-
 
 extern int g_iAlive;
 
@@ -64,6 +65,9 @@ cvar_t	*cl_yawspeed;
 cvar_t	*cl_pitchspeed;
 cvar_t	*cl_anglespeedkey;
 cvar_t	*cl_vsmoothing;
+
+cvar_t	*bmm_enabled;
+cvar_t  *bmm_config;
 /*
 ===============================================================================
 
@@ -918,6 +922,35 @@ void CL_ResetButtonBits( int bits )
 	}
 }
 
+// Not sure if this is a right place for this function
+void RunBlackMesaMinute()
+{
+	int argCount = gEngfuncs.Cmd_Argc();
+	if ( argCount < 2 ) {
+		gEngfuncs.pfnConsolePrint( "bmm <configname> : launches Black Mesa Minute gamemode with settings specified in bmm_cfg\\<configname>\n" );
+		return;
+	}
+	
+	char *configName = gEngfuncs.Cmd_Argv( 1 );
+
+	// Parse config file and retrieve the map name from [startmap] section
+	BlackMesaMinuteConfig bmmConfig;
+	if ( !bmmConfig.Init( configName ) ) {
+		gEngfuncs.pfnConsolePrint( bmmConfig.error.c_str() );
+		return;
+	}
+
+	// Prepare Black Mesa Minute gamemode and try to launch [startmap]
+	// Launching the map then will execute CBlackMesaMinute::ClientConnected and CBlackMesaMinute::Spawn
+	// Where the file will be parsed again for additional parameters
+	gEngfuncs.Cvar_Set( "bmm_config", configName );
+	gEngfuncs.Cvar_Set( "bmm_enabled", "1" );
+
+	char mapCmd[64];
+	sprintf( mapCmd, "map %s", bmmConfig.startMap.c_str() );
+	gEngfuncs.pfnClientCmd( mapCmd );
+}
+
 /*
 ============
 InitInput
@@ -998,6 +1031,10 @@ void InitInput (void)
 	m_yaw				= gEngfuncs.pfnRegisterVariable ( "m_yaw","0.022", FCVAR_ARCHIVE );
 	m_forward			= gEngfuncs.pfnRegisterVariable ( "m_forward","1", FCVAR_ARCHIVE );
 	m_side				= gEngfuncs.pfnRegisterVariable ( "m_side","0.8", FCVAR_ARCHIVE );
+
+	bmm_enabled = gEngfuncs.pfnRegisterVariable( "bmm_enabled", "0", 0 );
+	bmm_config			= gEngfuncs.pfnRegisterVariable( "bmm_config", "", 0 );
+	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
 
 	// Initialize third person camera controls.
 	CAM_Init();

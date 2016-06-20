@@ -317,7 +317,7 @@ CGameRules *InstallGameRules( void )
 	{
 		// generic half-life
 		g_teamplay = 0;
-		if ( timeattack.value == 1 ) {
+		if ( CVAR_GET_FLOAT( "bmm_enabled" ) >= 1.0f ) {
 			return new CBlackMesaMinute;
 		}
 		else {

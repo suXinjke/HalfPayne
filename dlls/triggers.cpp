@@ -1481,7 +1481,7 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	pev->dmgtime = gpGlobals->time;
 
 
-	CBaseEntity *pPlayer = CBaseEntity::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+	CBasePlayer *pPlayer = (CBasePlayer *) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 	if ( !InTransitionVolume( pPlayer, m_szLandmarkName ) )
 	{
 		ALERT( at_aiconsole, "Player isn't in the transition volume %s, aborting\n", m_szLandmarkName );
@@ -1517,8 +1517,15 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 		gpGlobals->vecLandmarkOffset = VARS(pentLandmark)->origin;
 	}
 //	ALERT( at_console, "Level touches %d levels\n", ChangeList( levels, 16 ) );
-	ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-	CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+	
+	// Are we changing to the map that should end Black Mesa Minute run?
+	if ( pPlayer->bmmEnabled && strcmp( st_szNextMap, STRING( pPlayer->bmmEndMap ) ) == 0 ) {
+		pPlayer->BMM_End();
+	}
+	else {
+		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
+		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+	}
 }
 
 //
@@ -1999,7 +2006,13 @@ void CTriggerEndSection::EndSectionUse( CBaseEntity *pActivator, CBaseEntity *pC
 
 	if ( pev->message )
 	{
-		g_engfuncs.pfnEndSection(STRING(pev->message));
+		CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+		if ( pPlayer && pPlayer->bmmEnabled ) {
+			pPlayer->BMM_End( );
+		}
+		else {
+			g_engfuncs.pfnEndSection( STRING( pev->message ) );
+		}
 	}
 	UTIL_Remove( this );
 }
@@ -2030,7 +2043,13 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 
 	if (pev->message)
 	{
-		g_engfuncs.pfnEndSection(STRING(pev->message));
+		CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+		if ( pPlayer && pPlayer->bmmEnabled ) {
+			pPlayer->BMM_End( );
+		}
+		else {
+			g_engfuncs.pfnEndSection( STRING( pev->message ) );
+		}
 	}
 	UTIL_Remove( this );
 }

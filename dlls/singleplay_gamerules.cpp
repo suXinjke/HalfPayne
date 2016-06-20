@@ -97,7 +97,7 @@ BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, c
 	// Prevent loading of Black Mesa Minute saves
 	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
 		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
-		if ( player->playingTimeattack ) {
+		if ( player->bmmEnabled ) {
 			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
 			return FALSE;
 		}
@@ -336,16 +336,22 @@ BOOL CHalfLifeRules :: FAllowMonsters( void )
 	return TRUE;
 }
 
-
-
 // Black Mesa Minute
-
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
 {
+	const int READ_BLACK_MESA_MINUTE_CONFIG = true;
+
+	if ( READ_BLACK_MESA_MINUTE_CONFIG ) {
+		const char *configName = CVAR_GET_STRING( "bmm_config" );
+		if ( !bmmConfig.Init( configName ) ) {
+			return FALSE;
+		}
+	}
+
 	// Prevent loading of Black Mesa Minute saves
 	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
 		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
-		if ( player->playingTimeattack ) {
+		if ( player->bmmEnabled ) {
 			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
 			return FALSE;
 		}
@@ -356,5 +362,13 @@ BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, c
 
 void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 {
-	pPlayer->playingTimeattack = 1;
+	pPlayer->bmmEnabled = 1;
+	pPlayer->bmmEndMap = ALLOC_STRING( bmmConfig.endMap.c_str() );
+
+	pPlayer->SetEvilImpulse101( true );
+	for ( int i = 0; i < bmmConfig.loadout.size( ); i++ ) {
+		const char *item = bmmConfig.loadout.at( i ).c_str( );
+		pPlayer->GiveNamedItem( item );
+	}
+	pPlayer->SetEvilImpulse101( false );
 }

@@ -382,11 +382,16 @@ public:
 	float healthChargeTime;
 
 	// Black Mesa Minute
-	int playingTimeattack;
-	float timeScore;
+	int bmmEnabled;
+	int bmmTimerPaused;
+	string_t bmmEndMap;
+	float bmmCurrentTime;
 	float lastGlobalTime;
 
-	void IncreaseTimeScore( const Vector &eventPos, bool isHeadshot = false, bool killedByExplosion = false, bool destroyedGrenade = false, bool killedByCrowbar = false );
+	void BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot = false, bool killedByExplosion = false, bool destroyedGrenade = false, bool killedByCrowbar = false );
+	void BMM_End();
+
+	void SetEvilImpulse101( bool evilImpulse101 );
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

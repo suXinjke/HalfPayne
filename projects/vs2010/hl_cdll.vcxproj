@@ -226,6 +226,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\cl_dlls
     <ClInclude Include="..\..\cl_dll\vgui_SpectatorPanel.h" />
     <ClInclude Include="..\..\cl_dll\view.h" />
     <ClInclude Include="..\..\cl_dll\wrect.h" />
+    <ClInclude Include="..\..\common\bmm_config.h" />
     <ClInclude Include="..\..\common\parsemsg.h" />
     <ClInclude Include="..\..\game_shared\vgui_scrollbar2.h" />
     <ClInclude Include="..\..\game_shared\vgui_slider2.h" />

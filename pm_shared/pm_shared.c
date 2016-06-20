@@ -307,7 +307,7 @@ void PM_PlayStepSound( int step, float fvol )
 
 	pmove->iStepLeft = !pmove->iStepLeft;
 
-	if ( !pmove->runfuncs )
+	if ( !pmove->runfuncs || pmove->movetype == MOVETYPE_NONE )
 	{
 		return;
 	}
@@ -3203,8 +3203,13 @@ void PM_PlayerMove ( qboolean server )
 		{
 			PM_LadderMove( pLadder );
 		}
+		// Added prevention of setting MOVETYPE_WALK if you have MOVETYPE_NONE,
+		// it was actually almost impossible to have MOVETYPE_NONE on the player.
+		// This is required for Black Mesa Minute to completely stop the player
+		// from moving after the Black Mesa Minute has been completed.
 		else if ( pmove->movetype != MOVETYPE_WALK &&
-			      pmove->movetype != MOVETYPE_NOCLIP )
+			      pmove->movetype != MOVETYPE_NOCLIP &&
+				  pmove->movetype != MOVETYPE_NONE )
 		{
 			// Clear ladder stuff unless player is noclipping
 			//  it will be set immediately again next frame if necessary
