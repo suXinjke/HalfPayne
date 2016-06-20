@@ -367,8 +367,14 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 
 	pPlayer->SetEvilImpulse101( true );
 	for ( int i = 0; i < bmmConfig.loadout.size( ); i++ ) {
-		const char *item = bmmConfig.loadout.at( i ).c_str( );
-		pPlayer->GiveNamedItem( item );
+		std::string loadoutItem = bmmConfig.loadout.at( i );
+
+		if ( loadoutItem == "all" ) {
+			pPlayer->GiveAll();
+		}
+		else {
+			pPlayer->GiveNamedItem( loadoutItem.c_str( ) );
+		}
 	}
 	pPlayer->SetEvilImpulse101( false );
 }

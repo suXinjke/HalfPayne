@@ -391,6 +391,7 @@ public:
 	void BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot = false, bool killedByExplosion = false, bool destroyedGrenade = false, bool killedByCrowbar = false );
 	void BMM_End();
 
+	void GiveAll(); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );
 };
 

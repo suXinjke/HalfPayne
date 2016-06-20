@@ -530,6 +530,37 @@ void CBasePlayer::BMM_End() {
 	ALERT( at_notice, "RUN OVER: %f seconds\n", bmmCurrentTime );
 }
 
+void CBasePlayer::GiveAll() {
+	gEvilImpulse101 = TRUE;
+	GiveNamedItem( "item_suit" );
+	GiveNamedItem( "item_battery" );
+	GiveNamedItem( "weapon_crowbar" );
+	GiveNamedItem( "weapon_9mmhandgun" );
+	GiveNamedItem( "ammo_9mmclip" );
+	GiveNamedItem( "weapon_shotgun" );
+	GiveNamedItem( "ammo_buckshot" );
+	GiveNamedItem( "weapon_9mmAR" );
+	GiveNamedItem( "ammo_9mmAR" );
+	GiveNamedItem( "ammo_ARgrenades" );
+	GiveNamedItem( "weapon_handgrenade" );
+	GiveNamedItem( "weapon_tripmine" );
+#ifndef OEM_BUILD
+	GiveNamedItem( "weapon_357" );
+	GiveNamedItem( "ammo_357" );
+	GiveNamedItem( "weapon_crossbow" );
+	GiveNamedItem( "ammo_crossbow" );
+	GiveNamedItem( "weapon_egon" );
+	GiveNamedItem( "weapon_gauss" );
+	GiveNamedItem( "ammo_gaussclip" );
+	GiveNamedItem( "weapon_rpg" );
+	GiveNamedItem( "ammo_rpgclip" );
+	GiveNamedItem( "weapon_satchel" );
+	GiveNamedItem( "weapon_snark" );
+	GiveNamedItem( "weapon_hornetgun" );
+#endif
+	gEvilImpulse101 = FALSE;
+}
+
 void CBasePlayer::SetEvilImpulse101( bool evilImpulse101 ) {
 	gEvilImpulse101 = evilImpulse101;
 }
@@ -3977,34 +4008,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 
 
 	case 101:
-		gEvilImpulse101 = TRUE;
-		GiveNamedItem( "item_suit" );
-		GiveNamedItem( "item_battery" );
-		GiveNamedItem( "weapon_crowbar" );
-		GiveNamedItem( "weapon_9mmhandgun" );
-		GiveNamedItem( "ammo_9mmclip" );
-		GiveNamedItem( "weapon_shotgun" );
-		GiveNamedItem( "ammo_buckshot" );
-		GiveNamedItem( "weapon_9mmAR" );
-		GiveNamedItem( "ammo_9mmAR" );
-		GiveNamedItem( "ammo_ARgrenades" );
-		GiveNamedItem( "weapon_handgrenade" );
-		GiveNamedItem( "weapon_tripmine" );
-#ifndef OEM_BUILD
-		GiveNamedItem( "weapon_357" );
-		GiveNamedItem( "ammo_357" );
-		GiveNamedItem( "weapon_crossbow" );
-		GiveNamedItem( "ammo_crossbow" );
-		GiveNamedItem( "weapon_egon" );
-		GiveNamedItem( "weapon_gauss" );
-		GiveNamedItem( "ammo_gaussclip" );
-		GiveNamedItem( "weapon_rpg" );
-		GiveNamedItem( "ammo_rpgclip" );
-		GiveNamedItem( "weapon_satchel" );
-		GiveNamedItem( "weapon_snark" );
-		GiveNamedItem( "weapon_hornetgun" );
-#endif
-		gEvilImpulse101 = FALSE;
+		GiveAll();
 		break;
 
 	case 102:
