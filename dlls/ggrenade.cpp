@@ -159,6 +159,9 @@ void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
 			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
 			player->BMM_IncreaseTime( pev->origin, false, false, true );
+
+			// So it will count as player's kill by grenade
+			this->pev->euser1 = ENT( pevAttacker );
 		}
 	}
 
