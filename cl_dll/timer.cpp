@@ -13,12 +13,6 @@ int CHudTimer::Init(void)
 	HOOK_MESSAGE( TimerValue );
 	HOOK_MESSAGE( TimerMsg );
 	HOOK_MESSAGE( TimerEnd );
-
-	m_iFlags |= HUD_ACTIVE;
-	
-	ended = false;
-	time = 0.0f;
-	m_iFlags = 0;
 	
 	gHUD.AddHudElem(this);
 
@@ -27,15 +21,20 @@ int CHudTimer::Init(void)
 
 int CHudTimer::VidInit( void )
 {
+	m_iFlags = 0;
+
+	// I think these should be moved to Reset()
+	// VidInit is only for sprite initialization? Will leave like this at the moment
+	ended = false;
+	time = 0.0f;
+	messages.clear();
+
 	return 1;
 }
 
 int CHudTimer::Draw( float flTime )
 {
-	
-
-	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
-		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_ALL )
+	if ( ( gHUD.m_iHideHUDDisplay & HIDEHUD_ALL )
 		|| gEngfuncs.IsSpectateOnly() ) {
 	
 		return 1;
