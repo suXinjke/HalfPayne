@@ -337,6 +337,12 @@ BOOL CHalfLifeRules :: FAllowMonsters( void )
 }
 
 // Black Mesa Minute
+
+CBlackMesaMinute::CBlackMesaMinute()
+{
+	RefreshSkillData();
+}
+
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
 {
 	const int READ_BLACK_MESA_MINUTE_CONFIG = true;
@@ -380,4 +386,12 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->SetEvilImpulse101( false );
 
 	pPlayer->TakeSlowmotionCharge( 100 );
+}
+
+void CBlackMesaMinute::RefreshSkillData() 
+{
+	CVAR_SET_FLOAT( "skill", 2.0f );
+	CGameRules::RefreshSkillData();
+
+	// Need to hardcode values depending on config file modificators, which are yet to be implemented
 }

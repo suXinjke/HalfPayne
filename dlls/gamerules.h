@@ -255,8 +255,11 @@ public:
 class CBlackMesaMinute : public CHalfLifeRules {
 
 public:
+	CBlackMesaMinute();
+
 	virtual BOOL ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] );
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
+	virtual void RefreshSkillData();
 
 private:
 	BlackMesaMinuteConfig bmmConfig;
