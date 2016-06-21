@@ -61,6 +61,23 @@ static std::string Trim( const std::string& str,
 	return str.substr( strBegin, strRange );
 }
 
+static std::vector<std::string> Split( const std::string &text, char sep ) {
+	std::vector<std::string> tokens;
+	std::size_t start = 0, end = 0;
+	while ( ( end = text.find( sep, start ) ) != std::string::npos ) {
+		std::string temp = text.substr( start, end - start );
+		if ( temp != "" ) {
+			tokens.push_back( temp );
+		}
+		start = end + 1;
+	}
+	std::string temp = text.substr( start );
+	if ( temp != "" ) {
+		tokens.push_back( temp );
+	}
+	return tokens;
+}
+
 class BlackMesaMinuteConfig {
 
 public:
@@ -68,7 +85,8 @@ public:
 		BMM_FILE_SECTION_NO_SECTION,
 		BMM_FILE_SECTION_START_MAP,
 		BMM_FILE_SECTION_END_MAP,
-		BMM_FILE_SECTION_LOADOUT
+		BMM_FILE_SECTION_LOADOUT,
+		BMM_FILE_SECTION_START_POSITION,
 	};
 
 	bool Init( const char *configName ) {
@@ -119,7 +137,45 @@ public:
 			} else if ( currentFileSection == BMM_FILE_SECTION_LOADOUT ) {
 				loadout.push_back( line );
 				continue;
-			} else {
+			} else if ( currentFileSection == BMM_FILE_SECTION_START_POSITION ) {
+				std::vector<std::string> startPositionValueStrings = Split( line, ' ' );
+				std::vector<float> startPositionValues;
+				for ( int i = 0; i < startPositionValueStrings.size( ); i++ ) {
+					std::string startPositionValueString = startPositionValueStrings.at( i );
+					float startPositionValue;
+					try {
+						startPositionValue = std::stof( startPositionValueString );
+					}
+					catch ( std::invalid_argument e ) {
+						char errorCString[1024];
+						sprintf( errorCString, "Error incorrect value in [startposition] section: %s\n", startPositionValueString.c_str() );
+						error = std::string( errorCString );
+						break;
+					}
+
+					startPositionValues.push_back( startPositionValue );
+				}
+
+				if ( startPositionValues.size() < 3 ) {
+					char errorCString[1024];
+					sprintf( errorCString, "Error not enough coordinates provided in [startposition] section\n" );
+					error = std::string( errorCString );
+					break;
+				}
+
+				startPosition[0] = startPositionValues.at( 0 );
+				startPosition[1] = startPositionValues.at( 1 );
+				startPosition[2] = startPositionValues.at( 2 );
+
+				if ( startPositionValues.size() >= 4 ) {
+					startYawSpecified = true;
+					startYaw = startPositionValues.at( 3 );
+				}
+
+				currentFileSection = BMM_FILE_SECTION_NO_SECTION;
+				continue;
+			}
+			else {
 				if ( line == "[startmap]" ) {
 					currentFileSection = BMM_FILE_SECTION_START_MAP;
 					continue;
@@ -128,6 +184,10 @@ public:
 					continue;
 				} else if ( line == "[loadout]" ) {
 					currentFileSection = BMM_FILE_SECTION_LOADOUT;
+					continue;
+				} else if ( line == "[startposition]" ) {
+					currentFileSection = BMM_FILE_SECTION_START_POSITION;
+					startPositionSpecified = true;
 					continue;
 				} else {
 					char errorCString[1024];
@@ -149,6 +209,12 @@ public:
 	std::string startMap;
 	std::string endMap;
 	std::vector<std::string> loadout;
+
+	bool startPositionSpecified = false;
+	Vector startPosition;
+	
+	bool startYawSpecified = false;
+	float startYaw = 0.0f;
 };
 
 

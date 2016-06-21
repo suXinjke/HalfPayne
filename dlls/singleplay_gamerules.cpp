@@ -386,6 +386,13 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->SetEvilImpulse101( false );
 
 	pPlayer->TakeSlowmotionCharge( 100 );
+
+	if ( bmmConfig.startPositionSpecified ) {
+		pPlayer->pev->origin = bmmConfig.startPosition;
+	}
+	if ( bmmConfig.startYawSpecified ) {
+		pPlayer->pev->angles[1] = bmmConfig.startYaw;
+	}
 }
 
 void CBlackMesaMinute::RefreshSkillData() 
