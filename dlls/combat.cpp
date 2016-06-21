@@ -604,21 +604,15 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 			player->OnKilledMonster( this );
 		}
 
-		// Killed by player grenade?
-		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
-			CGrenade *grenade = ( CGrenade* ) CBaseEntity::Instance( pevAttacker );
-			if ( grenade->pev->euser1 ) {
-				this->killedByExplosion = true;
-
-				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( grenade->pev->euser1 );
-				player->OnKilledMonster( this );
-			}
-		}
-
 		// Killed by player caused explosion?
-		if ( strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 ) {
+		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 
+			|| strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 
+			|| strcmp( STRING( pevAttacker->classname ), "monster_satchel" ) == 0
+			|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
+
 			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
-			if ( explosion->pev->euser1 ) {
+			// euser1 is used specifically for this function
+			if ( explosion->pev->euser1 ) { 
 				this->killedByExplosion = true;
 
 				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( explosion->pev->euser1 );

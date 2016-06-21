@@ -51,6 +51,8 @@ class CSatchelCharge : public CGrenade
 
 public:
 	void Deactivate( void );
+
+	float initialThrowingTime;
 };
 LINK_ENTITY_TO_CLASS( monster_satchel, CSatchelCharge );
 
@@ -130,6 +132,13 @@ void CSatchelCharge :: SatchelThink( void )
 	{
 		UTIL_Remove( this );
 		return;
+	}
+
+	// After some time have passed since you threw the satchel,
+	// it has to lose the owner so it can be damaged by owner's bullets.
+	// Not doing this will cause the grenade to stuck inside the owner.
+	if ( gpGlobals->time - initialThrowingTime >= 0.3 ) {
+		pev->owner = NULL;
 	}
 
 	if (pev->waterlevel == 3)
@@ -295,6 +304,31 @@ BOOL CSatchel::Deploy( )
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
 
+	// Since satchels can be destroyed without pressing the trigger,
+	// we need to reset m_chargeReady if there are no satchels around.
+	
+	// When monster_satchel explode, they don't seem to immediatly avoid
+	// getting into the trace sphere, so operations below should be ideally
+	// executed in the Explode function of CSatchelCharge, but it won't be
+	// fun to access player's CSatchel from there.
+	edict_t *pPlayer = m_pPlayer->edict( );
+	CBaseEntity *pSatchel = NULL;
+	bool foundSatchel = false;
+	while ( ( pSatchel = UTIL_FindEntityInSphere( pSatchel, m_pPlayer->pev->origin, 4096 ) ) != NULL )
+	{
+		if ( FClassnameIs( pSatchel->pev, "monster_satchel" ) )
+		{
+			if ( ( ( CSatchelCharge * ) pSatchel )->actualOwner == pPlayer )
+			{
+				foundSatchel = true;
+			}
+		}
+	}
+
+	if ( !foundSatchel ) {
+		m_chargeReady = 0;
+	}
+
 	if ( m_chargeReady )
 		return DefaultDeploy( "models/v_satchel_radio.mdl", "models/p_satchel_radio.mdl", SATCHEL_RADIO_DRAW, "hive" );
 	else
@@ -350,7 +384,7 @@ void CSatchel::PrimaryAttack()
 		{
 			if (FClassnameIs( pSatchel->pev, "monster_satchel"))
 			{
-				if (pSatchel->pev->owner == pPlayer)
+				if ( ( ( CSatchelCharge * ) pSatchel )->actualOwner == pPlayer)
 				{
 					pSatchel->Use( m_pPlayer, m_pPlayer, USE_ON, 0 );
 					m_chargeReady = 2;
@@ -392,9 +426,24 @@ void CSatchel::Throw( void )
 		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
 
 #ifndef CLIENT_DLL
-		CBaseEntity *pSatchel = Create( "monster_satchel", vecSrc, Vector( 0, 0, 0), m_pPlayer->edict() );
+		CSatchelCharge *pSatchel = ( CSatchelCharge * ) Create( "monster_satchel", vecSrc, Vector( 0, 0, 0 ), m_pPlayer->edict( ) );
 		pSatchel->pev->velocity = vecThrow;
 		pSatchel->pev->avelocity.y = 400;
+
+		// Allow satchel to receive damage so it can be destroyed by bullets and explosions
+		pSatchel->pev->takedamage = DAMAGE_YES;
+		pSatchel->pev->health = 1;
+
+		// Setting up an actual correct size is essential for damage detection
+		UTIL_SetSize( pSatchel->pev, Vector( -8, -4, -4 ), Vector( 8, 4, 4 ) );
+
+		// Store the moment when you throw the grenade for purpose in TumbleThink
+		pSatchel->initialThrowingTime = gpGlobals->time;
+
+		// Satchels are always player owned, but we'll lose the owner soon
+		// Store the owner in euser1 instead
+		pSatchel->actualOwner = m_pPlayer->edict();
+		pSatchel->pev->euser1 = m_pPlayer->edict();
 
 		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_satchel_radio.mdl");
 		m_pPlayer->pev->weaponmodel = MAKE_STRING("models/p_satchel_radio.mdl");
