@@ -69,7 +69,7 @@ extern CGraph	WorldGraph;
 #define	FLASH_DRAIN_TIME	 1.2 //100 units/3 minutes
 #define	FLASH_CHARGE_TIME	 0.2 // 100 units/20 seconds  (seconds per unit)
 
-#define SLOWMOTION_DRAIN_TIME 0.02
+#define SLOWMOTION_DRAIN_TIME 0.0288 // full slowmotion charge drains in 3 seconds (by ingame time)
 
 #define HEALTH_TIME_UNTIL_CHARGE 3
 #define HEALTH_CHARGE_TIME 0.2
@@ -3754,40 +3754,9 @@ void CBasePlayer::ToggleSlowMotion() {
 		SetSlowMotion( false );
 		slowMotionEnabled = !slowMotionEnabled;
 	}
-	
-	//SetSlowMotion(!slowMotionEnabled);
-	
 }
 
 void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
-	//if (slowMotionEnabled == this->slowMotionEnabled && !forced) {
-	//	return;
-	//}
-	//else {
-	//	if ( slowMotionEnabled && slowMotionCharge > 0 ) {
-	//		this->slowMotionEnabled = true;
-	//	}
-	//	else {
-	//		this->slowMotionEnabled = false;
-	//	}
-	//}
-
-	//if ( this->slowMotionEnabled ) {
-	//	SERVER_COMMAND("host_framerate 0.0025\n");
-	//	slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
-	//	if ( !isDiving && pev->deadflag == DEAD_NO ) {
-	//		EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
-	//	}
-	//}
-	//else {
-	//	SERVER_COMMAND("host_framerate 0.01\n");
-
-	//	// Don't play the sound if you're trying to turn slowmotion on with no charge
-	//	if ( slowMotionCharge > 0 && pev->deadflag == DEAD_NO ) {
-	//		EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
-	//	}
-	//}
-
 	if ( slowMotionEnabled ) {
 		SERVER_COMMAND( "host_framerate 0.0025\n" );
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
