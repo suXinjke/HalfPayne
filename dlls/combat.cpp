@@ -606,6 +606,7 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 
 		// Killed by player caused explosion?
 		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 
+			|| strcmp( STRING( pevAttacker->classname ), "rpg_rocket" ) == 0
 			|| strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 
 			|| strcmp( STRING( pevAttacker->classname ), "monster_satchel" ) == 0
 			|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
