@@ -225,17 +225,17 @@ void CGlock::WeaponIdle( void )
 		if (flRand <= 0.3 + 0 * 0.75)
 		{
 			iAnim = GLOCK_IDLE3;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 16;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 14.0;
 		}
 		else if (flRand <= 0.6 + 0 * 0.875)
 		{
 			iAnim = GLOCK_IDLE1;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 60.0 / 16.0;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 14.0;
 		}
 		else
 		{
 			iAnim = GLOCK_IDLE2;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 40.0 / 16.0;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 14.0;
 		}
 		SendWeaponAnim( iAnim, 1 );
 	}
