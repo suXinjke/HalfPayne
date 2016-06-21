@@ -277,5 +277,5 @@ void ExplosionCreate( const Vector &center, const Vector &angles, edict_t *pOwne
 		pExplosion->pev->spawnflags |= SF_ENVEXPLOSION_NODAMAGE;
 
 	pExplosion->Spawn();
-	pExplosion->Use( NULL, NULL, USE_TOGGLE, 0 );
+	pExplosion->Use( NULL, CBaseEntity::Instance( pOwner ), USE_TOGGLE, 0 );
 }
