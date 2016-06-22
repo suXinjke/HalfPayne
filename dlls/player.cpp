@@ -3050,7 +3050,7 @@ pt_end:
 	m_afButtonLast = pev->button;
 
 	// Black Mesa Minute running timer
-	if ( bmmEnabled && !bmmTimerPaused ) {
+	if ( bmmEnabled && !bmmTimerPaused && pev->deadflag == DEAD_NO ) {
 		float timeDelta = ( gpGlobals->time - lastGlobalTime );
 
 		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
