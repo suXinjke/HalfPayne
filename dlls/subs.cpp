@@ -206,8 +206,9 @@ void FireTargets( const char *targetName, CBaseEntity *pActivator, CBaseEntity *
 			ALERT( at_aiconsole, "Found: %s, firing (%s)\n", STRING(pTarget->pev->classname), targetName );
 			if ( strcmp( STRING( pCaller->pev->classname ), "func_breakable" ) == 0 ) {
 				CBaseEntity *breakable = CBaseEntity::Instance( pCaller->pev );
-				if ( breakable->pev->euser1 ) {
-					pTarget->pev->euser1 = breakable->pev->euser1;
+				if ( breakable->killedOrCausedByPlayer ) {
+					pTarget->auxOwner = breakable->auxOwner;
+					pTarget->killedOrCausedByPlayer = true;
 				}
 			}
 			pTarget->Use( pActivator, pCaller, useType, value );

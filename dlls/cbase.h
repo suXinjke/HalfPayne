@@ -360,6 +360,14 @@ public:
 
 	enum EGON_FIRESTATE { FIRE_OFF, FIRE_CHARGE };
 	int m_fireState;
+
+	// These are required for player's kills tracking,
+	// partically we need to track CGrenades and func_breakables.
+	// By putting these in CBaseEntity we can avoid most of the casting
+	// and allows for easy saving at the cost of bloating the save alittle.
+	bool ActualOwnerIsPlayer();
+	edict_t *auxOwner;
+	bool killedOrCausedByPlayer;
 };
 
 

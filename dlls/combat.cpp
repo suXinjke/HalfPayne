@@ -590,7 +590,7 @@ Killed
 ============
 */
 void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
-	
+
 	// Check for MONSTERSTATE_DEAD flag so it won't be called during death animation
 	// because you can actually kill a dying monster again
 	if ( pevAttacker && m_IdealMonsterState != MONSTERSTATE_DEAD ) {
@@ -612,11 +612,10 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 			|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
 
 			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
-			// euser1 is used specifically for this function
-			if ( explosion->pev->euser1 ) { 
+			if ( explosion->killedOrCausedByPlayer ) { 
 				this->killedByExplosion = true;
 
-				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( explosion->pev->euser1 );
+				CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 				player->OnKilledMonster( this );
 			}
 		}
@@ -1686,6 +1685,17 @@ void CBaseEntity :: TraceBleed( float flDamage, Vector vecDir, TraceResult *ptr,
 			UTIL_BloodDecalTrace( &Bloodtr, BloodColor() );
 		}
 	}
+}
+
+bool CBaseEntity::ActualOwnerIsPlayer() 
+{
+	if ( this->auxOwner ) {
+		const char *ownerName = STRING( VARS( this->auxOwner )->classname );
+
+		return strcmp( ownerName, "player" ) == 0;
+	}
+
+	return false;
 }
 
 //=========================================================

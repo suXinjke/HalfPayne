@@ -333,6 +333,7 @@ void CTripmineGrenade::Killed( entvars_t *pevAttacker, int iGib )
 	{
 		// some client has destroyed this mine, he'll get credit for any kills
 		pev->owner = ENT( pevAttacker );
+		killedOrCausedByPlayer = true;
 	}
 
 	SetThink( &CTripmineGrenade::DelayDeathThink );
@@ -458,9 +459,7 @@ void CTripmine::PrimaryAttack( void )
 			Vector angles = UTIL_VecToAngles( tr.vecPlaneNormal );
 
 			CBaseEntity *pEnt = CBaseEntity::Create( "monster_tripmine", tr.vecEndPos + tr.vecPlaneNormal * 8, angles, m_pPlayer->edict() );
-			// Tripmines are always player owned
-			// Store the owner in euser1 because that's what is used for player kill counting
-			pEnt->pev->euser1 = m_pPlayer->edict( );		
+			pEnt->auxOwner = m_pPlayer->edict();
 
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 

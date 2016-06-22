@@ -153,8 +153,9 @@ void CEnvExplosion::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 { 
 	// If explosion was caused by player, mark this explosion as caused by player too
 	if ( pCaller ) {
-		if ( pCaller->pev->euser1 ) {
-			pev->euser1 = pCaller->pev->euser1;
+		if ( pCaller->ActualOwnerIsPlayer() ) {
+			auxOwner = pCaller->auxOwner;
+			killedOrCausedByPlayer = true;
 		}
 	}
 	TraceResult tr;

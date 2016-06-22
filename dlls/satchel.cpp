@@ -136,7 +136,7 @@ void CSatchelCharge :: SatchelThink( void )
 
 	// After some time have passed since you threw the satchel,
 	// it has to lose the owner so it can be damaged by owner's bullets.
-	// Not doing this will cause the grenade to stuck inside the owner.
+	// Not doing this will cause the satchel to stuck inside the owner.
 	if ( gpGlobals->time - initialThrowingTime >= 0.3 ) {
 		pev->owner = NULL;
 	}
@@ -318,7 +318,7 @@ BOOL CSatchel::Deploy( )
 	{
 		if ( FClassnameIs( pSatchel->pev, "monster_satchel" ) )
 		{
-			if ( ( ( CSatchelCharge * ) pSatchel )->actualOwner == pPlayer )
+			if ( pSatchel->auxOwner == pPlayer )
 			{
 				foundSatchel = true;
 			}
@@ -384,7 +384,7 @@ void CSatchel::PrimaryAttack()
 		{
 			if (FClassnameIs( pSatchel->pev, "monster_satchel"))
 			{
-				if ( ( ( CSatchelCharge * ) pSatchel )->actualOwner == pPlayer)
+				if ( pSatchel->auxOwner == pPlayer )
 				{
 					pSatchel->Use( m_pPlayer, m_pPlayer, USE_ON, 0 );
 					m_chargeReady = 2;
@@ -440,10 +440,9 @@ void CSatchel::Throw( void )
 		// Store the moment when you throw the grenade for purpose in TumbleThink
 		pSatchel->initialThrowingTime = gpGlobals->time;
 
-		// Satchels are always player owned, but we'll lose the owner soon
-		// Store the owner in euser1 instead
-		pSatchel->actualOwner = m_pPlayer->edict();
-		pSatchel->pev->euser1 = m_pPlayer->edict();
+		// Satchels are always player owned, but we'll lose the owner soon,
+		// so we store the player in auxOwner that will be used for player kill counting
+		pSatchel->auxOwner = m_pPlayer->edict();
 
 		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_satchel_radio.mdl");
 		m_pPlayer->pev->weaponmodel = MAKE_STRING("models/p_satchel_radio.mdl");

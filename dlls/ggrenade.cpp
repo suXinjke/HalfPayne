@@ -51,6 +51,10 @@ void CGrenade::Explode( Vector vecSrc, Vector vecAim )
 // UNDONE: temporary scorching for PreAlpha - find a less sleazy permenant solution.
 void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 {
+	if ( ActualOwnerIsPlayer() ) {
+		this->killedOrCausedByPlayer = true;
+	}
+	
 	float		flRndSound;// sound randomizer
 
 	pev->model = iStringNull;//invisible
@@ -153,15 +157,15 @@ void CGrenade::Smoke( void )
 
 void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 {
-	// Destroying enemy grenade nets bonus time for the player
-	const char *ownerName = STRING( VARS( this->actualOwner )->classname );
-	if ( strcmp( ownerName, "player" ) != 0 ) {
+	if ( ActualOwnerIsPlayer() ) {
+		this->killedOrCausedByPlayer = true;
+	} else {
+		// Destroying enemy grenade nets bonus time for the player
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
 			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
 			player->BMM_IncreaseTime( pev->origin, false, false, true );
 
-			// So it will count as player's kill by grenade
-			this->pev->euser1 = ENT( pevAttacker );
+			this->killedOrCausedByPlayer = true;
 		}
 	}
 
@@ -411,7 +415,7 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = UTIL_VecToAngles (pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
-	pGrenade->actualOwner = ENT( pevOwner );
+	pGrenade->auxOwner = ENT( pevOwner );
 	
 	// make monsters afaid of it while in the air
 	pGrenade->SetThink( &CGrenade::DangerSoundThink );
@@ -437,13 +441,6 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	// Store the moment when you shoot the grenade for purpose in DangerSoundThink
 	pGrenade->initialThrowingTime = gpGlobals->time;
 
-	// Is this player owned greande? Store it in euser1 instead
-	if ( pevOwner ) {
-		if ( strcmp( STRING( pevOwner->classname ), "player" ) == 0 ) {
-			pGrenade->pev->euser1 = ENT( pevOwner );
-		}
-	}
-
 	return pGrenade;
 }
 
@@ -456,7 +453,7 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = UTIL_VecToAngles(pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
-	pGrenade->actualOwner = ENT( pevOwner );
+	pGrenade->auxOwner = ENT( pevOwner );
 	
 	pGrenade->SetTouch( &CGrenade::BounceTouch );	// Bounce if touched
 	
@@ -496,13 +493,6 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 
 	// Store the moment when you throw the grenade for purpose in TumbleThink
 	pGrenade->initialThrowingTime = gpGlobals->time;
-
-	// Is this player owned greande? Store it in euser1 instead
-	if ( pevOwner ) {
-		if ( strcmp( STRING( pevOwner->classname ), "player" ) == 0 ) {
-			pGrenade->pev->euser1 = ENT( pevOwner );
-		}
-	}
 	
 	return pGrenade;
 }

@@ -589,6 +589,9 @@ TYPEDESCRIPTION	CBaseEntity::m_SaveData[] =
 	DEFINE_FIELD( CBaseEntity, m_pfnTouch, FIELD_FUNCTION ),
 	DEFINE_FIELD( CBaseEntity, m_pfnUse, FIELD_FUNCTION ),
 	DEFINE_FIELD( CBaseEntity, m_pfnBlocked, FIELD_FUNCTION ),
+
+	DEFINE_FIELD( CBaseEntity, auxOwner, FIELD_EDICT ),
+	DEFINE_FIELD( CBaseEntity, killedOrCausedByPlayer, FIELD_BOOLEAN ),
 };
 
 

@@ -461,8 +461,8 @@ void CRpg::PrimaryAttack()
 		
 		CRpgRocket *pRocket = CRpgRocket::CreateRpgRocket( vecSrc, m_pPlayer->pev->v_angle, m_pPlayer, this );
 		// RPG rockets are always player owned
-		// Store the owner in euser1 because that's what is used for player kill counting
-		pRocket->pev->euser1 = m_pPlayer->edict();
+		// Store the player in auxOwner because that's what is used for player kill counting
+		pRocket->auxOwner = m_pPlayer->edict();
 
 		UTIL_MakeVectors( m_pPlayer->pev->v_angle );// RpgRocket::Create stomps on globals, so remake.
 		pRocket->pev->velocity = pRocket->pev->velocity + gpGlobals->v_forward * DotProduct( m_pPlayer->pev->velocity, gpGlobals->v_forward );

@@ -568,22 +568,23 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 	if (pev->health <= 0)
 	{
 		if ( pevAttacker ) {
-			// Destroyed by player? Remember that in euser1
+
 			if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
-				pev->euser1 = ENT( pevAttacker );
+				auxOwner = ENT( pevAttacker );
+				killedOrCausedByPlayer = true;
 			}
 
-			// Destroyed by grenade that was thrown by player? Remember that in euser1
-			if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 ) {
-				if ( pevAttacker->euser1 ) {
-					pev->euser1 = pevAttacker->euser1;
-				}
-			}
-			
-			// Destroyed by env_explosion that was caused by player? Remember that in euser1
-			if ( strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 ) {
-				if ( pevAttacker->euser1 ) {
-					pev->euser1 = pevAttacker->euser1;
+			// Destroyed by player caused explosion?
+			if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0
+				|| strcmp( STRING( pevAttacker->classname ), "rpg_rocket" ) == 0
+				|| strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0
+				|| strcmp( STRING( pevAttacker->classname ), "monster_satchel" ) == 0
+				|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
+
+				CBaseEntity *pevAttackerEntity = CBaseEntity::Instance( pevAttacker );
+				if ( pevAttackerEntity->ActualOwnerIsPlayer() ) {
+					auxOwner = ENT( pevAttacker );
+					killedOrCausedByPlayer = true;
 				}
 			}
 		}

@@ -2044,6 +2044,9 @@ void CBaseMonster :: MonsterInit ( void )
 	killedByExplosion = false;
 	killedByCrowbar = false;
 
+	auxOwner = NULL;
+	killedOrCausedByPlayer = false;
+
 	// set eye position
 	SetEyePosition();
 

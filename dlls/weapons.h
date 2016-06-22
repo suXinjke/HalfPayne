@@ -55,9 +55,7 @@ public:
 	BOOL m_fRegisteredSound;// whether or not this grenade has issued its DANGER sound to the world sound list yet.
 	
 	float initialThrowingTime;
-	edict_t *actualOwner;
 };
-
 
 // constant items
 #define ITEM_HEALTHKIT		1
