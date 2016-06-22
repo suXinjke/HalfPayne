@@ -184,7 +184,7 @@ public:
 
 	int		m_iSentence;
 
-	BOOL	helmetWasted;
+	float	helmetHealth;
 
 	static const char *pGruntSentences[];
 };
@@ -205,7 +205,7 @@ TYPEDESCRIPTION	CHGrunt::m_SaveData[] =
 //  DEFINE_FIELD( CShotgun, m_iBrassShell, FIELD_INTEGER ),
 //  DEFINE_FIELD( CShotgun, m_iShotgunShell, FIELD_INTEGER ),
 	DEFINE_FIELD( CHGrunt, m_iSentence, FIELD_INTEGER ),
-	DEFINE_FIELD( CHGrunt, helmetWasted, FIELD_BOOLEAN )
+	DEFINE_FIELD( CHGrunt, helmetHealth, FIELD_FLOAT )
 };
 
 IMPLEMENT_SAVERESTORE( CHGrunt, CSquadMonster );
@@ -613,9 +613,16 @@ void CHGrunt :: TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecD
 		if (GetBodygroup( 1 ) == HEAD_GRUNT && (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)))
 		{
 			// reflect only one hit
-			if ( !helmetWasted ) {
-				helmetWasted = TRUE;
-				flDamage = 0.01f;
+			if ( helmetHealth > 0.0f ) {
+				if ( helmetHealth < flDamage ) {
+					float nonAbsorbedDamage = flDamage - helmetHealth;
+					helmetHealth = 0.0f;
+					flDamage = nonAbsorbedDamage;
+				} else {
+					helmetHealth -= flDamage;
+					flDamage = 0.01f;
+				}
+
 				UTIL_Ricochet( ptr->vecEndPos, 1.0 );
 			}
 		}
@@ -1039,7 +1046,7 @@ void CHGrunt :: Spawn()
 
 	CTalkMonster::g_talkWaitTime = 0;
 
-	helmetWasted = FALSE;
+	helmetHealth = 10.0f;
 
 	MonsterInit();
 }
