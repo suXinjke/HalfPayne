@@ -526,6 +526,13 @@ void CBaseMonster::BecomeDead( void )
 
 	// make the corpse fly away from the attack vector
 	pev->movetype = MOVETYPE_TOSS;
+	
+	// Let the player immediatly pass through the dying monster (while dying animation is playing).
+	// I believe there's a more right way to do this, but didn't find it.
+	// Colliding with dying animation doesn't seem to be deadflag (or other flags) related,
+	// maybe it's because of animations theirselves.
+	pev->solid = SOLID_NOT;
+
 	//pev->flags &= ~FL_ONGROUND;
 	//pev->origin.z += 2;
 	//pev->velocity = g_vecAttackDir * -1;
