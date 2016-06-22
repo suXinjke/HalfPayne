@@ -336,6 +336,8 @@ public:
 
 	bool killedByExplosion;
 	bool killedByCrowbar;
+
+	edict_t *lastInflictorDuringScript;
 };
 
 

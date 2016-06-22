@@ -2044,6 +2044,8 @@ void CBaseMonster :: MonsterInit ( void )
 	killedByExplosion = false;
 	killedByCrowbar = false;
 
+	lastInflictorDuringScript = NULL;
+
 	auxOwner = NULL;
 	killedOrCausedByPlayer = false;
 

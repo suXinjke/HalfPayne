@@ -902,6 +902,12 @@ BOOL CBaseMonster :: CineCleanup( )
 	{
 		// Dropping out because he got killed
 		// Can't call killed() no attacker and weirdness (late gibbing) may result
+
+		// Count the kill for the player when it was done during scripted sequence
+		if ( lastInflictorDuringScript ) {
+			KilledTryToNotifyPlayer( VARS( lastInflictorDuringScript ) );
+		}
+
 		m_IdealMonsterState = MONSTERSTATE_DEAD;
 		SetConditions( bits_COND_LIGHT_DAMAGE );
 		pev->deadflag = DEAD_DYING;

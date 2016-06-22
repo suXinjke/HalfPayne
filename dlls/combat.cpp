@@ -597,7 +597,6 @@ Killed
 ============
 */
 void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
-
 	// Check for MONSTERSTATE_DEAD flag so it won't be called during death animation
 	// because you can actually kill a dying monster again
 	if ( pevAttacker && m_IdealMonsterState != MONSTERSTATE_DEAD ) {
@@ -618,7 +617,13 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 			|| strcmp( STRING( pevAttacker->classname ), "monster_satchel" ) == 0
 			|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
 
+			// may produce NULL in rare cases when dying during animation sequences
+			// see this: https://www.youtube.com/watch?v=wGzLFJ9iijo
 			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
+			if ( !explosion ) {
+				return;
+			}
+
 			if ( explosion->killedOrCausedByPlayer ) { 
 				this->killedByExplosion = true;
 
@@ -945,6 +950,8 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 	if ( m_MonsterState == MONSTERSTATE_SCRIPT )
 	{
 		SetConditions( bits_COND_LIGHT_DAMAGE );
+		lastInflictorDuringScript = ENT( pevInflictor );
+
 		return 0;
 	}
 	
