@@ -158,13 +158,17 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 			continue;
 		}
 
+		int r2 = r;
+		int g2 = g;
+		int b2 = b;
+
 		// fade out
 		if ( timePassed >= timerMessage.timeAddedFlash2Time ) {
-			ScaleColors( r, g, b, alpha );
+			ScaleColors( r2, g2, b2, alpha );
 		}
 
 		char* timeAdded = const_cast<char*>( timerMessage.timeAddedString.c_str() );
-		gHUD.DrawHudStringKeepCenter( XPROJECT( screen.x ), YPROJECT( screen.y ), 200, timeAdded, r, g, b );
+		gHUD.DrawHudStringKeepCenter( XPROJECT( screen.x ), YPROJECT( screen.y ), 200, timeAdded, r2, g2, b2 );
 	}
 }
 
