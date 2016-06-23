@@ -10,6 +10,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 static const char *allowedItems[] = {
 	"item_suit",
+	"item_longjump",
 	"item_battery",
 	"item_healthkit",
 	"weapon_crowbar",

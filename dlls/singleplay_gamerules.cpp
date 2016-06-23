@@ -377,10 +377,20 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 
 		if ( loadoutItem == "all" ) {
 			pPlayer->GiveAll();
+			pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
 		}
 		else {
-			const char *item = allowedItems[GetAllowedItemIndex( loadoutItem.c_str() )];
-			pPlayer->GiveNamedItem( item );
+			if ( loadoutItem == "item_healthkit" ) {
+				pPlayer->TakePainkiller();
+			} else if ( loadoutItem == "item_suit" ) {
+				pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
+			} else if ( loadoutItem == "item_longjump" ) {
+				pPlayer->m_fLongJump = TRUE;
+				g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict( ), "slj", "1" );
+			} else {
+				const char *item = allowedItems[GetAllowedItemIndex( loadoutItem.c_str( ) )];
+				pPlayer->GiveNamedItem( item );
+			}
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
