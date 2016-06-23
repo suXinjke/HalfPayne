@@ -21,6 +21,7 @@
 #include "weapons.h"
 #include "nodes.h"
 #include "effects.h"
+#include "player.h"
 
 #define N_SCALE		15
 #define N_SPHERES	20
@@ -438,6 +439,10 @@ void CNihilanth :: DyingThink( void )
 	if (pev->deadflag == DEAD_DYING)
 	{
 		Flight( );
+		
+		// EXCEPTION - Nihilanth started dying, end Black Mesa Minute right here
+		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+		player->BMM_End();
 
 		if (fabs( pev->origin.z - m_flMaxZ ) < 16)
 		{
