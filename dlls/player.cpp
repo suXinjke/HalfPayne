@@ -664,6 +664,14 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
 		BMM_IncreaseTime( deathPos, false, true, false, false );
 	}
+	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
+		// DUMB EXCEPTION for snipers in Surface tension
+		// They're usually killed by grenades but we don't account
+		// for destroying the actual func_breakable with bullets or anything yet, which is a flaw
+		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
+		BMM_IncreaseTime( deathPos, false, true, false, false );
+	}
+
 }
 
 Vector CBasePlayer :: GetGunPosition( )

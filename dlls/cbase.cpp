@@ -16,6 +16,7 @@
 #include	"util.h"
 #include	"cbase.h"
 #include	"saverestore.h"
+#include	"player.h"
 #include	"client.h"
 #include	"decals.h"
 #include	"gamerules.h"
@@ -560,6 +561,12 @@ int CBaseEntity :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, 
 	return 1;
 }
 
+void CBaseEntity::KilledTryToNotifyPlayer() {
+	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+	if ( player ) {
+		player->OnKilledEntity( this );
+	}
+}
 
 void CBaseEntity :: Killed( entvars_t *pevAttacker, int iGib )
 {

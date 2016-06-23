@@ -587,6 +587,8 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 					killedOrCausedByPlayer = true;
 				}
 			}
+
+			KilledTryToNotifyPlayer();
 		}
 		Killed( pevAttacker, GIB_NORMAL );
 		Die();
