@@ -101,7 +101,7 @@ int CHudHealth:: MsgFunc_Health(const char *pszName,  int iSize, void *pbuf )
 {
 	// TODO: update local health data
 	BEGIN_READ( pbuf, iSize );
-	int x = READ_BYTE();
+	int x = READ_SHORT();
 
 	m_iFlags |= HUD_ACTIVE;
 
@@ -199,6 +199,14 @@ int CHudHealth::Draw(float flTime)
 
 		SPR_Set( gHUD.GetSprite( healthSprite ), 255, 0, 0 );
 		SPR_DrawAdditive( 0, x, y + healthOffset, &painRect2 );
+	}
+
+	if ( m_iHealth > 100 ) {
+		int painRectWidth = painRect.right - painRect.left;
+
+		char healthString[8];
+		sprintf( healthString, "%d\n", m_iHealth );
+		gHUD.DrawHudStringKeepCenter( x + painRectWidth / 2 + 3, y - 25, 50, healthString, 200, 200, 200 );
 	}
 
 	DrawDamage(flTime);
