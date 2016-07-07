@@ -11,7 +11,6 @@ int CHudPainkiller::Init( void )
 	m_iFlags |= HUD_ACTIVE;
 	
 	painkillerCount = 0;
-	m_iFlags = 0;
 	
 	gHUD.AddHudElem(this);
 

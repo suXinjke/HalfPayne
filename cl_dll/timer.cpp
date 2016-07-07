@@ -19,17 +19,13 @@ int CHudTimer::Init(void)
 	return 1;
 }
 
-int CHudTimer::VidInit( void )
+void CHudTimer::Reset( void )
 {
 	m_iFlags = 0;
 
-	// I think these should be moved to Reset()
-	// VidInit is only for sprite initialization? Will leave like this at the moment
 	ended = false;
 	time = 0.0f;
 	messages.clear();
-
-	return 1;
 }
 
 int CHudTimer::Draw( float flTime )
