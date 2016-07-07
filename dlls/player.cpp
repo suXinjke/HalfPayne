@@ -401,7 +401,7 @@ void CBasePlayer :: DeathSound( void )
 		break;
 	}
 
-	EMIT_SOUND( ENT( pev ), CHAN_AUTO, "var/death.wav", 1, ATTN_NORM );
+	EMIT_SOUND( ENT( pev ), CHAN_AUTO, "var/death.wav", 1, ATTN_NORM, true );
 }
 
 // override takehealth
@@ -424,7 +424,7 @@ int CBasePlayer::TakePainkiller()
 		WRITE_STRING( "item_healthkit" ); // hardcoded, but I don't have to do custom messages in that case
 	MESSAGE_END( );
 
-	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills.wav", 1, ATTN_NORM );
+	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills.wav", 1, ATTN_NORM, true );
 
 	return 1;
 }
@@ -440,7 +440,7 @@ void CBasePlayer::UsePainkiller()
 
 		// white screen flash
 		UTIL_ScreenFade( this, Vector( 255, 255, 255 ), 0.08, 0.08, 120.0, FFADE_IN );
-		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM );
+		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM, true );
 	}
 }
 
@@ -1829,7 +1829,7 @@ void CBasePlayer::PlayerUse ( void )
 					m_afPhysicsFlags |= PFLAG_ONTRAIN;
 					m_iTrain = TrainSpeed(pTrain->pev->speed, pTrain->pev->impulse);
 					m_iTrain |= TRAIN_NEW;
-					EMIT_SOUND( ENT(pev), CHAN_ITEM, "plats/train_use1.wav", 0.8, ATTN_NORM);
+					EMIT_SOUND( ENT(pev), CHAN_ITEM, "plats/train_use1.wav", 0.8, ATTN_NORM, true);
 					return;
 				}
 			}
@@ -1877,7 +1877,7 @@ void CBasePlayer::PlayerUse ( void )
 		int caps = pObject->ObjectCaps();
 
 		if ( m_afButtonPressed & IN_USE )
-			EMIT_SOUND( ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 0.4, ATTN_NORM);
+			EMIT_SOUND( ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 0.4, ATTN_NORM, true);
 
 		if ( ( (pev->button & IN_USE) && (caps & FCAP_CONTINUOUS_USE) ) ||
 			 ( (m_afButtonPressed & IN_USE) && (caps & (FCAP_IMPULSE_USE|FCAP_ONOFF_USE)) ) )
@@ -2379,7 +2379,7 @@ void CBasePlayer::HandleIUser4()
 			SetSlowMotion(true);
 			slowMotionEnabled = true;
 			slowMotionCharge -= 20;
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
 			break;
 		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
 			SetSlowMotion(false);
@@ -2947,7 +2947,7 @@ void CBasePlayer::PostThink()
 			if ( flFallDamage > pev->health )
 			{//splat
 				// note: play on item channel because we play footstep landing on body channel
-				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/bodysplat.wav", 1, ATTN_NORM);
+				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/bodysplat.wav", 1, ATTN_NORM, true);
 			}
 
 			if ( flFallDamage > 0 )
@@ -3633,7 +3633,7 @@ void CSprayCan::Spawn ( entvars_t *pevOwner )
 	pev->frame = 0;
 
 	pev->nextthink = gpGlobals->time + 0.1;
-	EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/sprayer.wav", 1, ATTN_NORM);
+	EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/sprayer.wav", 1, ATTN_NORM, true);
 }
 
 void CSprayCan::Think( void )
@@ -3754,7 +3754,7 @@ void CBasePlayer::ToggleSlowMotion() {
 		SetSlowMotion( true );
 		if ( !isDiving && pev->deadflag == DEAD_NO ) {
 			UTIL_ScreenFade( this, Vector( 0, 0, 0 ), 0.02, 0.02, 120.0, FFADE_IN );
-			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM, true );
 		}
 		slowMotionEnabled = !slowMotionEnabled;
 	}
@@ -3772,7 +3772,7 @@ void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
 	else {
 		SERVER_COMMAND( "host_framerate 0.01\n" );
 		if ( this->slowMotionEnabled != slowMotionEnabled && pev->deadflag == DEAD_NO ) {
-			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
 		}
 	}
 }
@@ -3806,7 +3806,7 @@ void CBasePlayer :: FlashlightTurnOn( void )
 
 	if ( (pev->weapons & (1<<WEAPON_SUIT)) )
 	{
-		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM );
+		EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM, true );
 		SetBits(pev->effects, EF_DIMLIGHT);
 		MESSAGE_BEGIN( MSG_ONE, gmsgFlashlight, NULL, pev );
 		WRITE_BYTE(1);
@@ -3821,7 +3821,7 @@ void CBasePlayer :: FlashlightTurnOn( void )
 
 void CBasePlayer :: FlashlightTurnOff( void )
 {
-	EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM );
+	EMIT_SOUND_DYN( ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM, true );
     ClearBits(pev->effects, EF_DIMLIGHT);
 	MESSAGE_BEGIN( MSG_ONE, gmsgFlashlight, NULL, pev );
 	WRITE_BYTE(0);
@@ -4562,7 +4562,7 @@ void CBasePlayer :: UpdateClientData( void )
 				{
 					SetSlowMotion(false);
 					slowMotionEnabled = false;
-					EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM );
+					EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
 				}
 			}
 		}	
@@ -4573,7 +4573,7 @@ void CBasePlayer :: UpdateClientData( void )
 		if ( slowMotionNextHeartbeatSound <= gpGlobals->time )
 		{
 			slowMotionNextHeartbeatSound = gpGlobals->time + 0.3;
-			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_heartbeat.wav", 1.0, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_heartbeat.wav", 1.0, ATTN_NORM, true );
 		}
 	}
 	

@@ -609,7 +609,7 @@ class CRpgAmmo : public CBasePlayerAmmo
 
 		if (pOther->GiveAmmo( iGive, "rockets", ROCKET_MAX_CARRY ) != -1)
 		{
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM, true );
 			return TRUE;
 		}
 		return FALSE;

@@ -23,7 +23,18 @@
 typedef struct event_api_s
 {
 	int		version;
-	void	( *EV_PlaySound ) ( int ent, float *origin, int channel, const char *sample, float volume, float attenuation, int fFlags, int pitch );
+	void	( *EV_PlaySoundCustom ) ( int ent, float *origin, int channel, const char *sample, float volume, float attenuation, int fFlags, int pitch );
+	void	EV_PlaySound ( int ent, float *origin, int channel, const char *sample, float volume, float attenuation, int fFlags, int pitch, bool ignoreSlowmotion = false ) {
+		if ( !ignoreSlowmotion ) {
+			// dumb
+			float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+	
+			if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+				pitch *= 0.55;
+			}
+		}
+		EV_PlaySoundCustom( ent, origin, channel, sample, volume, attenuation, fFlags, pitch );
+	}
 	void	( *EV_StopSound ) ( int ent, int channel, const char *sample );
 	int		( *EV_FindModelIndex )( const char *pmodel );
 	int		( *EV_IsLocal ) ( int playernum );

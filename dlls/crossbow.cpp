@@ -535,7 +535,7 @@ class CCrossbowAmmo : public CBasePlayerAmmo
 	{ 
 		if (pOther->GiveAmmo( AMMO_CROSSBOWCLIP_GIVE, "bolts", BOLT_MAX_CARRY ) != -1)
 		{
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM, true );
 			return TRUE;
 		}
 		return FALSE;

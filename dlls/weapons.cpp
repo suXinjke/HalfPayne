@@ -915,10 +915,10 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 			// if the player is just getting this gun for the first time, DefaultTouch will play the "picked up gun" sound for us.
 			switch ( RANDOM_LONG( 0, 1 ) ) {
 				case 0:
-					EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM );
+					EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM, true );
 					break;
 				case 1:
-					EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM );
+					EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM, true );
 					break;
 			}
 		}
@@ -941,10 +941,10 @@ BOOL CBasePlayerWeapon :: AddSecondaryAmmo( int iCount, char *szName, int iMax )
 		m_iSecondaryAmmoType = iIdAmmo;
 		switch ( RANDOM_LONG( 0, 1 ) ) {
 			case 0:
-				EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM );
+				EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM, true );
 				break;
 			case 1:
-				EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM );
+				EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM, true );
 				break;
 		}
 	}

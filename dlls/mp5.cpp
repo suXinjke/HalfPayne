@@ -320,7 +320,7 @@ class CMP5AmmoClip : public CBasePlayerAmmo
 		int bResult = (pOther->GiveAmmo( AMMO_MP5CLIP_GIVE, "9mm", _9MM_MAX_CARRY) != -1);
 		if (bResult)
 		{
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup.wav", 1, ATTN_NORM, true );
 		}
 		return bResult;
 	}
@@ -348,7 +348,7 @@ class CMP5Chainammo : public CBasePlayerAmmo
 		int bResult = (pOther->GiveAmmo( AMMO_CHAINBOX_GIVE, "9mm", _9MM_MAX_CARRY) != -1);
 		if (bResult)
 		{
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM, true );
 		}
 		return bResult;
 	}
@@ -375,7 +375,7 @@ class CMP5AmmoGrenade : public CBasePlayerAmmo
 
 		if (bResult)
 		{
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/ammopickup2.wav", 1, ATTN_NORM, true );
 		}
 		return bResult;
 	}

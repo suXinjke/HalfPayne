@@ -1410,8 +1410,17 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum)
 }
 
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
-						   int flags, int pitch)
+						   int flags, int pitch, bool ignoreSlowmotion)
 {
+	// dumb, should check player's slowmotionEnabled?
+	if ( !ignoreSlowmotion ) {
+		float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+	
+		if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+			pitch *= 0.55;
+		}
+	}
+
 	if (sample && *sample == '!')
 	{
 		char name[32];
