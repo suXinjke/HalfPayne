@@ -334,9 +334,6 @@ public:
 
 	CBaseEntity* DropItem ( char *pszItemName, const Vector &vecPos, const Vector &vecAng );// drop an item.
 
-	bool killedByExplosion;
-	bool killedByCrowbar;
-
 	edict_t *lastInflictorDuringScript;
 };
 

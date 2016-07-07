@@ -369,6 +369,9 @@ public:
 	bool ActualOwnerIsPlayer();
 	edict_t *auxOwner;
 	bool killedOrCausedByPlayer;
+
+	bool killedByExplosion;
+	bool killedByCrowbar;
 };
 
 

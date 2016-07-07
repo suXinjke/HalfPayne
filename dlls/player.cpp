@@ -568,108 +568,104 @@ void CBasePlayer::SetEvilImpulse101( bool evilImpulse101 ) {
 }
 
 // oh god why
-// Increase slowmotion charge based on monster you've killed
+// Increase slowmotion charge based on monster you've killed or what you've destroyed
 // Give player bonus time in Black Mesa Minute
-void CBasePlayer::OnKilledMonster( CBaseMonster *victim )
-{
-	const char *victimName = STRING( victim->pev->classname );
-	Vector deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
-	bool isHeadshot = victim->m_LastHitGroup == HITGROUP_HEAD;
-	bool killedByExplosion = victim->killedByExplosion;
-	bool killedByCrowbar = victim->killedByCrowbar;
-
-	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-	else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
-		bool snarkOwnedByPlayer = victim->pev->owner != 0;
-		
-		if ( !snarkOwnedByPlayer ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-		}
-	}
-	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
-		BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
-	}
-}
-
-// oh god why
-// this is a duplicate of OnKilledMonster, but for CBaseEntity
-// only for entities like Tanks or APCs
 void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 {
 	const char *victimName = STRING( victim->pev->classname );
-	Vector deathPos = victim->EyePosition( ) + Vector( 0, 0, 20 );
+	Vector deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
+
+	bool killedByExplosion = victim->killedByExplosion;
+	bool killedByCrowbar = victim->killedByCrowbar;
+
+	if ( strstr( victimName, "monster_" ) != NULL ) {
+		CBaseMonster *monsterVictim = ( CBaseMonster * ) victim;
+
+		bool isHeadshot = monsterVictim->m_LastHitGroup == HITGROUP_HEAD;
+
+		if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+		else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
+			bool snarkOwnedByPlayer = victim->pev->owner != 0;
+		
+			if ( !snarkOwnedByPlayer ) {
+				TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
+				BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			}
+		}
+		else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
+			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+
+		return;
+	}
 
 	if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-		BMM_IncreaseTime( deathPos, false, true, false, false );
-	}
-	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
+		BMM_IncreaseTime( deathPos, false, killedByExplosion, false, killedByCrowbar );
+	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
 		// DUMB EXCEPTION for snipers in Surface tension
-		// They're usually killed by grenades but we don't account
-		// for destroying the actual func_breakable with bullets or anything yet, which is a flaw
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-		BMM_IncreaseTime( deathPos, false, true, false, false );
+		BMM_IncreaseTime( deathPos, false, killedByExplosion, false, killedByCrowbar );
 	}
 
 }

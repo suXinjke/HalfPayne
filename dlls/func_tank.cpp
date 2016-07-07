@@ -502,6 +502,8 @@ void CFuncTank::TrackTarget( void )
 		if ( IsActive() )
 			pev->nextthink = pev->ltime + 0.1;
 		else {
+			killedByExplosion = true;
+			killedOrCausedByPlayer = true;
 			KilledTryToNotifyPlayer();
 			return;
 		}

@@ -609,7 +609,7 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 				this->killedByCrowbar = true;
 			}
 
-			player->OnKilledMonster( this );
+			player->OnKilledEntity( this );
 		}
 
 		// Killed by player caused explosion?
@@ -630,7 +630,7 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 				this->killedByExplosion = true;
 
 				CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-				player->OnKilledMonster( this );
+				player->OnKilledEntity( this );
 			}
 		}
 	}

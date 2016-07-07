@@ -26,6 +26,8 @@
 #include "func_break.h"
 #include "decals.h"
 #include "explode.h"
+#include "player.h"
+#include "weapons.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 
@@ -173,6 +175,10 @@ void CBreakable::Spawn( void )
 		pev->flags |= FL_WORLDBRUSH;
 
 	pev->euser1 = NULL;
+	
+	killedByExplosion = false;
+	killedByCrowbar = false;
+
 }
 
 
@@ -572,6 +578,11 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 			if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
 				auxOwner = ENT( pevAttacker );
 				killedOrCausedByPlayer = true;
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
+				const char *weaponUsed = STRING( player->m_pActiveItem->pev->classname );
+				if ( strcmp( weaponUsed, "weapon_crowbar" ) == 0 ) {
+					this->killedByCrowbar = true;
+				}
 			}
 
 			// Destroyed by player caused explosion?
@@ -582,10 +593,14 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 				|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
 
 				CBaseEntity *pevAttackerEntity = CBaseEntity::Instance( pevAttacker );
-				if ( pevAttackerEntity->ActualOwnerIsPlayer() ) {
-					auxOwner = ENT( pevAttacker );
-					killedOrCausedByPlayer = true;
+				if ( pevAttackerEntity ) {
+					if ( pevAttackerEntity->ActualOwnerIsPlayer() ) {
+						auxOwner = ENT( pevAttacker );
+						killedOrCausedByPlayer = true;
+						killedByExplosion = true;
+					}
 				}
+
 			}
 
 			KilledTryToNotifyPlayer();
