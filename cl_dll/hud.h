@@ -250,11 +250,17 @@ public:
 private:
 	bool ended;
 	float time;
-	void DrawFormattedTime( int x, int y, int r, int g, int b );
-	void DrawMessages( int x, int y, int r, int g, int b );
-	void DrawEndScreen();
 
-	std::vector<CHudTimerMessage> messages;
+	float auxTime;
+	float auxTimeStep;
+	float nextAuxTime;
+	float nextRuntimeSoundTime;
+
+	void DrawFormattedTime( float time, int x, int y, int r, int g, int b );
+	void DrawMessages( int x, int y, int r, int g, int b );
+	void DrawEndScreen( int r, int g, int b );
+
+	std::vector<CHudTimerMessage>	messages;
 };
 
 //

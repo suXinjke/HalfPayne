@@ -1,5 +1,6 @@
 #include "hud.h"
 #include "cl_util.h"
+#include "../common/event_api.h"
 #include "parsemsg.h"
 #include "com_weapons.h"
 #include "triangleapi.h"
@@ -7,6 +8,11 @@
 DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
 DECLARE_MESSAGE( m_Timer, TimerEnd )
+
+extern globalvars_t *gpGlobals;
+
+#define RUNTIME_SOUND_DURATION 0.072f;
+#define RUNTIME_UPDATE_TIME 0.02f;
 
 int CHudTimer::Init(void)
 {
@@ -46,7 +52,7 @@ int CHudTimer::Draw( float flTime )
 
 	if ( !ended ) {
 		
-		DrawFormattedTime( x - formattedTimeSpriteWidth, y, r, g, b );
+		DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
 
 		y += 24;
 		DrawMessages( x, y, r, g, b );
@@ -56,17 +62,14 @@ int CHudTimer::Draw( float flTime )
 		x = ( ScreenWidth / 2 ) ;
 		y = ( ScreenHeight / 2 );
 
-		DrawEndScreen();
-		DrawFormattedTime( x - ( formattedTimeSpriteWidth / 2 ), y, r, g, b );
-
-		gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight, 200, "BLACK MESA MINUTE COMPLETED", r, g, b );
+		DrawEndScreen( r, g, b );
 	}
 
 	return 1;
 }
 
 // Format is mm:ss.msec | 123:45.678
-void CHudTimer::DrawFormattedTime( int x, int y, int r, int g, int b )
+void CHudTimer::DrawFormattedTime( float time, int x, int y, int r, int g, int b )
 {
 	float minutes = time / 60.0f;
 	int actualMinutes = floor( minutes );
@@ -168,10 +171,37 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 	}
 }
 
-void CHudTimer::DrawEndScreen()
+void CHudTimer::DrawEndScreen( int r, int g, int b )
 {
+
+	int x = ( ScreenWidth / 2 ) ;
+	int y = ( ScreenHeight / 2 );
+
+	int formattedTimeSpriteWidth = gHUD.GetNumberSpriteWidth() * 8;
+	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
+
 	// Black overlay
 	gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, 0, 0, 0, 255 );
+
+	// Runtime animation
+	if ( gpGlobals->time > nextAuxTime && auxTime < time ) {
+		nextAuxTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
+		auxTime += auxTimeStep;
+		if ( auxTime > time ) {
+			auxTime = time;	
+		}
+
+		if ( gpGlobals->time > nextRuntimeSoundTime ) {
+			gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, "var/runtime.wav", 1.0, ATTN_NORM, 0, PITCH_NORM, true );
+			nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+		}
+	}
+
+	DrawFormattedTime( auxTime, x - ( formattedTimeSpriteWidth / 2 ), y, r, g, b );
+
+	gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight, 200, "BLACK MESA MINUTE COMPLETED", r, g, b );
+
+
 }
 
 int CHudTimer::MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf )
@@ -204,7 +234,20 @@ int CHudTimer::MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf )
 int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ( pbuf, iSize );
-	ended = READ_BYTE();
+
+	bool incomingEnded = READ_BYTE();
+
+	// Setup auxTime only once
+	if ( ended != incomingEnded ) { 
+		auxTime = 0.0f;
+		auxTimeStep = time / 60.0f;
+
+		nextAuxTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
+		nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+
+		ended = incomingEnded;
+	}
+	
 	time = READ_FLOAT();
 	
 	m_iFlags |= HUD_ACTIVE;
