@@ -216,6 +216,8 @@ int gmsgTeamNames = 0;
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
 
+int gmsgKill = 0;
+int gmsgSlowmoTime = 0;
 
 
 void LinkUserMessages( void )
@@ -239,6 +241,8 @@ void LinkUserMessages( void )
 	gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
 	gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
 	gmsgTimerEnd = REG_USER_MSG( "TimerEnd", 5 );
+	gmsgKill = REG_USER_MSG( "Kill", 3 );
+	gmsgSlowmoTime = REG_USER_MSG( "SlowmoTime", 4 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -513,6 +517,12 @@ void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, boo
 				WRITE_COORD( eventPos.z );
 			MESSAGE_END( );
 		}
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgKill, NULL, pev );
+			WRITE_BYTE( isHeadshot );
+			WRITE_BYTE( killedByExplosion );
+			WRITE_BYTE( killedByCrowbar );
+		MESSAGE_END();
 	}
 }
 
@@ -3065,6 +3075,12 @@ pt_end:
 		else {
 			bmmCurrentTime -= timeDelta;
 			lastGlobalTime = gpGlobals->time;
+
+			if ( slowMotionEnabled ) {
+				MESSAGE_BEGIN( MSG_ONE, gmsgSlowmoTime, NULL, pev );
+					WRITE_FLOAT( timeDelta );
+				MESSAGE_END();
+			}
 			
 			if ( bmmCurrentTime <= 0.0f && pev->deadflag == DEAD_NO ) {
 				ClientKill( ENT( this->pev ) );

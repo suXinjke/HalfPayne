@@ -246,21 +246,35 @@ public:
 	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_Kill( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_SlowmoTime( const char *pszName, int iSize, void *pbuf );
 
 private:
 	bool ended;
 	float time;
+
+	int kills;
+	int headhostKills;
+	int explosiveKills;
+	int crowbarKills;
+	float secondsInSlowmotion;
 
 	float auxTime;
 	float auxTimeStep;
 	float nextAuxTime;
 	float nextRuntimeSoundTime;
 
+	int currentEndScreenMessage;
+	float nextEndScreenMessageTime;
+
 	void DrawFormattedTime( float time, int x, int y, int r, int g, int b );
 	void DrawMessages( int x, int y, int r, int g, int b );
 	void DrawEndScreen( int r, int g, int b );
 
+	void PrepareEndScreenMessages();
+
 	std::vector<CHudTimerMessage>	messages;
+	std::vector<std::string>		endScreenMessages;
 };
 
 //
@@ -665,10 +679,10 @@ public:
 	void DrawColon( int x, int y, int r, int g, int b );
 	void DrawDecimalSeparator( int x, int y, int r, int g, int b );
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
-	int DrawHudString(int x, int y, int iMaxX, char *szString, int r, int g, int b );
-	int DrawHudStringKeepRight( int x, int y, int iMaxX, char *szString, int r, int g, int b );
-	int DrawHudStringKeepCenter( int x, int y, int iMaxX, char *szString, int r, int g, int b );
-	int DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString, int r, int g, int b );
+	int DrawHudString(int x, int y, int iMaxX, const char *szString, int r, int g, int b );
+	int DrawHudStringKeepRight( int x, int y, int iMaxX, const char *szString, int r, int g, int b );
+	int DrawHudStringKeepCenter( int x, int y, int iMaxX, const char *szString, int r, int g, int b );
+	int DrawHudStringReverse( int xpos, int ypos, int iMinX, const char *szString, int r, int g, int b );
 	int DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
 	int GetNumWidth(int iNumber, int iFlags);
 	int GetNumberSpriteWidth();

@@ -8,17 +8,22 @@
 DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
 DECLARE_MESSAGE( m_Timer, TimerEnd )
+DECLARE_MESSAGE( m_Timer, Kill )
+DECLARE_MESSAGE( m_Timer, SlowmoTime )
 
 extern globalvars_t *gpGlobals;
 
-#define RUNTIME_SOUND_DURATION 0.072f;
-#define RUNTIME_UPDATE_TIME 0.02f;
+#define RUNTIME_SOUND_DURATION 0.072f
+#define RUNTIME_UPDATE_TIME 0.02f
+#define ENDSCREEN_MESSAGE_UPDATE_TIME 3.0f
 
 int CHudTimer::Init(void)
 {
 	HOOK_MESSAGE( TimerValue );
 	HOOK_MESSAGE( TimerMsg );
-	HOOK_MESSAGE( TimerEnd );
+	HOOK_MESSAGE( TimerEnd )
+	HOOK_MESSAGE( Kill );
+	HOOK_MESSAGE( SlowmoTime );
 	
 	gHUD.AddHudElem(this);
 
@@ -32,6 +37,14 @@ void CHudTimer::Reset( void )
 	ended = false;
 	time = 0.0f;
 	messages.clear();
+	endScreenMessages.clear();
+
+	kills = 0;
+	headhostKills = 0;
+	explosiveKills = 0;
+	crowbarKills = 0;
+
+	secondsInSlowmotion = 0.0f;
 }
 
 int CHudTimer::Draw( float flTime )
@@ -197,9 +210,23 @@ void CHudTimer::DrawEndScreen( int r, int g, int b )
 		}
 	}
 
+	// Statistic messages cycle
+	if ( currentEndScreenMessage != -1 ) {
+		if ( gpGlobals->time > nextEndScreenMessageTime ) {
+			currentEndScreenMessage++;
+			if ( currentEndScreenMessage >= endScreenMessages.size() ) {
+				currentEndScreenMessage = 0;
+			}
+
+			nextEndScreenMessageTime = gpGlobals->time + ENDSCREEN_MESSAGE_UPDATE_TIME;
+		}
+
+		gHUD.DrawHudStringKeepCenter( x, y + numberSpriteHeight + 6, 200, endScreenMessages.at( currentEndScreenMessage ).c_str(), r, g, b );
+	}
+
 	DrawFormattedTime( auxTime, x - ( formattedTimeSpriteWidth / 2 ), y, r, g, b );
 
-	gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight, 200, "BLACK MESA MINUTE COMPLETED", r, g, b );
+	gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight - 2, 200, "LEVEL_NAME - COMPLETE!", r, g, b );
 
 
 }
@@ -245,6 +272,8 @@ int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 		nextAuxTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
 		nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
 
+		PrepareEndScreenMessages();
+
 		ended = incomingEnded;
 	}
 	
@@ -253,4 +282,84 @@ int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 	m_iFlags |= HUD_ACTIVE;
 
 	return 1;
+}
+
+int CHudTimer::MsgFunc_Kill( const char *pszName, int iSize, void *pbuf )
+{
+	if ( ended ) {
+		return 1;
+	}
+
+	BEGIN_READ( pbuf, iSize );
+
+	bool headshotKill = READ_BYTE();
+	bool explosiveKill = READ_BYTE();
+	bool crowbarKill = READ_BYTE();
+
+	kills++;
+	if ( headshotKill ) {
+		headhostKills++;
+	}
+	if ( explosiveKill ) {
+		explosiveKills++;
+	}
+	if ( crowbarKill ) {
+		crowbarKills++;
+	}
+
+	return 1;
+}
+
+int CHudTimer::MsgFunc_SlowmoTime( const char *pszName, int iSize, void *pbuf )
+{
+	if ( ended ) {
+		return 1;
+	}
+
+	BEGIN_READ( pbuf, iSize );
+
+	secondsInSlowmotion += READ_FLOAT();
+
+	return 1;
+}
+
+void CHudTimer::PrepareEndScreenMessages()
+{
+	char endScreenMessage[64];
+
+	if ( secondsInSlowmotion > 0.0f ) {
+		int roundedSecondsInSlowmotion = roundf( secondsInSlowmotion );
+		if ( roundedSecondsInSlowmotion > 0 ) {
+			sprintf( endScreenMessage, "%d SECONDS IN SLOWMOTION", roundedSecondsInSlowmotion );
+			endScreenMessages.push_back( endScreenMessage );
+		}
+	}
+
+	if ( kills > 0 ) {
+		sprintf( endScreenMessage, "%d TOTAL KILLS", kills );
+		endScreenMessages.push_back( endScreenMessage );
+	}
+
+	if ( headhostKills > 0 ) {
+		sprintf( endScreenMessage, "%d HEADSHOT KILLS", headhostKills );
+		endScreenMessages.push_back( endScreenMessage );
+	}
+
+	if ( explosiveKills > 0 ) {
+		sprintf( endScreenMessage, "%d EXPLOSION KILLS", explosiveKills );
+		endScreenMessages.push_back( endScreenMessage );
+	}
+
+	if ( crowbarKills > 0 ) {
+		sprintf( endScreenMessage, "%d MELEE KILLS", crowbarKills );
+		endScreenMessages.push_back( endScreenMessage );
+	}
+
+	if ( endScreenMessages.size() > 0 ) {
+		nextEndScreenMessageTime = gpGlobals->time + ENDSCREEN_MESSAGE_UPDATE_TIME;
+		currentEndScreenMessage = 0;
+	} else {
+		currentEndScreenMessage = -1;
+	}
+
 }
