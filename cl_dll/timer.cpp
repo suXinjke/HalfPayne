@@ -226,7 +226,7 @@ void CHudTimer::DrawEndScreen( int r, int g, int b )
 
 	DrawFormattedTime( auxTime, x - ( formattedTimeSpriteWidth / 2 ), y, r, g, b );
 
-	gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight - 2, 200, "LEVEL_NAME - COMPLETE!", r, g, b );
+	gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight - 2, 200, endScreenLevelCompletedMessage.c_str(), r, g, b );
 
 
 }
@@ -263,6 +263,15 @@ int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 	BEGIN_READ( pbuf, iSize );
 
 	bool incomingEnded = READ_BYTE();
+	time = READ_FLOAT();
+	
+	endScreenLevelCompletedMessage = READ_STRING();
+
+	if ( endScreenLevelCompletedMessage.size() > 0 ) {
+		endScreenLevelCompletedMessage = endScreenLevelCompletedMessage.append( " - COMPLETE" );
+	} else {
+		endScreenLevelCompletedMessage = endScreenLevelCompletedMessage.append( "LEVEL COMPLETE" );
+	}
 
 	// Setup auxTime only once
 	if ( ended != incomingEnded ) { 
@@ -277,7 +286,7 @@ int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 		ended = incomingEnded;
 	}
 	
-	time = READ_FLOAT();
+	
 	
 	m_iFlags |= HUD_ACTIVE;
 

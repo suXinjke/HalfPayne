@@ -7,6 +7,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #include <string>
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 static const char *allowedItems[] = {
 	"item_suit",
@@ -79,6 +80,13 @@ static std::vector<std::string> Split( const std::string &text, char sep ) {
 	return tokens;
 }
 
+static std::string Uppercase( std::string text )
+{
+    std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+
+    return text;
+}
+
 class BlackMesaMinuteConfig {
 
 public:
@@ -88,6 +96,7 @@ public:
 		BMM_FILE_SECTION_END_MAP,
 		BMM_FILE_SECTION_LOADOUT,
 		BMM_FILE_SECTION_START_POSITION,
+		BMM_FILE_SECTION_NAME,
 	};
 
 	bool Init( const char *configName ) {
@@ -175,8 +184,14 @@ public:
 
 				currentFileSection = BMM_FILE_SECTION_NO_SECTION;
 				continue;
-			}
-			else {
+			} else if ( currentFileSection == BMM_FILE_SECTION_NAME ) {
+				name = Uppercase( line );
+				if ( name.size() > 54 ) {
+					name = name.substr( 0, 53 );
+				}
+				currentFileSection = BMM_FILE_SECTION_NO_SECTION;
+				continue;
+			} else {
 				if ( line == "[startmap]" ) {
 					currentFileSection = BMM_FILE_SECTION_START_MAP;
 					continue;
@@ -189,6 +204,9 @@ public:
 				} else if ( line == "[startposition]" ) {
 					currentFileSection = BMM_FILE_SECTION_START_POSITION;
 					startPositionSpecified = true;
+					continue;
+				} else if ( line == "[name]" ) {
+					currentFileSection = BMM_FILE_SECTION_NAME;
 					continue;
 				} else {
 					char errorCString[1024];
@@ -209,6 +227,7 @@ public:
 	std::string error;
 	std::string startMap;
 	std::string endMap;
+	std::string name;
 	std::vector<std::string> loadout;
 
 	bool startPositionSpecified = false;

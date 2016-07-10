@@ -385,6 +385,7 @@ public:
 	int bmmTimerPaused;
 	int bmmEnded;
 	string_t bmmEndMap;
+	string_t bmmName;
 	float bmmCurrentTime;
 	float lastGlobalTime;
 

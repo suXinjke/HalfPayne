@@ -369,7 +369,8 @@ BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, c
 void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	pPlayer->bmmEnabled = 1;
-	pPlayer->bmmEndMap = ALLOC_STRING( bmmConfig.endMap.c_str() );
+	pPlayer->bmmEndMap = ALLOC_STRING( bmmConfig.endMap.c_str() ); // leaks?
+	pPlayer->bmmName = ALLOC_STRING( bmmConfig.name.c_str() );
 
 	pPlayer->SetEvilImpulse101( true );
 	for ( int i = 0; i < bmmConfig.loadout.size( ); i++ ) {

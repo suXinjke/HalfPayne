@@ -273,6 +273,8 @@ private:
 
 	void PrepareEndScreenMessages();
 
+	std::string endScreenLevelCompletedMessage;
+
 	std::vector<CHudTimerMessage>	messages;
 	std::vector<std::string>		endScreenMessages;
 };
