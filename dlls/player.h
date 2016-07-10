@@ -383,6 +383,7 @@ public:
 	// Black Mesa Minute
 	int bmmEnabled;
 	int bmmTimerPaused;
+	int bmmEnded;
 	string_t bmmEndMap;
 	float bmmCurrentTime;
 	float lastGlobalTime;

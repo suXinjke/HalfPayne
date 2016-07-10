@@ -531,11 +531,16 @@ void CBasePlayer::BMM_End() {
 		return;
 	}
 
+	if ( slowMotionEnabled ) {
+		ToggleSlowMotion();
+	}
+
 	bmmTimerPaused = 1;
+	bmmEnded = 1;
 	pev->movetype = MOVETYPE_NONE;
 	pev->flags |= FL_NOTARGET;
 	RemoveAllItems( true );
-
+	
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pev );
 		WRITE_BYTE( true );
 		WRITE_FLOAT( bmmCurrentTime );
@@ -3267,6 +3272,7 @@ void CBasePlayer::Spawn( void )
 	
 	bmmEnabled = 0;
 	bmmTimerPaused = 0;
+	bmmEnded = 0;
 	bmmCurrentTime = 60.0f;
 
 	deathCameraYaw = 0.0f;
@@ -3759,6 +3765,10 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
+	if ( bmmEnded ) {
+		return;
+	}
+
 	if ( !slowMotionEnabled ) {
 		if ( slowMotionCharge <= 0 ) {
 			return;
