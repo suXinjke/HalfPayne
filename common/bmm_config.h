@@ -136,6 +136,31 @@ public:
 				continue;
 			}
 
+			if ( line == "[startmap]" ) {
+				currentFileSection = BMM_FILE_SECTION_START_MAP;
+				continue;
+			} else if ( line == "[endmap]" ) {
+				currentFileSection = BMM_FILE_SECTION_END_MAP;
+				continue;
+			} else if ( line == "[loadout]" ) {
+				currentFileSection = BMM_FILE_SECTION_LOADOUT;
+				continue;
+			} else if ( line == "[startposition]" ) {
+				currentFileSection = BMM_FILE_SECTION_START_POSITION;
+				startPositionSpecified = true;
+				continue;
+			} else if ( line == "[name]" ) {
+				currentFileSection = BMM_FILE_SECTION_NAME;
+				continue;
+			} else {
+				if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
+					char errorCString[1024];
+					sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: preceding section not specified.\n", configName, lineCount );
+					error = std::string( errorCString );
+					break;
+				}
+			}
+
 			if ( currentFileSection == BMM_FILE_SECTION_START_MAP ) {
 				startMap = line;
 				currentFileSection = BMM_FILE_SECTION_NO_SECTION;
@@ -191,29 +216,6 @@ public:
 				}
 				currentFileSection = BMM_FILE_SECTION_NO_SECTION;
 				continue;
-			} else {
-				if ( line == "[startmap]" ) {
-					currentFileSection = BMM_FILE_SECTION_START_MAP;
-					continue;
-				} else if ( line == "[endmap]" ) {
-					currentFileSection = BMM_FILE_SECTION_END_MAP;
-					continue;
-				} else if ( line == "[loadout]" ) {
-					currentFileSection = BMM_FILE_SECTION_LOADOUT;
-					continue;
-				} else if ( line == "[startposition]" ) {
-					currentFileSection = BMM_FILE_SECTION_START_POSITION;
-					startPositionSpecified = true;
-					continue;
-				} else if ( line == "[name]" ) {
-					currentFileSection = BMM_FILE_SECTION_NAME;
-					continue;
-				} else {
-					char errorCString[1024];
-					sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: preceding section not specified.\n", configName, lineCount );
-					error = std::string( errorCString );
-					break;
-				}
 			}
 		}
 
