@@ -527,7 +527,7 @@ void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, boo
 }
 
 void CBasePlayer::BMM_End() {
-	if ( !bmmEnabled ) {
+	if ( !bmmEnabled || bmmEnded ) {
 		return;
 	}
 
