@@ -8,8 +8,6 @@
 DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
 DECLARE_MESSAGE( m_Timer, TimerEnd )
-DECLARE_MESSAGE( m_Timer, Kill )
-DECLARE_MESSAGE( m_Timer, SlowmoTime )
 
 extern globalvars_t *gpGlobals;
 
@@ -17,13 +15,14 @@ extern globalvars_t *gpGlobals;
 #define RUNTIME_UPDATE_TIME 0.02f
 #define ENDSCREEN_MESSAGE_UPDATE_TIME 3.0f
 
+#define MESSAGE_BRIGHTENESS 200
+#define RGB_TIME_PB_COLOR 0x00FFFF00 // 255, 255, 255
+
 int CHudTimer::Init(void)
 {
 	HOOK_MESSAGE( TimerValue );
 	HOOK_MESSAGE( TimerMsg );
 	HOOK_MESSAGE( TimerEnd )
-	HOOK_MESSAGE( Kill );
-	HOOK_MESSAGE( SlowmoTime );
 	
 	gHUD.AddHudElem(this);
 
@@ -40,9 +39,10 @@ void CHudTimer::Reset( void )
 	endScreenMessages.clear();
 
 	kills = 0;
-	headhostKills = 0;
+	headshotKills = 0;
 	explosiveKills = 0;
 	crowbarKills = 0;
+	projectileKills = 0;
 
 	secondsInSlowmotion = 0.0f;
 }
@@ -55,90 +55,34 @@ int CHudTimer::Draw( float flTime )
 		return 1;
 	}
 
-	int r = 200, g = 200, b = 200;
+	int r = MESSAGE_BRIGHTENESS;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
 
-	int x = ScreenWidth - UPPER_RIGHT_CORNER_OFFSET;
-	int y = UPPER_RIGHT_CORNER_OFFSET;
+	int x = ScreenWidth - CORNER_OFFSET;
+	int y = CORNER_OFFSET;
 
 	int formattedTimeSpriteWidth = gHUD.GetNumberSpriteWidth() * 8;
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
 
-	if ( !ended ) {
-		
-		DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
-
-		y += 24;
-		DrawMessages( x, y, r, g, b );
+	if ( !ended ) {	
+		gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
+		y += numberSpriteHeight;
+		DrawMessages( x, y );
 
 	} else { 
-		
-		x = ( ScreenWidth / 2 ) ;
-		y = ( ScreenHeight / 2 );
-
-		DrawEndScreen( r, g, b );
+		DrawEndScreen();
 	}
 
 	return 1;
 }
 
-// Format is mm:ss.msec | 123:45.678
-void CHudTimer::DrawFormattedTime( float time, int x, int y, int r, int g, int b )
+void CHudTimer::DrawMessages( int x, int y )
 {
-	float minutes = time / 60.0f;
-	int actualMinutes = floor( minutes );
-	float seconds = fmod( time, 60.0f );
-	float secondsIntegral;
-	float secondsFractional = modf( seconds, &secondsIntegral );
+	int r = MESSAGE_BRIGHTENESS;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
 
-	int actualSeconds = secondsIntegral;
-	int actualMilliseconds = secondsFractional * 100;
-
-	const int NUMBER_WIDTH = gHUD.GetNumberSpriteWidth();
-
-	if ( actualMinutes < 10 ) {
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, 0, r, g, b );
-		x += NUMBER_WIDTH;
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualMinutes, r, g, b );
-		x += NUMBER_WIDTH;
-	}
-	else if ( actualMinutes >= 100 ) {
-		x -= NUMBER_WIDTH;
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualMinutes, r, g, b );
-		x += NUMBER_WIDTH * 3;
-	} else {
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualMinutes, r, g, b );
-		x += NUMBER_WIDTH * 2;
-	}
-
-	gHUD.DrawColon( x, y, r, g, b );
-	x += NUMBER_WIDTH;
-
-	if ( actualSeconds < 10 ) {
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, 0, r, g, b );
-		x += NUMBER_WIDTH;
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualSeconds, r, g, b );
-		x += NUMBER_WIDTH;
-	}
-	else {
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualSeconds, r, g, b );
-		x += NUMBER_WIDTH * 2;
-	}
-
-	gHUD.DrawDecimalSeparator( x, y, r, g, b );
-	x += NUMBER_WIDTH;
-
-	if ( actualMilliseconds < 10 ) {
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, 0, r, g, b );
-		x += NUMBER_WIDTH;
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualMilliseconds, r, g, b );
-	}
-	else {
-		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, actualMilliseconds, r, g, b );
-	}
-}
-
-void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
-{
 	for ( int i = messages.size() - 1; i >= 0; i-- ) {
 		CHudTimerMessage timerMessage = messages.at( i );
 
@@ -149,15 +93,10 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 
 	for ( int i = messages.size( ) - 1; i >= 0; i-- ) {
 		CHudTimerMessage timerMessage = messages.at( i );
-
-		char* message = const_cast<char*>( timerMessage.message.c_str() );
-		gHUD.DrawHudStringKeepRight( x, y, 200, message, r, g, b );
-
+		gHUD.DrawHudStringKeepRight( x, y, 200, timerMessage.message.c_str(), r, g, b );
 		y += gHUD.m_scrinfo.iCharHeight - 2;
 
 		float timePassed = TIME_ADDED_REMOVAL_TIME - max( 0.0f, timerMessage.timeAddedRemovalTime - gHUD.m_flTime );
-		int alpha = 200 - ( ( timePassed - TIME_ADDED_FLASHING_TIME * 2 ) / ( TIME_ADDED_REMOVAL_TIME - TIME_ADDED_FLASHING_TIME * 2 ) ) * 200;
-
 
 		if ( ( timePassed >= timerMessage.timeAddedFlash1Time && timePassed <= timerMessage.timeAddedFlash2Time ) 
 			|| ( timePassed >= TIME_ADDED_REMOVAL_TIME ) ) {
@@ -170,6 +109,7 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 			continue;
 		}
 
+		int alpha = MESSAGE_BRIGHTENESS - ( ( timePassed - TIME_ADDED_FLASHING_TIME * 2 ) / ( TIME_ADDED_REMOVAL_TIME - TIME_ADDED_FLASHING_TIME * 2 ) ) * MESSAGE_BRIGHTENESS;
 		int r2 = r;
 		int g2 = g;
 		int b2 = b;
@@ -179,16 +119,26 @@ void CHudTimer::DrawMessages( int x, int y, int r, int g, int b )
 			ScaleColors( r2, g2, b2, alpha );
 		}
 
-		char* timeAdded = const_cast<char*>( timerMessage.timeAddedString.c_str() );
-		gHUD.DrawHudStringKeepCenter( XPROJECT( screen.x ), YPROJECT( screen.y ), 200, timeAdded, r2, g2, b2 );
+		int timeAddedStringWidth = gHUD.GetStringWidth( timerMessage.timeAddedString.c_str() );
+		gEngfuncs.pfnFillRGBABlend( XPROJECT( screen.x ) - timeAddedStringWidth / 2 - 5, YPROJECT( screen.y ) - 1, timeAddedStringWidth + 8, gHUD.m_scrinfo.iCharHeight + 4, 110, 110, 110, alpha );
+		gHUD.DrawHudStringKeepCenter( XPROJECT( screen.x ), YPROJECT( screen.y ), 200, timerMessage.timeAddedString.c_str(), r2, g2, b2 );
 	}
 }
 
-void CHudTimer::DrawEndScreen( int r, int g, int b )
+void CHudTimer::DrawEndScreen()
 {
+	int r = MESSAGE_BRIGHTENESS;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
 
-	int x = ( ScreenWidth / 2 ) ;
-	int y = ( ScreenHeight / 2 );
+	int actualScreenWidth = 640;
+	int actualScreenHeight = 480;
+
+	int xOffset = ( ScreenWidth / 2 ) - ( actualScreenWidth / 2 );
+	int yOffset = ( ScreenHeight / 2 ) - ( actualScreenHeight / 2 );
+
+	int x = ScreenWidth / 2;
+	int y = CORNER_OFFSET + yOffset;
 
 	int formattedTimeSpriteWidth = gHUD.GetNumberSpriteWidth() * 8;
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
@@ -196,38 +146,150 @@ void CHudTimer::DrawEndScreen( int r, int g, int b )
 	// Black overlay
 	gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, 0, 0, 0, 255 );
 
-	// Runtime animation
-	if ( gpGlobals->time > nextAuxTime && auxTime < time ) {
-		nextAuxTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
-		auxTime += auxTimeStep;
-		if ( auxTime > time ) {
-			auxTime = time;	
-		}
+	// Title Messages
+	gHUD.DrawHudStringKeepCenter( x, y, 200, "BLACK MESA MINUTE", r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight - 2;
+	gHUD.DrawHudStringKeepCenter( x, y, 200, endScreenLevelCompletedMessage.c_str(), r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight * 2;
 
+	// Times
+	x = xOffset + CORNER_OFFSET + 60;
+	y += numberSpriteHeight;
+	DrawEndScreenTimes( x, y );
+
+	// Records
+	x = ScreenWidth - xOffset - CORNER_OFFSET - formattedTimeSpriteWidth - 60;
+	DrawEndScreenRecords( x, y );
+
+	// Bottom statistics
+	x = ScreenWidth / 2;
+	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight * 7;
+	DrawEndScreenStatistics( x, y );
+
+	// Bottom message
+	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight;
+	gHUD.DrawHudStringKeepCenter( x, y, 300, "PRESS ESC TO QUIT OR START THE NEW GAME", r, g, b );
+}
+
+void CHudTimer::DrawEndScreenTimes( int x, int y )
+{
+	int r = MESSAGE_BRIGHTENESS;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
+
+	int r2, g2, b2;
+	UnpackRGB( r2, g2, b2, RGB_TIME_PB_COLOR );
+
+	int formattedTimeSpriteWidth = gHUD.GetNumberSpriteWidth() * 8;
+
+	gHUD.DrawHudString( x, y, 200, "TIME SCORE", r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight;
+	if ( !timeRunningAnimation.isRunning && time > oldTimeRecord ) {
+		timeRunningAnimation.Draw( x, y, r2, g2, b2 );
+		gHUD.DrawHudString( x + formattedTimeSpriteWidth + 2, y - 4, 200, "PB!", r2, g2, b2 );
+	} else {
+		timeRunningAnimation.Draw( x, y, r, g, b );
+	}
+	y += gHUD.m_scrinfo.iCharHeight * 2;
+
+	gHUD.DrawHudString( x, y, 200, "REAL TIME", r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight;
+	if ( !realTimeRunningAnimation.isRunning && realTime < oldRealTimeRecord ) {
+		realTimeRunningAnimation.Draw( x, y, r2, g2, b2 );
+		gHUD.DrawHudString( x + formattedTimeSpriteWidth + 2, y - 4, 200, "PB!", r2, g2, b2 );
+	} else {
+		realTimeRunningAnimation.Draw( x, y, r, g, b );
+	}
+	y += gHUD.m_scrinfo.iCharHeight * 2;
+
+	gHUD.DrawHudString( x, y, 200, "REAL TIME MINUS SCORE", r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight;
+	if ( !realTimeMinusTimeRunningAnimation.isRunning && realTimeMinusTime < oldRealTimeMinusTimeRecord ) {
+		realTimeMinusTimeRunningAnimation.Draw( x, y, r2, g2, b2 );
+		gHUD.DrawHudString( x + formattedTimeSpriteWidth + 2, y - 4, 200, "PB!", r2, g2, b2 );
+	} else {
+		realTimeMinusTimeRunningAnimation.Draw( x, y, r, g, b );
+	}
+	y += gHUD.m_scrinfo.iCharHeight * 2;
+
+	if ( timeRunningAnimation.isRunning ) {
 		if ( gpGlobals->time > nextRuntimeSoundTime ) {
 			gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, "var/runtime.wav", 1.0, ATTN_NORM, 0, PITCH_NORM, true );
 			nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
 		}
 	}
+}
 
-	// Statistic messages cycle
-	if ( currentEndScreenMessage != -1 ) {
-		if ( gpGlobals->time > nextEndScreenMessageTime ) {
-			currentEndScreenMessage++;
-			if ( currentEndScreenMessage >= endScreenMessages.size() ) {
-				currentEndScreenMessage = 0;
-			}
+void CHudTimer::DrawEndScreenRecords( int x, int y )
+{
+	int r = MESSAGE_BRIGHTENESS;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
 
-			nextEndScreenMessageTime = gpGlobals->time + ENDSCREEN_MESSAGE_UPDATE_TIME;
-		}
+	gHUD.DrawHudString( x, y, 200, "PERSONAL BESTS", r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight;
+	gHUD.DrawFormattedTime( oldTimeRecord, x, y, r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight * 2;
 
-		gHUD.DrawHudStringKeepCenter( x, y + numberSpriteHeight + 6, 200, endScreenMessages.at( currentEndScreenMessage ).c_str(), r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight;
+	gHUD.DrawFormattedTime( oldRealTimeRecord, x, y, r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight * 2;
+
+	y += gHUD.m_scrinfo.iCharHeight;
+	gHUD.DrawFormattedTime( oldRealTimeMinusTimeRecord, x, y, r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight * 2;
+}
+
+void CHudTimer::DrawEndScreenStatistics( int x, int y )
+{
+	int r = MESSAGE_BRIGHTENESS;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
+
+	char messageBuffer[16];
+	
+	int roundedSecondsInSlowmotion = ( int ) roundf( secondsInSlowmotion );
+	if ( roundedSecondsInSlowmotion > 0 ) {
+		gHUD.DrawHudString( x - 140, y, 160, "SECONDS IN SLOWMOTION", r, g, b );
+		sprintf( messageBuffer, "%d", roundedSecondsInSlowmotion );
+		gHUD.DrawHudStringKeepRight( x + 140, y, 160, messageBuffer, r, g, b );
+		y += gHUD.m_scrinfo.iCharHeight - 2;
 	}
 
-	DrawFormattedTime( auxTime, x - ( formattedTimeSpriteWidth / 2 ), y, r, g, b );
+	if ( kills > 0 ) {
+		gHUD.DrawHudString( x - 140, y, 160, "TOTAL KILLS", r, g, b );
+		sprintf( messageBuffer, "%d", kills );
+		gHUD.DrawHudStringKeepRight( x + 140, y, 160, messageBuffer, r, g, b );
+		y += gHUD.m_scrinfo.iCharHeight - 2;
+	}
 
-	gHUD.DrawHudStringKeepCenter( x, y - numberSpriteHeight - 2, 200, endScreenLevelCompletedMessage.c_str(), r, g, b );
+	if ( headshotKills > 0 ) {
+		gHUD.DrawHudString( x - 140, y, 160, "HEADSHOT KILLS", r, g, b );
+		sprintf( messageBuffer, "%d", headshotKills );
+		gHUD.DrawHudStringKeepRight( x + 140, y, 160, messageBuffer, r, g, b );
+		y += gHUD.m_scrinfo.iCharHeight - 2;
+	}
 
+	if ( explosiveKills > 0 ) {
+		gHUD.DrawHudString( x - 140, y, 160, "EXPLOSION KILLS", r, g, b );
+		sprintf( messageBuffer, "%d", explosiveKills );
+		gHUD.DrawHudStringKeepRight( x + 140, y, 160, messageBuffer, r, g, b );
+		y += gHUD.m_scrinfo.iCharHeight - 2;
+	}
+
+	if ( crowbarKills > 0 ) {
+		gHUD.DrawHudString( x - 140, y, 160, "MELEE KILLS", r, g, b );
+		sprintf( messageBuffer, "%d", crowbarKills );
+		gHUD.DrawHudStringKeepRight( x + 140, y, 160, messageBuffer, r, g, b );
+		y += gHUD.m_scrinfo.iCharHeight - 2;
+	}
+
+	if ( projectileKills > 0 ) {
+		gHUD.DrawHudString( x - 140, y, 160, "PROJECTILES DESTROYED", r, g, b );
+		sprintf( messageBuffer, "%d", projectileKills );
+		gHUD.DrawHudStringKeepRight( x + 140, y, 160, messageBuffer, r, g, b );
+		y += gHUD.m_scrinfo.iCharHeight - 2;
+	}
 
 }
 
@@ -260,12 +322,28 @@ int CHudTimer::MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf )
 
 int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 {
+	if ( ended ) {
+		return 1;
+	}
+
 	BEGIN_READ( pbuf, iSize );
 
-	bool incomingEnded = READ_BYTE();
-	time = READ_FLOAT();
-	
 	endScreenLevelCompletedMessage = READ_STRING();
+
+	time = READ_FLOAT();
+	realTime = READ_FLOAT();
+	float realTimeMinusTime = max( 0.0f, realTime - time ); 
+
+	oldTimeRecord = READ_FLOAT();
+	oldRealTimeRecord = READ_FLOAT();
+	oldRealTimeMinusTimeRecord = READ_FLOAT();
+	
+	secondsInSlowmotion = READ_FLOAT();
+	kills = READ_SHORT();
+	headshotKills = READ_SHORT();
+	explosiveKills = READ_SHORT();
+	crowbarKills = READ_SHORT();
+	projectileKills = READ_SHORT();
 
 	if ( endScreenLevelCompletedMessage.size() > 0 ) {
 		endScreenLevelCompletedMessage = endScreenLevelCompletedMessage.append( " - COMPLETE" );
@@ -273,102 +351,70 @@ int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 		endScreenLevelCompletedMessage = endScreenLevelCompletedMessage.append( "LEVEL COMPLETE" );
 	}
 
-	// Setup auxTime only once
-	if ( ended != incomingEnded ) { 
-		auxTime = 0.0f;
-		auxTimeStep = time / 60.0f;
+	timeRunningAnimation.StartRunning( time );
+	realTimeRunningAnimation.StartRunning( realTime );
+	realTimeMinusTimeRunningAnimation.StartRunning( realTimeMinusTime );
 
-		nextAuxTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
-		nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
-
-		PrepareEndScreenMessages();
-
-		ended = incomingEnded;
-	}
-	
-	
+	nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+		
+	ended = true;
 	
 	m_iFlags |= HUD_ACTIVE;
 
 	return 1;
 }
 
-int CHudTimer::MsgFunc_Kill( const char *pszName, int iSize, void *pbuf )
+
+
+
+
+
+
+
+
+
+CHudRunningTimerAnimation::CHudRunningTimerAnimation()
 {
-	if ( ended ) {
-		return 1;
-	}
+	isRunning = false;
 
-	BEGIN_READ( pbuf, iSize );
-
-	bool headshotKill = READ_BYTE();
-	bool explosiveKill = READ_BYTE();
-	bool crowbarKill = READ_BYTE();
-
-	kills++;
-	if ( headshotKill ) {
-		headhostKills++;
-	}
-	if ( explosiveKill ) {
-		explosiveKills++;
-	}
-	if ( crowbarKill ) {
-		crowbarKills++;
-	}
-
-	return 1;
+	time = 0.0f;
+	endTime = 0.0f;
+	timeStep = 0.0f;
+	nextUpdateTime = 0.0f;
 }
 
-int CHudTimer::MsgFunc_SlowmoTime( const char *pszName, int iSize, void *pbuf )
+void CHudRunningTimerAnimation::StartRunning( float endTime, float stepFraction )
 {
-	if ( ended ) {
-		return 1;
+	time = 0.0f;
+
+	if ( endTime <= 0.0f ) {
+		endTime = 0.000000001f;
 	}
+	this->endTime = endTime;
 
-	BEGIN_READ( pbuf, iSize );
+	if ( stepFraction <= 0.0f ) {
+		stepFraction = 60.0f;
+	}
+	this->timeStep = endTime / stepFraction;
 
-	secondsInSlowmotion += READ_FLOAT();
-
-	return 1;
+	isRunning = true;
+	nextUpdateTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
 }
 
-void CHudTimer::PrepareEndScreenMessages()
+int CHudRunningTimerAnimation::Draw( int x, int y, int r, int g, int b )
 {
-	char endScreenMessage[64];
+	if ( isRunning && gpGlobals->time > nextUpdateTime ) {
+		if ( time < endTime ) {
+			time += timeStep;
+		}
 
-	if ( secondsInSlowmotion > 0.0f ) {
-		int roundedSecondsInSlowmotion = roundf( secondsInSlowmotion );
-		if ( roundedSecondsInSlowmotion > 0 ) {
-			sprintf( endScreenMessage, "%d SECONDS IN SLOWMOTION", roundedSecondsInSlowmotion );
-			endScreenMessages.push_back( endScreenMessage );
+		if ( time >= endTime ) {
+			time = endTime;
+			isRunning = false;
+		} else {
+			nextUpdateTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
 		}
 	}
 
-	if ( kills > 0 ) {
-		sprintf( endScreenMessage, "%d TOTAL KILLS", kills );
-		endScreenMessages.push_back( endScreenMessage );
-	}
-
-	if ( headhostKills > 0 ) {
-		sprintf( endScreenMessage, "%d HEADSHOT KILLS", headhostKills );
-		endScreenMessages.push_back( endScreenMessage );
-	}
-
-	if ( explosiveKills > 0 ) {
-		sprintf( endScreenMessage, "%d EXPLOSION KILLS", explosiveKills );
-		endScreenMessages.push_back( endScreenMessage );
-	}
-
-	if ( crowbarKills > 0 ) {
-		sprintf( endScreenMessage, "%d MELEE KILLS", crowbarKills );
-		endScreenMessages.push_back( endScreenMessage );
-	}
-
-	if ( endScreenMessages.size() > 0 ) {
-		nextEndScreenMessageTime = gpGlobals->time + ENDSCREEN_MESSAGE_UPDATE_TIME;
-		currentEndScreenMessage = 0;
-	} else {
-		currentEndScreenMessage = -1;
-	}
-
+	return gHUD.DrawFormattedTime( time, x, y, r, g, b );
 }

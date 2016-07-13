@@ -36,8 +36,7 @@
 #include "ammo.h"
 #include <vector>
 
-#define BOTTOM_LEFT_CORNER_OFFSET 20
-#define UPPER_RIGHT_CORNER_OFFSET 20
+#define CORNER_OFFSET 20
 #define HEALTH_SPRITE_WIDTH 64
 #define HEALTH_SPRITE_HEIGHT 128
 #define HOURGLASS_SPRITE_WIDTH 16
@@ -237,6 +236,23 @@ public:
 	float timeAddedFlash2Time;
 };
 
+class CHudRunningTimerAnimation
+{
+public:
+	CHudRunningTimerAnimation();
+	void StartRunning( float endTime, float stepFraction = 60.0f );
+	int Draw( int x, int y, int r, int g, int b );
+	
+	bool isRunning;
+
+private:
+	float time;
+	float endTime;
+	float timeStep;
+
+	float nextUpdateTime;
+};
+
 class CHudTimer : public CHudBase
 {
 public:
@@ -246,32 +262,39 @@ public:
 	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_Kill( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_SlowmoTime( const char *pszName, int iSize, void *pbuf );
 
 private:
 	bool ended;
 	float time;
+	float realTime;
+	float realTimeMinusTime;
+
+	float oldTimeRecord;
+	float oldRealTimeRecord;
+	float oldRealTimeMinusTimeRecord;
 
 	int kills;
-	int headhostKills;
+	int headshotKills;
 	int explosiveKills;
 	int crowbarKills;
+	int projectileKills;
 	float secondsInSlowmotion;
 
-	float auxTime;
-	float auxTimeStep;
-	float nextAuxTime;
+	CHudRunningTimerAnimation timeRunningAnimation;
+	CHudRunningTimerAnimation realTimeRunningAnimation;
+	CHudRunningTimerAnimation realTimeMinusTimeRunningAnimation;
+	 
 	float nextRuntimeSoundTime;
+
 
 	int currentEndScreenMessage;
 	float nextEndScreenMessageTime;
 
-	void DrawFormattedTime( float time, int x, int y, int r, int g, int b );
-	void DrawMessages( int x, int y, int r, int g, int b );
-	void DrawEndScreen( int r, int g, int b );
-
-	void PrepareEndScreenMessages();
+	void DrawMessages( int x, int y );
+	void DrawEndScreen();
+	void DrawEndScreenTimes( int x, int y );
+	void DrawEndScreenRecords( int x, int y );
+	void DrawEndScreenStatistics( int x, int y );
 
 	std::string endScreenLevelCompletedMessage;
 
@@ -681,6 +704,7 @@ public:
 	void DrawColon( int x, int y, int r, int g, int b );
 	void DrawDecimalSeparator( int x, int y, int r, int g, int b );
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
+	int DrawFormattedTime( float time, int x, int y, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, const char *szString, int r, int g, int b );
 	int DrawHudStringKeepRight( int x, int y, int iMaxX, const char *szString, int r, int g, int b );
 	int DrawHudStringKeepCenter( int x, int y, int iMaxX, const char *szString, int r, int g, int b );

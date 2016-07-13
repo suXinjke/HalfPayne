@@ -1638,6 +1638,13 @@ void UTIL_StripToken( const char *pKey, char *pDest )
 	pDest[i] = 0;
 }
 
+// DUMB?
+// But 'paused' flag is stored inside the engine, seems like there's no way to get it
+bool UTIL_IsPaused()
+{
+	return !( gpGlobals->frametime > 0.0f );
+}
+
 
 // --------------------------------------------------------------
 //

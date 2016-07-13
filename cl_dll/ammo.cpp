@@ -915,7 +915,7 @@ int CHudAmmo::Draw(float flTime)
 	ScaleColors(r, g, b, a );
 
 	// Does this weapon have a clip?
-	y = ScreenHeight - BOTTOM_LEFT_CORNER_OFFSET - gHUD.m_iFontHeight - 2;
+	y = ScreenHeight - CORNER_OFFSET - gHUD.m_iFontHeight - 2;
 
 	// Does weapon have any ammo at all?
 	if (m_pWeapon->iAmmoType > 0)

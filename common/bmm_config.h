@@ -87,6 +87,54 @@ static std::string Uppercase( std::string text )
     return text;
 }
 
+class BlackMesaMinuteRecord
+{
+public:
+    BlackMesaMinuteRecord( const char *recordName ) {
+
+		// Retrieve absolute path to the DLL that calls this function
+		WCHAR dllPathWString[MAX_PATH] = { 0 };
+		GetModuleFileNameW( ( HINSTANCE ) &__ImageBase, dllPathWString, _countof( dllPathWString ) );
+		char dllPathCString[MAX_PATH];
+		wcstombs( dllPathCString, dllPathWString, MAX_PATH );
+		filePath = dllPathCString;
+
+		// dumb way to get absolute path to Black Mesa Minute record file
+		filePath = filePath.substr( 0, filePath.rfind( "\\dll\\hl.dll" ) ).append( "\\bmm_records\\" + std::string( recordName ) + ".bmmr" );
+
+        std::ifstream inp( filePath, std::ios::in | std::ios::binary );
+        if ( !inp.is_open() ) {
+			time = 0.0f;
+            realTime = DEFAULT_TIME;
+            realTimeMinusTime = DEFAULT_TIME;
+
+            Save();
+        } else {
+            inp.read( ( char * ) &time, sizeof( float ) );
+            inp.read( ( char * ) &realTime, sizeof( float ) );
+            inp.read( ( char * ) &realTimeMinusTime, sizeof( float ) );
+        }
+    }
+
+    void Save() {
+        std::ofstream out( filePath, std::ios::out | std::ios::binary );
+
+        out.write( (char *) &time, sizeof( float ) );
+        out.write( (char *) &realTime, sizeof( float ) );
+        out.write( (char *) &realTimeMinusTime, sizeof( float ) );
+
+        out.close();
+    }
+
+    float time;
+    float realTime;
+    float realTimeMinusTime;
+
+private:
+	const float DEFAULT_TIME = 59999.0f; // 999:59.00
+    std::string filePath;
+};
+
 class BlackMesaMinuteConfig {
 
 public:
@@ -126,6 +174,8 @@ public:
 
 			return 0;
 		}
+
+		this->configName = configName;
 
 		std::string line;
 		while ( std::getline( inp, line ) ) {
@@ -230,6 +280,7 @@ public:
 	std::string startMap;
 	std::string endMap;
 	std::string name;
+	std::string configName;
 	std::vector<std::string> loadout;
 
 	bool startPositionSpecified = false;
@@ -237,6 +288,7 @@ public:
 	
 	bool startYawSpecified = false;
 	float startYaw = 0.0f;
+
 };
 
 

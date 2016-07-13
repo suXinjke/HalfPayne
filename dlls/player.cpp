@@ -139,7 +139,17 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, bmmEnabled, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, bmmCurrentTime, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, bmmCurrentRealTime, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, bmmEndMap, FIELD_STRING ),
+	DEFINE_FIELD( CBasePlayer, bmmName, FIELD_STRING ),
+	DEFINE_FIELD( CBasePlayer, bmmConfigName, FIELD_STRING ),
+	
+	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, explosiveKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, crowbarKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, projectileKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, secondsInSlowmotion, FIELD_FLOAT ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -216,9 +226,6 @@ int gmsgTeamNames = 0;
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
 
-int gmsgKill = 0;
-int gmsgSlowmoTime = 0;
-
 
 void LinkUserMessages( void )
 {
@@ -241,8 +248,6 @@ void LinkUserMessages( void )
 	gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
 	gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
 	gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
-	gmsgKill = REG_USER_MSG( "Kill", 3 );
-	gmsgSlowmoTime = REG_USER_MSG( "SlowmoTime", 4 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -456,10 +461,13 @@ void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 
 void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
 	if ( bmmEnabled ) {
+
+		kills++;
 		
 		if ( killedByExplosion ) {
 			int timeToAdd = TIMEATTACK_EXPLOSION_BONUS_TIME;
 			bmmCurrentTime += timeToAdd;
+			explosiveKills++;
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
 				WRITE_STRING( "EXPLOSION BONUS" );
@@ -472,9 +480,10 @@ void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, boo
 		else if ( killedByCrowbar ) {
 			int timeToAdd = TIMEATTACK_KILL_CROWBAR_BONUS_TIME;
 			bmmCurrentTime += timeToAdd;
+			crowbarKills++;
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
-				WRITE_STRING( "TIME BONUS" );
+				WRITE_STRING( "MELEE BONUS" );
 				WRITE_LONG( timeToAdd );
 				WRITE_COORD( eventPos.x );
 				WRITE_COORD( eventPos.y );
@@ -484,6 +493,7 @@ void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, boo
 		else if ( isHeadshot ) {
 			int timeToAdd = TIMEATTACK_KILL_BONUS_TIME + TIMEATTACK_HEADSHOT_BONUS_TIME;
 			bmmCurrentTime += timeToAdd;
+			headshotKills++;
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
 				WRITE_STRING( "HEADSHOT BONUS" );
@@ -496,6 +506,7 @@ void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, boo
 		else if ( destroyedGrenade ) {
 			int timeToAdd = TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME;
 			bmmCurrentTime += timeToAdd;
+			projectileKills++;
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
 				WRITE_STRING( "PROJECTILE BONUS" );
@@ -518,11 +529,6 @@ void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, boo
 			MESSAGE_END( );
 		}
 
-		MESSAGE_BEGIN( MSG_ONE, gmsgKill, NULL, pev );
-			WRITE_BYTE( isHeadshot );
-			WRITE_BYTE( killedByExplosion );
-			WRITE_BYTE( killedByCrowbar );
-		MESSAGE_END();
 	}
 }
 
@@ -540,12 +546,53 @@ void CBasePlayer::BMM_End() {
 	pev->movetype = MOVETYPE_NONE;
 	pev->flags |= FL_NOTARGET;
 	RemoveAllItems( true );
+
+	BlackMesaMinuteRecord record( STRING( bmmConfigName ) );
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pev );
-		WRITE_BYTE( true );
-		WRITE_FLOAT( bmmCurrentTime );
+	
 		WRITE_STRING( STRING( bmmName ) );
+
+		WRITE_FLOAT( bmmCurrentTime );
+		WRITE_FLOAT( bmmCurrentRealTime );
+
+		WRITE_FLOAT( record.time );
+		WRITE_FLOAT( record.realTime );
+		WRITE_FLOAT( record.realTimeMinusTime );
+
+		WRITE_FLOAT( secondsInSlowmotion );
+		WRITE_SHORT( kills );
+		WRITE_SHORT( headshotKills );
+		WRITE_SHORT( explosiveKills );
+		WRITE_SHORT( crowbarKills );
+		WRITE_SHORT( projectileKills );
+		
 	MESSAGE_END( );
+
+	BMM_WriteNewRecords( record );
+}
+
+void CBasePlayer::BMM_WriteNewRecords()
+{
+	BlackMesaMinuteRecord record( STRING( bmmConfigName ) );
+	BMM_WriteNewRecords( record );
+}
+
+void CBasePlayer::BMM_WriteNewRecords( BlackMesaMinuteRecord &record )
+{
+	if ( bmmCurrentTime > record.time ) {
+		record.time = bmmCurrentTime;
+	}
+	if ( bmmCurrentRealTime < record.realTime ) {
+		record.realTime = bmmCurrentRealTime;
+	}
+
+	float bmmRealTimeMinusTime = max( 0.0f, bmmCurrentRealTime - bmmCurrentTime );
+	if ( bmmRealTimeMinusTime < record.realTimeMinusTime ) {
+		record.realTimeMinusTime = bmmRealTimeMinusTime;
+	}
+
+	record.Save();
 }
 
 void CBasePlayer::GiveAll() {
@@ -3083,16 +3130,27 @@ pt_end:
 			lastGlobalTime = gpGlobals->time;
 
 			if ( slowMotionEnabled ) {
-				MESSAGE_BEGIN( MSG_ONE, gmsgSlowmoTime, NULL, pev );
-					WRITE_FLOAT( timeDelta );
-				MESSAGE_END();
+				secondsInSlowmotion += timeDelta;
 			}
 			
 			if ( bmmCurrentTime <= 0.0f && pev->deadflag == DEAD_NO ) {
 				ClientKill( ENT( this->pev ) );
 			}
 		}
+		
+		// Counting real time
+		if ( !UTIL_IsPaused() ) {
+			float realTimeDetla = ( g_engfuncs.pfnTime() - lastRealTime );
+
+			if ( fabs( realTimeDetla ) > 0.1 ) {
+				lastRealTime = g_engfuncs.pfnTime();
+			} else {
+				bmmCurrentRealTime += realTimeDetla;
+				lastRealTime = g_engfuncs.pfnTime();
+			}
+		}
 	}
+
 }
 
 
@@ -3275,6 +3333,15 @@ void CBasePlayer::Spawn( void )
 	bmmTimerPaused = 0;
 	bmmEnded = 0;
 	bmmCurrentTime = 60.0f;
+	bmmCurrentRealTime = 0.0f;
+
+	kills = 0;
+	headshotKills = 0;
+	explosiveKills = 0;
+	crowbarKills = 0;
+	projectileKills = 0;
+	secondsInSlowmotion = 0;
+
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );

@@ -183,8 +183,8 @@ int CHudHealth::Draw(float flTime)
 	float healthPercent = ( m_iHealth / 100.0f );
 	float damagePercent = 1.0f - healthPercent;
 
-	int x = BOTTOM_LEFT_CORNER_OFFSET;
-	int y = ScreenHeight - painRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
+	int x = CORNER_OFFSET;
+	int y = ScreenHeight - painRectHeight - CORNER_OFFSET;
 
 	if ( m_iHealth > 0 ) {
 		painRect.bottom *= healthPercent;
@@ -368,7 +368,7 @@ int CHudHealth::DrawDamage(float flTime)
 		{
 			pdmg = &m_dmg[i];
 			SPR_Set(gHUD.GetSprite(m_HUD_dmg_bio + i), r, g, b );
-			SPR_DrawAdditive(0, pdmg->x + BOTTOM_LEFT_CORNER_OFFSET / 2, pdmg->y - HEALTH_SPRITE_HEIGHT / 1.5, &gHUD.GetSpriteRect(m_HUD_dmg_bio + i));
+			SPR_DrawAdditive(0, pdmg->x + CORNER_OFFSET / 2, pdmg->y - HEALTH_SPRITE_HEIGHT / 1.5, &gHUD.GetSpriteRect(m_HUD_dmg_bio + i));
 		}
 	}
 

@@ -38,8 +38,8 @@ int CHudSlowMotion::Draw(float flTime)
 	wrect_t hourglassRect = gHUD.GetSpriteRect( hourglassStrokeSprite );
 	int hourglassRectHeight = hourglassRect.bottom - hourglassRect.top;
 
-	int x = BOTTOM_LEFT_CORNER_OFFSET + HEALTH_SPRITE_WIDTH;
-	int y = ScreenHeight - hourglassRectHeight - BOTTOM_LEFT_CORNER_OFFSET;
+	int x = CORNER_OFFSET + HEALTH_SPRITE_WIDTH;
+	int y = ScreenHeight - hourglassRectHeight - CORNER_OFFSET;
 
 	SPR_Set( gHUD.GetSprite( hourglassStrokeSprite ), 20, 20, 20 );
 	SPR_DrawAdditive( 0, x, y, &hourglassRect );
