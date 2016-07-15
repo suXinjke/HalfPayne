@@ -22,6 +22,7 @@
 #include "nodes.h"
 #include "effects.h"
 #include "player.h"
+#include "bmm_gamerules.h"
 
 #define N_SCALE		15
 #define N_SPHERES	20
@@ -441,8 +442,10 @@ void CNihilanth :: DyingThink( void )
 		Flight( );
 		
 		// EXCEPTION - Nihilanth started dying, end Black Mesa Minute right here
-		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-		player->BMM_End();
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+			bmm->End( player );
+		}	
 
 		if (fabs( pev->origin.z - m_flMaxZ ) < 16)
 		{

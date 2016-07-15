@@ -934,20 +934,20 @@ void RunBlackMesaMinute()
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
 	// Parse config file and retrieve the map name from [startmap] section
-	BlackMesaMinuteConfig bmmConfig;
-	if ( !bmmConfig.Init( configName ) ) {
-		gEngfuncs.pfnConsolePrint( bmmConfig.error.c_str() );
+	std::string startMap = BlackMesaMinuteConfig::GetMapNameFromConfig( configName );
+	if ( startMap.length() <= 0 ) {
+		gEngfuncs.Con_Printf( "Error [startmap] not specified.\n" );
 		return;
 	}
-
+	
 	// Prepare Black Mesa Minute gamemode and try to launch [startmap]
 	// Launching the map then will execute CBlackMesaMinute::ClientConnected and CBlackMesaMinute::Spawn
 	// Where the file will be parsed again for additional parameters
 	gEngfuncs.Cvar_Set( "bmm_config", configName );
 	gEngfuncs.Cvar_Set( "bmm_enabled", "1" );
-
+	
 	char mapCmd[64];
-	sprintf( mapCmd, "map %s", bmmConfig.startMap.c_str() );
+	sprintf( mapCmd, "map %s", startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 

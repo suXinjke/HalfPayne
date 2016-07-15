@@ -33,6 +33,7 @@
 #include "shake.h"
 #include "decals.h"
 #include "gamerules.h"
+#include "bmm_gamerules.h"
 #include "game.h"
 #include "pm_shared.h"
 #include "hltv.h"
@@ -138,18 +139,6 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, bmmEnabled, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, bmmCurrentTime, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, bmmCurrentRealTime, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, bmmEndMap, FIELD_STRING ),
-	DEFINE_FIELD( CBasePlayer, bmmName, FIELD_STRING ),
-	DEFINE_FIELD( CBasePlayer, bmmConfigName, FIELD_STRING ),
-	
-	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, explosiveKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, crowbarKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, projectileKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, secondsInSlowmotion, FIELD_FLOAT ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -194,9 +183,6 @@ int gmsgCurWeapon = 0;
 int gmsgHealth = 0;
 int gmsgSlowMotion = 0;
 int gmsgPainkillerCount = 0;
-int gmsgTimerValue = 0;
-int gmsgTimerMsg = 0;
-int gmsgTimerEnd = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgTrain = 0;
@@ -245,9 +231,6 @@ void LinkUserMessages( void )
 	gmsgHealth = REG_USER_MSG( "Health", 2 );
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
-	gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
-	gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
-	gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
 	gmsgTrain = REG_USER_MSG( "Train", 1);
@@ -459,141 +442,9 @@ void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 	this->slowMotionCharge = min( this->slowMotionCharge, MAX_SLOWMOTION_CHARGE );
 }
 
-void CBasePlayer::BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
-	if ( bmmEnabled ) {
 
-		kills++;
-		
-		if ( killedByExplosion ) {
-			int timeToAdd = TIMEATTACK_EXPLOSION_BONUS_TIME;
-			bmmCurrentTime += timeToAdd;
-			explosiveKills++;
 
-			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
-				WRITE_STRING( "EXPLOSION BONUS" );
-				WRITE_LONG( timeToAdd );
-				WRITE_COORD( eventPos.x );
-				WRITE_COORD( eventPos.y );
-				WRITE_COORD( eventPos.z );
-			MESSAGE_END();
-		}
-		else if ( killedByCrowbar ) {
-			int timeToAdd = TIMEATTACK_KILL_CROWBAR_BONUS_TIME;
-			bmmCurrentTime += timeToAdd;
-			crowbarKills++;
 
-			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
-				WRITE_STRING( "MELEE BONUS" );
-				WRITE_LONG( timeToAdd );
-				WRITE_COORD( eventPos.x );
-				WRITE_COORD( eventPos.y );
-				WRITE_COORD( eventPos.z );
-			MESSAGE_END( );
-		}
-		else if ( isHeadshot ) {
-			int timeToAdd = TIMEATTACK_KILL_BONUS_TIME + TIMEATTACK_HEADSHOT_BONUS_TIME;
-			bmmCurrentTime += timeToAdd;
-			headshotKills++;
-
-			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
-				WRITE_STRING( "HEADSHOT BONUS" );
-				WRITE_LONG( timeToAdd );
-				WRITE_COORD( eventPos.x );
-				WRITE_COORD( eventPos.y );
-				WRITE_COORD( eventPos.z );
-			MESSAGE_END();
-		}
-		else if ( destroyedGrenade ) {
-			int timeToAdd = TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME;
-			bmmCurrentTime += timeToAdd;
-			projectileKills++;
-
-			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
-				WRITE_STRING( "PROJECTILE BONUS" );
-				WRITE_LONG( timeToAdd );
-				WRITE_COORD( eventPos.x );
-				WRITE_COORD( eventPos.y );
-				WRITE_COORD( eventPos.z );
-			MESSAGE_END( );
-		}
-		else {
-			int timeToAdd = TIMEATTACK_KILL_BONUS_TIME;
-			bmmCurrentTime += timeToAdd;
-
-			MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pev );
-				WRITE_STRING( "TIME BONUS" );
-				WRITE_LONG( timeToAdd );
-				WRITE_COORD( eventPos.x );
-				WRITE_COORD( eventPos.y );
-				WRITE_COORD( eventPos.z );
-			MESSAGE_END( );
-		}
-
-	}
-}
-
-void CBasePlayer::BMM_End() {
-	if ( !bmmEnabled || bmmEnded ) {
-		return;
-	}
-
-	if ( slowMotionEnabled ) {
-		ToggleSlowMotion();
-	}
-
-	bmmTimerPaused = 1;
-	bmmEnded = 1;
-	pev->movetype = MOVETYPE_NONE;
-	pev->flags |= FL_NOTARGET;
-	RemoveAllItems( true );
-
-	BlackMesaMinuteRecord record( STRING( bmmConfigName ) );
-	
-	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pev );
-	
-		WRITE_STRING( STRING( bmmName ) );
-
-		WRITE_FLOAT( bmmCurrentTime );
-		WRITE_FLOAT( bmmCurrentRealTime );
-
-		WRITE_FLOAT( record.time );
-		WRITE_FLOAT( record.realTime );
-		WRITE_FLOAT( record.realTimeMinusTime );
-
-		WRITE_FLOAT( secondsInSlowmotion );
-		WRITE_SHORT( kills );
-		WRITE_SHORT( headshotKills );
-		WRITE_SHORT( explosiveKills );
-		WRITE_SHORT( crowbarKills );
-		WRITE_SHORT( projectileKills );
-		
-	MESSAGE_END( );
-
-	BMM_WriteNewRecords( record );
-}
-
-void CBasePlayer::BMM_WriteNewRecords()
-{
-	BlackMesaMinuteRecord record( STRING( bmmConfigName ) );
-	BMM_WriteNewRecords( record );
-}
-
-void CBasePlayer::BMM_WriteNewRecords( BlackMesaMinuteRecord &record )
-{
-	if ( bmmCurrentTime > record.time ) {
-		record.time = bmmCurrentTime;
-	}
-	if ( bmmCurrentRealTime < record.realTime ) {
-		record.realTime = bmmCurrentRealTime;
-	}
-
-	float bmmRealTimeMinusTime = max( 0.0f, bmmCurrentRealTime - bmmCurrentTime );
-	if ( bmmRealTimeMinusTime < record.realTimeMinusTime ) {
-		record.realTimeMinusTime = bmmRealTimeMinusTime;
-	}
-
-	record.Save();
-}
 
 void CBasePlayer::GiveAll() {
 	gEvilImpulse101 = TRUE;
@@ -638,99 +489,104 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	const char *victimName = STRING( victim->pev->classname );
 	Vector deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
 
+	bool killConfirmed = false;
+	
+	bool isHeadshot = false;
 	bool killedByExplosion = victim->killedByExplosion;
 	bool killedByCrowbar = victim->killedByCrowbar;
 
 	if ( strstr( victimName, "monster_" ) != NULL ) {
 		CBaseMonster *monsterVictim = ( CBaseMonster * ) victim;
 
-		bool isHeadshot = monsterVictim->m_LastHitGroup == HITGROUP_HEAD;
+		isHeadshot = monsterVictim->m_LastHitGroup == HITGROUP_HEAD;
 
 		if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
 			bool snarkOwnedByPlayer = victim->pev->owner != 0;
 		
 			if ( !snarkOwnedByPlayer ) {
 				TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
-				BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+				killConfirmed = true;
 			}
 		}
 		else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
-			BMM_IncreaseTime( deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			killConfirmed = true;
 		}
 
-		return;
-	}
-
-	if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
+	} else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-		BMM_IncreaseTime( deathPos, false, killedByExplosion, false, killedByCrowbar );
+		killConfirmed = true;
 	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
 		// DUMB EXCEPTION for snipers in Surface tension
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-		BMM_IncreaseTime( deathPos, false, killedByExplosion, false, killedByCrowbar );
+		killConfirmed = true;
 	}
 
+	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		if ( killConfirmed ) {
+			bmm->IncreaseTime( this, deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+		}
+	}
 }
 
 Vector CBasePlayer :: GetGunPosition( )
@@ -3115,42 +2971,6 @@ pt_end:
 
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
-
-	// Black Mesa Minute running timer
-	if ( bmmEnabled && !bmmTimerPaused && pev->deadflag == DEAD_NO ) {
-		float timeDelta = ( gpGlobals->time - lastGlobalTime );
-
-		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
-		// It was made to prevent timer messup during level changes, because each level has it's own local time
-		if ( fabs( timeDelta ) > 0.1 ) {
-			lastGlobalTime = gpGlobals->time;
-		}
-		else {
-			bmmCurrentTime -= timeDelta;
-			lastGlobalTime = gpGlobals->time;
-
-			if ( slowMotionEnabled ) {
-				secondsInSlowmotion += timeDelta;
-			}
-			
-			if ( bmmCurrentTime <= 0.0f && pev->deadflag == DEAD_NO ) {
-				ClientKill( ENT( this->pev ) );
-			}
-		}
-		
-		// Counting real time
-		if ( !UTIL_IsPaused() ) {
-			float realTimeDetla = ( g_engfuncs.pfnTime() - lastRealTime );
-
-			if ( fabs( realTimeDetla ) > 0.1 ) {
-				lastRealTime = g_engfuncs.pfnTime();
-			} else {
-				bmmCurrentRealTime += realTimeDetla;
-				lastRealTime = g_engfuncs.pfnTime();
-			}
-		}
-	}
-
 }
 
 
@@ -3330,18 +3150,6 @@ void CBasePlayer::Spawn( void )
 	painkillerCount = 0;
 	
 	bmmEnabled = 0;
-	bmmTimerPaused = 0;
-	bmmEnded = 0;
-	bmmCurrentTime = 60.0f;
-	bmmCurrentRealTime = 0.0f;
-
-	kills = 0;
-	headshotKills = 0;
-	explosiveKills = 0;
-	crowbarKills = 0;
-	projectileKills = 0;
-	secondsInSlowmotion = 0;
-
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -3833,8 +3641,11 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-	if ( bmmEnded ) {
-		return;
+
+	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		if ( BMM::ended ) {
+			return;
+		}
 	}
 
 	if ( !slowMotionEnabled ) {
@@ -4547,12 +4358,6 @@ void CBasePlayer :: UpdateClientData( void )
 	MESSAGE_BEGIN( MSG_ONE, gmsgPainkillerCount, NULL, pev );
 		WRITE_BYTE( painkillerCount );
 	MESSAGE_END();
-
-	if ( bmmEnabled ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pev );
-			WRITE_FLOAT( bmmCurrentTime );
-		MESSAGE_END();
-	}
 
 	if (pev->armorvalue != m_iClientBattery)
 	{

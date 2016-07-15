@@ -27,6 +27,7 @@
 #include "saverestore.h"
 #include "trains.h"			// trigger_camera has train functionality
 #include "gamerules.h"
+#include "bmm_gamerules.h"
 
 #define	SF_TRIGGER_PUSH_START_OFF	2//spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE	1// Only fire hurt target once
@@ -1519,10 +1520,11 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 //	ALERT( at_console, "Level touches %d levels\n", ChangeList( levels, 16 ) );
 	
 	// Are we changing to the map that should end Black Mesa Minute run?
-	if ( pPlayer->bmmEnabled && strcmp( st_szNextMap, STRING( pPlayer->bmmEndMap ) ) == 0 ) {
-		pPlayer->BMM_End();
-	}
-	else {
+	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+	if ( bmm && strcmp( st_szNextMap, gBMMConfig.endMap.c_str() ) == 0 ) {
+		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+		bmm->End( player );
+	} else {
 		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
 		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 	}
@@ -2006,11 +2008,10 @@ void CTriggerEndSection::EndSectionUse( CBaseEntity *pActivator, CBaseEntity *pC
 
 	if ( pev->message )
 	{
-		CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-		if ( pPlayer && pPlayer->bmmEnabled ) {
-			pPlayer->BMM_End( );
-		}
-		else {
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+			bmm->End( player );
+		} else {
 			g_engfuncs.pfnEndSection( STRING( pev->message ) );
 		}
 	}
@@ -2043,12 +2044,13 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 
 	if (pev->message)
 	{
-		CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-		if ( pPlayer && pPlayer->bmmEnabled ) {
-			pPlayer->BMM_End( );
-		}
-		else {
-			g_engfuncs.pfnEndSection( STRING( pev->message ) );
+		CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+		if ( bmm && strcmp( st_szNextMap, gBMMConfig.endMap.c_str() ) == 0 ) {
+			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+			bmm->End( player );
+		} else {
+			ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
+			CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 		}
 	}
 	UTIL_Remove( this );

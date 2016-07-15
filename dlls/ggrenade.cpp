@@ -27,6 +27,7 @@
 #include "soundent.h"
 #include "decals.h"
 #include "player.h"
+#include "bmm_gamerules.h"
 
 
 //===================grenade
@@ -162,8 +163,10 @@ void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 	} else {
 		// Destroying enemy grenade nets bonus time for the player
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
-			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
-			player->BMM_IncreaseTime( pev->origin, false, false, true );
+			if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
+				bmm->IncreaseTime( player, pev->origin, false, false, true, false );
+			}	
 
 			this->killedOrCausedByPlayer = true;
 		}

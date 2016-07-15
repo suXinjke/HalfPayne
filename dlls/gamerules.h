@@ -15,11 +15,11 @@
 //=========================================================
 // GameRules
 //=========================================================
+#ifndef GAMERULES_H
+#define GAMERULES_H
 
 //#include "weapons.h"
 //#include "items.h"
-
-#include "bmm_config.h"
 
 class CBasePlayerItem;
 class CBasePlayer;
@@ -251,20 +251,6 @@ public:
 	virtual int PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pTarget );
 };
 
-// CBlackMesaMinute - rules for time/score attack gamemode
-class CBlackMesaMinute : public CHalfLifeRules {
-
-public:
-	CBlackMesaMinute();
-
-	virtual BOOL ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] );
-	virtual void PlayerSpawn( CBasePlayer *pPlayer );
-	virtual void RefreshSkillData();
-
-private:
-	BlackMesaMinuteConfig bmmConfig;
-};
-
 //=========================================================
 // CHalfLifeMultiplay - rules for the basic half life multiplayer
 // competition
@@ -375,3 +361,5 @@ protected:
 };
 
 extern DLL_GLOBAL CGameRules*	g_pGameRules;
+
+#endif //GAMERULES_H

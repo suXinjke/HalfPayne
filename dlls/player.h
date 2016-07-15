@@ -18,8 +18,6 @@
 
 #include "pm_materials.h"
 #include <SDL2/SDL_timer.h>
-#include "../common/bmm_config.h"
-
 
 #define PLAYER_FATAL_FALL_SPEED		1024// approx 60 feet
 #define PLAYER_MAX_SAFE_FALL_SPEED	580// approx 20 feet
@@ -381,29 +379,7 @@ public:
 	float lastDamageTime;
 	float healthChargeTime;
 
-	// Black Mesa Minute
 	int bmmEnabled;
-	int bmmTimerPaused;
-	int bmmEnded;
-	string_t bmmEndMap;
-	string_t bmmName;
-	string_t bmmConfigName;
-	float bmmCurrentTime;
-	float bmmCurrentRealTime;
-	float lastGlobalTime;
-	float lastRealTime;
-
-	int kills;
-	int headshotKills;
-	int explosiveKills;
-	int crowbarKills;
-	int projectileKills;
-	float secondsInSlowmotion;
-
-	void BMM_IncreaseTime( const Vector &eventPos, bool isHeadshot = false, bool killedByExplosion = false, bool destroyedGrenade = false, bool killedByCrowbar = false );
-	void BMM_End();
-	void BMM_WriteNewRecords();
-	void BMM_WriteNewRecords( BlackMesaMinuteRecord &record );
 
 	void GiveAll(); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );

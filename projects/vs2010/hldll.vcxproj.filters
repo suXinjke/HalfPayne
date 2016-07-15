@@ -37,6 +37,9 @@
     <Filter Include="Header Files\common">
       <UniqueIdentifier>{03c3b7ab-7381-4112-a0a0-1c1c467c5674}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\game_shared">
+      <UniqueIdentifier>{8e877b5e-e3d7-4d0e-97fa-e666a0ecd436}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dlls\aflock.cpp">
@@ -345,6 +348,15 @@
     <ClCompile Include="..\..\dlls\xen.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\bmm_config.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game_shared\string_aux.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dlls\bmm_gamerules.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\doors.h">
@@ -482,8 +494,14 @@
     <ClInclude Include="..\..\dlls\vector.h">
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\bmm_config.h">
-      <Filter>Header Files\common</Filter>
+    <ClInclude Include="..\..\game_shared\bmm_config.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\string_aux.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlls\bmm_gamerules.h">
+      <Filter>Header Files\dlls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
