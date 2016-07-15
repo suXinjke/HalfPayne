@@ -171,7 +171,6 @@ void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
 
-	PauseTimer( pPlayer );
 	BMM::kills++;
 		
 	if ( killedByExplosion ) {
