@@ -262,8 +262,10 @@ public:
 	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf );
 
 private:
+	bool paused;
 	bool ended;
 	float time;
 	float realTime;
@@ -283,9 +285,11 @@ private:
 	CHudRunningTimerAnimation timeRunningAnimation;
 	CHudRunningTimerAnimation realTimeRunningAnimation;
 	CHudRunningTimerAnimation realTimeMinusTimeRunningAnimation;
-	 
-	float nextRuntimeSoundTime;
+	
+	bool blinked;
+	float nextTimerBlinkTime;
 
+	float nextRuntimeSoundTime;
 
 	int currentEndScreenMessage;
 	float nextEndScreenMessageTime;

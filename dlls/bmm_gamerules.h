@@ -18,12 +18,14 @@ public:
 	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar );
 	virtual void End( CBasePlayer *pPlayer );
 
+	virtual void PauseTimer( CBasePlayer *pPlayer );
+	virtual void ResumeTimer( CBasePlayer *pPlayer );
 };
 
 namespace BMM
 {
-	extern int timerPaused;
-	extern int ended;
+	extern bool timerPaused;
+	extern bool ended;
 
 	extern float currentTime;
 	extern float currentRealTime;

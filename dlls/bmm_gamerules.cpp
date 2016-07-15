@@ -15,8 +15,8 @@
 // but ideally they should be inside CBlackMesaMinute, not like this
 // or inside the CBasePlayer like before (it has Save/Restore methods though).
 
-int BMM::timerPaused = 0;
-int BMM::ended = 0;
+bool BMM::timerPaused = false;
+bool BMM::ended = false;
 
 float BMM::currentTime = 60.0f;
 float BMM::currentRealTime = 0.0f;
@@ -33,6 +33,7 @@ float BMM::secondsInSlowmotion = 0;
 int	gmsgTimerMsg	= 0;
 int	gmsgTimerEnd	= 0;
 int gmsgTimerValue	= 0;
+int gmsgTimerPause  = 0;
 
 CBlackMesaMinute::CBlackMesaMinute()
 {
@@ -42,6 +43,7 @@ CBlackMesaMinute::CBlackMesaMinute()
 		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
 		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
 		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
+		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
 	}
 }
 
@@ -169,6 +171,7 @@ void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
 
+	PauseTimer( pPlayer );
 	BMM::kills++;
 		
 	if ( killedByExplosion ) {
@@ -248,8 +251,9 @@ void CBlackMesaMinute::End( CBasePlayer *pPlayer ) {
 		pPlayer->ToggleSlowMotion();
 	}
 
-	BMM::timerPaused = 1;
-	BMM::ended = 1;
+	BMM::ended = true;
+	PauseTimer( pPlayer );
+
 	pPlayer->pev->movetype = MOVETYPE_NONE;
 	pPlayer->pev->flags |= FL_NOTARGET;
 	pPlayer->RemoveAllItems( true );
@@ -291,4 +295,30 @@ void CBlackMesaMinute::End( CBasePlayer *pPlayer ) {
 	}
 
 	record.Save();
+}
+
+void CBlackMesaMinute::PauseTimer( CBasePlayer *pPlayer )
+{
+	if ( BMM::timerPaused ) {
+		return;
+	}
+
+	BMM::timerPaused = true;
+	
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
+		WRITE_BYTE( true );
+	MESSAGE_END();
+}
+
+void CBlackMesaMinute::ResumeTimer( CBasePlayer *pPlayer )
+{
+	if ( !BMM::timerPaused ) {
+		return;
+	}
+
+	BMM::timerPaused = false;
+	
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
+		WRITE_BYTE( false );
+	MESSAGE_END();
 }

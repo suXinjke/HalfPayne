@@ -8,12 +8,14 @@
 DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
 DECLARE_MESSAGE( m_Timer, TimerEnd )
+DECLARE_MESSAGE( m_Timer, TimerPause )
 
 extern globalvars_t *gpGlobals;
 
 #define RUNTIME_SOUND_DURATION 0.072f
 #define RUNTIME_UPDATE_TIME 0.02f
 #define ENDSCREEN_MESSAGE_UPDATE_TIME 3.0f
+#define TIMER_PAUSED_BLINK_TIME 0.7f
 
 #define MESSAGE_BRIGHTENESS 200
 #define RGB_TIME_PB_COLOR 0x00FFFF00 // 255, 255, 255
@@ -22,7 +24,8 @@ int CHudTimer::Init(void)
 {
 	HOOK_MESSAGE( TimerValue );
 	HOOK_MESSAGE( TimerMsg );
-	HOOK_MESSAGE( TimerEnd )
+	HOOK_MESSAGE( TimerEnd );
+	HOOK_MESSAGE( TimerPause );
 	
 	gHUD.AddHudElem(this);
 
@@ -33,7 +36,9 @@ void CHudTimer::Reset( void )
 {
 	m_iFlags = 0;
 
+	paused = false;
 	ended = false;
+	blinked = false;
 	time = 0.0f;
 	messages.clear();
 	endScreenMessages.clear();
@@ -66,6 +71,15 @@ int CHudTimer::Draw( float flTime )
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
 
 	if ( !ended ) {	
+		if ( paused ) {
+			if ( !blinked ) {
+				ScaleColors( r, g, b, 50 );
+			}
+			if ( gpGlobals->time > nextTimerBlinkTime ) {
+				blinked = !blinked;
+				nextTimerBlinkTime = gpGlobals->time + TIMER_PAUSED_BLINK_TIME;
+			}
+		}
 		gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
 		y += numberSpriteHeight;
 		DrawMessages( x, y );
@@ -364,7 +378,15 @@ int CHudTimer::MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf )
 	return 1;
 }
 
+int CHudTimer::MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	
+	paused = READ_BYTE() != 0;
+	nextTimerBlinkTime = gpGlobals->time + TIMER_PAUSED_BLINK_TIME;
 
+	return 1;
+}
 
 
 
