@@ -487,7 +487,8 @@ void CBasePlayer::SetEvilImpulse101( bool evilImpulse101 ) {
 void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 {
 	const char *victimName = STRING( victim->pev->classname );
-	Vector deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
+	Vector deathPos = victim->pev->origin;
+	deathPos.z += victim->pev->size.z + 5.0f;
 
 	bool killConfirmed = false;
 	
