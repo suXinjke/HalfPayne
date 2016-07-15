@@ -95,7 +95,10 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 		lineCount++;
 		line = Trim( line );
 
-		if ( line.empty( ) || line.find( "//" ) == 0 ) {
+		// remove trailing comments
+		line = line.substr( 0, line.find( "//" ) );
+
+		if ( line.empty() ) {
 			continue;
 		}
 
@@ -218,7 +221,15 @@ std::string BlackMesaMinuteConfig::GetMapNameFromConfig( const char *configName 
 	std::string startMap;
 	while ( std::getline( inp, line ) ) {
 		lineCount++;
+
 		line = Trim( line );
+		
+		// remove trailing comments
+		line = line.substr( 0, line.find( "//" ) );
+
+		if ( line.empty() ) {
+			continue;
+		}
 
 		if ( line == "[startmap]" ) {
 			currentFileSection = BMM_FILE_SECTION_START_MAP;
