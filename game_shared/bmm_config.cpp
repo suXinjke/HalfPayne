@@ -71,6 +71,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	this->configName.clear();
 	this->loadout.clear();
 
+	this->timerPauseModelIndexes.clear();
+	this->timerResumeIndexes.clear();
+
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
 
@@ -117,6 +120,12 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			continue;
 		} else if ( line == "[name]" ) {
 			currentFileSection = BMM_FILE_SECTION_NAME;
+			continue;
+		} else if ( line == "[timerpause]" ) {
+			currentFileSection = BMM_FILE_SECTION_TIMER_PAUSE;
+			continue;
+		} else if ( line == "[timerresume]" ) {
+			currentFileSection = BMM_FILE_SECTION_TIMER_RESUME;
 			continue;
 		} else {
 			if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
@@ -182,6 +191,25 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			}
 			currentFileSection = BMM_FILE_SECTION_NO_SECTION;
 			continue;
+		} else if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE || currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ) {
+			std::vector<std::string> modelIndexStrings = Split( line, ' ' );
+
+			std::string mapName = modelIndexStrings.at( 0 );
+			int modelIndex;
+			try {
+				modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
+			} catch ( std::invalid_argument ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: model index incorrectly specified.\n", configName, lineCount );
+				error = std::string( errorCString );
+				break;
+			}
+
+			if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE ) {
+				timerPauseModelIndexes.push_back( { mapName, modelIndex } );
+			} else if ( currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ) {
+				timerResumeIndexes.push_back( { mapName, modelIndex } );
+			}
 		}
 	}
 

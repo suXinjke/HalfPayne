@@ -25,6 +25,8 @@
 #include "cbase.h"
 #include "saverestore.h"
 #include "doors.h"
+#include "gamerules.h"
+#include "bmm_gamerules.h"
 
 #if !defined ( _WIN32 )
 #include <string.h> // memset())))
@@ -688,6 +690,17 @@ void CBaseButton::ButtonActivate( )
 		LinearMove( m_vecPosition2, pev->speed);
 	else
 		AngularMove( m_vecAngle2, pev->speed);
+
+	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
+		char message[128];
+		sprintf( message, "[%s] Activated button: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
+		g_engfuncs.pfnServerPrint( message );
+	}
+
+	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+	if ( bmm ) {
+		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	}
 }
 
 //

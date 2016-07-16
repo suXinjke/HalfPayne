@@ -68,6 +68,8 @@ cvar_t	*cl_vsmoothing;
 
 cvar_t	*bmm_enabled;
 cvar_t  *bmm_config;
+
+cvar_t  *printmodelindexes;
 /*
 ===============================================================================
 
@@ -1035,6 +1037,8 @@ void InitInput (void)
 	bmm_enabled = gEngfuncs.pfnRegisterVariable( "bmm_enabled", "0", 0 );
 	bmm_config			= gEngfuncs.pfnRegisterVariable( "bmm_config", "", 0 );
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
+
+	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );
 
 	// Initialize third person camera controls.
 	CAM_Init();

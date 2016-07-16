@@ -22,7 +22,8 @@
 #include "util.h"
 #include "cbase.h"
 #include "doors.h"
-
+#include "gamerules.h"
+#include "bmm_gamerules.h"
 
 extern void SetMovedir(entvars_t* ev);
 
@@ -551,6 +552,17 @@ int CBaseDoor::DoorActivate( )
 		PlayLockSounds(pev, &m_ls, FALSE, FALSE);
 		
 		DoorGoUp();
+	}
+
+	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
+		char message[128];
+		sprintf( message, "[%s] Activated door: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
+		g_engfuncs.pfnServerPrint( message );
+	}
+
+	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+	if ( bmm ) {
+		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
 	return 1;

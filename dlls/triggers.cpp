@@ -1189,6 +1189,17 @@ void CBaseTrigger :: ActivateMultiTrigger( CBaseEntity *pActivator )
 		pev->nextthink = gpGlobals->time + 0.1;
 		SetThink(  &CBaseTrigger::SUB_Remove );
 	}
+	
+	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
+		char message[128];
+		sprintf( message, "[%s] Activated trigger: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
+		g_engfuncs.pfnServerPrint( message );
+	}
+
+	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+	if ( bmm ) {
+		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	}
 }
 
 
@@ -1518,9 +1529,20 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 		gpGlobals->vecLandmarkOffset = VARS(pentLandmark)->origin;
 	}
 //	ALERT( at_console, "Level touches %d levels\n", ChangeList( levels, 16 ) );
+
+	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
+		char message[128];
+		sprintf( message, "[%s] Activated trigger: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
+		g_engfuncs.pfnServerPrint( message );
+	}
+
 	
-	// Are we changing to the map that should end Black Mesa Minute run?
 	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+	if ( bmm ) {
+		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	}
+
+	// Are we changing to the map that should end Black Mesa Minute run?
 	if ( bmm && strcmp( st_szNextMap, gBMMConfig.endMap.c_str() ) == 0 ) {
 		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 		bmm->End( player );

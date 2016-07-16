@@ -20,6 +20,8 @@ public:
 
 	virtual void PauseTimer( CBasePlayer *pPlayer );
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
+
+	virtual void HookModelIndex( edict_t *activator, const char *mapName, int modelIndex );
 };
 
 namespace BMM

@@ -5,6 +5,7 @@
 #include	"client.h"
 #include	"bmm_gamerules.h"
 #include	"bmm_config.h"
+#include	<algorithm>
 
 // Black Mesa Minute
 
@@ -54,6 +55,7 @@ BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, c
 	if ( READ_BLACK_MESA_MINUTE_CONFIG ) {
 		const char *configName = CVAR_GET_STRING( "bmm_config" );
 		if ( !gBMMConfig.Init( configName ) ) {
+			g_engfuncs.pfnServerPrint( gBMMConfig.error.c_str() );
 			return FALSE;
 		}
 	}
@@ -301,7 +303,7 @@ void CBlackMesaMinute::PauseTimer( CBasePlayer *pPlayer )
 	if ( BMM::timerPaused ) {
 		return;
 	}
-
+	
 	BMM::timerPaused = true;
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
@@ -320,4 +322,49 @@ void CBlackMesaMinute::ResumeTimer( CBasePlayer *pPlayer )
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
 		WRITE_BYTE( false );
 	MESSAGE_END();
+}
+
+void CBlackMesaMinute::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )
+{
+	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( activator );
+	if ( !pPlayer ) {
+		return;
+	}
+
+	std::vector<BlackMesaMinuteConfig::ModelIndex> *vec;
+	vec = &gBMMConfig.timerPauseModelIndexes;
+
+	for ( size_t i = 0; i < vec->size(); i++ ) {
+		std::string timerPauseMapName = vec->at( i ).mapName;
+		int timerPauseModelIndex = vec->at( i ).modelIndex;
+
+		if ( timerPauseMapName == mapName && timerPauseModelIndex == modelIndex ) {
+			
+			// Remove all occurences of current structure
+			vec->erase( std::remove_if( vec->begin(), vec->end(), [&]( BlackMesaMinuteConfig::ModelIndex const &timerpauseIndex ) {
+				return timerpauseIndex.mapName == timerPauseMapName && timerpauseIndex.modelIndex == timerPauseModelIndex;
+			} ), vec->end() );
+
+			PauseTimer( pPlayer );
+			return;
+		}
+	}
+
+	vec = &gBMMConfig.timerResumeIndexes;
+
+	for ( size_t i = 0; i < vec->size(); i++ ) {
+		std::string timerResumeMapName = vec->at( i ).mapName;
+		int timerResumeModelIndex = vec->at( i ).modelIndex;
+
+		if ( timerResumeMapName == mapName && timerResumeModelIndex == modelIndex ) {
+			
+			// Remove all occurences of current structure
+			vec->erase( std::remove_if( vec->begin(), vec->end(), [&]( BlackMesaMinuteConfig::ModelIndex const &timerResumeIndex ) {
+				return timerResumeIndex.mapName == timerResumeMapName && timerResumeIndex.modelIndex == timerResumeModelIndex;
+			} ), vec->end() );
+			
+			ResumeTimer( pPlayer );
+			return;
+		}
+	}
 }

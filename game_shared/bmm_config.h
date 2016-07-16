@@ -72,6 +72,14 @@ public:
 		BMM_FILE_SECTION_LOADOUT,
 		BMM_FILE_SECTION_START_POSITION,
 		BMM_FILE_SECTION_NAME,
+		BMM_FILE_SECTION_TIMER_PAUSE,
+		BMM_FILE_SECTION_TIMER_RESUME,
+	};
+
+	struct ModelIndex
+	{
+		std::string mapName;
+		int			modelIndex;
 	};
 
 	BlackMesaMinuteConfig();
@@ -81,11 +89,16 @@ public:
 	// Used only by client
 	static std::string GetMapNameFromConfig( const char *configName );
 
+	std::string error;
+
 	std::string startMap;
 	std::string endMap;
 	std::string name;
 	std::string configName;
 	std::vector<std::string> loadout;
+
+	std::vector<ModelIndex>	     timerPauseModelIndexes;
+	std::vector<ModelIndex>	     timerResumeIndexes;
 
 	bool startPositionSpecified;
 	Vector startPosition;
@@ -94,7 +107,6 @@ public:
 	float startYaw;
 
 private:
-	std::string error;
 	std::string configFolderPath;
 
 };
