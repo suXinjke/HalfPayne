@@ -132,7 +132,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				char errorCString[1024];
 				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: preceding section not specified.\n", configName, lineCount );
 				error = std::string( errorCString );
-				break;
+				return false;
 			}
 		}
 
@@ -157,7 +157,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 					char errorCString[1024];
 					sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: loadout item count incorrectly specified.\n", configName, lineCount );
 					error = std::string( errorCString );
-					break;
+					return false;
 				}
 			}
 			
@@ -177,9 +177,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				}
 				catch ( std::invalid_argument e ) {
 					char errorCString[1024];
-					sprintf( errorCString, "Error incorrect value in [startposition] section: %s\n", startPositionValueString.c_str() );
+					sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect value in [startposition] section: %s\n", configName, lineCount, startPositionValueString.c_str() );
 					error = std::string( errorCString );
-					break;
+					return false;
 				}
 
 				startPositionValues.push_back( startPositionValue );
@@ -187,9 +187,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 
 			if ( startPositionValues.size() < 3 ) {
 				char errorCString[1024];
-				sprintf( errorCString, "Error not enough coordinates provided in [startposition] section\n" );
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: not enough coordinates provided in [startposition] section\n", configName, lineCount );
 				error = std::string( errorCString );
-				break;
+				return false;
 			}
 
 			startPosition[0] = startPositionValues.at( 0 );
@@ -213,6 +213,13 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 		} else if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE || currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ) {
 			std::vector<std::string> modelIndexStrings = Split( line, ' ' );
 
+			if ( modelIndexStrings.size() < 2 ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: <mapname> <modelindex> not specified.\n", configName, lineCount );
+				error = std::string( errorCString );
+				return false;
+			}
+
 			std::string mapName = modelIndexStrings.at( 0 );
 			int modelIndex;
 			try {
@@ -221,7 +228,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				char errorCString[1024];
 				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: model index incorrectly specified.\n", configName, lineCount );
 				error = std::string( errorCString );
-				break;
+				return false;
 			}
 
 			if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE ) {
@@ -232,11 +239,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 		}
 	}
 
-	if ( error.empty( ) ) {
-		return true;
-	} else {
-		return false;
-	}
+	return true;
 }
 
 // Used only by client
