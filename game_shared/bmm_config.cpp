@@ -145,7 +145,26 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			currentFileSection = BMM_FILE_SECTION_NO_SECTION;
 			continue;
 		} else if ( currentFileSection == BMM_FILE_SECTION_LOADOUT ) {
-			loadout.push_back( line );
+			std::vector<std::string> loadoutStrings = Split( line, ' ' );
+			std::string itemName = loadoutStrings.at( 0 );
+			
+			int itemCount = 1;
+
+			if ( loadoutStrings.size() > 1 ) {
+				try {
+					itemCount = std::stof( loadoutStrings.at( 1 ) );
+				} catch ( std::invalid_argument e ) {
+					char errorCString[1024];
+					sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: loadout item count incorrectly specified.\n", configName, lineCount );
+					error = std::string( errorCString );
+					break;
+				}
+			}
+			
+			for ( int i = 0; i < itemCount; i++ ) {
+				loadout.push_back( itemName );
+			}
+			
 			continue;
 		} else if ( currentFileSection == BMM_FILE_SECTION_START_POSITION ) {
 			std::vector<std::string> startPositionValueStrings = Split( line, ' ' );
