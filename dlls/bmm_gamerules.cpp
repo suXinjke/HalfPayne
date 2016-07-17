@@ -46,18 +46,17 @@ CBlackMesaMinute::CBlackMesaMinute()
 		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
 		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
 	}
+
+	const char *configName = CVAR_GET_STRING( "bmm_config" );
+	gBMMConfig.Init( configName );
 }
 
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
 {
-	const int READ_BLACK_MESA_MINUTE_CONFIG = true;
 
-	if ( READ_BLACK_MESA_MINUTE_CONFIG ) {
-		const char *configName = CVAR_GET_STRING( "bmm_config" );
-		if ( !gBMMConfig.Init( configName ) ) {
-			g_engfuncs.pfnServerPrint( gBMMConfig.error.c_str() );
-			return FALSE;
-		}
+	if ( !gBMMConfig.error.empty() ) {
+		g_engfuncs.pfnServerPrint( gBMMConfig.error.c_str() );
+		return FALSE;
 	}
 
 	// Prevent loading of Black Mesa Minute saves
@@ -119,6 +118,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	if ( gBMMConfig.startYawSpecified ) {
 		pPlayer->pev->angles[1] = gBMMConfig.startYaw;
 	}
+
 }
 
 void CBlackMesaMinute::RefreshSkillData() 
@@ -356,5 +356,20 @@ void CBlackMesaMinute::HookModelIndex( edict_t *activator, const char *mapName, 
 		End( pPlayer );
 		return;
 	}
+}
 
+void CBlackMesaMinute::SpawnEnemiesByConfig( const char *mapName )
+{
+	if ( gBMMConfig.entitySpawns.size() == 0 ) {
+		return;
+	}
+
+	std::vector<BlackMesaMinuteConfig::EntitySpawn>::iterator entitySpawn = gBMMConfig.entitySpawns.begin();
+	for ( entitySpawn; entitySpawn != gBMMConfig.entitySpawns.end(); entitySpawn++ ) {
+		if ( entitySpawn->mapName == mapName ) {
+			CBaseEntity::Create( BMM::allowedEntities[BMM::GetAllowedEntityIndex( entitySpawn->entityName.c_str() )], entitySpawn->origin, Vector( 0, entitySpawn->angle, 0 ) );
+			gBMMConfig.entitySpawns.erase( entitySpawn );
+			entitySpawn--;
+		}
+	}
 }

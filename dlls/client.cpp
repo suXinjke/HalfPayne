@@ -40,6 +40,8 @@
 #include "netadr.h"
 #include "pm_shared.h"
 
+#include "bmm_gamerules.h"
+
 #if !defined ( _WIN32 )
 #include <ctype.h>
 #endif
@@ -920,6 +922,15 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "slowmo/slowmo_heartbeat.wav" );
 	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
 	PRECACHE_SOUND( "var/death.wav" );
+
+	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		for ( std::string spawn : gBMMConfig.entitiesToPrecache ) {
+			UTIL_PrecacheOther( spawn.c_str() );
+		}
+
+		// Not exactly correct place to call this in terms of context but it works for both initial spawn and level changes
+		bmm->SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
+	}
 }
 
 /*

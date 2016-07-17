@@ -34,12 +34,69 @@ namespace BMM
 		"weapon_snark",
 		"weapon_hornetgun"
 	};
+	
+	static char *allowedEntities[] {
+		"item_suit",
+		"item_longjump",
+		"item_battery",
+		"item_healthkit",
+		"weapon_crowbar",
+		"weapon_9mmhandgun",
+		"ammo_9mmclip",
+		"weapon_shotgun",
+		"ammo_buckshot",
+		"weapon_9mmAR",
+		"ammo_9mmAR",
+		"ammo_ARgrenades",
+		"weapon_handgrenade",
+		"weapon_tripmine",
+		"weapon_357",
+		"ammo_357",
+		"weapon_crossbow",
+		"ammo_crossbow",
+		"weapon_egon",
+		"weapon_gauss",
+		"ammo_gaussclip",
+		"weapon_rpg",
+		"ammo_rpgclip",
+		"weapon_satchel",
+		"weapon_snark",
+		"weapon_hornetgun",
+
+		"monster_alien_controller",
+		"monster_alien_grunt",
+		"monster_alien_slave",
+		"monster_bullchicken",
+		"monster_gargantua",
+		"monster_headcrab",
+		"monster_houndeye",
+		"monster_human_assassin",
+		"monster_human_grunt",
+		"monster_ichthyosaur",
+		"monster_miniturret",
+		"monster_sentry",
+		"monster_snark",
+		"monster_zombie",
+
+	};
 
 	static int GetAllowedItemIndex( const char *allowedItem ) {
 
 		for ( int i = 0; i < sizeof( allowedItems ) / sizeof( allowedItems[0] ); i++ )
 		{
 			if ( strcmp( allowedItem, allowedItems[i] ) == 0 ) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	static int GetAllowedEntityIndex( const char *allowedEntity ) {
+
+		for ( int i = 0; i < sizeof( allowedEntities ) / sizeof( allowedEntity[0] ); i++ )
+		{
+			if ( strcmp( allowedEntity, allowedEntities[i] ) == 0 ) {
 				return i;
 			}
 		}
@@ -76,6 +133,7 @@ public:
 		BMM_FILE_SECTION_TIMER_PAUSE,
 		BMM_FILE_SECTION_TIMER_RESUME,
 		BMM_FILE_SECTION_END_TRIGGER,
+		BMM_FILE_SECTION_ENTITY_SPAWN
 	};
 
 	struct ModelIndex
@@ -91,6 +149,14 @@ public:
 
 			this->key = mapName + std::to_string( modelIndex );
 		}
+	};
+
+	struct EntitySpawn
+	{
+		std::string mapName;
+		std::string entityName;
+		Vector		origin;
+		int			angle;
 	};
 
 	BlackMesaMinuteConfig();
@@ -111,6 +177,8 @@ public:
 	std::set<ModelIndex>	     timerPauses;
 	std::set<ModelIndex>	     timerResumes;
 	std::set<ModelIndex>	     endTriggers;
+	std::vector<EntitySpawn>     entitySpawns;
+	std::set<std::string>		 entitiesToPrecache;
 
 	bool startPositionSpecified;
 	Vector startPosition;

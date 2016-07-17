@@ -22,6 +22,8 @@ public:
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
 
 	virtual void HookModelIndex( edict_t *activator, const char *mapName, int modelIndex );
+
+	virtual void SpawnEnemiesByConfig( const char *mapName );
 };
 
 namespace BMM

@@ -74,6 +74,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	this->timerPauses.clear();
 	this->timerResumes.clear();
 	this->endTriggers.clear();
+	this->entitySpawns.clear();
+	this->entitiesToPrecache.clear();
 
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
@@ -130,6 +132,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			continue;
 		} else if ( line == "[endtrigger]" ) {
 			currentFileSection = BMM_FILE_SECTION_END_TRIGGER;
+			continue;
+		} else if ( line == "[entityspawn]" ) {
+			currentFileSection = BMM_FILE_SECTION_ENTITY_SPAWN;
 			continue;
 		} else {
 			if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
@@ -245,6 +250,49 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			} else if ( currentFileSection == BMM_FILE_SECTION_END_TRIGGER ) {
 				endTriggers.insert( ModelIndex( mapName, modelIndex ) );
 			}
+		} else if ( currentFileSection == BMM_FILE_SECTION_ENTITY_SPAWN ) {
+			std::vector<std::string> entitySpawnStrings = Split( line, ' ' );
+
+			if ( entitySpawnStrings.size() < 5 ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: <mapname> <entityname> <x> <y> <z> [angle] not specified.\n", configName, lineCount );
+				error = std::string( errorCString );
+				return false;
+			}
+
+			std::string mapName = entitySpawnStrings.at( 0 );
+			std::string entityName = entitySpawnStrings.at( 1 );
+			Vector entityOrigin;
+			int entityAngle = 0;
+
+			std::vector<float> originValues;
+			for ( int i = 2; i < entitySpawnStrings.size( ); i++ ) {
+				std::string entitySpawnString = entitySpawnStrings.at( i );
+				float originValue;
+				try {
+					originValue = std::stof( entitySpawnString );
+				}
+				catch ( std::invalid_argument e ) {
+					char errorCString[1024];
+					sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect value in [entityspawn] section: %s\n", configName, lineCount, entitySpawnString.c_str() );
+					error = std::string( errorCString );
+					return false;
+				}
+
+				originValues.push_back( originValue );
+			}
+
+			entityOrigin[0] = originValues.at( 0 );
+			entityOrigin[1] = originValues.at( 1 );
+			entityOrigin[2] = originValues.at( 2 );
+
+			if ( originValues.size() >= 4 ) {
+				entityAngle = originValues.at( 3 );
+			}
+
+			entitySpawns.push_back( { mapName, entityName, entityOrigin, entityAngle } );
+
+			entitiesToPrecache.insert( entityName );
 		}
 	}
 
