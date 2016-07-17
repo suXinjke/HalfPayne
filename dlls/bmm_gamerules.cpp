@@ -331,40 +331,30 @@ void CBlackMesaMinute::HookModelIndex( edict_t *activator, const char *mapName, 
 		return;
 	}
 
-	std::vector<BlackMesaMinuteConfig::ModelIndex> *vec;
-	vec = &gBMMConfig.timerPauseModelIndexes;
+	BlackMesaMinuteConfig::ModelIndex index( mapName, modelIndex );
 
-	for ( size_t i = 0; i < vec->size(); i++ ) {
-		std::string timerPauseMapName = vec->at( i ).mapName;
-		int timerPauseModelIndex = vec->at( i ).modelIndex;
+	// Does timerPauses contain such index?
+	if ( gBMMConfig.timerPauses.find( index ) != gBMMConfig.timerPauses.end() ) {
+		gBMMConfig.timerPauses.erase( index );
 
-		if ( timerPauseMapName == mapName && timerPauseModelIndex == modelIndex ) {
-			
-			// Remove all occurences of current structure
-			vec->erase( std::remove_if( vec->begin(), vec->end(), [&]( BlackMesaMinuteConfig::ModelIndex const &timerpauseIndex ) {
-				return timerpauseIndex.mapName == timerPauseMapName && timerpauseIndex.modelIndex == timerPauseModelIndex;
-			} ), vec->end() );
-
-			PauseTimer( pPlayer );
-			return;
-		}
+		PauseTimer( pPlayer );
+		return;
 	}
 
-	vec = &gBMMConfig.timerResumeIndexes;
+	// Does timerResumes contain such index?
+	if ( gBMMConfig.timerResumes.find( index ) != gBMMConfig.timerResumes.end() ) {
+		gBMMConfig.timerResumes.erase( index );
 
-	for ( size_t i = 0; i < vec->size(); i++ ) {
-		std::string timerResumeMapName = vec->at( i ).mapName;
-		int timerResumeModelIndex = vec->at( i ).modelIndex;
-
-		if ( timerResumeMapName == mapName && timerResumeModelIndex == modelIndex ) {
-			
-			// Remove all occurences of current structure
-			vec->erase( std::remove_if( vec->begin(), vec->end(), [&]( BlackMesaMinuteConfig::ModelIndex const &timerResumeIndex ) {
-				return timerResumeIndex.mapName == timerResumeMapName && timerResumeIndex.modelIndex == timerResumeModelIndex;
-			} ), vec->end() );
-			
-			ResumeTimer( pPlayer );
-			return;
-		}
+		ResumeTimer( pPlayer );
+		return;
 	}
+
+	// Does endTriggers contain such index?
+	if ( gBMMConfig.endTriggers.find( index ) != gBMMConfig.endTriggers.end() ) {
+		gBMMConfig.endTriggers.erase( index );
+
+		End( pPlayer );
+		return;
+	}
+
 }

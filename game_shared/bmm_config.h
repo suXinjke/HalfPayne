@@ -2,6 +2,7 @@
 #define BMM_CONFIG_H
 
 #include "string_aux.h"
+#include <set>
 
 namespace BMM
 {
@@ -74,12 +75,22 @@ public:
 		BMM_FILE_SECTION_NAME,
 		BMM_FILE_SECTION_TIMER_PAUSE,
 		BMM_FILE_SECTION_TIMER_RESUME,
+		BMM_FILE_SECTION_END_TRIGGER,
 	};
 
 	struct ModelIndex
 	{
+		std::string key;
+
 		std::string mapName;
 		int			modelIndex;
+
+		ModelIndex( const std::string &mapName, int modelIndex) {
+			this->mapName = mapName;
+			this->modelIndex = modelIndex;
+
+			this->key = mapName + std::to_string( modelIndex );
+		}
 	};
 
 	BlackMesaMinuteConfig();
@@ -97,8 +108,9 @@ public:
 	std::string configName;
 	std::vector<std::string> loadout;
 
-	std::vector<ModelIndex>	     timerPauseModelIndexes;
-	std::vector<ModelIndex>	     timerResumeIndexes;
+	std::set<ModelIndex>	     timerPauses;
+	std::set<ModelIndex>	     timerResumes;
+	std::set<ModelIndex>	     endTriggers;
 
 	bool startPositionSpecified;
 	Vector startPosition;
@@ -110,6 +122,8 @@ private:
 	std::string configFolderPath;
 
 };
+
+bool operator < ( const BlackMesaMinuteConfig::ModelIndex &modelIndex1, const BlackMesaMinuteConfig::ModelIndex &modelIndex2 );
 
 
 #endif

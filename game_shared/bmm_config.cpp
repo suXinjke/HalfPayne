@@ -71,8 +71,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	this->configName.clear();
 	this->loadout.clear();
 
-	this->timerPauseModelIndexes.clear();
-	this->timerResumeIndexes.clear();
+	this->timerPauses.clear();
+	this->timerResumes.clear();
+	this->endTriggers.clear();
 
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
@@ -126,6 +127,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			continue;
 		} else if ( line == "[timerresume]" ) {
 			currentFileSection = BMM_FILE_SECTION_TIMER_RESUME;
+			continue;
+		} else if ( line == "[endtrigger]" ) {
+			currentFileSection = BMM_FILE_SECTION_END_TRIGGER;
 			continue;
 		} else {
 			if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
@@ -210,7 +214,10 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			}
 			currentFileSection = BMM_FILE_SECTION_NO_SECTION;
 			continue;
-		} else if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE || currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ) {
+		} else if ( 
+			currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE ||
+			currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ||
+			currentFileSection == BMM_FILE_SECTION_END_TRIGGER ) {
 			std::vector<std::string> modelIndexStrings = Split( line, ' ' );
 
 			if ( modelIndexStrings.size() < 2 ) {
@@ -232,9 +239,11 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			}
 
 			if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE ) {
-				timerPauseModelIndexes.push_back( { mapName, modelIndex } );
+				timerPauses.insert( ModelIndex( mapName, modelIndex ) );
 			} else if ( currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ) {
-				timerResumeIndexes.push_back( { mapName, modelIndex } );
+				timerResumes.insert( ModelIndex( mapName, modelIndex ) );
+			} else if ( currentFileSection == BMM_FILE_SECTION_END_TRIGGER ) {
+				endTriggers.insert( ModelIndex( mapName, modelIndex ) );
 			}
 		}
 	}
@@ -294,4 +303,8 @@ std::string BlackMesaMinuteConfig::GetMapNameFromConfig( const char *configName 
 	}
 
 	return startMap;
+}
+
+bool operator < ( const BlackMesaMinuteConfig::ModelIndex &modelIndex1, const BlackMesaMinuteConfig::ModelIndex &modelIndex2 ) {
+	return modelIndex1.key < modelIndex2.key;
 }
