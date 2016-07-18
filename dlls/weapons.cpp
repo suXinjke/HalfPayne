@@ -649,7 +649,10 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 
 		// Add them to the clip
 		m_iClip += j;
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+
+		if ( !m_pPlayer->infiniteAmmo ) {
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+		}
 
 		m_pPlayer->TabulateAmmo();
 
@@ -801,6 +804,16 @@ int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 		m_iSecondaryAmmoType = pPlayer->GetAmmoIndex( pszAmmo2() );
 	}
 
+	if ( pPlayer->infiniteAmmo ) {
+		ItemInfo itemInfo;
+		this->GetItemInfo( &itemInfo );
+		if ( itemInfo.iMaxAmmo1 != -1 ) {
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = itemInfo.iMaxAmmo1;
+		}
+		if ( itemInfo.iMaxAmmo2 != -1 ) {
+			m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = itemInfo.iMaxAmmo2;
+		}
+	}
 
 	if (bResult)
 		return AddWeapon( );

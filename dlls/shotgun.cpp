@@ -342,7 +342,9 @@ void CShotgun::Reload( void )
 	{
 		// Add them to the clip
 		m_iClip += 1;
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+		if ( !m_pPlayer->infiniteAmmo ) {
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
+		}
 		m_fInSpecialReload = 1;
 	}
 }

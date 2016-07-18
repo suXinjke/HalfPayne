@@ -139,6 +139,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, bmmEnabled, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3221,6 +3223,8 @@ void CBasePlayer::Spawn( void )
 
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
+
+	infiniteAmmo = false;
 
 	g_pGameRules->PlayerSpawn( this );
 }

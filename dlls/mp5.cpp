@@ -234,7 +234,9 @@ void CMP5::SecondaryAttack( void )
 	m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
 	m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
 			
-	m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
+	if ( !m_pPlayer->infiniteAmmo ) {
+		m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
+	}
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );

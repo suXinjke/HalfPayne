@@ -87,6 +87,10 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	BMM::projectileKills = 0;
 	BMM::secondsInSlowmotion = 0;
 
+	if ( gBMMConfig.infiniteAmmo ) {
+		pPlayer->infiniteAmmo = true;
+	}
+
 	pPlayer->SetEvilImpulse101( true );
 	for ( int i = 0; i < gBMMConfig.loadout.size( ); i++ ) {
 		std::string loadoutItem = gBMMConfig.loadout.at( i );

@@ -383,6 +383,8 @@ public:
 
 	void GiveAll(); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );
+
+	bool infiniteAmmo;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

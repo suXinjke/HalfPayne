@@ -201,6 +201,8 @@ public:
 	bool noSlowmotion;
 
 	bool powerfulHeadshots;
+	
+	bool infiniteAmmo;
 
 private:
 	std::string configFolderPath;
