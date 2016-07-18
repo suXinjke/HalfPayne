@@ -110,8 +110,10 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
-
-	pPlayer->TakeSlowmotionCharge( 100 );
+	
+	if ( !gBMMConfig.emptySlowmotion ) {
+		pPlayer->TakeSlowmotionCharge( 100 );
+	}
 
 	if ( gBMMConfig.startPositionSpecified ) {
 		pPlayer->pev->origin = gBMMConfig.startPosition;

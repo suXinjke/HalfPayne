@@ -197,6 +197,7 @@ public:
 
 	bool constantSlowmotion;
 	bool infiniteSlowmotion;
+	bool emptySlowmotion;
 
 private:
 	std::string configFolderPath;

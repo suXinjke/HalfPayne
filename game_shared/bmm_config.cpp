@@ -84,6 +84,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 
 	this->constantSlowmotion = false;
 	this->infiniteSlowmotion = false;
+	this->emptySlowmotion = false;
 
 	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
 	
@@ -310,6 +311,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				constantSlowmotion = true;
 			} else if ( line == "infiniteslowmotion" ) {
 				infiniteSlowmotion = true;
+			} else if ( line == "emptyslowmotion" ) {
+				emptySlowmotion = true;
 			} else {
 				char errorCString[1024];
 				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName, lineCount, line.c_str() );
