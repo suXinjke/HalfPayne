@@ -438,6 +438,12 @@ void CBasePlayer::UsePainkiller()
 
 void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 {
+	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		if ( gBMMConfig.noSlowmotion ) {
+			return;
+		}
+	}
+
 	this->slowMotionCharge += slowMotionCharge;
 	this->slowMotionCharge = min( this->slowMotionCharge, MAX_SLOWMOTION_CHARGE );
 }
