@@ -415,7 +415,11 @@ void CBlackMesaMinute::RefreshSkillData()
 	gSkillData.healthkitCapacity = 15.0f; // doesn't matter - it's painkiller
 	gSkillData.scientistHeal = 25.0f;
 
-	gSkillData.monHead = 3.0f;
+	if ( gBMMConfig.powerfulHeadshots ) {
+		gSkillData.monHead = 10.0f;
+	} else {
+		gSkillData.monHead = 3.0f;
+	}
 	gSkillData.monChest = 1.0f;
 	gSkillData.monStomach = 1.0f;
 	gSkillData.monLeg = 1.0f;

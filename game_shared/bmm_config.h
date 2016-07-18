@@ -200,6 +200,8 @@ public:
 	bool emptySlowmotion;
 	bool noSlowmotion;
 
+	bool powerfulHeadshots;
+
 private:
 	std::string configFolderPath;
 
