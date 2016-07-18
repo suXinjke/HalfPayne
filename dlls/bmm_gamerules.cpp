@@ -3,6 +3,7 @@
 #include	"cbase.h"
 #include	"player.h"
 #include	"client.h"
+#include	"skill.h"
 #include	"bmm_gamerules.h"
 #include	"bmm_config.h"
 #include	<algorithm>
@@ -38,8 +39,6 @@ int gmsgTimerPause  = 0;
 
 CBlackMesaMinute::CBlackMesaMinute()
 {
-	RefreshSkillData();
-
 	if ( !gmsgTimerMsg ) {
 		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
 		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
@@ -49,6 +48,8 @@ CBlackMesaMinute::CBlackMesaMinute()
 
 	const char *configName = CVAR_GET_STRING( "bmm_config" );
 	gBMMConfig.Init( configName );
+
+	RefreshSkillData();
 }
 
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
@@ -119,14 +120,6 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->pev->angles[1] = gBMMConfig.startYaw;
 	}
 
-}
-
-void CBlackMesaMinute::RefreshSkillData() 
-{
-	CVAR_SET_FLOAT( "skill", 2.0f );
-	CGameRules::RefreshSkillData();
-
-	// Need to hardcode values depending on config file modificators, which are yet to be implemented
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
@@ -371,5 +364,261 @@ void CBlackMesaMinute::SpawnEnemiesByConfig( const char *mapName )
 			gBMMConfig.entitySpawns.erase( entitySpawn );
 			entitySpawn--;
 		}
+	}
+}
+
+// Hardcoded values so it won't depend on console variables
+void CBlackMesaMinute::RefreshSkillData() 
+{
+	gSkillData.barneyHealth = 35;
+	gSkillData.slaveDmgClawrake = 25.0f;
+
+	gSkillData.leechHealth = 2.0f;
+	gSkillData.leechDmgBite = 2.0f;
+
+	gSkillData.scientistHealth = 20.0f;
+
+	gSkillData.snarkHealth = 2.0f;
+	gSkillData.snarkDmgBite = 10.0f;
+	gSkillData.snarkDmgPop = 5.0f;
+
+	gSkillData.plrDmgCrowbar = 10.0f;
+	gSkillData.plrDmg9MM = 8.0f;
+	gSkillData.plrDmg357 = 40.0f;
+	gSkillData.plrDmgMP5 = 5.0f;
+	gSkillData.plrDmgM203Grenade = 100.0f;
+	gSkillData.plrDmgBuckshot = 5.0f;
+	gSkillData.plrDmgCrossbowClient = 10.0f;
+	gSkillData.plrDmgCrossbowMonster = 50.0f;
+	gSkillData.plrDmgRPG = 100.0f;
+	gSkillData.plrDmgGauss = 20.0f;
+	gSkillData.plrDmgEgonNarrow = 6.0f;
+	gSkillData.plrDmgEgonWide = 14.0f;
+	gSkillData.plrDmgHornet = 7;
+	gSkillData.plrDmgHandGrenade = 100.0f;
+	gSkillData.plrDmgSatchel = 150.0f;
+	gSkillData.plrDmgTripmine = 150.0f;
+
+	gSkillData.healthkitCapacity = 15.0f; // doesn't matter - it's painkiller
+	gSkillData.scientistHeal = 25.0f;
+
+	gSkillData.monHead = 3.0f;
+	gSkillData.monChest = 1.0f;
+	gSkillData.monStomach = 1.0f;
+	gSkillData.monLeg = 1.0f;
+	gSkillData.monArm = 1.0f;
+
+	gSkillData.plrHead = 3.0f;
+	gSkillData.plrChest = 1.0f;
+	gSkillData.plrStomach = 1.0f;
+	gSkillData.plrLeg = 1.0f;
+	gSkillData.plrArm = 1.0f;
+
+	if ( gBMMConfig.difficulty == BlackMesaMinuteConfig::BMM_DIFFICULTY_EASY ) {
+		
+		gSkillData.iSkillLevel = 1;
+
+		gSkillData.agruntHealth = 60.0f;
+		gSkillData.agruntDmgPunch = 10.0f;
+
+		gSkillData.apacheHealth = 150.0f;
+	
+		gSkillData.bigmommaHealthFactor = 1.0f;
+		gSkillData.bigmommaDmgSlash = 50.0f;
+		gSkillData.bigmommaDmgBlast = 100.0f;
+		gSkillData.bigmommaRadiusBlast = 250.0f;
+
+		gSkillData.bullsquidHealth = 40.0f;
+		gSkillData.bullsquidDmgBite = 15.0f;
+		gSkillData.bullsquidDmgWhip = 25.0f;
+		gSkillData.bullsquidDmgSpit = 10.0f;
+
+		gSkillData.gargantuaHealth = 800.0f;
+		gSkillData.gargantuaDmgSlash = 10.0f;
+		gSkillData.gargantuaDmgFire = 3.0f;
+		gSkillData.gargantuaDmgStomp = 50.0f;
+
+		gSkillData.hassassinHealth = 30.0f;
+
+		gSkillData.headcrabHealth = 10.0f;
+		gSkillData.headcrabDmgBite = 5.0f;
+
+		gSkillData.hgruntHealth = 50.0f;
+		gSkillData.hgruntDmgKick = 5.0f;
+		gSkillData.hgruntShotgunPellets = 3.0f;
+		gSkillData.hgruntGrenadeSpeed = 400.0f;
+
+		gSkillData.houndeyeHealth = 20.0f;
+		gSkillData.houndeyeDmgBlast = 10.0f;
+
+		gSkillData.slaveHealth = 30.0f;
+		gSkillData.slaveDmgClaw = 8.0f;
+		gSkillData.slaveDmgZap = 10.0f;
+
+		gSkillData.ichthyosaurHealth = 200.0f;
+		gSkillData.ichthyosaurDmgShake = 20.0f;
+
+		gSkillData.controllerHealth = 60.0f;
+		gSkillData.controllerDmgZap = 15.0f;
+		gSkillData.controllerSpeedBall = 650.0f;
+		gSkillData.controllerDmgBall = 3.0f;
+
+		gSkillData.nihilanthHealth = 800.0f;
+		gSkillData.nihilanthZap = 30.0f;
+	
+		gSkillData.zombieHealth = 50.0f;
+		gSkillData.zombieDmgOneSlash = 10.0f;
+		gSkillData.zombieDmgBothSlash = 25.0f;
+
+		gSkillData.turretHealth = 50.0f;
+		gSkillData.miniturretHealth = 40.0f;
+		gSkillData.sentryHealth = 40.0f;
+
+		gSkillData.monDmg12MM = 8.0f;
+		gSkillData.monDmgMP5 = 3.0f;
+		gSkillData.monDmg9MM = 5.0f;
+		
+		gSkillData.monDmgHornet = 4.0f;
+
+		gSkillData.suitchargerCapacity = 75.0f;
+		gSkillData.batteryCapacity = 15.0f;
+		gSkillData.healthchargerCapacity = 50.0f;
+		
+	} else if ( gBMMConfig.difficulty == BlackMesaMinuteConfig::BMM_DIFFICULTY_MEDIUM ) {
+		gSkillData.iSkillLevel = 2;
+
+		gSkillData.agruntHealth = 90.0f;
+		gSkillData.agruntDmgPunch = 20.0f;
+
+		gSkillData.apacheHealth = 250.0f;
+	
+		gSkillData.bigmommaHealthFactor = 1.5f;
+		gSkillData.bigmommaDmgSlash = 60.0f;
+		gSkillData.bigmommaDmgBlast = 120.0f;
+		gSkillData.bigmommaRadiusBlast = 250.0f;
+
+		gSkillData.bullsquidHealth = 40.0f;
+		gSkillData.bullsquidDmgBite = 25.0f;
+		gSkillData.bullsquidDmgWhip = 35.0f;
+		gSkillData.bullsquidDmgSpit = 10.0f;
+
+		gSkillData.gargantuaHealth = 800.0f;
+		gSkillData.gargantuaDmgSlash = 30.0f;
+		gSkillData.gargantuaDmgFire = 5.0f;
+		gSkillData.gargantuaDmgStomp = 100.0f;
+
+		gSkillData.hassassinHealth = 50.0f;
+
+		gSkillData.headcrabHealth = 10.0f;
+		gSkillData.headcrabDmgBite = 10.0f;
+
+		gSkillData.hgruntHealth = 50.0f;
+		gSkillData.hgruntDmgKick = 10.0f;
+		gSkillData.hgruntShotgunPellets = 5.0f;
+		gSkillData.hgruntGrenadeSpeed = 600.0f;
+
+		gSkillData.houndeyeHealth = 20.0f;
+		gSkillData.houndeyeDmgBlast = 15.0f;
+
+		gSkillData.slaveHealth = 30.0f;
+		gSkillData.slaveDmgClaw = 10.0f;
+		gSkillData.slaveDmgZap = 10.0f;
+
+		gSkillData.ichthyosaurHealth = 200.0f;
+		gSkillData.ichthyosaurDmgShake = 35.0f;
+
+		gSkillData.controllerHealth = 60.0f;
+		gSkillData.controllerDmgZap = 25.0f;
+		gSkillData.controllerSpeedBall = 800.0f;
+		gSkillData.controllerDmgBall = 4.0f;
+
+		gSkillData.nihilanthHealth = 800.0f;
+		gSkillData.nihilanthZap = 30.0f;
+	
+		gSkillData.zombieHealth = 50.0f;
+		gSkillData.zombieDmgOneSlash = 20.0f;
+		gSkillData.zombieDmgBothSlash = 40.0f;
+
+		gSkillData.turretHealth = 50.0f;
+		gSkillData.miniturretHealth = 40.0f;
+		gSkillData.sentryHealth = 40.0f;
+
+		gSkillData.monDmg12MM = 10.0f;
+		gSkillData.monDmgMP5 = 4.0f;
+		gSkillData.monDmg9MM = 5.0f;
+		
+		gSkillData.monDmgHornet = 5.0f;
+
+		gSkillData.suitchargerCapacity = 50.0f;
+		gSkillData.batteryCapacity = 15.0f;
+		gSkillData.healthchargerCapacity = 40.0f;
+	} else if ( gBMMConfig.difficulty == BlackMesaMinuteConfig::BMM_DIFFICULTY_HARD ) {
+		gSkillData.iSkillLevel = 3;
+
+		gSkillData.agruntHealth = 120.0f;
+		gSkillData.agruntDmgPunch = 20.0f;
+
+		gSkillData.apacheHealth = 400.0f;
+	
+		gSkillData.bigmommaHealthFactor = 2.0f;
+		gSkillData.bigmommaDmgSlash = 70.0f;
+		gSkillData.bigmommaDmgBlast = 160.0f;
+		gSkillData.bigmommaRadiusBlast = 275.0f;
+
+		gSkillData.bullsquidHealth = 40.0f;
+		gSkillData.bullsquidDmgBite = 25.0f;
+		gSkillData.bullsquidDmgWhip = 35.0f;
+		gSkillData.bullsquidDmgSpit = 10.0f;
+
+		gSkillData.gargantuaHealth = 1000.0f;
+		gSkillData.gargantuaDmgSlash = 30.0f;
+		gSkillData.gargantuaDmgFire = 5.0f;
+		gSkillData.gargantuaDmgStomp = 100.0f;
+
+		gSkillData.hassassinHealth = 50.0f;
+
+		gSkillData.headcrabHealth = 20.0f;
+		gSkillData.headcrabDmgBite = 10.0f;
+
+		gSkillData.hgruntHealth = 80.0f;
+		gSkillData.hgruntDmgKick = 10.0f;
+		gSkillData.hgruntShotgunPellets = 6.0f;
+		gSkillData.hgruntGrenadeSpeed = 800.0f;
+
+		gSkillData.houndeyeHealth = 30.0f;
+		gSkillData.houndeyeDmgBlast = 15.0f;
+
+		gSkillData.slaveHealth = 60.0f;
+		gSkillData.slaveDmgClaw = 10.0f;
+		gSkillData.slaveDmgZap = 15.0f;
+
+		gSkillData.ichthyosaurHealth = 400.0f;
+		gSkillData.ichthyosaurDmgShake = 50.0f;
+
+		gSkillData.controllerHealth = 100.0f;
+		gSkillData.controllerDmgZap = 35.0f;
+		gSkillData.controllerSpeedBall = 1000.0f;
+		gSkillData.controllerDmgBall = 5.0f;
+
+		gSkillData.nihilanthHealth = 1000.0f;
+		gSkillData.nihilanthZap = 50.0f;
+	
+		gSkillData.zombieHealth = 100.0f;
+		gSkillData.zombieDmgOneSlash = 20.0f;
+		gSkillData.zombieDmgBothSlash = 40.0f;
+
+		gSkillData.turretHealth = 60.0f;
+		gSkillData.miniturretHealth = 50.0f;
+		gSkillData.sentryHealth = 50.0f;
+
+		gSkillData.monDmg12MM = 10.0f;
+		gSkillData.monDmgMP5 = 5.0f;
+		gSkillData.monDmg9MM = 8.0f;
+		
+		gSkillData.monDmgHornet = 8.0f;
+
+		gSkillData.suitchargerCapacity = 35.0f;
+		gSkillData.batteryCapacity = 10.0f;
+		gSkillData.healthchargerCapacity = 25.0f;
 	}
 }

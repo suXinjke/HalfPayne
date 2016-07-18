@@ -133,7 +133,14 @@ public:
 		BMM_FILE_SECTION_TIMER_PAUSE,
 		BMM_FILE_SECTION_TIMER_RESUME,
 		BMM_FILE_SECTION_END_TRIGGER,
-		BMM_FILE_SECTION_ENTITY_SPAWN
+		BMM_FILE_SECTION_ENTITY_SPAWN,
+		BMM_FILE_SECTION_MODS,
+	};
+	
+	enum BMM_DIFFICULTY	{
+		BMM_DIFFICULTY_EASY,
+		BMM_DIFFICULTY_MEDIUM,
+		BMM_DIFFICULTY_HARD,
 	};
 
 	struct ModelIndex
@@ -185,6 +192,8 @@ public:
 	
 	bool startYawSpecified;
 	float startYaw;
+
+	BMM_DIFFICULTY				difficulty;
 
 private:
 	std::string configFolderPath;

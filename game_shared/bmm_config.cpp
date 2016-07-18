@@ -80,6 +80,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
 
+	this->difficulty = BMM_DIFFICULTY_MEDIUM;
+
 	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
 	
 	BMM_FILE_SECTION currentFileSection = BMM_FILE_SECTION_NO_SECTION;
@@ -135,6 +137,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			continue;
 		} else if ( line == "[entityspawn]" ) {
 			currentFileSection = BMM_FILE_SECTION_ENTITY_SPAWN;
+			continue;
+		} else if ( line == "[mods]" ) {
+			currentFileSection = BMM_FILE_SECTION_MODS;
 			continue;
 		} else {
 			if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
@@ -293,6 +298,17 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			entitySpawns.push_back( { mapName, entityName, entityOrigin, entityAngle } );
 
 			entitiesToPrecache.insert( entityName );
+		} else if ( currentFileSection == BMM_FILE_SECTION_MODS ) {
+			if ( line == "easy" ) {
+				difficulty = BMM_DIFFICULTY_EASY;
+			} else if ( line == "hard" ) {
+				difficulty = BMM_DIFFICULTY_HARD;
+			} else {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName, lineCount, line.c_str() );
+				error = std::string( errorCString );
+				return false;
+			}
 		}
 	}
 
