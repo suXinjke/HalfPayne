@@ -2298,6 +2298,11 @@ void CBasePlayer::HandleIUser4()
 			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
 			break;
 		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
+			if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+				if ( gBMMConfig.constantSlowmotion ) {
+					break;
+				}
+			}
 			SetSlowMotion(false);
 			slowMotionEnabled = false;
 			isDiving = false;
@@ -3202,8 +3207,6 @@ void CBasePlayer::Spawn( void )
 	
 	m_flNextChatTime = gpGlobals->time;
 
-	g_pGameRules->PlayerSpawn( this );
-
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 	
 	slowMotionEnabled = false;
@@ -3212,6 +3215,8 @@ void CBasePlayer::Spawn( void )
 
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
+
+	g_pGameRules->PlayerSpawn( this );
 }
 
 void CBasePlayer :: Precache( void )
@@ -3642,9 +3647,12 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-
+	
 	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
 		if ( BMM::ended ) {
+			return;
+		}
+		if ( gBMMConfig.constantSlowmotion && slowMotionEnabled ) {
 			return;
 		}
 	}
@@ -4451,6 +4459,7 @@ void CBasePlayer :: UpdateClientData( void )
 		{
 			if (slowMotionCharge)
 			{
+
 				slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 				slowMotionCharge--;
 

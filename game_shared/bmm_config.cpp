@@ -82,6 +82,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 
 	this->difficulty = BMM_DIFFICULTY_MEDIUM;
 
+	this->constantSlowmotion = false;
+
 	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
 	
 	BMM_FILE_SECTION currentFileSection = BMM_FILE_SECTION_NO_SECTION;
@@ -303,6 +305,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				difficulty = BMM_DIFFICULTY_EASY;
 			} else if ( line == "hard" ) {
 				difficulty = BMM_DIFFICULTY_HARD;
+			} else if ( line == "constantslowmotion" ) {
+				constantSlowmotion = true;
 			} else {
 				char errorCString[1024];
 				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName, lineCount, line.c_str() );

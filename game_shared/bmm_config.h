@@ -195,6 +195,8 @@ public:
 
 	BMM_DIFFICULTY				difficulty;
 
+	bool constantSlowmotion;
+
 private:
 	std::string configFolderPath;
 

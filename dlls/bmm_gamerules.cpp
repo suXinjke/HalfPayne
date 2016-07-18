@@ -120,6 +120,12 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->pev->angles[1] = gBMMConfig.startYaw;
 	}
 
+	if ( gBMMConfig.constantSlowmotion ) {
+		pPlayer->TakeSlowmotionCharge( 100 );
+		pPlayer->ToggleSlowMotion();
+		pPlayer->infiniteSlowMotion = true;
+	}
+
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
