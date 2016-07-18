@@ -126,6 +126,11 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->infiniteSlowMotion = true;
 	}
 
+	if ( gBMMConfig.infiniteSlowmotion ) {
+		pPlayer->TakeSlowmotionCharge( 100 );
+		pPlayer->infiniteSlowMotion = true;
+	}
+
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )

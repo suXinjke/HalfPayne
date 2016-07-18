@@ -196,6 +196,7 @@ public:
 	BMM_DIFFICULTY				difficulty;
 
 	bool constantSlowmotion;
+	bool infiniteSlowmotion;
 
 private:
 	std::string configFolderPath;
