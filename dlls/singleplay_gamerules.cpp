@@ -75,6 +75,10 @@ BOOL CHalfLifeRules::FShouldSwitchWeapon( CBasePlayer *pPlayer, CBasePlayerItem 
 		return TRUE;
 	}
 
+	if ( CVAR_GET_FLOAT( "hud_autoswitch" ) == 0.0f ) {
+		return false;
+	}
+
 	if ( !pPlayer->m_pActiveItem->CanHolster() )
 	{
 		return FALSE;

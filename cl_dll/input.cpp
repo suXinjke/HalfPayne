@@ -70,6 +70,7 @@ cvar_t	*bmm_enabled;
 cvar_t  *bmm_config;
 
 cvar_t  *printmodelindexes;
+cvar_t  *hud_autoswitch;
 /*
 ===============================================================================
 
@@ -1039,6 +1040,7 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
 
 	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );
+	hud_autoswitch	  = gEngfuncs.pfnRegisterVariable( "hud_autoswitch", "1", FCVAR_ARCHIVE );
 
 	// Initialize third person camera controls.
 	CAM_Init();
