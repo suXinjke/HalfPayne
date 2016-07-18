@@ -248,18 +248,6 @@ void CCrossbow::Spawn( )
 	FallInit();// get ready to fall down.
 }
 
-int CCrossbow::AddToPlayer( CBasePlayer *pPlayer )
-{
-	if ( CBasePlayerWeapon::AddToPlayer( pPlayer ) )
-	{
-		MESSAGE_BEGIN( MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev );
-			WRITE_BYTE( m_iId );
-		MESSAGE_END();
-		return TRUE;
-	}
-	return FALSE;
-}
-
 void CCrossbow::Precache( void )
 {
 	PRECACHE_MODEL("models/w_crossbow.mdl");

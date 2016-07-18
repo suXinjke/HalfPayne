@@ -539,7 +539,6 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
-	int AddToPlayer( CBasePlayer *pPlayer );
 	void ItemPostFrame( void );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
@@ -571,7 +570,6 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
-	int AddToPlayer( CBasePlayer *pPlayer );
 	void ItemPostFrame( void );
 
 	void PrimaryAttack( void );
@@ -610,7 +608,6 @@ public:
 	void FireSniperBolt( void );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
-	int AddToPlayer( CBasePlayer *pPlayer );
 	BOOL Deploy( );
 	void Holster( int skiplocal = 0 );
 	void Reload( void );
@@ -648,7 +645,6 @@ public:
 	void ItemPostFrame( void );
 	int iItemSlot( ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
-	int AddToPlayer( CBasePlayer *pPlayer );
 
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
@@ -704,7 +700,6 @@ public:
 	void Reload( void );
 	int iItemSlot( void ) { return 4; }
 	int GetItemInfo(ItemInfo *p);
-	int AddToPlayer( CBasePlayer *pPlayer );
 
 	BOOL Deploy( void );
 	BOOL CanHolster( void );
@@ -767,7 +762,6 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 4; }
 	int GetItemInfo(ItemInfo *p);
-	int AddToPlayer( CBasePlayer *pPlayer );
 
 	BOOL Deploy( void );
 	void Holster( int skiplocal = 0  );
@@ -815,7 +809,6 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 4; }
 	int GetItemInfo(ItemInfo *p);
-	int AddToPlayer( CBasePlayer *pPlayer );
 
 	BOOL Deploy( void );
 	void Holster( int skiplocal = 0 );

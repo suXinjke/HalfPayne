@@ -93,20 +93,6 @@ BOOL CEgon::Deploy( void )
 	return DefaultDeploy( "models/v_egon.mdl", "models/p_egon.mdl", EGON_DRAW, "egon" );
 }
 
-int CEgon::AddToPlayer( CBasePlayer *pPlayer )
-{
-	if ( CBasePlayerWeapon::AddToPlayer( pPlayer ) )
-	{
-		MESSAGE_BEGIN( MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev );
-			WRITE_BYTE( m_iId );
-		MESSAGE_END();
-		return TRUE;
-	}
-	return FALSE;
-}
-
-
-
 void CEgon::Holster( int skiplocal /* = 0 */ )
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;

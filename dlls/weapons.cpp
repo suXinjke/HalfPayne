@@ -741,6 +741,10 @@ int CBasePlayerItem::AddToPlayer( CBasePlayer *pPlayer )
 {
 	m_pPlayer = pPlayer;
 
+	MESSAGE_BEGIN( MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev );
+		WRITE_BYTE( m_iId );
+	MESSAGE_END();
+
 	return TRUE;
 }
 
