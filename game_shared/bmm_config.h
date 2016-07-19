@@ -170,9 +170,6 @@ public:
 
 	bool Init( const char *configName );
 
-	// Used only by client
-	static std::string GetMapNameFromConfig( const char *configName );
-
 	std::string error;
 
 	std::string startMap;

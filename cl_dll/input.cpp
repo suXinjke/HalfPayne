@@ -24,6 +24,8 @@ extern "C"
 #include "Exports.h"
 #include "bmm_config.h"
 
+extern BlackMesaMinuteConfig gBMMConfig;
+
 #include "vgui_TeamFortressViewport.h"
 
 extern int g_iAlive;
@@ -937,12 +939,12 @@ void RunBlackMesaMinute()
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
 	// Parse config file and retrieve the map name from [startmap] section
-	std::string startMap = BlackMesaMinuteConfig::GetMapNameFromConfig( configName );
-	if ( startMap.length() <= 0 ) {
-		gEngfuncs.Con_Printf( "Error [startmap] not specified.\n" );
+	gBMMConfig.Init( configName );
+	if ( gBMMConfig.error.size() > 0 ) {
+		gEngfuncs.Con_Printf( "%s\n", gBMMConfig.error.c_str() );
 		return;
 	}
-	
+
 	// Prepare Black Mesa Minute gamemode and try to launch [startmap]
 	// Launching the map then will execute CBlackMesaMinute::ClientConnected and CBlackMesaMinute::Spawn
 	// Where the file will be parsed again for additional parameters
@@ -950,7 +952,7 @@ void RunBlackMesaMinute()
 	gEngfuncs.Cvar_Set( "bmm_enabled", "1" );
 	
 	char mapCmd[64];
-	sprintf( mapCmd, "map %s", startMap.c_str() );
+	sprintf( mapCmd, "map %s", gBMMConfig.startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 

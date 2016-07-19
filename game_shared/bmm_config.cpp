@@ -339,60 +339,6 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	return true;
 }
 
-// Used only by client
-std::string BlackMesaMinuteConfig::GetMapNameFromConfig( const char *configName )
-{
-	// Retrieve absolute path to the DLL that calls this function
-	WCHAR dllPathWString[MAX_PATH] = { 0 };
-	GetModuleFileNameW( ( HINSTANCE ) &__ImageBase, dllPathWString, _countof( dllPathWString ) );
-	char dllPathCString[MAX_PATH];
-	wcstombs( dllPathCString, dllPathWString, MAX_PATH );
-	std::string dllPath( dllPathCString );
-
-	// dumb way to get absolute path to Black Mesa Minute configuration file
-#ifdef CLIENT_DLL
-	dllPath = dllPath.substr( 0, dllPath.rfind( "\\cl_dlls\\client.dll" ) ).append( "\\bmm_cfg\\" + std::string( configName ) + ".txt" );
-#else
-	dllPath = dllPath.substr( 0, dllPath.rfind( "\\dll\\hl.dll" ) ).append( "\\bmm_cfg\\" + std::string( configName ) + ".txt" );
-#endif
-		
-	BMM_FILE_SECTION currentFileSection = BMM_FILE_SECTION_NO_SECTION;
-	int lineCount = 0;
-
-	std::ifstream inp( dllPath );
-	if ( !inp.is_open( ) ) {
-		return std::string();
-	}
-
-	std::string line;
-	std::string startMap;
-	while ( std::getline( inp, line ) ) {
-		lineCount++;
-
-		line = Trim( line );
-		
-		// remove trailing comments
-		line = line.substr( 0, line.find( "//" ) );
-
-		if ( line.empty() ) {
-			continue;
-		}
-
-		if ( line == "[startmap]" ) {
-			currentFileSection = BMM_FILE_SECTION_START_MAP;
-			continue;
-		}
-
-		if ( currentFileSection == BMM_FILE_SECTION_START_MAP ) {
-			startMap = line;
-			
-			return startMap;
-		}
-	}
-
-	return startMap;
-}
-
 bool operator < ( const BlackMesaMinuteConfig::ModelIndex &modelIndex1, const BlackMesaMinuteConfig::ModelIndex &modelIndex2 ) {
 	return modelIndex1.key < modelIndex2.key;
 }
