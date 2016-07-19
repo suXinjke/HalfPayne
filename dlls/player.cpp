@@ -142,6 +142,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3231,6 +3232,7 @@ void CBasePlayer::Spawn( void )
 
 	infiniteAmmo = false;
 	weaponRestricted = false;
+	instaGib = true;
 
 	g_pGameRules->PlayerSpawn( this );
 }

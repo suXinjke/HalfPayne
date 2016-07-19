@@ -201,6 +201,7 @@ public:
 	
 	bool infiniteAmmo;
 	bool weaponRestricted;
+	bool instaGib;
 
 private:
 	std::string configFolderPath;

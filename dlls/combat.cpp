@@ -306,7 +306,15 @@ void CBaseMonster :: GibMonster( void )
 	TraceResult	tr;
 	BOOL		gibbed = FALSE;
 
-	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);		
+	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
+
+	int gibCount = 4;
+	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+	if ( player ) {
+		if ( player->instaGib ) {
+			gibCount *= 4;
+		}
+	}
 
 	// only humans throw skulls !!!UNDONE - eventually monsters will have their own sets of gibs
 	if ( HasHumanGibs() )
@@ -314,7 +322,7 @@ void CBaseMonster :: GibMonster( void )
 		if ( CVAR_GET_FLOAT("violence_hgibs") != 0 )	// Only the player will ever get here
 		{
 			CGib::SpawnHeadGib( pev );
-			CGib::SpawnRandomGibs( pev, 4, 1 );	// throw some human gibs.
+			CGib::SpawnRandomGibs( pev, gibCount, 1 );	// throw some human gibs.
 		}
 		gibbed = TRUE;
 	}
@@ -322,7 +330,7 @@ void CBaseMonster :: GibMonster( void )
 	{
 		if ( CVAR_GET_FLOAT("violence_agibs") != 0 )	// Should never get here, but someone might call it directly
 		{
-			CGib::SpawnRandomGibs( pev, 4, 0 );	// Throw alien gibs
+			CGib::SpawnRandomGibs( pev, gibCount, 0 );	// Throw alien gibs
 		}
 		gibbed = TRUE;
 	}

@@ -92,6 +92,19 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->infiniteAmmo = true;
 	}
 
+	if ( gBMMConfig.instaGib ) {
+		gBMMConfig.weaponRestricted = true;
+		gBMMConfig.infiniteAmmo = true;
+
+		pPlayer->weaponRestricted = true;
+		pPlayer->infiniteAmmo = true;
+		pPlayer->instaGib = true;
+
+		pPlayer->SetEvilImpulse101( true );
+		pPlayer->GiveNamedItem( "weapon_gauss" );
+		pPlayer->SetEvilImpulse101( false );
+	}
+
 	pPlayer->SetEvilImpulse101( true );
 	for ( int i = 0; i < gBMMConfig.loadout.size( ); i++ ) {
 		std::string loadoutItem = gBMMConfig.loadout.at( i );

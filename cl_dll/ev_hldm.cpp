@@ -853,6 +853,7 @@ void EV_FireGauss( event_args_t *args )
 	vec3_t velocity;
 	float flDamage = args->fparam1;
 	int primaryfire = args->bparam1;
+	int instaGib = args->iparam1;
 
 	int m_fPrimaryFire = args->bparam1;
 	int m_iWeaponVolume = GAUSS_PRIMARY_FIRE_VOLUME;
@@ -884,7 +885,12 @@ void EV_FireGauss( event_args_t *args )
 	EV_GetGunPosition( args, vecSrc, origin );
 
 	m_iBeam = gEngfuncs.pEventAPI->EV_FindModelIndex( "sprites/smoke.spr" );
-	m_iBalls = m_iGlow = gEngfuncs.pEventAPI->EV_FindModelIndex( "sprites/hotglow.spr" );
+	if ( instaGib ) {
+		m_iBalls = m_iGlow = gEngfuncs.pEventAPI->EV_FindModelIndex( "sprites/hotglow2.spr" );
+	} else {
+		m_iBalls = m_iGlow = gEngfuncs.pEventAPI->EV_FindModelIndex( "sprites/hotglow.spr" );
+	}
+	
 	
 	AngleVectors( angles, forward, right, up );
 
@@ -892,7 +898,9 @@ void EV_FireGauss( event_args_t *args )
 
 	if ( EV_IsLocal( idx ) )
 	{
-		V_PunchAxis( 0, -2.0 );
+		if ( !instaGib ) {
+			V_PunchAxis( 0, -2.0 );
+		}
 		gEngfuncs.pEventAPI->EV_WeaponAnimation( GAUSS_FIRE2, 2 );
 
 		if ( m_fPrimaryFire == false )
@@ -922,6 +930,9 @@ void EV_FireGauss( event_args_t *args )
 		if ( tr.allsolid )
 			break;
 
+		int primaryGColor = instaGib ? 0 : 128;
+		int secondaryGBColor = instaGib ? 0 : 255;
+
 		if (fFirstBeam)
 		{
 			if ( EV_IsLocal( idx ) )
@@ -943,8 +954,8 @@ void EV_FireGauss( event_args_t *args )
 				0,
 				0,
 				m_fPrimaryFire ? 255 : 255,
-				m_fPrimaryFire ? 128 : 255,
-				m_fPrimaryFire ? 0 : 255
+				m_fPrimaryFire ? primaryGColor : secondaryGBColor,
+				m_fPrimaryFire ? 0 : secondaryGBColor
 			);
 		}
 		else
@@ -960,8 +971,8 @@ void EV_FireGauss( event_args_t *args )
 				0,
 				0,
 				m_fPrimaryFire ? 255 : 255,
-				m_fPrimaryFire ? 128 : 255,
-				m_fPrimaryFire ? 0 : 255
+				m_fPrimaryFire ? primaryGColor : secondaryGBColor,
+				m_fPrimaryFire ? 0 : secondaryGBColor
 			);
 		}
 
