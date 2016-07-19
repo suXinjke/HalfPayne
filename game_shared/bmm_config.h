@@ -203,6 +203,7 @@ public:
 	bool powerfulHeadshots;
 	
 	bool infiniteAmmo;
+	bool weaponRestricted;
 
 private:
 	std::string configFolderPath;

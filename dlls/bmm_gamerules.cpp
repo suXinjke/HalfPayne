@@ -4,6 +4,7 @@
 #include	"player.h"
 #include	"client.h"
 #include	"skill.h"
+#include	"weapons.h"
 #include	"bmm_gamerules.h"
 #include	"bmm_config.h"
 #include	<algorithm>
@@ -114,6 +115,10 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
+
+	if ( gBMMConfig.weaponRestricted ) {
+		pPlayer->weaponRestricted = true;
+	}
 	
 	if ( !gBMMConfig.emptySlowmotion ) {
 		pPlayer->TakeSlowmotionCharge( 100 );
@@ -137,6 +142,19 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->infiniteSlowMotion = true;
 	}
 
+}
+
+BOOL CBlackMesaMinute::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
+{
+	if ( !pPlayer->weaponRestricted ) {
+		return CHalfLifeRules::CanHavePlayerItem( pPlayer, pWeapon );
+	}
+
+	if ( !pPlayer->HasWeapons() ) {
+		return CHalfLifeRules::CanHavePlayerItem( pPlayer, pWeapon );
+	}
+
+	return FALSE;
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )

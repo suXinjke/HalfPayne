@@ -90,6 +90,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	this->powerfulHeadshots = false;
 
 	this->infiniteAmmo = false;
+	this->weaponRestricted = false;
 
 	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
 	
@@ -324,6 +325,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				powerfulHeadshots = true;
 			} else if ( line == "infiniteammo" ) {
 				infiniteAmmo = true;
+			} else if ( line == "weaponrestricted" ) {
+				weaponRestricted = true;
 			} else {
 				char errorCString[1024];
 				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName, lineCount, line.c_str() );
