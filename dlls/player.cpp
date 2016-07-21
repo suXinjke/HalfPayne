@@ -2302,7 +2302,7 @@ void CBasePlayer::HandleSlowmotionFlags()
 	if ( ( pev->flags & FL_ACTIVATE_SLOWMOTION_REQUESTED ) && 
 		 ( pev->flags & FL_DIVING ) ) {
 		SetSlowMotion( true );
-		slowMotionCharge -= 20;
+		slowMotionCharge -= DIVING_SLOWMOTION_CHARGE_COST;
 		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
 
 		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;

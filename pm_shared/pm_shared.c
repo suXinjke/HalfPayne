@@ -157,6 +157,8 @@ static char grgchTextureType[CTEXTURESMAX];
 int g_onladder = 0;
 int g_slowMotionCharge = 0;
 int doneDiving = 0;
+float timeBeginStandingUp = 0.0f;
+float timeEndStandingUp = 0.0f;
 
 void PM_DuckWhileDiving(void);
 
@@ -1081,28 +1083,19 @@ void PM_WalkMove ()
 		wishspeed = pmove->maxspeed;
 	}
 
-	// When diving
+	// When landing on the ground after diving
 	if ( pmove->flags & FL_DIVING ) {
+		pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
 
-		if (Length(pmove->velocity) > 0) {
-			wishspeed = 0.0f;
-		}
-		else {
-			// Done sliding across the floor - disable the slowmotion
-			if ( !doneDiving ) {
-				pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
-				doneDiving = 1;
-			}
-
-			if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
-				// Stand up and stop diving
-				pmove->flags &= ~FL_DIVING;
-				doneDiving = 0;
-			}
+		if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
+			// Stand up after diving
+			pmove->flags &= ~FL_DIVING;
+			pmove->flags |= FL_DUCKING;
+			timeBeginStandingUp = pmove->time;
+			timeEndStandingUp = pmove->time + 500.0f;
 		}
 	}
 	
-
 	// Set pmove velocity
 	pmove->velocity[2] = 0;
 	PM_Accelerate (wishdir, wishspeed, pmove->movevars->accelerate);
@@ -1948,6 +1941,11 @@ void PM_FixPlayerCrouchStuck( int direction )
 
 void PM_UnDuck( void )
 {
+	int standingUpAfterDiving = pmove->time > timeBeginStandingUp && pmove->time < timeEndStandingUp;
+	if ( standingUpAfterDiving ) {
+		return;
+	}
+
 	int i;
 	pmtrace_t trace;
 	vec3_t newOrigin;
@@ -2701,7 +2699,7 @@ void PM_Jump (void)
 // Dive is simillar to long jump, but can be done in any direction
 void PM_Dive(void)
 {
-	if ( g_slowMotionCharge < 20 ) {
+	if ( g_slowMotionCharge < DIVING_SLOWMOTION_CHARGE_COST ) {
 		return;
 	}
 

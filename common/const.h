@@ -697,6 +697,8 @@ enum
 	VUSER4_Z_SET_DIVING_ON
 };
 
+#define DIVING_SLOWMOTION_CHARGE_COST 10
+
 // Rendering constants
 enum 
 {	
