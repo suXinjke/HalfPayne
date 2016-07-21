@@ -279,7 +279,9 @@ public:
 	BOOL			IsOnLadder( void );
 	void			ApplyFPSCap();
 	void			ToggleSlowMotion();
-	void			SetSlowMotion( bool slowMotionEnabled, bool forced = false );
+	bool			ActivateSlowMotion();
+	bool			DeactivateSlowMotion();
+	void			SetSlowMotion( bool slowMotionEnabled );
 	BOOL			FlashlightIsOn( void );
 	void			FlashlightTurnOn( void );
 	void			FlashlightTurnOff( void );

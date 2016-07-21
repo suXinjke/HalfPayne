@@ -146,7 +146,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 
 	if ( gBMMConfig.constantSlowmotion ) {
 		pPlayer->TakeSlowmotionCharge( 100 );
-		pPlayer->ToggleSlowMotion();
+		pPlayer->SetSlowMotion( true );
 		pPlayer->infiniteSlowMotion = true;
 	}
 

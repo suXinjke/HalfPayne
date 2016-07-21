@@ -2306,19 +2306,12 @@ void CBasePlayer::HandleIUser4()
 				break;
 			}
 			isDiving = true;
-			SetSlowMotion(true);
-			slowMotionEnabled = true;
+			SetSlowMotion( true );
 			slowMotionCharge -= 20;
 			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
 			break;
 		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
-			if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-				if ( gBMMConfig.constantSlowmotion ) {
-					break;
-				}
-			}
-			SetSlowMotion(false);
-			slowMotionEnabled = false;
+			DeactivateSlowMotion();
 			isDiving = false;
 			break;
 		default:
@@ -3359,7 +3352,7 @@ int CBasePlayer::Restore( CRestore &restore )
 	m_flNextAttack = UTIL_WeaponTimeBase();
 #endif
 
-	SetSlowMotion( slowMotionEnabled, true );
+	SetSlowMotion( slowMotionEnabled );
 	if ( isDiving ) {
 		pev->vuser4[2] = VUSER4_Z_SET_DIVING_ON;
 	}
@@ -3665,43 +3658,73 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-	
-	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-		if ( BMM::ended ) {
-			return;
+	if ( slowMotionEnabled ) {
+		DeactivateSlowMotion();
+	} else {
+		if ( ActivateSlowMotion() ) {
+			if ( slowMotionEnabled ) {
+				UTIL_ScreenFade( this, Vector( 0, 0, 0 ), 0.02, 0.02, 120.0, FFADE_IN );
+				EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM, true );
+			}
 		}
-		if ( gBMMConfig.constantSlowmotion && slowMotionEnabled ) {
-			return;
-		}
-	}
-
-	if ( !slowMotionEnabled ) {
-		if ( slowMotionCharge <= 0 ) {
-			return;
-		}
-		SetSlowMotion( true );
-		if ( !isDiving && pev->deadflag == DEAD_NO ) {
-			UTIL_ScreenFade( this, Vector( 0, 0, 0 ), 0.02, 0.02, 120.0, FFADE_IN );
-			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM, true );
-		}
-		slowMotionEnabled = !slowMotionEnabled;
-	}
-	else {
-		SetSlowMotion( false );
-		slowMotionEnabled = !slowMotionEnabled;
 	}
 }
 
-void CBasePlayer::SetSlowMotion( bool slowMotionEnabled, bool forced ) {
+bool CBasePlayer::ActivateSlowMotion()
+{
+	if ( slowMotionEnabled ) {
+		return false;
+	}
+
+	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		if ( BMM::ended ) {
+			return false;
+		}
+		if ( gBMMConfig.constantSlowmotion ) {
+			return false;
+		}
+	}
+
+	if ( slowMotionCharge <= 0 ) {
+		return false;
+	}
+
+	SetSlowMotion( true );
+
+	return true;
+}
+
+bool CBasePlayer::DeactivateSlowMotion()
+{
+	if ( !slowMotionEnabled ) {
+		return false;
+	}
+
+	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		if ( BMM::ended ) {
+			return false;
+		}
+		if ( gBMMConfig.constantSlowmotion ) {
+			return false;
+		}
+	}
+
+	SetSlowMotion( false );
+
+	EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
+
+	return true;
+}
+
+void CBasePlayer::SetSlowMotion( bool slowMotionEnabled ) {
 	if ( slowMotionEnabled ) {
 		SERVER_COMMAND( "host_framerate 0.0025\n" );
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
+		this->slowMotionEnabled = true;
 	}
 	else {
 		SERVER_COMMAND( "host_framerate 0.01\n" );
-		if ( this->slowMotionEnabled != slowMotionEnabled && pev->deadflag == DEAD_NO ) {
-			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
-		}
+		this->slowMotionEnabled = false;
 	}
 }
 
