@@ -47,6 +47,7 @@ extern DLL_GLOBAL	BOOL	g_fDrawLines;
 int gEvilImpulse101;
 extern DLL_GLOBAL int		g_iSkillLevel, gDisplayTitle;
 
+extern "C" int				g_slowMotionCharge;
 
 BOOL gInitHUD = TRUE;
 
@@ -2216,6 +2217,8 @@ void CBasePlayer::PreThink(void)
 	{
 		pev->velocity = g_vecZero;
 	}
+
+	g_slowMotionCharge = slowMotionCharge;
 }
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:

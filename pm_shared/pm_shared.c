@@ -155,7 +155,7 @@ static char grgszTextureName[CTEXTURESMAX][CBTEXTURENAMEMAX];
 static char grgchTextureType[CTEXTURESMAX];
 
 int g_onladder = 0;
-
+int g_slowMotionCharge = 0;
 int doneDiving = 0;
 
 void PM_DuckWhileDiving(void);
@@ -2701,6 +2701,10 @@ void PM_Jump (void)
 // Dive is simillar to long jump, but can be done in any direction
 void PM_Dive(void)
 {
+	if ( g_slowMotionCharge < 20 ) {
+		return;
+	}
+
 	int i;
 
 	if (pmove->dead)
