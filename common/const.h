@@ -38,13 +38,13 @@
 #define FL_FLOAT				(1<<15)	// Apply floating force to this entity when in water
 #define FL_GRAPHED				(1<<16) // worldgraph has this ent listed as something that blocks a connection
 
-// UNDONE: Do we need these?
-#define FL_IMMUNE_WATER			(1<<17)
-#define	FL_IMMUNE_SLIME			(1<<18)
-
-// flag below is unsed, I'm taking it for the diving
+// flags below are unsed, I'm taking these for the diving and remote slowmotion control
+//#define FL_IMMUNE_WATER			(1<<17)
+//#define	FL_IMMUNE_SLIME			(1<<18)
 //#define FL_IMMUNE_LAVA			(1<<19)
-#define FL_DIVING				(1<<19)
+#define FL_ACTIVATE_SLOWMOTION_REQUESTED	(1<<17)
+#define FL_DEACTIVATE_SLOWMOTION_REQUESTED	(1<<18)
+#define FL_DIVING							(1<<19)
 
 #define FL_PROXY				(1<<20)	// This is a spectator proxy
 #define FL_ALWAYSTHINK			(1<<21)	// Brush model flag -- call think every frame regardless of nextthink - ltime (for constantly changing velocity/path)

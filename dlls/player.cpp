@@ -2090,7 +2090,7 @@ void CBasePlayer::PreThink(void)
 
 	g_pGameRules->PlayerThink( this );
 
-	HandleIUser4();
+	HandleSlowmotionFlags();
 
 	if ( g_fGameOver )
 		return;         // intermission or finale
@@ -2297,28 +2297,19 @@ void CBasePlayer::PreThink(void)
 
 /* */
 
-void CBasePlayer::HandleIUser4()
+void CBasePlayer::HandleSlowmotionFlags()
 {
-	switch (pev->iuser4) {
-	
-		case IUSER4_ENABLE_SLOW_MOTION_FROM_DIVING:
-			// I'm yet to figure out how to prevent diving
-			// from pm_shared if you don't have enough slowMotionCharge
-			if (slowMotionCharge < 20) {
-				break;
-			}
-			SetSlowMotion( true );
-			slowMotionCharge -= 20;
-			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
-			break;
-		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
-			DeactivateSlowMotion();
-			break;
-		default:
-			break;
-	}
+	if ( ( pev->flags & FL_ACTIVATE_SLOWMOTION_REQUESTED ) && 
+		 ( pev->flags & FL_DIVING ) ) {
+		SetSlowMotion( true );
+		slowMotionCharge -= 20;
+		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
 
-	pev->iuser4 = IUSER4_NOTHING;
+		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;
+	} else if ( pev->flags & FL_DEACTIVATE_SLOWMOTION_REQUESTED ) {
+		DeactivateSlowMotion();
+		pev->flags &= ~FL_DEACTIVATE_SLOWMOTION_REQUESTED;
+	}
 
 }
 

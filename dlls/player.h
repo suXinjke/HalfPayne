@@ -349,7 +349,7 @@ public:
 
 	void TabulateAmmo( void );
 
-	void HandleIUser4();
+	void HandleSlowmotionFlags();
 
 	float m_flStartCharge;
 	float m_flAmmoStartCharge;

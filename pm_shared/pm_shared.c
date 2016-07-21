@@ -1090,7 +1090,7 @@ void PM_WalkMove ()
 		else {
 			// Done sliding across the floor - disable the slowmotion
 			if ( !doneDiving ) {
-				pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
+				pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
 				doneDiving = 1;
 			}
 
@@ -2791,7 +2791,7 @@ void PM_Dive(void)
 	// Now diving
 	pmove->flags |= FL_DIVING;
 	// Turn the slowmotion on
-	pmove->iuser4 = IUSER4_ENABLE_SLOW_MOTION_FROM_DIVING;
+	pmove->flags |= FL_ACTIVATE_SLOWMOTION_REQUESTED;
 }
 
 /*
@@ -3315,7 +3315,7 @@ void PM_PlayerMove ( qboolean server )
 
 			// Stop diving when you're in the water
 			if ( pmove->flags & FL_DIVING) {
-				pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
+				pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
 				pmove->flags &= ~FL_DIVING;
 			}
 
