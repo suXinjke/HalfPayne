@@ -129,7 +129,6 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, isDiving, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 
@@ -2305,14 +2304,12 @@ void CBasePlayer::HandleIUser4()
 			if (slowMotionCharge < 20) {
 				break;
 			}
-			isDiving = true;
 			SetSlowMotion( true );
 			slowMotionCharge -= 20;
 			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
 			break;
 		case IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING:
 			DeactivateSlowMotion();
-			isDiving = false;
 			break;
 		default:
 			break;
@@ -3154,8 +3151,6 @@ void CBasePlayer::Spawn( void )
 	m_iFlashBattery = 99;
 	m_flFlashLightTime = 1; // force first message
 
-	isDiving = false;
-
 	slowMotionCharge = 0;
 	slowMotionUpdateTime = 1;
 	infiniteSlowMotion = 0;
@@ -3353,9 +3348,6 @@ int CBasePlayer::Restore( CRestore &restore )
 #endif
 
 	SetSlowMotion( slowMotionEnabled );
-	if ( isDiving ) {
-		pev->vuser4[2] = VUSER4_Z_SET_DIVING_ON;
-	}
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 
@@ -4494,7 +4486,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// Update slowmotion meter
-	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !isDiving && pev->deadflag == DEAD_NO)
+	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !( pev->flags & FL_DIVING ) && pev->deadflag == DEAD_NO)
 	{
 		if (slowMotionEnabled)
 		{

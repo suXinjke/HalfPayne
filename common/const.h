@@ -41,7 +41,10 @@
 // UNDONE: Do we need these?
 #define FL_IMMUNE_WATER			(1<<17)
 #define	FL_IMMUNE_SLIME			(1<<18)
-#define FL_IMMUNE_LAVA			(1<<19)
+
+// flag below is unsed, I'm taking it for the diving
+//#define FL_IMMUNE_LAVA			(1<<19)
+#define FL_DIVING				(1<<19)
 
 #define FL_PROXY				(1<<20)	// This is a spectator proxy
 #define FL_ALWAYSTHINK			(1<<21)	// Brush model flag -- call think every frame regardless of nextthink - ltime (for constantly changing velocity/path)

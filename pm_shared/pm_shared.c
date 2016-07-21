@@ -156,11 +156,9 @@ static char grgchTextureType[CTEXTURESMAX];
 
 int g_onladder = 0;
 
-int isDiving = 0;
 int doneDiving = 0;
 
 void PM_DuckWhileDiving(void);
-void HandleVUser4( void );
 
 void PM_SwapTextures( int i, int j )
 {
@@ -1084,7 +1082,7 @@ void PM_WalkMove ()
 	}
 
 	// When diving
-	if (isDiving) {
+	if ( pmove->flags & FL_DIVING ) {
 
 		if (Length(pmove->velocity) > 0) {
 			wishspeed = 0.0f;
@@ -1098,7 +1096,7 @@ void PM_WalkMove ()
 
 			if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
 				// Stand up and stop diving
-				isDiving = 0;
+				pmove->flags &= ~FL_DIVING;
 				doneDiving = 0;
 			}
 		}
@@ -2560,7 +2558,7 @@ PM_Jump
 */
 void PM_Jump (void)
 {
-	if (isDiving) {
+	if ( pmove->flags & FL_DIVING ) {
 		return;
 	}
 
@@ -2712,7 +2710,7 @@ void PM_Dive(void)
 	}
 
 	// Don't dive again when you're diving
-	if (isDiving) {
+	if ( pmove->flags & FL_DIVING ) {
 		return;
 	}
 
@@ -2787,7 +2785,7 @@ void PM_Dive(void)
 	pmove->oldbuttons |= IN_ALT1;	// don't jump again until released
 
 	// Now diving
-	isDiving = 1;
+	pmove->flags |= FL_DIVING;
 	// Turn the slowmotion on
 	pmove->iuser4 = IUSER4_ENABLE_SLOW_MOTION_FROM_DIVING;
 }
@@ -3190,7 +3188,7 @@ void PM_PlayerMove ( qboolean server )
 	PM_UpdateStepSound();
 
 	// Is diving?
-	if (isDiving) {
+	if ( pmove->flags & FL_DIVING ) {
 		PM_DuckWhileDiving();
 	} else {
 		PM_Duck();
@@ -3224,8 +3222,6 @@ void PM_PlayerMove ( qboolean server )
 		VectorScale( pmove->velocity, 0.3, pmove->velocity );
 	}
 #endif
-
-	HandleVUser4( );
 
 	// Handle movement
 	switch ( pmove->movetype )
@@ -3314,9 +3310,9 @@ void PM_PlayerMove ( qboolean server )
 			}
 
 			// Stop diving when you're in the water
-			if (isDiving) {
+			if ( pmove->flags & FL_DIVING) {
 				pmove->iuser4 = IUSER4_DISABLE_SLOW_MOTION_FROM_DIVING;
-				isDiving = 0;
+				pmove->flags &= ~FL_DIVING;
 			}
 
 			// Perform regular water movement
@@ -3582,18 +3578,4 @@ void PM_Init( struct playermove_s *ppmove )
 	PM_InitTextureTypes();
 
 	pm_shared_initialized = 1;
-}
-
-void HandleVUser4()
-{
-	int z = pmove->vuser4[2];
-	switch ( z ) {
-		case VUSER4_Z_SET_DIVING_ON:
-			isDiving = 1;
-		default:
-			break;
-	}
-
-	pmove->vuser4[2] = 0.0f;
-
 }
