@@ -432,7 +432,12 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 			}
 
 			ClearMultiDamage();
-			pEntity->TraceAttack( m_pPlayer->pev, flDamage, vecDir, &tr, DMG_BULLET );
+			if ( gBMMConfig.instaGib ) {
+				// Allow instagib to destroy Gargantua
+				pEntity->TraceAttack( m_pPlayer->pev, flDamage, vecDir, &tr, DMG_BULLET | DMG_ENERGYBEAM );
+			} else {
+				pEntity->TraceAttack( m_pPlayer->pev, flDamage, vecDir, &tr, DMG_BULLET );
+			}
 			ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 		}
 
@@ -567,6 +572,9 @@ void CGauss::WeaponIdle( void )
 	if (m_fInAttack != 0)
 	{
 		StartFire();
+		if ( gBMMConfig.instaGib ) {
+			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
+		}
 		m_fInAttack = 0;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.0;
 	}
