@@ -62,8 +62,9 @@ BlackMesaMinuteConfig::BlackMesaMinuteConfig()
 #endif
 }
 
-bool BlackMesaMinuteConfig::Init( const char *configName ) {
-
+// This function is called in CHalfLifeRules constructor
+// to ensure we won't get a leftover variable value in the default gamemode.
+void BlackMesaMinuteConfig::Reset() {
 	this->error.clear();
 	this->startMap.clear();
 	this->endMap.clear();
@@ -92,6 +93,9 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	this->infiniteAmmo = false;
 	this->weaponRestricted = false;
 	this->instaGib = false;
+}
+
+bool BlackMesaMinuteConfig::Init( const char *configName ) {
 
 	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
 	

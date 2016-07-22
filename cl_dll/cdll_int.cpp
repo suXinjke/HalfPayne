@@ -19,6 +19,7 @@
 //
 
 #include "hud.h"
+#include "bmm_config.h"
 #include "cl_util.h"
 #include "netadr.h"
 #undef INTERFACE_H
@@ -49,6 +50,7 @@ extern "C"
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
 TeamFortressViewport *gViewPort = NULL;
+extern BlackMesaMinuteConfig gBMMConfig;
 
 
 #include "particleman.h"
@@ -177,6 +179,15 @@ int CL_DLLEXPORT HUD_VidInit( void )
 	gHUD.VidInit();
 
 	VGui_Startup();
+
+	// Totally wrong to put it here in terms of context, 
+	// but I can be sure this will be called every time you start the new game,
+	// and I really need things like instagib to be turned off.
+
+	// Would like to find a correct place to put it on clientside.
+	if ( CVAR_GET_FLOAT( "bmm_enabled" ) == 0.0f ) {
+		gBMMConfig.Reset();
+	}
 
 	return 1;
 }

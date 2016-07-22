@@ -168,6 +168,7 @@ public:
 
 	BlackMesaMinuteConfig();
 
+	void Reset();
 	bool Init( const char *configName );
 
 	std::string error;
