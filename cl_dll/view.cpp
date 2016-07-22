@@ -1695,6 +1695,11 @@ void V_PunchAxis( int axis, float punch )
 	ev_punchangle[ axis ] = punch;
 }
 
+void V_PunchAxisAdditive( int axis, float punch )
+{
+	ev_punchangle[ axis ] += punch;
+}
+
 /*
 =============
 V_Init

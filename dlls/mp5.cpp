@@ -243,6 +243,7 @@ void CMP5::SecondaryAttack( void )
 	flags = 0;
 #endif
 
+	m_pPlayer->pev->punchangle[0] -= 5.0f;
 	PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usMP52 );
 	
 	m_flNextPrimaryAttack = GetNextAttackDelay(1);

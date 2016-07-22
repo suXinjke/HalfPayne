@@ -466,6 +466,7 @@ void CRpg::PrimaryAttack()
 	flags = 0;
 #endif
 
+		m_pPlayer->pev->punchangle[0] -= 2.5f;
 		PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usRpg );
 
 		m_iClip--; 
