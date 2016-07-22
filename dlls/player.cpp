@@ -3214,7 +3214,7 @@ void CBasePlayer::Spawn( void )
 
 	infiniteAmmo = false;
 	weaponRestricted = false;
-	instaGib = true;
+	instaGib = false;
 
 	g_pGameRules->PlayerSpawn( this );
 }
