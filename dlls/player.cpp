@@ -133,6 +133,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 
+	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
