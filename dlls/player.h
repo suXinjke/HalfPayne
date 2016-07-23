@@ -314,7 +314,7 @@ public:
 	void SelectItem(const char *pstr);
 	void ItemPreFrame( void );
 	void ItemPostFrame( void );
-	void GiveNamedItem( const char *szName );
+	void GiveNamedItem( const char *szName, bool nonCheat = false );
 	void EnableControl(BOOL fControl);
 
 	int  GiveAmmo( int iAmount, char *szName, int iMax );
@@ -382,12 +382,14 @@ public:
 
 	int bmmEnabled;
 
-	void GiveAll(); // impulse 101
+	void GiveAll( bool nonCheat = false ); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );
 
 	bool infiniteAmmo;
 	bool weaponRestricted;
 	bool instaGib;
+
+	bool usedCheat;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

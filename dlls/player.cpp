@@ -456,33 +456,33 @@ void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 
 
 
-void CBasePlayer::GiveAll() {
+void CBasePlayer::GiveAll( bool nonCheat ) {
 	gEvilImpulse101 = TRUE;
-	GiveNamedItem( "item_suit" );
-	GiveNamedItem( "item_battery" );
-	GiveNamedItem( "weapon_crowbar" );
-	GiveNamedItem( "weapon_9mmhandgun" );
-	GiveNamedItem( "ammo_9mmclip" );
-	GiveNamedItem( "weapon_shotgun" );
-	GiveNamedItem( "ammo_buckshot" );
-	GiveNamedItem( "weapon_9mmAR" );
-	GiveNamedItem( "ammo_9mmAR" );
-	GiveNamedItem( "ammo_ARgrenades" );
-	GiveNamedItem( "weapon_handgrenade" );
-	GiveNamedItem( "weapon_tripmine" );
+	GiveNamedItem( "item_suit", nonCheat );
+	GiveNamedItem( "item_battery", nonCheat );
+	GiveNamedItem( "weapon_crowbar", nonCheat );
+	GiveNamedItem( "weapon_9mmhandgun", nonCheat );
+	GiveNamedItem( "ammo_9mmclip", nonCheat );
+	GiveNamedItem( "weapon_shotgun", nonCheat );
+	GiveNamedItem( "ammo_buckshot", nonCheat );
+	GiveNamedItem( "weapon_9mmAR", nonCheat );
+	GiveNamedItem( "ammo_9mmAR", nonCheat );
+	GiveNamedItem( "ammo_ARgrenades", nonCheat );
+	GiveNamedItem( "weapon_handgrenade", nonCheat );
+	GiveNamedItem( "weapon_tripmine", nonCheat );
 #ifndef OEM_BUILD
-	GiveNamedItem( "weapon_357" );
-	GiveNamedItem( "ammo_357" );
-	GiveNamedItem( "weapon_crossbow" );
-	GiveNamedItem( "ammo_crossbow" );
-	GiveNamedItem( "weapon_egon" );
-	GiveNamedItem( "weapon_gauss" );
-	GiveNamedItem( "ammo_gaussclip" );
-	GiveNamedItem( "weapon_rpg" );
-	GiveNamedItem( "ammo_rpgclip" );
-	GiveNamedItem( "weapon_satchel" );
-	GiveNamedItem( "weapon_snark" );
-	GiveNamedItem( "weapon_hornetgun" );
+	GiveNamedItem( "weapon_357", nonCheat );
+	GiveNamedItem( "ammo_357", nonCheat );
+	GiveNamedItem( "weapon_crossbow", nonCheat );
+	GiveNamedItem( "ammo_crossbow", nonCheat );
+	GiveNamedItem( "weapon_egon", nonCheat );
+	GiveNamedItem( "weapon_gauss", nonCheat );
+	GiveNamedItem( "ammo_gaussclip", nonCheat );
+	GiveNamedItem( "weapon_rpg", nonCheat );
+	GiveNamedItem( "ammo_rpgclip", nonCheat );
+	GiveNamedItem( "weapon_satchel", nonCheat );
+	GiveNamedItem( "weapon_snark", nonCheat );
+	GiveNamedItem( "weapon_hornetgun", nonCheat );
 #endif
 	gEvilImpulse101 = FALSE;
 }
@@ -2091,8 +2091,6 @@ void CBasePlayer::PreThink(void)
 	m_afButtonPressed =  buttonsChanged & pev->button;		// The changed ones still down are "pressed"
 	m_afButtonReleased = buttonsChanged & (~pev->button);	// The ones not down are "released"
 
-	g_pGameRules->PlayerThink( this );
-
 	HandleSlowmotionFlags();
 
 	if ( g_fGameOver )
@@ -2115,6 +2113,9 @@ void CBasePlayer::PreThink(void)
 	CheckTimeBasedDamage();
 
 	CheckSuitUpdate();
+
+	// Moved this lower than UpdateClientData, so HUD gets reset before calling PlayerThink 
+	g_pGameRules->PlayerThink( this );
 
 	// Observer Button Handling
 	if ( IsObserver() )
@@ -3219,6 +3220,8 @@ void CBasePlayer::Spawn( void )
 	weaponRestricted = false;
 	instaGib = false;
 
+	usedCheat = false;
+
 	g_pGameRules->PlayerSpawn( this );
 }
 
@@ -3610,7 +3613,7 @@ void CBloodSplat::Spray ( void )
 
 
 
-void CBasePlayer::GiveNamedItem( const char *pszName )
+void CBasePlayer::GiveNamedItem( const char *pszName, bool nonCheat )
 {
 	edict_t	*pent;
 
@@ -3628,6 +3631,10 @@ void CBasePlayer::GiveNamedItem( const char *pszName )
 
 	DispatchSpawn( pent );
 	DispatchTouch( pent, ENT( pev ) );
+
+	if ( !nonCheat ) {
+		usedCheat = true;
+	}
 }
 
 
@@ -3823,6 +3830,7 @@ void CBasePlayer::ImpulseCommands( )
 		infiniteSlowMotion = !infiniteSlowMotion;
 		if ( infiniteSlowMotion ) {
 			g_engfuncs.pfnServerPrint( "Infinite slowmotion ON\n" );
+			usedCheat = true;
 		}
 		else {
 			g_engfuncs.pfnServerPrint( "Infinite slowmotion OFF\n" );

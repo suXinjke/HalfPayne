@@ -263,10 +263,12 @@ public:
 	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerCheat( const char *pszName, int iSize, void *pbuf );
 
 private:
 	bool paused;
 	bool ended;
+	bool cheated;
 	float time;
 	float realTime;
 	float realTimeMinusTime;

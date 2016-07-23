@@ -26,12 +26,17 @@ public:
 	virtual void SpawnEnemiesByConfig( const char *mapName );
 
 	virtual BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
+
+	virtual void CheckForCheats( CBasePlayer *pPlayer );
 };
 
 namespace BMM
 {
 	extern bool timerPaused;
 	extern bool ended;
+	
+	extern bool cheated;
+	extern bool cheatedMessageSent;
 
 	extern float currentTime;
 	extern float currentRealTime;

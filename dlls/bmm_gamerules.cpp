@@ -21,6 +21,9 @@
 bool BMM::timerPaused = false;
 bool BMM::ended = false;
 
+bool BMM::cheated = false;
+bool BMM::cheatedMessageSent = false;
+
 float BMM::currentTime = 60.0f;
 float BMM::currentRealTime = 0.0f;
 float BMM::lastGlobalTime = 0.0f;
@@ -37,6 +40,7 @@ int	gmsgTimerMsg	= 0;
 int	gmsgTimerEnd	= 0;
 int gmsgTimerValue	= 0;
 int gmsgTimerPause  = 0;
+int gmsgTimerCheat  = 0;
 
 CBlackMesaMinute::CBlackMesaMinute()
 {
@@ -45,6 +49,7 @@ CBlackMesaMinute::CBlackMesaMinute()
 		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
 		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
 		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
+		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 	}
 
 	const char *configName = CVAR_GET_STRING( "bmm_config" );
@@ -78,6 +83,8 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->bmmEnabled = 1;
 	BMM::timerPaused = 0;
 	BMM::ended = 0;
+	BMM::cheated = 0;
+	BMM::cheatedMessageSent = 0;
 	BMM::currentTime = 60.0f;
 	BMM::currentRealTime = 0.0f;
 
@@ -101,7 +108,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->instaGib = true;
 
 		pPlayer->SetEvilImpulse101( true );
-		pPlayer->GiveNamedItem( "weapon_gauss" );
+		pPlayer->GiveNamedItem( "weapon_gauss", true );
 		pPlayer->SetEvilImpulse101( false );
 	}
 
@@ -110,7 +117,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		std::string loadoutItem = gBMMConfig.loadout.at( i );
 
 		if ( loadoutItem == "all" ) {
-			pPlayer->GiveAll();
+			pPlayer->GiveAll( true );
 			pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
 		}
 		else {
@@ -123,7 +130,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 				g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict( ), "slj", "1" );
 			} else {
 				const char *item = BMM::allowedItems[BMM::GetAllowedItemIndex( loadoutItem.c_str( ) )];
-				pPlayer->GiveNamedItem( item );
+				pPlayer->GiveNamedItem( item, true );
 			}
 		}
 	}
@@ -153,6 +160,13 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	if ( gBMMConfig.infiniteSlowmotion ) {
 		pPlayer->TakeSlowmotionCharge( 100 );
 		pPlayer->infiniteSlowMotion = true;
+	}
+
+	// Do not let player cheat by not starting at the [startmap]
+	const char *startMap = gBMMConfig.startMap.c_str();
+	const char *actualMap = STRING( gpGlobals->mapname );
+	if ( strcmp( startMap, actualMap ) != 0 ) {
+		BMM::cheated = true;
 	}
 
 }
@@ -210,6 +224,31 @@ void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
 		WRITE_FLOAT( BMM::currentTime );
 	MESSAGE_END();
+
+	CheckForCheats( pPlayer );
+}
+
+void CBlackMesaMinute::CheckForCheats( CBasePlayer *pPlayer )
+{
+	if ( BMM::cheated && BMM::cheatedMessageSent || BMM::ended ) {
+		return;
+	}
+
+	if ( BMM::cheated ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgTimerCheat, NULL, pPlayer->pev );
+		MESSAGE_END();
+		
+		BMM::cheatedMessageSent = true;
+		return;
+	}
+
+	if ( ( pPlayer->pev->flags & FL_GODMODE ) ||
+		 ( pPlayer->pev->flags & FL_NOTARGET ) ||
+		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
+		 pPlayer->usedCheat ) {
+		BMM::cheated = true;
+	}
+
 }
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
@@ -322,21 +361,23 @@ void CBlackMesaMinute::End( CBasePlayer *pPlayer ) {
 		
 	MESSAGE_END();
 
+	if ( !BMM::cheated ) {
 
-	// Write new records if there are
-	if ( BMM::currentTime > record.time ) {
-		record.time = BMM::currentTime;
-	}
-	if ( BMM::currentRealTime < record.realTime ) {
-		record.realTime = BMM::currentRealTime;
-	}
+		// Write new records if there are
+		if ( BMM::currentTime > record.time ) {
+			record.time = BMM::currentTime;
+		}
+		if ( BMM::currentRealTime < record.realTime ) {
+			record.realTime = BMM::currentRealTime;
+		}
 
-	float bmmRealTimeMinusTime = max( 0.0f, BMM::currentRealTime - BMM::currentTime );
-	if ( bmmRealTimeMinusTime < record.realTimeMinusTime ) {
-		record.realTimeMinusTime = bmmRealTimeMinusTime;
-	}
+		float bmmRealTimeMinusTime = max( 0.0f, BMM::currentRealTime - BMM::currentTime );
+		if ( bmmRealTimeMinusTime < record.realTimeMinusTime ) {
+			record.realTimeMinusTime = bmmRealTimeMinusTime;
+		}
 
-	record.Save();
+		record.Save();
+	}
 }
 
 void CBlackMesaMinute::PauseTimer( CBasePlayer *pPlayer )

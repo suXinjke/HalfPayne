@@ -27,7 +27,6 @@ BlackMesaMinuteRecord::BlackMesaMinuteRecord( const char *recordName ) {
         realTime = DEFAULT_TIME;
         realTimeMinusTime = DEFAULT_TIME;
 
-        Save();
     } else {
         inp.read( ( char * ) &time, sizeof( float ) );
         inp.read( ( char * ) &realTime, sizeof( float ) );

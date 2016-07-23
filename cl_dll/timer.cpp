@@ -9,6 +9,7 @@ DECLARE_MESSAGE( m_Timer, TimerValue )
 DECLARE_MESSAGE( m_Timer, TimerMsg )
 DECLARE_MESSAGE( m_Timer, TimerEnd )
 DECLARE_MESSAGE( m_Timer, TimerPause )
+DECLARE_MESSAGE( m_Timer, TimerCheat )
 
 extern globalvars_t *gpGlobals;
 
@@ -26,6 +27,7 @@ int CHudTimer::Init(void)
 	HOOK_MESSAGE( TimerMsg );
 	HOOK_MESSAGE( TimerEnd );
 	HOOK_MESSAGE( TimerPause );
+	HOOK_MESSAGE( TimerCheat );
 	
 	gHUD.AddHudElem(this);
 
@@ -38,6 +40,7 @@ void CHudTimer::Reset( void )
 
 	paused = false;
 	ended = false;
+	cheated = false;
 	blinked = false;
 	time = 0.0f;
 	messages.clear();
@@ -81,7 +84,11 @@ int CHudTimer::Draw( float flTime )
 				nextTimerBlinkTime = gEngfuncs.GetAbsoluteTime() + TIMER_PAUSED_BLINK_TIME;
 			}
 		}
-		gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
+		if ( cheated ) {
+			gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, 0, 0 );
+		} else {
+			gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
+		}
 		y += numberSpriteHeight;
 		DrawMessages( x, y );
 
@@ -181,9 +188,14 @@ void CHudTimer::DrawEndScreen()
 	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight * 7;
 	DrawEndScreenStatistics( x, y );
 
-	// Bottom message
+	// Bottom messages
 	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight;
 	gHUD.DrawHudStringKeepCenter( x, y, 300, "PRESS ESC TO QUIT OR START THE NEW GAME", r, g, b );
+
+	if ( cheated ) {
+		y -= gHUD.m_scrinfo.iCharHeight;
+		gHUD.DrawHudStringKeepCenter( x, y, 300, "YOU'VE BEEN CHEATING - PB WILL NOT BE SAVED", 200, 0, 0 );
+	}
 }
 
 void CHudTimer::DrawEndScreenTimes( int x, int y )
@@ -199,7 +211,7 @@ void CHudTimer::DrawEndScreenTimes( int x, int y )
 
 	gHUD.DrawHudString( x, y, 200, "TIME SCORE", r, g, b );
 	y += gHUD.m_scrinfo.iCharHeight;
-	if ( !timeRunningAnimation.isRunning && time > oldTimeRecord ) {
+	if ( !timeRunningAnimation.isRunning && time > oldTimeRecord && !cheated ) {
 		timeRunningAnimation.Draw( x, y, r2, g2, b2 );
 		gHUD.DrawHudString( x + formattedTimeSpriteWidth + 2, y - 4, 200, "PB!", r2, g2, b2 );
 	} else {
@@ -209,7 +221,7 @@ void CHudTimer::DrawEndScreenTimes( int x, int y )
 
 	gHUD.DrawHudString( x, y, 200, "REAL TIME", r, g, b );
 	y += gHUD.m_scrinfo.iCharHeight;
-	if ( !realTimeRunningAnimation.isRunning && realTime < oldRealTimeRecord ) {
+	if ( !realTimeRunningAnimation.isRunning && realTime < oldRealTimeRecord && !cheated ) {
 		realTimeRunningAnimation.Draw( x, y, r2, g2, b2 );
 		gHUD.DrawHudString( x + formattedTimeSpriteWidth + 2, y - 4, 200, "PB!", r2, g2, b2 );
 	} else {
@@ -219,7 +231,7 @@ void CHudTimer::DrawEndScreenTimes( int x, int y )
 
 	gHUD.DrawHudString( x, y, 200, "REAL TIME MINUS SCORE", r, g, b );
 	y += gHUD.m_scrinfo.iCharHeight;
-	if ( !realTimeMinusTimeRunningAnimation.isRunning && realTimeMinusTime < oldRealTimeMinusTimeRecord ) {
+	if ( !realTimeMinusTimeRunningAnimation.isRunning && realTimeMinusTime < oldRealTimeMinusTimeRecord && !cheated ) {
 		realTimeMinusTimeRunningAnimation.Draw( x, y, r2, g2, b2 );
 		gHUD.DrawHudString( x + formattedTimeSpriteWidth + 2, y - 4, 200, "PB!", r2, g2, b2 );
 	} else {
@@ -389,7 +401,12 @@ int CHudTimer::MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf )
 	return 1;
 }
 
+int CHudTimer::MsgFunc_TimerCheat( const char *pszName, int iSize, void *pbuf )
+{
+	cheated = true;
 
+	return 1;
+}
 
 
 
