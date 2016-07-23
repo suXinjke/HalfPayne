@@ -580,7 +580,8 @@ public:
 	void WeaponIdle( void );
 	float m_flNextAnimTime;
 	int m_iShell;
-	int bulletsShot;
+	float stress;
+	float nextStressDecrease;
 
 	virtual BOOL UseDecrement( void )
 	{ 
