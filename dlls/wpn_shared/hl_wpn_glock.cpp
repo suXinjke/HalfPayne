@@ -48,6 +48,9 @@ void CGlock::Spawn( )
 	m_iDefaultAmmo = GLOCK_DEFAULT_GIVE;
 	shotOnce = false;
 
+	stress = 0.0f;
+	nextStressDecrease = gpGlobals->time + 0.1f;
+
 	FallInit();// get ready to fall down.
 }
 
@@ -95,9 +98,25 @@ BOOL CGlock::Deploy( )
 }
 
 void CGlock::ItemPostFrame(void) {
-	if ( shotOnce && !(m_pPlayer->pev->button & IN_ATTACK))
-	{
-		shotOnce = false;
+
+	if ( !(m_pPlayer->pev->button & IN_ATTACK) ) {
+		if ( shotOnce ) {
+			shotOnce = false;
+		}
+
+		if ( gpGlobals->time > nextStressDecrease ) {
+			if ( m_pPlayer->slowMotionEnabled ) {
+				stress *= 0.6f;
+			} else {
+				stress *= 0.8f;
+			}
+
+			nextStressDecrease = gpGlobals->time + 0.1f;
+
+			if ( stress <= 0.15f ) {
+				stress = 0.0f;
+			}
+		}
 	}
 
 	CBasePlayerWeapon::ItemPostFrame();
@@ -172,7 +191,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	}
 
 	Vector vecDir;
-	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, Vector( flSpread, flSpread, flSpread ), 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
+	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_2DEGREES * stress, 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), fUseAutoAim ? m_usFireGlock1 : m_usFireGlock2, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, ( m_iClip == 0 ) ? 1 : 0, 0 );
 
@@ -184,6 +203,10 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
+
+	if ( stress < 1.5f ) {
+		stress += 0.3f;
+	}
 }
 
 

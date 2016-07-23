@@ -493,6 +493,9 @@ public:
 #endif
 	}
 
+	float stress;
+	float nextStressDecrease;
+
 private:
 	int m_iShell;
 	int shotOnce;
