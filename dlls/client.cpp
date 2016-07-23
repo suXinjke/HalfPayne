@@ -153,8 +153,19 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 		GetClassPtr( (CBasePlayer *)pev)->Spawn( );
 	}
 	else
-	{       // restart the entire server
-		SERVER_COMMAND("reload\n");
+	{   
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			char mapName[256];
+			sprintf( mapName, "%s", gBMMConfig.startMap.c_str() );
+
+			// Restart current BMM session
+			// (can't execute bmm command directly)
+			CHANGE_LEVEL( mapName, NULL );
+		} else {
+
+			// restart the entire server
+			SERVER_COMMAND( "reload\n" );
+		}
 	}
 }
 

@@ -939,6 +939,7 @@ void RunBlackMesaMinute()
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
 	// Parse config file and retrieve the map name from [startmap] section
+	gBMMConfig.Reset();
 	if ( !gBMMConfig.Init( configName ) ) {
 		gEngfuncs.Con_Printf( "%s\n", gBMMConfig.error.c_str() );
 		return;

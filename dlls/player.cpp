@@ -1531,9 +1531,10 @@ void CBasePlayer::PlayerDeathThink(void)
 		deathCameraYaw = 0;
 	}
 
-	if (pev->modelindex && (!m_fSequenceFinished) )
+	if (pev->modelindex && (!m_fSequenceFinished) && (pev->deadflag == DEAD_DYING) )
 	{
 		StudioFrameAdvance( );
+		return;
 	}
 
 	// once we're done animating our death and we're on the ground, we want to set movetype to None so our dead body won't do collisions and stuff anymore
