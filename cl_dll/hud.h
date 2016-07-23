@@ -112,6 +112,7 @@ public:
 	int Init( void );
 	int VidInit( void );
 	int Draw(float flTime);
+	int DrawAimCoords();
 	void Think(void);
 	void Reset(void);
 	int DrawWList(float flTime);
@@ -122,6 +123,7 @@ public:
 	int MsgFunc_WeapPickup( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_ItemPickup( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_HideWeapon( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_AimCoords( const char *pszName, int iSize, void *pbuf );
 
 	void SlotInput( int iSlot );
 	void _cdecl UserCmd_Slot1( void );
@@ -145,6 +147,11 @@ private:
 	RGBA  m_rgba;
 	int	m_HUD_bucket0;
 	int m_HUD_selection;
+
+	float aimCoordX;
+	float aimCoordY;
+	float aimCoordZ;
+	float aimCoordAngle;
 
 };
 

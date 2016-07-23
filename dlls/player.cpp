@@ -218,6 +218,8 @@ int gmsgTeamNames = 0;
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
 
+int gmsgAimCoords = 0; 
+
 
 void LinkUserMessages( void )
 {
@@ -268,6 +270,7 @@ void LinkUserMessages( void )
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
+	gmsgAimCoords = REG_USER_MSG( "AimCoords", 8 );
 
 }
 
@@ -4511,6 +4514,29 @@ void CBasePlayer :: UpdateClientData( void )
 				}
 			}
 		}	
+	}
+
+	// Show aim coordinates
+	if ( CVAR_GET_FLOAT( "print_aim_coordinates" ) > 0.0f ) {
+
+		TraceResult tr;
+		UTIL_MakeVectors( pev->v_angle );
+		UTIL_TraceLine( pev->origin + pev->view_ofs, pev->origin + pev->view_ofs + gpGlobals->v_forward * 8192, dont_ignore_monsters, edict(), &tr );
+
+		// -179 => 181
+		// -1	=> 359
+		float aimAngle = pev->v_angle[1];
+		if ( aimAngle < 0.0f ) {
+			aimAngle *= -1.0f;
+			aimAngle = 180.0f + ( 180.0f - aimAngle );
+		}
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgAimCoords, NULL, pev );
+			WRITE_COORD( tr.vecEndPos.x );
+			WRITE_COORD( tr.vecEndPos.y );
+			WRITE_COORD( tr.vecEndPos.z );
+			WRITE_COORD( aimAngle );
+		MESSAGE_END();
 	}
 
 	// Play heartbeat sounds during slowmotion

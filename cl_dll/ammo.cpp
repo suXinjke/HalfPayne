@@ -238,6 +238,7 @@ DECLARE_MESSAGE(m_Ammo, AmmoPickup);	// flashes an ammo pickup record
 DECLARE_MESSAGE(m_Ammo, WeapPickup);    // flashes a weapon pickup record
 DECLARE_MESSAGE(m_Ammo, HideWeapon);	// hides the weapon, ammo, and crosshair displays temporarily
 DECLARE_MESSAGE(m_Ammo, ItemPickup);
+DECLARE_MESSAGE(m_Ammo, AimCoords);
 
 DECLARE_COMMAND(m_Ammo, Slot1);
 DECLARE_COMMAND(m_Ammo, Slot2);
@@ -269,6 +270,7 @@ int CHudAmmo::Init(void)
 	HOOK_MESSAGE(WeapPickup);
 	HOOK_MESSAGE(ItemPickup);
 	HOOK_MESSAGE(HideWeapon);
+	HOOK_MESSAGE(AimCoords);
 	HOOK_MESSAGE(AmmoX);
 
 	HOOK_COMMAND("slot1", Slot1);
@@ -597,6 +599,18 @@ int CHudAmmo::MsgFunc_HideWeapon( const char *pszName, int iSize, void *pbuf )
 	return 1;
 }
 
+int CHudAmmo::MsgFunc_AimCoords( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	
+	aimCoordX = READ_COORD();
+	aimCoordY = READ_COORD();
+	aimCoordZ = READ_COORD();
+	aimCoordAngle = READ_COORD();
+
+	return 1;
+}
+
 // 
 //  CurWeapon: Update hud state with the current weapon and clip count. Ammo
 //  counts are updated with AmmoX. Server assures that the Weapon ammo type 
@@ -873,6 +887,8 @@ void CHudAmmo::UserCmd_PrevWeapon(void)
 
 int CHudAmmo::Draw(float flTime)
 {
+	DrawAimCoords();
+
 	int a, x, y, r, g, b;
 	int AmmoWidth;
 
@@ -983,6 +999,22 @@ int CHudAmmo::Draw(float flTime)
 			SPR_DrawAdditive(0, x, y - iOffset, &m_pWeapon->rcAmmo2);
 		}
 	}
+	return 1;
+}
+
+int CHudAmmo::DrawAimCoords()
+{
+	if ( CVAR_GET_FLOAT( "print_aim_coordinates" ) == 0.0f ) {
+		return 0;
+	}
+
+	int x = ScreenWidth / 2;
+	int y = ScreenHeight / 2 - 45;
+
+	char aimCoords[256];
+	sprintf( aimCoords, "X: %.2f Y: %.2f Z: %.2f ANGLE: %.2f", aimCoordX, aimCoordY, aimCoordZ, aimCoordAngle );
+	gHUD.DrawHudStringKeepCenter( x, y, 500, aimCoords, 200, 200, 200 );
+
 	return 1;
 }
 
