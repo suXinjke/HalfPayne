@@ -36,8 +36,6 @@ extern BlackMesaMinuteConfig gBMMConfig;
 //=========================================================
 CHalfLifeRules::CHalfLifeRules( void )
 {
-	gBMMConfig.Reset();
-
 	RefreshSkillData();
 }
 
@@ -110,6 +108,8 @@ BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, c
 			return FALSE;
 		}
 	}
+
+	gBMMConfig.Reset();
 	
 	return TRUE;
 }

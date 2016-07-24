@@ -52,27 +52,20 @@ CBlackMesaMinute::CBlackMesaMinute()
 		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 	}
 
-	const char *configName = CVAR_GET_STRING( "bmm_config" );
-	gBMMConfig.Init( configName );
-
 	RefreshSkillData();
 }
 
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
 {
-
-	if ( !gBMMConfig.error.empty() ) {
-		g_engfuncs.pfnServerPrint( gBMMConfig.error.c_str() );
+	// To call gBMMConfig.Reset() and prevent loading of Black Mesa Minute saves
+	if ( !CHalfLifeRules::ClientConnected( pEntity, pszName, pszAddress, szRejectReason ) ) {
 		return FALSE;
 	}
 
-	// Prevent loading of Black Mesa Minute saves
-	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
-		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
-		if ( player->bmmEnabled ) {
-			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
-			return FALSE;
-		}
+	const char *configName = CVAR_GET_STRING( "bmm_config" );
+	if ( !gBMMConfig.Init( configName ) ) {
+		g_engfuncs.pfnServerPrint( gBMMConfig.error.c_str() );
+		return FALSE;
 	}
 
 	return TRUE;
