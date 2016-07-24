@@ -410,27 +410,39 @@ void CBlackMesaMinute::HookModelIndex( edict_t *activator, const char *mapName, 
 		return;
 	}
 
-	BlackMesaMinuteConfig::ModelIndex index( mapName, modelIndex );
+	BlackMesaMinuteConfig::ModelIndex indexToFind( mapName, modelIndex );
+	
 
 	// Does timerPauses contain such index?
-	if ( gBMMConfig.timerPauses.find( index ) != gBMMConfig.timerPauses.end() ) {
-		gBMMConfig.timerPauses.erase( index );
+	auto foundIndex = gBMMConfig.timerPauses.find( indexToFind ); // it's complex iterator type, so leave it auto
+	if ( foundIndex != gBMMConfig.timerPauses.end() ) {
+		bool constant = foundIndex->constant;
+
+		if ( !constant ) {
+			gBMMConfig.timerPauses.erase( foundIndex );
+		}
 
 		PauseTimer( pPlayer );
 		return;
 	}
 
 	// Does timerResumes contain such index?
-	if ( gBMMConfig.timerResumes.find( index ) != gBMMConfig.timerResumes.end() ) {
-		gBMMConfig.timerResumes.erase( index );
+	foundIndex = gBMMConfig.timerResumes.find( indexToFind );
+	if ( foundIndex != gBMMConfig.timerResumes.end() ) {
+		bool constant = foundIndex->constant;
+
+		if ( !constant ) {
+			gBMMConfig.timerResumes.erase( foundIndex );
+		}
 
 		ResumeTimer( pPlayer );
 		return;
 	}
 
 	// Does endTriggers contain such index?
-	if ( gBMMConfig.endTriggers.find( index ) != gBMMConfig.endTriggers.end() ) {
-		gBMMConfig.endTriggers.erase( index );
+	foundIndex = gBMMConfig.endTriggers.find( indexToFind );
+	if ( foundIndex != gBMMConfig.endTriggers.end() ) {
+		gBMMConfig.endTriggers.erase( foundIndex );
 
 		End( pPlayer );
 		return;

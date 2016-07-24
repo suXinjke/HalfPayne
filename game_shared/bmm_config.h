@@ -149,10 +149,12 @@ public:
 
 		std::string mapName;
 		int			modelIndex;
+		bool		constant;
 
-		ModelIndex( const std::string &mapName, int modelIndex) {
+		ModelIndex( const std::string &mapName, int modelIndex, bool constant = false ) {
 			this->mapName = mapName;
 			this->modelIndex = modelIndex;
+			this->constant = constant;
 
 			this->key = mapName + std::to_string( modelIndex );
 		}

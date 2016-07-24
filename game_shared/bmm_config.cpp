@@ -269,12 +269,20 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				return false;
 			}
 
+			bool constant = false;
+			if ( modelIndexStrings.size() >= 3 ) {
+				std::string constantString = modelIndexStrings.at( 2 );
+				if ( constantString == "const" ) {
+					constant = true;
+				}
+			}
+
 			if ( currentFileSection == BMM_FILE_SECTION_TIMER_PAUSE ) {
-				timerPauses.insert( ModelIndex( mapName, modelIndex ) );
+				timerPauses.insert( ModelIndex( mapName, modelIndex, constant ) );
 			} else if ( currentFileSection == BMM_FILE_SECTION_TIMER_RESUME ) {
-				timerResumes.insert( ModelIndex( mapName, modelIndex ) );
+				timerResumes.insert( ModelIndex( mapName, modelIndex, constant ) );
 			} else if ( currentFileSection == BMM_FILE_SECTION_END_TRIGGER ) {
-				endTriggers.insert( ModelIndex( mapName, modelIndex ) );
+				endTriggers.insert( ModelIndex( mapName, modelIndex, constant ) );
 			}
 		} else if ( currentFileSection == BMM_FILE_SECTION_ENTITY_SPAWN ) {
 			std::vector<std::string> entitySpawnStrings = Split( line, ' ' );
