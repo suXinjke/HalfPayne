@@ -540,7 +540,7 @@ void CBaseMonster::BecomeDead( void )
 	if ( !BBoxFlat( ) ) {
 		UTIL_SetSize( pev, Vector( -4, -4, 0 ), Vector( 4, 4, 1 ) );
 	} else {
-		UTIL_SetSize( pev, Vector( pev->mins.x, pev->mins.y, pev->mins.z ), Vector( pev->maxs.x, pev->maxs.y, pev->mins.z + 1 ) );
+		UTIL_SetSize( pev, Vector( pev->mins.x, pev->mins.y, pev->mins.z + 1 ), Vector( pev->maxs.x, pev->maxs.y, pev->mins.z + 2 ) );
 	}
 
 	//pev->flags &= ~FL_ONGROUND;
