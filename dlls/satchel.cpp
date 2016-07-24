@@ -101,6 +101,9 @@ void CSatchelCharge::SatchelSlide( CBaseEntity *pOther )
 	if ( pOther->edict() == pev->owner )
 		return;
 
+	// Ready to take damage on landing
+	pev->takedamage = DAMAGE_YES;
+
 	// pev->avelocity = Vector (300, 300, 300);
 	pev->gravity = 1;// normal gravity now
 
@@ -430,8 +433,7 @@ void CSatchel::Throw( void )
 		pSatchel->pev->velocity = vecThrow;
 		pSatchel->pev->avelocity.y = 400;
 
-		// Allow satchel to receive damage so it can be destroyed by bullets and explosions
-		pSatchel->pev->takedamage = DAMAGE_YES;
+		// Satchel will receive damage only when it touches the ground - see SatchelSlide
 		pSatchel->pev->health = 1;
 
 		// Setting up an actual correct size is essential for damage detection
