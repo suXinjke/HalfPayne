@@ -185,7 +185,7 @@ void CHudTimer::DrawEndScreen()
 
 	// Bottom statistics
 	x = ScreenWidth / 2;
-	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight * 7;
+	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight * 8;
 	DrawEndScreenStatistics( x, y );
 
 	// Bottom messages
