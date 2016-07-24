@@ -16,22 +16,29 @@ BlackMesaMinuteRecord::BlackMesaMinuteRecord( const char *recordName ) {
 	GetModuleFileNameW( ( HINSTANCE ) &__ImageBase, dllPathWString, _countof( dllPathWString ) );
 	char dllPathCString[MAX_PATH];
 	wcstombs( dllPathCString, dllPathWString, MAX_PATH );
-	filePath = dllPathCString;
+	std::string folderPath = dllPathCString;
 
-	// dumb way to get absolute path to Black Mesa Minute record file
-	filePath = filePath.substr( 0, filePath.rfind( "\\dll\\hl.dll" ) ).append( "\\bmm_records\\" + std::string( recordName ) + ".bmmr" );
+	// dumb way to get absolute path to Black Mesa Minute records directory
+	folderPath = folderPath.substr( 0, folderPath.rfind( "\\dll\\hl.dll" ) ) + "\\bmm_records\\";
 
-    std::ifstream inp( filePath, std::ios::in | std::ios::binary );
-    if ( !inp.is_open() ) {
-		time = 0.0f;
-        realTime = DEFAULT_TIME;
-        realTimeMinusTime = DEFAULT_TIME;
+	// Create bmm_records directory if it's not there. Proceed only when directory exists
+	if ( CreateDirectory( folderPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
+		filePath = folderPath + std::string( recordName ) + ".bmmr";
 
-    } else {
-        inp.read( ( char * ) &time, sizeof( float ) );
-        inp.read( ( char * ) &realTime, sizeof( float ) );
-        inp.read( ( char * ) &realTimeMinusTime, sizeof( float ) );
-    }
+		std::ifstream inp( filePath, std::ios::in | std::ios::binary );
+		if ( !inp.is_open() ) {
+			time = 0.0f;
+			realTime = DEFAULT_TIME;
+			realTimeMinusTime = DEFAULT_TIME;
+
+		} else {
+			inp.read( ( char * ) &time, sizeof( float ) );
+			inp.read( ( char * ) &realTime, sizeof( float ) );
+			inp.read( ( char * ) &realTimeMinusTime, sizeof( float ) );
+		}
+	}
+
+    
 }
 
 void BlackMesaMinuteRecord::Save() {
