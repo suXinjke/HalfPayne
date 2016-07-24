@@ -408,7 +408,7 @@ void CBlackMesaMinute::ResumeTimer( CBasePlayer *pPlayer )
 
 void CBlackMesaMinute::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )
 {
-	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( activator );
+	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 	if ( !pPlayer ) {
 		return;
 	}
