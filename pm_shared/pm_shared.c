@@ -2753,8 +2753,6 @@ void PM_Dive(void)
 	// In the air now.
 	pmove->onground = -1;
 
-	pmove->punchangle[0] = -5;
-
 	// Determine in which direction we have to apply the velocity
 	vec3_t resultVector = { 0.0f, 0.0f, 0.0f };
 	for (i = 0; i < 2; i++){	
