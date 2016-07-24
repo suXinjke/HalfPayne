@@ -246,6 +246,10 @@ void CBlackMesaMinute::CheckForCheats( CBasePlayer *pPlayer )
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
 
+	if ( BMM::timerPaused ) {
+		return;
+	}
+
 	BMM::kills++;
 		
 	if ( killedByExplosion ) {
