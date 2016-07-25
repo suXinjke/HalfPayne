@@ -532,6 +532,10 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
 			killConfirmed = true;
 		}
+		else if ( strcmp( victimName, "monster_babycrab" ) == 0 ) {
+			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BABYCRAB );
+			killConfirmed = true;
+		}
 		else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
 			killConfirmed = true;

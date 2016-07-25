@@ -25,6 +25,8 @@
 #include	"decals.h"
 #include	"weapons.h"
 #include	"game.h"
+#include	"player.h"
+#include    "bmm_gamerules.h"
 
 #define SF_INFOBM_RUN		0x0001
 #define SF_INFOBM_WAIT		0x0002
@@ -590,6 +592,14 @@ int CBigMomma :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	{
 		if ( pev->health <= flDamage )
 		{
+			if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+				if ( !HasMemory( bits_MEMORY_ADVANCE_NODE ) ) {
+					CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+					if ( player ) {
+						bmm->IncreaseTime( player, pev->origin, 10, "TIME BONUS" );
+					}
+				}
+			}
 			pev->health = flDamage + 1;
 			Remember( bits_MEMORY_ADVANCE_NODE | bits_MEMORY_COMPLETED_NODE );
 			ALERT( at_aiconsole, "BM: Finished node health!!!\n" );

@@ -332,6 +332,25 @@ void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPo
 
 }
 
+// Added for Gonarch
+// Might actually call this from old IncreaseTime
+void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message )
+{
+	if ( BMM::timerPaused ) {
+		return;
+	}
+
+	BMM::currentTime += timeToAdd;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
+		WRITE_STRING( message );
+		WRITE_LONG( timeToAdd );
+		WRITE_COORD( eventPos.x );
+		WRITE_COORD( eventPos.y );
+		WRITE_COORD( eventPos.z );
+	MESSAGE_END();
+}
+
 void CBlackMesaMinute::End( CBasePlayer *pPlayer ) {
 	if ( BMM::ended ) {
 		return;
