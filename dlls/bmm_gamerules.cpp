@@ -52,16 +52,28 @@ CBlackMesaMinute::CBlackMesaMinute()
 		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 	}
 
+	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
+	// and they take some of the difficulty info at spawn (like CWallHealth)
+
+	// I don't like the fact that it has to get called each level change. To avoid reinitalizing
+	// the whole thing, difficulty initializing was cut out in it's own function.
+	const char *configName = CVAR_GET_STRING( "bmm_config" );
+	gBMMConfig.InitDifficulty( configName );
 	RefreshSkillData();
 }
 
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
 {
-	// To call gBMMConfig.Reset() and prevent loading of Black Mesa Minute saves
-	if ( !CHalfLifeRules::ClientConnected( pEntity, pszName, pszAddress, szRejectReason ) ) {
-		return FALSE;
+	// Prevent loading of Black Mesa Minute saves
+	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
+		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
+		if ( player->bmmEnabled ) {
+			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
+			return FALSE;
+		}
 	}
 
+	gBMMConfig.Reset();
 	const char *configName = CVAR_GET_STRING( "bmm_config" );
 	if ( !gBMMConfig.Init( configName ) ) {
 		g_engfuncs.pfnServerPrint( gBMMConfig.error.c_str() );

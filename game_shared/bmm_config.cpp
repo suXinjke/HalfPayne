@@ -87,8 +87,6 @@ void BlackMesaMinuteConfig::Reset() {
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
 
-	this->difficulty = BMM_DIFFICULTY_MEDIUM;
-
 	this->constantSlowmotion = false;
 	this->infiniteSlowmotion = false;
 	this->emptySlowmotion = false;
@@ -353,6 +351,59 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName, lineCount, line.c_str() );
 				error = std::string( errorCString );
 				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool BlackMesaMinuteConfig::InitDifficulty( const char *configName ) {
+
+	this->difficulty = BMM_DIFFICULTY_MEDIUM;
+
+	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
+	
+	BMM_FILE_SECTION currentFileSection = BMM_FILE_SECTION_NO_SECTION;
+	int lineCount = 0;
+
+	std::ifstream inp( configPath );
+	if ( !inp.is_open( ) ) {
+		char errorCString[1024];
+		sprintf( errorCString, "Black Mesa Minute config file %s.txt doesn't exist in bmm_cfg directory.\n", configName );
+		error = std::string( errorCString );
+
+		return 0;
+	}
+
+	this->configName = configName;
+
+	std::string line;
+	while ( std::getline( inp, line ) ) {
+		lineCount++;
+		line = Trim( line );
+
+		// remove trailing comments
+		line = line.substr( 0, line.find( "//" ) );
+
+		if ( line.empty() ) {
+			continue;
+		}
+
+		if ( line == "[mods]" ) {
+			currentFileSection = BMM_FILE_SECTION_MODS;
+			continue;
+		} else {
+			if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
+				continue;
+			}
+		}
+
+		if ( currentFileSection == BMM_FILE_SECTION_MODS ) {
+			if ( line == "easy" ) {
+				difficulty = BMM_DIFFICULTY_EASY;
+			} else if ( line == "hard" ) {
+				difficulty = BMM_DIFFICULTY_HARD;
 			}
 		}
 	}
