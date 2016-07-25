@@ -728,6 +728,17 @@ void PlayCDTrack( int iTrack )
 // only plays for ONE client, so only use in single play!
 void CTriggerCDAudio :: PlayTrack( void )
 {
+	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
+		char message[128];
+		sprintf( message, "[%s] Activated trigger: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
+		g_engfuncs.pfnServerPrint( message );
+	}
+
+	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
+	if ( bmm ) {
+		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	}
+
 	PlayCDTrack( (int)pev->health );
 	
 	SetTouch( NULL );
