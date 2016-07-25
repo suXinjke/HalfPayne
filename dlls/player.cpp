@@ -576,7 +576,7 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
 			killConfirmed = true;
 
-			deathPos.z -= 40;
+			deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
 		}
 		else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
 			bool snarkOwnedByPlayer = victim->pev->owner != 0;
