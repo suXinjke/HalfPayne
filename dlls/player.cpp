@@ -502,6 +502,7 @@ void CBasePlayer::SetEvilImpulse101( bool evilImpulse101 ) {
 void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 {
 	const char *victimName = STRING( victim->pev->classname );
+
 	Vector deathPos = victim->pev->origin;
 	deathPos.z += victim->pev->size.z + 5.0f;
 
@@ -600,8 +601,15 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		killConfirmed = true;
 	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
 		// DUMB EXCEPTION for snipers in Surface tension
+		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
 		killConfirmed = true;
+	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
+		// DUMB EXCEPTION for Nihilant's healing crystals
+		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			bmm->IncreaseTime( this, deathPos, 10, "TIME BONUS" );
+		}
 	}
 
 	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
