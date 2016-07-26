@@ -172,7 +172,7 @@ public:
 
 	void Reset();
 	bool Init( const char *configName );
-	bool InitDifficulty( const char *configName );
+	bool InitPreSpawn( const char *configName );
 
 	std::string error;
 

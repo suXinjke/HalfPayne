@@ -938,9 +938,6 @@ void ClientPrecache( void )
 		for ( std::string spawn : gBMMConfig.entitiesToPrecache ) {
 			UTIL_PrecacheOther( spawn.c_str() );
 		}
-
-		// Not exactly correct place to call this in terms of context but it works for both initial spawn and level changes
-		bmm->SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 	}
 }
 

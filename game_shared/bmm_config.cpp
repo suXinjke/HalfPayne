@@ -82,7 +82,6 @@ void BlackMesaMinuteConfig::Reset() {
 	this->timerResumes.clear();
 	this->endTriggers.clear();
 	this->entitySpawns.clear();
-	this->entitiesToPrecache.clear();
 
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
@@ -339,7 +338,6 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 
 			entitySpawns.push_back( { mapName, entityName, entityOrigin, entityAngle } );
 
-			entitiesToPrecache.insert( entityName );
 		} else if ( currentFileSection == BMM_FILE_SECTION_MODS ) {
 			if ( line == "easy" ) {
 				difficulty = BMM_DIFFICULTY_EASY;
@@ -373,9 +371,10 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 	return true;
 }
 
-bool BlackMesaMinuteConfig::InitDifficulty( const char *configName ) {
+bool BlackMesaMinuteConfig::InitPreSpawn( const char *configName ) {
 
 	this->difficulty = BMM_DIFFICULTY_MEDIUM;
+	this->entitiesToPrecache.clear();
 
 	std::string configPath = configFolderPath + ( std::string( configName ) + ".txt" );
 	
@@ -408,6 +407,9 @@ bool BlackMesaMinuteConfig::InitDifficulty( const char *configName ) {
 		if ( line == "[mods]" ) {
 			currentFileSection = BMM_FILE_SECTION_MODS;
 			continue;
+		} else if ( line == "[entityspawn]" ) {
+			currentFileSection = BMM_FILE_SECTION_ENTITY_SPAWN;
+			continue;
 		} else {
 			if ( currentFileSection == BMM_FILE_SECTION_NO_SECTION ) {
 				continue;
@@ -420,7 +422,28 @@ bool BlackMesaMinuteConfig::InitDifficulty( const char *configName ) {
 			} else if ( line == "hard" ) {
 				difficulty = BMM_DIFFICULTY_HARD;
 			}
-		}
+		} else if ( currentFileSection == BMM_FILE_SECTION_ENTITY_SPAWN ) {
+			std::vector<std::string> entitySpawnStrings = Split( line, ' ' );
+
+			if ( entitySpawnStrings.size() < 5 ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: <mapname> <entityname> <x> <y> <z> [angle] not specified in [entityspawn] section.\n", configName, lineCount );
+				error = std::string( errorCString );
+				return false;
+			}
+
+			std::string mapName = entitySpawnStrings.at( 0 );
+			
+			std::string entityName = entitySpawnStrings.at( 1 );
+			if ( BMM::GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect entity name in [entityspawn] section: %s\n", configName, lineCount, entityName.c_str() );
+				error = std::string( errorCString );
+				return false;
+			}
+
+			entitiesToPrecache.insert( entityName );
+		} 
 	}
 
 	return true;

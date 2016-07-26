@@ -55,11 +55,16 @@ CBlackMesaMinute::CBlackMesaMinute()
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
 	// and they take some of the difficulty info at spawn (like CWallHealth)
 
+	// Monster entities also have to be fetched at this moment for ClientPrecache.
+
 	// I don't like the fact that it has to get called each level change. To avoid reinitalizing
-	// the whole thing, difficulty initializing was cut out in it's own function.
+	// the whole thing, these were cut out in it's own function.
 	const char *configName = CVAR_GET_STRING( "bmm_config" );
-	gBMMConfig.InitDifficulty( configName );
+	gBMMConfig.InitPreSpawn( configName );
 	RefreshSkillData();
+
+	// For subsequent level changes
+	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 }
 
 BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
@@ -140,6 +145,9 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
+
+	// For first map
+	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
 	if ( gBMMConfig.weaponRestricted ) {
 		pPlayer->weaponRestricted = true;
