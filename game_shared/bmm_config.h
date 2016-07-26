@@ -7,6 +7,7 @@
 namespace BMM
 {
 	static const char *allowedItems[] = {
+		"all",
 		"item_suit",
 		"item_longjump",
 		"item_battery",
