@@ -230,6 +230,16 @@ void CHandGrenade::WeaponIdle( void )
 	}
 }
 
+// Misplased this here instead of ggrenade.cpp so I won't have to include it in hl_cdll project
+int CGrenade::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType )
+{
+	if ( strcmp( STRING( pevInflictor->classname ), "player" ) == 0 ||
+		 strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
 
+		return CBaseMonster::TakeDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
+	}
+	
+	return 0;
+}
 
 
