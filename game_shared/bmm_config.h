@@ -94,7 +94,7 @@ namespace BMM
 
 	static int GetAllowedEntityIndex( const char *allowedEntity ) {
 
-		for ( int i = 0; i < sizeof( allowedEntities ) / sizeof( allowedEntity[0] ); i++ )
+		for ( int i = 0; i < sizeof( allowedEntities ) / sizeof( allowedEntities[0] ); i++ )
 		{
 			if ( strcmp( allowedEntity, allowedEntities[i] ) == 0 ) {
 				return i;

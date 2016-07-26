@@ -179,7 +179,14 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			continue;
 		} else if ( currentFileSection == BMM_FILE_SECTION_LOADOUT ) {
 			std::vector<std::string> loadoutStrings = Split( line, ' ' );
+			
 			std::string itemName = loadoutStrings.at( 0 );
+			if ( BMM::GetAllowedItemIndex( itemName.c_str() ) == -1 ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect loadout item name in [loadout] section: %s\n", configName, lineCount, itemName.c_str() );
+				error = std::string( errorCString );
+				return false;
+			}
 			
 			int itemCount = 1;
 
@@ -287,13 +294,21 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 
 			if ( entitySpawnStrings.size() < 5 ) {
 				char errorCString[1024];
-				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: <mapname> <entityname> <x> <y> <z> [angle] not specified.\n", configName, lineCount );
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: <mapname> <entityname> <x> <y> <z> [angle] not specified in [entityspawn] section.\n", configName, lineCount );
 				error = std::string( errorCString );
 				return false;
 			}
 
 			std::string mapName = entitySpawnStrings.at( 0 );
+			
 			std::string entityName = entitySpawnStrings.at( 1 );
+			if ( BMM::GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
+				char errorCString[1024];
+				sprintf( errorCString, "Error parsing bmm_cfg\\%s.txt, line %d: incorrect entity name in [entityspawn] section: %s\n", configName, lineCount, entityName.c_str() );
+				error = std::string( errorCString );
+				return false;
+			}
+
 			Vector entityOrigin;
 			int entityAngle = 0;
 
