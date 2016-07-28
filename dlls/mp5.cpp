@@ -118,7 +118,8 @@ void CMP5::ItemPostFrame()
 {
 	if ( !( m_pPlayer->pev->button & IN_ATTACK ) )
 	{
-		if ( gpGlobals->time > nextStressDecrease ) {
+		if ( gpGlobals->time > nextStressDecrease ||
+			 fabs( nextStressDecrease - gpGlobals->time ) > 0.2f ) { // dumb in case of desync
 			if ( m_pPlayer->slowMotionEnabled ) {
 				stress *= 0.5f;
 			} else {
@@ -131,8 +132,8 @@ void CMP5::ItemPostFrame()
 				stress = 0.0f;
 			}
 		}
-		
 	}
+
 
 	CBasePlayerWeapon::ItemPostFrame();
 }

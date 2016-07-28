@@ -104,7 +104,8 @@ void CGlock::ItemPostFrame(void) {
 			shotOnce = false;
 		}
 
-		if ( gpGlobals->time > nextStressDecrease ) {
+		if ( gpGlobals->time > nextStressDecrease ||
+			fabs( nextStressDecrease - gpGlobals->time ) > 0.2f ) { // dumb in case of desync
 			if ( m_pPlayer->slowMotionEnabled ) {
 				stress *= 0.6f;
 			} else {
