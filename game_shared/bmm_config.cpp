@@ -71,6 +71,8 @@ BlackMesaMinuteConfig::BlackMesaMinuteConfig()
 // This function is called in CHalfLifeRules constructor
 // to ensure we won't get a leftover variable value in the default gamemode.
 void BlackMesaMinuteConfig::Reset() {
+	this->markedForRestart = false;
+
 	this->error.clear();
 	this->startMap.clear();
 	this->endMap.clear();

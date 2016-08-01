@@ -177,6 +177,7 @@ public:
 
 	std::string error;
 
+	bool		markedForRestart;
 	std::string startMap;
 	std::string endMap;
 	std::string name;

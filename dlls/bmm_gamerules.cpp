@@ -90,6 +90,12 @@ BOOL CBlackMesaMinute::ClientConnected( edict_t *pEntity, const char *pszName, c
 
 void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 {
+	if ( gBMMConfig.markedForRestart ) {
+		gBMMConfig.markedForRestart = false;
+		SERVER_COMMAND( "restart\n" );
+		return;
+	}
+
 	pPlayer->bmmEnabled = 1;
 	BMM::timerPaused = 0;
 	BMM::ended = 0;

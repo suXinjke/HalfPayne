@@ -158,8 +158,10 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 			char mapName[256];
 			sprintf( mapName, "%s", gBMMConfig.startMap.c_str() );
 
-			// Restart current BMM session
-			// (can't execute bmm command directly)
+			// Change level to the BMM's [startmap] and queue the 'restart' command
+			// for CBlackMesaMinute::PlayerSpawn.
+			// Would be better just to execute bmm command directly somehow.
+			gBMMConfig.markedForRestart = true;
 			CHANGE_LEVEL( mapName, NULL );
 		} else {
 
