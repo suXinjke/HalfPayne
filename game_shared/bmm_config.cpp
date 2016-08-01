@@ -88,6 +88,8 @@ void BlackMesaMinuteConfig::Reset() {
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
 
+	this->holdTimer = false;
+
 	this->constantSlowmotion = false;
 	this->infiniteSlowmotion = false;
 	this->emptySlowmotion = false;
@@ -345,6 +347,8 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 				difficulty = BMM_DIFFICULTY_EASY;
 			} else if ( line == "hard" ) {
 				difficulty = BMM_DIFFICULTY_HARD;
+			} else if ( line == "holdtimer" ) {
+				holdTimer = true;
 			} else if ( line == "constantslowmotion" ) {
 				constantSlowmotion = true;
 			} else if ( line == "infiniteslowmotion" ) {

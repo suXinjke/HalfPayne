@@ -198,6 +198,8 @@ public:
 
 	BMM_DIFFICULTY				difficulty;
 
+	bool holdTimer;
+
 	bool constantSlowmotion;
 	bool infiniteSlowmotion;
 	bool emptySlowmotion;
