@@ -6,3 +6,5 @@ ipch/
 *.suo
 *.user
 *.opensdf
+*.db
+*.opendb

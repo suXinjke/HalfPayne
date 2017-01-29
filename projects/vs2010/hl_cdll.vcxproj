@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,14 +20,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -96,13 +96,13 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\cl_dlls
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc6\vgui.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\wsock32.lib;..\..\lib\public\sdl2.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\kernel32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\user32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\gdi32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\winspool.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\comdlg32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\advapi32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\shell32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\ole32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\oleaut32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\uuid.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\odbc32.lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\odbccp32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc6\vgui.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\wsock32.lib;..\..\lib\public\sdl2.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib</AdditionalDependencies>
       <BaseAddress>
       </BaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>call ..\..\filecopy.bat $(TargetPath) ..\..\..\game\mod\cl_dlls\$(TargetName).dll
-call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\cl_dlls\$(TargetName).pdb</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Performing Post-Build Event</Message>
