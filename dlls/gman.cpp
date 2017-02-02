@@ -200,7 +200,14 @@ void CGMan :: RunTask( Task_t *pTask )
 }
 
 void CGMan::Killed(entvars_t *pevAttacker, int iGib) {
-	GibMonster();
+    if ( m_LastHitGroup == HITGROUP_HEAD ) {
+        pev->sequence = LookupSequence( "headshot" );
+    } else {
+        pev->sequence = LookupSequence( "gutshot" );
+    }
+    ResetSequenceInfo();
+
+    CBaseMonster::Killed( pevAttacker, iGib );
 }
 
 void CGMan::PlayScriptedSentence( const char *pszSentence, float duration, float volume, float attenuation, BOOL bConcurrent, CBaseEntity *pListener )
