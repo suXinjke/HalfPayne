@@ -16,6 +16,7 @@
 #include "util.h"
 #include "cbase.h"
 #include "monsters.h"
+#include "animation.h"
 #include "weapons.h"
 #include "nodes.h"
 #include "player.h"
@@ -26,6 +27,8 @@ extern int gmsgItemPickup;
 
 class CHealthKit : public CItem
 {
+
+public:
 	void Spawn( void );
 	void Precache( void );
 	BOOL MyTouch( CBasePlayer *pPlayer );
@@ -108,6 +111,7 @@ public:
 	virtual int	ObjectCaps( void ) { return (CBaseToggle :: ObjectCaps() | FCAP_CONTINUOUS_USE) & ~FCAP_ACROSS_TRANSITION; }
 	virtual int		Save( CSave &save );
 	virtual int		Restore( CRestore &restore );
+    void WaitUntilOpened( void );
 
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -118,6 +122,12 @@ public:
 	float   m_flSoundTime;
 
 	int painkillersLeft;
+
+    enum WALL_HEALTH_ANIM {
+        IDLE,
+        OPENING,
+        IDLE_OPENED
+    };
 };
 
 TYPEDESCRIPTION CWallHealth::m_SaveData[] =
@@ -151,27 +161,112 @@ void CWallHealth::KeyValue( KeyValueData *pkvd )
 		pkvd->fHandled = TRUE;
 	}
 	else
-		CBaseToggle::KeyValue( pkvd );
+        CBaseToggle::KeyValue( pkvd );
 }
 
 void CWallHealth::Spawn()
 {
 	Precache( );
 
-	pev->solid		= SOLID_BSP;
+	pev->solid		= SOLID_SLIDEBOX;
 	pev->movetype	= MOVETYPE_PUSH;
 
-	UTIL_SetOrigin(pev, pev->origin);		// set size and link into world
-	UTIL_SetSize(pev, pev->mins, pev->maxs);
-	SET_MODEL(ENT(pev), STRING(pev->model) );
+	
+
+	UTIL_SetOrigin(pev, pev->origin );		// set size and link into world
+	UTIL_SetSize(pev, pev->mins, pev->maxs );
+	SET_MODEL( ENT( pev ), STRING( pev->model ) );
+
+    // We're working with brush based entity which has no rotation value
+    // which we have to turn into actual model, and model requires rotation value.
+    
+    // Does the health charger brush look to north/south (horizontal) or west/east (vertical)?
+    bool horizontallyPlaced = pev->size.x > pev->size.y;
+
+    // Corner of the brush, middle height
+    Vector beginPos = Vector( pev->mins.x, pev->mins.y, pev->mins.z + pev->size.z );
+
+    // The general idea is that we LineTrace back and forward, and with trace results decide on 
+    // the rotation angle that should result in facing the side with the greatest distance,
+    // and shouldn't face the side with the least distance or wall\void.
+    TraceResult	tr1, tr2;
+    float tr1Length, tr2Length;
+    if ( horizontallyPlaced ) {
+        UTIL_TraceLine( beginPos, beginPos + Vector( 0, 9999, 0 ), ignore_monsters, ENT( pev ), &tr1 );
+        UTIL_TraceLine( beginPos, beginPos - Vector( 0, 9999, 0 ), ignore_monsters, ENT( pev ), &tr2 );
+    } else {
+        UTIL_TraceLine( beginPos, beginPos - Vector( 9999, 0, 0 ), ignore_monsters, ENT( pev ), &tr1 );
+        UTIL_TraceLine( beginPos, beginPos + Vector( 9999, 0, 0 ), ignore_monsters, ENT( pev ), &tr2 );
+    }
+
+    tr1Length = ( beginPos - tr1.vecEndPos ).Length();
+    tr2Length = ( beginPos - tr2.vecEndPos ).Length();
+
+    if ( ( ( tr1Length > tr2Length ) && tr1.fInOpen ) || !tr2.fInOpen ) {
+        if ( horizontallyPlaced ) {
+            pev->angles.y += 90;
+        } else {
+            pev->angles.y += 180;
+        }
+    } else {
+        if ( horizontallyPlaced ) {
+            pev->angles.y -= 90;
+        }
+    }
+    
+
+    Vector realPos = pev->origin + ( pev->mins + pev->maxs ) * 0.5;
+    realPos.z -= pev->size.z / 3;
+
+    SET_MODEL(ENT(pev), "models/w_med_cabinet.mdl" );
+
+    UTIL_SetOrigin( pev, realPos );
+    if ( horizontallyPlaced ) {
+        UTIL_SetSize( pev, Vector( -5, -6, 0 ), Vector( 5, 6, 50 ) );
+    } else {
+        UTIL_SetSize( pev, Vector( -6, -5, 0 ), Vector( 6, 5, 50 ) );
+    }
+
 	m_iJuice = gSkillData.healthchargerCapacity;
-	pev->frame = 0;			
 
 	painkillersLeft = ceil( gSkillData.healthchargerCapacity / 10.0f ) - 1;
+
+    // Attachment points for painkillers inside the cabinet, with random position offset
+    float diversity = 1.5f;
+    float diversity2 = 3.5f;
+    Vector painkillerSpots[8] = {
+        // Horizontal
+        realPos + Vector( -5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 13.3 ),
+        realPos + Vector( 5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 13.3 ),
+        realPos + Vector( -5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 0.5 ),
+        realPos + Vector( 5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 0.5 ),
+
+        // Vertical
+        realPos + Vector( RANDOM_FLOAT( -diversity, diversity ), -5 + RANDOM_FLOAT( -diversity2, diversity2 ), 13.3f ),
+        realPos + Vector( RANDOM_FLOAT( -diversity2, diversity2 ), 5 + RANDOM_FLOAT( -diversity, diversity ), 13.3f ),
+        realPos + Vector( RANDOM_FLOAT( -diversity, diversity ), -5 + RANDOM_FLOAT( -diversity2, diversity2 ), 0.6 ),
+        realPos + Vector( RANDOM_FLOAT( -diversity2, diversity2 ), 5 + RANDOM_FLOAT( -diversity, diversity ), 0.6 )
+    };
+
+    // Put painkillers inside the cabinet
+    for ( int i = 0; i < painkillersLeft; i++ ) {
+        int offset = horizontallyPlaced ? 0 : 4;
+
+        CBaseEntity *healthKit = CBaseEntity::Create( "item_healthkit", realPos, Vector( 0, RANDOM_FLOAT( 0, 360 ), 0 ), NULL );
+        healthKit->Spawn();
+        UTIL_SetOrigin( healthKit->pev, painkillerSpots[i + offset] );
+
+        // But don't let the player to take painkillers until the cabinet is opened
+        healthKit->pev->movetype = MOVETYPE_NONE;
+        healthKit->pev->solid = SOLID_NOT;
+    }
 }
 
 void CWallHealth::Precache()
 {
+	PRECACHE_MODEL( "models/w_medkit.mdl" );
+	PRECACHE_MODEL( "models/w_med_cabinet.mdl" );
+
 	PRECACHE_SOUND("items/medshot4.wav");
 	PRECACHE_SOUND("items/medshotno1.wav");
 	PRECACHE_SOUND("items/medcharge4.wav");
@@ -187,58 +282,36 @@ void CWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	if ( !pActivator->IsPlayer() )
 		return;
 
-	// if there is no juice left, turn it off
-	if ( painkillersLeft <= 0 )
-	{
-		pev->frame = 1;			
-		Off();
-	}
+    if ( pev->sequence == WALL_HEALTH_ANIM::IDLE_OPENED ) {
+        return;
+    }
 
-	// if the player doesn't have the suit, or there is no juice left, make the deny noise
-	if ( ( painkillersLeft <= 0 ) || ( !( pActivator->pev->weapons & ( 1 << WEAPON_SUIT ) ) ) )
-	{
-		if (m_flSoundTime <= gpGlobals->time)
-		{
-			m_flSoundTime = gpGlobals->time + 0.62;
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshotno1.wav", 1.0, ATTN_NORM );
-		}
-		return;
-	}
-
-	pev->nextthink = pev->ltime + 0.25;
-	SetThink(&CWallHealth::Off);
-
-	// give painkillers
-	// Let's hope this cast won't break anything, no one else can use chargers, right?
-	CBasePlayer *pPlayer = static_cast< CBasePlayer * >( pActivator );
-	if ( pPlayer->TakePainkiller() )
-	{
-		painkillersLeft--;
-	}
+    pev->sequence = WALL_HEALTH_ANIM::OPENING;
+    ResetSequenceInfo();
+    SetThink( &CWallHealth::WaitUntilOpened );
+    pev->nextthink = pev->ltime + 0.1;
 }
 
-void CWallHealth::Recharge(void)
-{
-		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/medshot4.wav", 1.0, ATTN_NORM );
-	m_iJuice = gSkillData.healthchargerCapacity;
-	painkillersLeft = ceil( gSkillData.healthchargerCapacity / 10.0f );
-	pev->frame = 0;			
-	SetThink( &CWallHealth::SUB_DoNothing );
-}
+void CWallHealth::WaitUntilOpened( void ) {
+    pev->nextthink = pev->ltime + 0.1;
 
-void CWallHealth::Off(void)
-{
-	// Stop looping sound.
-	if (m_iOn > 1)
-		STOP_SOUND( ENT(pev), CHAN_STATIC, "items/medcharge4.wav" );
+    float flInterval = StudioFrameAdvance( 0.1 );
+    DispatchAnimEvents( flInterval );
 
-	m_iOn = 0;
+    if ( m_fSequenceFinished ) {
+        pev->sequence = WALL_HEALTH_ANIM::IDLE_OPENED;
+        ResetSequenceInfo();
 
-	if ((!m_iJuice) &&  ( ( m_iReactivate = g_pGameRules->FlHealthChargerRechargeTime() ) > 0) )
-	{
-		pev->nextthink = pev->ltime + m_iReactivate;
-		SetThink(&CWallHealth::Recharge);
-	}
-	else
-		SetThink( &CWallHealth::SUB_DoNothing );
+        Vector vecSrc = pev->origin;
+        CBaseEntity *pEntity = NULL;
+        while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, vecSrc, 60.0f ) ) != NULL ) {
+            const char *entityName = STRING( pEntity->pev->classname );
+
+            if ( strcmp( entityName, "item_healthkit" ) == 0 ) {
+
+                // Let the player to take painkillers
+                pEntity->pev->solid = SOLID_TRIGGER;
+            }
+        }
+    }
 }
