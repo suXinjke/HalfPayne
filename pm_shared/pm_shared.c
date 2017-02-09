@@ -2754,7 +2754,7 @@ void PM_Dive(void)
 	pmove->onground = -1;
 
 	// Determine in which direction we have to apply the velocity
-	vec3_t resultVector = { 0.0f, 0.0f, 0.0f };
+	vec_t resultVector[3] = { 0.0f, 0.0f, 0.0f };
 	for (i = 0; i < 2; i++){	
 		if (pmove->cmd.buttons & IN_FORWARD) {
 			resultVector[i] += pmove->forward[i];
@@ -2769,7 +2769,7 @@ void PM_Dive(void)
 			resultVector[i] += pmove->right[i];
 		}	
 	}
-	VectorNormalize(&resultVector);
+	VectorNormalize(resultVector);
 
 	for (i = 0; i < 2; i++)
 	{

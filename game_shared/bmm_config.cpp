@@ -212,7 +212,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 		} else if ( currentFileSection == BMM_FILE_SECTION_START_POSITION ) {
 			std::vector<std::string> startPositionValueStrings = Split( line, ' ' );
 			std::vector<float> startPositionValues;
-			for ( int i = 0; i < startPositionValueStrings.size( ); i++ ) {
+			for ( size_t i = 0; i < startPositionValueStrings.size( ); i++ ) {
 				std::string startPositionValueString = startPositionValueStrings.at( i );
 				float startPositionValue;
 				try {
@@ -316,7 +316,7 @@ bool BlackMesaMinuteConfig::Init( const char *configName ) {
 			int entityAngle = 0;
 
 			std::vector<float> originValues;
-			for ( int i = 2; i < entitySpawnStrings.size( ); i++ ) {
+			for ( size_t i = 2; i < entitySpawnStrings.size( ); i++ ) {
 				std::string entitySpawnString = entitySpawnStrings.at( i );
 				float originValue;
 				try {

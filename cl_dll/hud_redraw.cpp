@@ -475,7 +475,7 @@ int CHud::GetStringWidth( const char *string )
 {
 	int pixelLength = 0;
 
-	for ( int i = 0; i < strlen( string ); i++ ) {
+	for ( size_t i = 0; i < strlen( string ); i++ ) {
 		int charCode = ( char ) string[i];
 		if ( charCode > 255 ) {
 			continue;

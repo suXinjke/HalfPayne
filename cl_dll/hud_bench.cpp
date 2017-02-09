@@ -49,7 +49,7 @@
 // 100 is best
 //  PP has 40 - 100 range
 //  Non-pp has 0 - 60 range
-const float weights[3] = { 0.2, 0.3, 0.5 };
+const float weights[3] = { 0.2f, 0.3f, 0.5f };
 
 const char *g_title = "PowerPlay QoS Test"; //uality of Service Test";
 const char *pp_strings[2] =

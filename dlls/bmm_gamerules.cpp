@@ -129,7 +129,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 
 	pPlayer->SetEvilImpulse101( true );
-	for ( int i = 0; i < gBMMConfig.loadout.size( ); i++ ) {
+	for ( size_t i = 0; i < gBMMConfig.loadout.size( ); i++ ) {
 		std::string loadoutItem = gBMMConfig.loadout.at( i );
 
 		if ( loadoutItem == "all" ) {
