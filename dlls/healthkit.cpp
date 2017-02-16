@@ -22,6 +22,7 @@
 #include "player.h"
 #include "items.h"
 #include "gamerules.h"
+#include <algorithm>
 
 extern int gmsgItemPickup;
 
@@ -234,19 +235,22 @@ void CWallHealth::Spawn()
     // Attachment points for painkillers inside the cabinet, with random position offset
     float diversity = 1.5f;
     float diversity2 = 3.5f;
-    Vector painkillerSpots[8] = {
-        // Horizontal
+    Vector horizontalPainkillerSpots[4] = {
         realPos + Vector( -5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 13.3 ),
         realPos + Vector( 5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 13.3 ),
         realPos + Vector( -5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 0.5 ),
-        realPos + Vector( 5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 0.5 ),
+        realPos + Vector( 5 + RANDOM_FLOAT( -diversity2, diversity2 ), RANDOM_FLOAT( -diversity, diversity ), 0.5 )
+	};
 
-        // Vertical
+	Vector verticalPainkillerSpots[4] = {
         realPos + Vector( RANDOM_FLOAT( -diversity, diversity ), -5 + RANDOM_FLOAT( -diversity2, diversity2 ), 13.3f ),
         realPos + Vector( RANDOM_FLOAT( -diversity2, diversity2 ), 5 + RANDOM_FLOAT( -diversity, diversity ), 13.3f ),
         realPos + Vector( RANDOM_FLOAT( -diversity, diversity ), -5 + RANDOM_FLOAT( -diversity2, diversity2 ), 0.6 ),
         realPos + Vector( RANDOM_FLOAT( -diversity2, diversity2 ), 5 + RANDOM_FLOAT( -diversity, diversity ), 0.6 )
     };
+
+	std::random_shuffle( std::begin( horizontalPainkillerSpots ), std::end( horizontalPainkillerSpots ) );
+	std::random_shuffle( std::begin( verticalPainkillerSpots ), std::end( verticalPainkillerSpots ) );
 
     // Put painkillers inside the cabinet
     for ( int i = 0; i < painkillersLeft; i++ ) {
@@ -254,7 +258,7 @@ void CWallHealth::Spawn()
 
         CBaseEntity *healthKit = CBaseEntity::Create( "item_healthkit", realPos, Vector( 0, RANDOM_FLOAT( 0, 360 ), 0 ), NULL );
         healthKit->Spawn();
-        UTIL_SetOrigin( healthKit->pev, painkillerSpots[i + offset] );
+        UTIL_SetOrigin( healthKit->pev, horizontallyPlaced ? horizontalPainkillerSpots[i] : verticalPainkillerSpots[i] );
 
         // But don't let the player to take painkillers until the cabinet is opened
         healthKit->pev->movetype = MOVETYPE_FLY;
@@ -270,6 +274,7 @@ void CWallHealth::Precache()
 	PRECACHE_SOUND("items/medshot4.wav");
 	PRECACHE_SOUND("items/medshotno1.wav");
 	PRECACHE_SOUND("items/medcharge4.wav");
+	PRECACHE_SOUND("items/med_cabinet_open.wav");
 }
 
 
@@ -282,9 +287,11 @@ void CWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	if ( !pActivator->IsPlayer() )
 		return;
 
-    if ( pev->sequence == WALL_HEALTH_ANIM::IDLE_OPENED ) {
+    if ( pev->sequence == WALL_HEALTH_ANIM::OPENING || pev->sequence == WALL_HEALTH_ANIM::IDLE_OPENED ) {
         return;
     }
+
+	EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/med_cabinet_open.wav", 1, ATTN_NORM );
 
     pev->sequence = WALL_HEALTH_ANIM::OPENING;
     ResetSequenceInfo();
