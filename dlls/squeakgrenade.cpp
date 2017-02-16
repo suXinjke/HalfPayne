@@ -449,6 +449,7 @@ int CSqueak::GetItemInfo(ItemInfo *p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
+	p->iMaxClip2 = WEAPON_NOCLIP;
 	p->iSlot = 4;
 	p->iPosition = 3;
 	p->iId = m_iId = WEAPON_SNARK;

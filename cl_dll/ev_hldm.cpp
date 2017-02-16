@@ -56,6 +56,7 @@ extern "C"
 // HLDM
 void EV_FireGlock1( struct event_args_s *args  );
 void EV_FireGlock2( struct event_args_s *args  );
+void EV_FireGlockTwin( struct event_args_s *args );
 void EV_FireShotGunSingle( struct event_args_s *args  );
 void EV_FireShotGunDouble( struct event_args_s *args  );
 void EV_FireMP5( struct event_args_s *args  );
@@ -479,7 +480,7 @@ void EV_FireGlock1( event_args_t *args )
 		V_PunchAxis( 0, -2.0 );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
@@ -539,6 +540,84 @@ void EV_FireGlock2( event_args_t *args )
 }
 //======================
 //	   GLOCK END
+//======================
+
+//======================
+//	 GLOCK TWIN START
+//======================
+void EV_FireGlockTwin( event_args_t *args ) {
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	int empty = args->iparam1;
+	int empty2 = args->iparam2;
+	int shootingRight = args->bparam2;
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/shell.mdl" );// brass shell
+
+	if ( EV_IsLocal( idx ) )
+	{
+		EV_MuzzleFlash();
+		int anim;
+		if ( shootingRight ) {
+			if ( empty && empty2 ) {
+				anim = GLOCK_TWIN_SHOOT_RIGHT_THEN_EMPTY_WHEN_LEFT_EMPTY;
+			} else {
+				if ( empty2 ) {
+					anim = empty ? GLOCK_TWIN_SHOOT_RIGHT_THEN_EMPTY_WHEN_LEFT_EMPTY : GLOCK_TWIN_SHOOT_RIGHT_WHEN_LEFT_EMPTY;
+				} else {
+					anim = empty ? GLOCK_TWIN_SHOOT_RIGHT_THEN_EMPTY : GLOCK_TWIN_SHOOT_RIGHT;
+				}
+			}
+		} else {
+			if ( empty && empty2 ) {
+				anim = GLOCK_TWIN_SHOOT_LEFT_THEN_EMPTY_WHEN_RIGHT_EMPTY;
+			} else {
+				if ( empty ) {
+					anim = empty2 ? GLOCK_TWIN_SHOOT_LEFT_THEN_EMPTY_WHEN_RIGHT_EMPTY : GLOCK_TWIN_SHOOT_LEFT_WHEN_RIGHT_EMPTY;
+				} else {
+					anim = empty2 ? GLOCK_TWIN_SHOOT_LEFT_THEN_EMPTY : GLOCK_TWIN_SHOOT_LEFT;
+				}
+			}		
+		}
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( anim, 2 );
+
+		V_PunchAxis( 0, -2.0 );
+	}
+
+	if ( shootingRight ) {
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+	} else {
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -2, -10 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/pl_gun3.wav", gEngfuncs.pfnRandomFloat( 0.92, 1.0 ), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	  GLOCK TWIN END
 //======================
 
 //======================

@@ -77,6 +77,7 @@ int CCrowbar::GetItemInfo(ItemInfo *p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
+	p->iMaxClip2 = WEAPON_NOCLIP;
 	p->iSlot = 0;
 	p->iPosition = 0;
 	p->iId = WEAPON_CROWBAR;

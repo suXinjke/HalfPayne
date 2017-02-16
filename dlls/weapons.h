@@ -81,6 +81,7 @@ public:
 #define WEAPON_TRIPMINE			13
 #define	WEAPON_SATCHEL			14
 #define	WEAPON_SNARK			15
+#define	WEAPON_GLOCK_TWIN		16
 
 #define WEAPON_ALLWEAPONS		(~(1<<WEAPON_SUIT))
 
@@ -207,6 +208,7 @@ typedef struct
 	int		iMaxAmmo2;		// max ammo 2
 	const char	*pszName;
 	int		iMaxClip;
+	int		iMaxClip2;
 	int		iId;
 	int		iFlags;
 	int		iWeight;// this value used to determine this weapon's importance in autoselection.
@@ -278,6 +280,7 @@ public:
 	int			iMaxAmmo2( void )	{ return ItemInfoArray[ m_iId ].iMaxAmmo2; }
 	const char	*pszName( void )	{ return ItemInfoArray[ m_iId ].pszName; }
 	int			iMaxClip( void )	{ return ItemInfoArray[ m_iId ].iMaxClip; }
+	int			iMaxClip2( void )	{ return ItemInfoArray[ m_iId ].iMaxClip2; }
 	int			iWeight( void )		{ return ItemInfoArray[ m_iId ].iWeight; }
 	int			iFlags( void )		{ return ItemInfoArray[ m_iId ].iFlags; }
 
@@ -305,7 +308,7 @@ public:
 	virtual int AddWeapon( void ) { ExtractAmmo( this ); return TRUE; };	// Return TRUE if you want to add yourself to the player
 
 	// generic "shared" ammo handlers
-	BOOL AddPrimaryAmmo( int iCount, char *szName, int iMaxClip, int iMaxCarry );
+	BOOL AddPrimaryAmmo( int iCount, char *szName, int iMaxClip, int iMaxClip2, int iMaxCarry );
 	BOOL AddSecondaryAmmo( int iCount, char *szName, int iMaxCarry );
 
 	virtual void UpdateItemInfo( void ) {};	// updates HUD state
@@ -352,6 +355,8 @@ public:
 	int		m_iSecondaryAmmoType;								// "secondary" ammo index into players m_rgAmmo[]
 	int		m_iClip;											// number of shots left in the primary weapon clip, -1 it not used
 	int		m_iClientClip;										// the last version of m_iClip sent to hud dll
+	int		m_iClip2;
+	int		m_iClientClip2;
 	int		m_iClientWeaponState;								// the last version of the weapon state sent to hud dll (is current weapon, is on target)
 	int		m_fInReload;										// Are we in the middle of a reload;
 
@@ -477,6 +482,7 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
+	int AddDuplicate( CBasePlayerItem *pItem );
 
 	void ItemPostFrame(void);
 	void PrimaryAttack( void );
@@ -502,6 +508,42 @@ private:
 	int m_iShell;
 	int shotOnce;
 	
+
+	unsigned short m_usFireGlock1;
+	unsigned short m_usFireGlock2;
+};
+
+
+class CGlockTwin : public CBasePlayerWeapon {
+public:
+	void Spawn( void );
+	void Precache( void );
+	int iItemSlot( void ) { return 2; }
+	int GetItemInfo( ItemInfo *p );
+
+	void ItemPostFrame( void );
+	void PrimaryAttack( void );
+	void SecondaryAttack( void );
+	void GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim );
+	BOOL Deploy( void );
+	void Reload( void );
+	void WeaponIdle( void );
+
+	virtual BOOL UseDecrement( void ) {
+#if defined( CLIENT_WEAPONS )
+		return TRUE;
+#else
+		return FALSE;
+#endif
+	}
+
+	float stress;
+	float nextStressDecrease;
+
+private:
+	int m_iShell;
+	int shotOnce;
+
 
 	unsigned short m_usFireGlock1;
 	unsigned short m_usFireGlock2;

@@ -299,6 +299,9 @@ inline void			UTIL_CenterPrintAll( const char *msg_name, const char *param1 = NU
 	UTIL_ClientPrintAll( HUD_PRINTCENTER, msg_name, param1, param2, param3, param4 );
 }
 
+extern int			UTIL_GetWeaponClip( int weaponId );
+extern void			UTIL_SetWeaponClip( int weaponId, int clip );
+
 class CBasePlayerItem;
 class CBasePlayer;
 extern BOOL UTIL_GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pCurrentWeapon );

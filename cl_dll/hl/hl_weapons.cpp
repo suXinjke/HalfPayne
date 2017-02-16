@@ -53,6 +53,7 @@ vec3_t previousorigin;
 
 // HLDM Weapon placeholder entities.
 CGlock g_Glock;
+CGlockTwin g_GlockTwin;
 CCrowbar g_Crowbar;
 CPython g_Python;
 CMP5 g_Mp5;
@@ -351,7 +352,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0))
 	{
-		if ( (m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] ) )
+		if ( (m_iClip == 0 && pszAmmo1() && iMaxClip2() == -1) || (m_iClip == 0 && m_iClip2 == 0 && pszAmmo1() && iMaxClip2() != -1) || (iMaxClip() == -1 && iMaxClip2() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] ) )
 		{
 			m_fFireOnEmpty = TRUE;
 		}
@@ -367,10 +368,15 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	{
 		// no fire buttons down
 
+		bool shouldReload = m_iClip == 0 && !(iFlags() & ITEM_FLAG_NOAUTORELOAD) && m_flNextPrimaryAttack < 0.0;
+		if ( iMaxClip2() != -1 ) {
+			shouldReload = shouldReload && m_iClip2 == 0;
+		}
+
 		m_fFireOnEmpty = FALSE;
 
 		// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
-		if ( m_iClip == 0 && !(iFlags() & ITEM_FLAG_NOAUTORELOAD) && m_flNextPrimaryAttack < 0.0 )
+		if ( shouldReload )
 		{
 			Reload();
 			return;
@@ -470,6 +476,10 @@ CBasePlayer::Spawn
 */
 void CBasePlayer::Spawn( void )
 {
+	// must be done for safety. CGlock and CGlockTwin rely on this in Deploy function
+	// for correct animations, and the flag isn't NULLed anywhere else clientside
+	m_pLastItem = NULL; 
+
 	if (m_pActiveItem)
 		m_pActiveItem->Deploy( );
 
@@ -606,6 +616,7 @@ void HUD_InitClientWeapons( void )
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
 	HUD_PrepEntity( &g_Glock	, &player );
+	HUD_PrepEntity( &g_GlockTwin, &player );
 	HUD_PrepEntity( &g_Crowbar	, &player );
 	HUD_PrepEntity( &g_Python	, &player );
 	HUD_PrepEntity( &g_Mp5	, &player );
@@ -690,6 +701,10 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		
 		case WEAPON_GLOCK:
 			pWeapon = &g_Glock;
+			break;
+
+		case WEAPON_GLOCK_TWIN:
+			pWeapon = &g_GlockTwin;
 			break;
 		
 		case WEAPON_PYTHON:
@@ -850,7 +865,12 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		 ( ( CRpg * )player.m_pActiveItem)->m_fSpotActive = (int)from->client.vuser2[ 1 ];
 		 ( ( CRpg * )player.m_pActiveItem)->m_cActiveRockets = (int)from->client.vuser2[ 2 ];
 	}
-	
+
+	if ( player.m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN )
+	{
+		( ( CGlockTwin * ) player.m_pActiveItem )->m_iClip2 = (int) from->client.vuser2[2];
+	}
+
 	// Don't go firing anything if we have died or are spectating
 	// Or if we don't have a weapon model deployed
 	if ( ( player.pev->deadflag != ( DEAD_DISCARDBODY + 1 ) ) && 
@@ -917,6 +937,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	{
 		 from->client.vuser2[ 1 ] = ( ( CRpg * )player.m_pActiveItem)->m_fSpotActive;
 		 from->client.vuser2[ 2 ] = ( ( CRpg * )player.m_pActiveItem)->m_cActiveRockets;
+	}
+
+	if ( player.m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN )
+	{
+		from->client.vuser2[2] = ( ( CGlockTwin * ) player.m_pActiveItem )->m_iClip2;
 	}
 
 	// Make sure that weapon animation matches what the game .dll is telling us

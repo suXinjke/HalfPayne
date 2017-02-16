@@ -65,7 +65,7 @@ int WeaponsResource :: HasAmmo( WEAPON *p )
 	if ( p->iMax1 == -1 )
 		return TRUE;
 
-	return (p->iAmmoType == -1) || p->iClip > 0 || CountAmmo(p->iAmmoType) 
+	return (p->iAmmoType == -1) || p->iClip > 0 || p->iClip2 > 0 || CountAmmo(p->iAmmoType) 
 		|| CountAmmo(p->iAmmo2Type) || ( p->iFlags & WEAPON_FLAGS_SELECTONEMPTY );
 }
 
@@ -626,6 +626,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	int iState = READ_BYTE();
 	int iId = READ_CHAR();
 	int iClip = READ_CHAR();
+	int iClip2 = READ_CHAR();
 
 	// detect if we're also on target
 	if ( iState > 1 )
@@ -642,7 +643,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	if ( g_iUser1 != OBS_IN_EYE )
 	{
 		// Is player dead???
-		if ((iId == -1) && (iClip == -1))
+		if ((iId == -1) && (iClip == -1) && (iClip2 == -1))
 		{
 			gHUD.m_fPlayerDead = TRUE;
 			gpActiveSel = NULL;
@@ -660,6 +661,11 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 		pWeapon->iClip = abs(iClip);
 	else
 		pWeapon->iClip = iClip;
+
+	if ( iClip2 < -1 )
+		pWeapon->iClip2 = abs( iClip2 );
+	else
+		pWeapon->iClip2 = iClip2;
 
 
 	if ( iState == 0 )	// we're not the current weapon, so update no more
@@ -715,6 +721,7 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 	Weapon.iId = READ_CHAR();
 	Weapon.iFlags = READ_BYTE();
 	Weapon.iClip = 0;
+	Weapon.iClip2 = 0;
 
 	gWR.AddWeapon( &Weapon );
 
@@ -941,9 +948,13 @@ int CHudAmmo::Draw(float flTime)
 		if (pw->iClip >= 0)
 		{
 			// room for the number and the '|' and the current ammo
-			
-			x = ScreenWidth - (8 * AmmoWidth) - iIconWidth;
-			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, pw->iClip, r, g, b);
+			x = ScreenWidth - ( 8 * AmmoWidth ) - iIconWidth;
+
+			if ( pw->iClip2 >= 0 ) {
+				gHUD.DrawHudNumber( x - ( AmmoWidth * 4 ), y, iFlags | DHN_3DIGITS, pw->iClip2, r, g, b );
+			}
+
+			x = gHUD.DrawHudNumber( x, y, iFlags | DHN_3DIGITS, pw->iClip, r, g, b );
 
 			wrect_t rc;
 			rc.top = 0;

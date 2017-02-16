@@ -1591,6 +1591,76 @@ void UTIL_PrecacheOther( const char *szClassname )
 	REMOVE_ENTITY(pent);
 }
 
+int UTIL_GetWeaponClip( int weaponId ) {
+#ifdef  CLIENT_DLL
+	return -1;
+#endif
+
+	CBasePlayer *pl = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+
+	if ( !pl ) {
+		return -1;
+	}
+
+	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
+	{
+		if ( pl->m_rgpPlayerItems[i] )
+		{
+			// there's a weapon here. Should I pack it?
+			CBasePlayerItem *pPlayerItem = pl->m_rgpPlayerItems[i];
+
+			while ( pPlayerItem )
+			{
+				CBasePlayerWeapon *gun = dynamic_cast<CBasePlayerWeapon *>( pPlayerItem->GetWeaponPtr() );
+				if ( gun )
+				{
+					if ( gun->m_iId == weaponId ) {
+						return gun->m_iClip;
+					}
+				}
+				pPlayerItem = pPlayerItem->m_pNext;
+			}
+		}
+	}
+
+	return -1;
+}
+
+void UTIL_SetWeaponClip( int weaponId, int clip ) {
+#ifdef  CLIENT_DLL
+	return;
+#endif
+
+	CBasePlayer *pl = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+
+	if ( !pl ) {
+		return;
+	}
+
+
+	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
+	{
+		if ( pl->m_rgpPlayerItems[i] )
+		{
+			// there's a weapon here. Should I pack it?
+			CBasePlayerItem *pPlayerItem = pl->m_rgpPlayerItems[i];
+
+			while ( pPlayerItem )
+			{
+				CBasePlayerWeapon *gun = dynamic_cast<CBasePlayerWeapon *>( pPlayerItem->GetWeaponPtr() );
+				if ( gun )
+				{
+					if ( gun->m_iId == weaponId ) {
+						gun->m_iClip = clip;
+						return;
+					}
+				}
+				pPlayerItem = pPlayerItem->m_pNext;
+			}
+		}
+	}
+}
+
 //=========================================================
 // UTIL_LogPrintf - Prints a logged message to console.
 // Preceded by LOG: ( timestamp ) < message >

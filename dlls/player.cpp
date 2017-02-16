@@ -232,7 +232,7 @@ void LinkUserMessages( void )
 	// DONT USE MESSAGE NAMES LONGER THAN 10 CHARS
 
 	gmsgSelAmmo = REG_USER_MSG("SelAmmo", sizeof(SelAmmo));
-	gmsgCurWeapon = REG_USER_MSG("CurWeapon", 3);
+	gmsgCurWeapon = REG_USER_MSG("CurWeapon", 4);
 	gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
@@ -467,6 +467,7 @@ void CBasePlayer::GiveAll( bool nonCheat ) {
 	GiveNamedItem( "item_battery", nonCheat );
 	GiveNamedItem( "weapon_crowbar", nonCheat );
 	GiveNamedItem( "weapon_9mmhandgun", nonCheat );
+	GiveNamedItem( "weapon_9mmhandgun", nonCheat ); // to give twin pistols
 	GiveNamedItem( "ammo_9mmclip", nonCheat );
 	GiveNamedItem( "weapon_shotgun", nonCheat );
 	GiveNamedItem( "ammo_buckshot", nonCheat );
@@ -1100,6 +1101,7 @@ void CBasePlayer::RemoveAllItems( BOOL removeSuit )
 		WRITE_BYTE(0);
 		WRITE_BYTE(0);
 		WRITE_BYTE(0);
+		WRITE_BYTE(0);
 	MESSAGE_END();
 }
 
@@ -1163,6 +1165,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	MESSAGE_BEGIN( MSG_ONE, gmsgCurWeapon, NULL, pev );
 		WRITE_BYTE(0);
 		WRITE_BYTE(0XFF);
+		WRITE_BYTE(0xFF);
 		WRITE_BYTE(0xFF);
 	MESSAGE_END();
 
@@ -1696,6 +1699,7 @@ void CBasePlayer::StartObserver( Vector vecPosition, Vector vecViewAngle )
 	MESSAGE_BEGIN( MSG_ONE, gmsgCurWeapon, NULL, pev );
 		WRITE_BYTE(0);
 		WRITE_BYTE(0XFF);
+		WRITE_BYTE(0xFF);
 		WRITE_BYTE(0xFF);
 	MESSAGE_END();
 
@@ -4110,7 +4114,6 @@ int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem )
 		}
 		pInsert = pInsert->m_pNext;
 	}
-
 
 	if (pItem->AddToPlayer( this ))
 	{

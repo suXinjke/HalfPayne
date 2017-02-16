@@ -45,9 +45,10 @@ int CPython::GetItemInfo(ItemInfo *p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = PYTHON_MAX_CLIP;
+	p->iMaxClip2 = WEAPON_NOCLIP;
 	p->iFlags = 0;
 	p->iSlot = 1;
-	p->iPosition = 1;
+	p->iPosition = 2;
 	p->iId = m_iId = WEAPON_PYTHON;
 	p->iWeight = PYTHON_WEIGHT;
 

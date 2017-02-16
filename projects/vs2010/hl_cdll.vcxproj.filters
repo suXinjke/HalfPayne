@@ -321,6 +321,9 @@
     <ClCompile Include="..\..\game_shared\string_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp">
+      <Filter>Source Files\_hl\dlls\wpn_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">

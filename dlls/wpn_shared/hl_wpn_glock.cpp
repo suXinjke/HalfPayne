@@ -23,15 +23,18 @@
 
 enum glock_e {
 	GLOCK_IDLE1 = 0,
-	GLOCK_IDLE2,
+	GLOCK_IDLE_NOSHOT,
 	GLOCK_IDLE3,
 	GLOCK_SHOOT,
 	GLOCK_SHOOT_EMPTY,
-	GLOCK_RELOAD,
 	GLOCK_RELOAD_NOT_EMPTY,
+	GLOCK_RELOAD,
 	GLOCK_DRAW,
 	GLOCK_HOLSTER,
-	GLOCK_ADD_SILENCER
+	GLOCK_DRAW_FROM_TWIN,
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_BOTH,
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_LEFT,
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_RIGHT
 };
 
 LINK_ENTITY_TO_CLASS( weapon_glock, CGlock );
@@ -82,6 +85,7 @@ int CGlock::GetItemInfo(ItemInfo *p)
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = GLOCK_MAX_CLIP;
+	p->iMaxClip2 = WEAPON_NOCLIP;
 	p->iSlot = 1;
 	p->iPosition = 0;
 	p->iFlags = 0;
@@ -93,8 +97,49 @@ int CGlock::GetItemInfo(ItemInfo *p)
 
 BOOL CGlock::Deploy( )
 {
+	int anim = GLOCK_DRAW;
+
+	bool drawingFromTwin = false;
+
+	if ( m_pPlayer ) {
+		if ( m_pPlayer->m_pLastItem ) {
+			if ( m_pPlayer->m_pLastItem->m_iId == WEAPON_GLOCK_TWIN ) {
+				drawingFromTwin = true;
+			}
+		}
+	}
+
+	if ( drawingFromTwin ) {
+		int leftClip = ( ( CGlockTwin * ) m_pPlayer->m_pLastItem )->m_iClip2;
+		if ( leftClip > 0 ) {
+			anim = m_iClip > 0 ? GLOCK_DRAW_FROM_TWIN : GLOCK_DRAW_FROM_TWIN_NOSHOT_RIGHT;
+		} else {
+			anim = m_iClip > 0 ? GLOCK_DRAW_FROM_TWIN_NOSHOT_LEFT : GLOCK_DRAW_FROM_TWIN_NOSHOT_BOTH;
+		}
+	}
+
 	// pev->body = 1;
-	return DefaultDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", GLOCK_DRAW, "onehanded", /*UseDecrement() ? 1 : 0*/ 0 );
+	return DefaultDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", anim, "onehanded", /*UseDecrement() ? 1 : 0*/ 0 );
+}
+
+// m_pPlayer is not initialized yet during this call, hence accessing player via engine function.
+// Spawn twin pistols entity on player, which should be received when you pickup one more pistol (duplicate).
+int CGlock::AddDuplicate( CBasePlayerItem *pOriginal ) {
+
+#ifndef CLIENT_DLL
+	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+
+	if ( !player->HasNamedPlayerItem( "weapon_9mmhandgun_twin" ) ) {
+		CGlockTwin *twinPistols = ( CGlockTwin * ) CBaseEntity::Create( "weapon_9mmhandgun_twin", pev->origin, Vector( 0, 0, 0 ), NULL );
+		DispatchTouch( ENT( twinPistols->pev ), ENT( player->pev ) );
+
+		return true;
+	} else {
+		return CBasePlayerWeapon::AddDuplicate( pOriginal );
+	}
+#else
+	return CBasePlayerWeapon::AddDuplicate( pOriginal );
+#endif
 }
 
 void CGlock::ItemPostFrame(void) {
@@ -131,7 +176,7 @@ void CGlock::SecondaryAttack( void )
 
 void CGlock::PrimaryAttack( void )
 {
-	GlockFire( 0.01, 0.175, TRUE );
+	GlockFire( 0.01, 0.215f, TRUE );
 }
 
 void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
@@ -152,6 +197,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	}
 
 	m_iClip--;
+	UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
 
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 
@@ -218,10 +264,11 @@ void CGlock::Reload( void )
 
 	int iResult;
 
-	if (m_iClip == 0)
+	if ( m_iClip == 0 ) {
 		iResult = DefaultReload( 17, GLOCK_RELOAD, 1.5 );
-	else
+	} else {
 		iResult = DefaultReload( 17, GLOCK_RELOAD_NOT_EMPTY, 1.5 );
+	}
 
 	if (iResult)
 	{
@@ -240,29 +287,13 @@ void CGlock::WeaponIdle( void )
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
-	// only idle if the slid isn't back
-	if (m_iClip != 0)
-	{
-		int iAnim;
-		float flRand = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 0.0, 1.0 );
+	int anim = GLOCK_IDLE1;
 
-		if (flRand <= 0.3 + 0 * 0.75)
-		{
-			iAnim = GLOCK_IDLE3;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 14.0;
-		}
-		else if (flRand <= 0.6 + 0 * 0.875)
-		{
-			iAnim = GLOCK_IDLE1;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 14.0;
-		}
-		else
-		{
-			iAnim = GLOCK_IDLE2;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 14.0;
-		}
-		SendWeaponAnim( iAnim, 1 );
+	if ( m_iClip <= 0 ) {
+		anim = GLOCK_IDLE_NOSHOT;
 	}
+
+	SendWeaponAnim( anim, 2 );
 }
 
 

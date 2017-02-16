@@ -327,6 +327,7 @@ void W_Precache(void)
 
 	// glock
 	UTIL_PrecacheOtherWeapon( "weapon_9mmhandgun" );
+	UTIL_PrecacheOtherWeapon( "weapon_9mmhandgun_twin" );
 	UTIL_PrecacheOther( "ammo_9mmclip" );
 
 	// mp5
@@ -451,6 +452,7 @@ TYPEDESCRIPTION	CBasePlayerWeapon::m_SaveData[] =
 	DEFINE_FIELD( CBasePlayerWeapon, m_iPrimaryAmmoType, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayerWeapon, m_iSecondaryAmmoType, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayerWeapon, m_iClip, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayerWeapon, m_iClip2, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayerWeapon, m_iDefaultAmmo, FIELD_INTEGER ),
 //	DEFINE_FIELD( CBasePlayerWeapon, m_iClientClip, FIELD_INTEGER )	 , reset to zero on load so hud gets updated correctly
 //  DEFINE_FIELD( CBasePlayerWeapon, m_iClientWeaponState, FIELD_INTEGER ), reset to zero on load so hud gets updated correctly
@@ -644,14 +646,25 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 {
 	if ((m_fInReload) && ( m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase() ) )
 	{
-		// complete the reload. 
-		int j = min( iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
-
-		// Add them to the clip
+		// complete the reload. and add bullets to the clip
+		int j = min( iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
 		m_iClip += j;
 
 		if ( !m_pPlayer->infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+		}
+		if ( FClassnameIs( pev, "weapon_9mmhandgun" ) ) {
+			UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
+		} else if ( FClassnameIs( pev, "weapon_9mmhandgun_twin" ) ) {
+			UTIL_SetWeaponClip( WEAPON_GLOCK, m_iClip );
+		}
+
+		if ( iMaxClip2() != -1 ) {
+			int j2 = min( iMaxClip2() - m_iClip2, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] );
+			m_iClip2 += j2;
+			if ( !m_pPlayer->infiniteAmmo ) {
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j2;
+			}
 		}
 
 		m_pPlayer->TabulateAmmo();
@@ -677,7 +690,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
-		if ( (m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] ) )
+		if ( (m_iClip == 0 && pszAmmo1() && iMaxClip2() == -1) || (m_iClip == 0 && m_iClip2 == 0 && pszAmmo1() && iMaxClip2() != -1) || (iMaxClip() == -1 && iMaxClip2() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] ) )
 		{
 			m_fFireOnEmpty = TRUE;
 		}
@@ -708,7 +721,12 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		else
 		{
 			// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
-			if ( m_iClip == 0 && !(iFlags() & ITEM_FLAG_NOAUTORELOAD) && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0 : gpGlobals->time ) )
+			bool shouldReload = m_iClip == 0 && !( iFlags() & ITEM_FLAG_NOAUTORELOAD ) && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0 : gpGlobals->time );
+			if ( iMaxClip2() != -1 ) {
+				shouldReload = shouldReload && m_iClip2 == 0;
+			}
+			
+			if ( shouldReload )
 			{
 				Reload();
 				return;
@@ -854,6 +872,7 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 
 	// If the ammo, state, or fov has changed, update the weapon
 	if ( m_iClip != m_iClientClip || 
+		 m_iClip2 != m_iClientClip2 ||
 		 state != m_iClientWeaponState || 
 		 pPlayer->m_iFOV != pPlayer->m_iClientFOV )
 	{
@@ -866,9 +885,11 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 			WRITE_BYTE( state );
 			WRITE_BYTE( m_iId );
 			WRITE_BYTE( m_iClip );
+			WRITE_BYTE( m_iClip2 );
 		MESSAGE_END();
 
 		m_iClientClip = m_iClip;
+		m_iClientClip2 = m_iClip2;
 		m_iClientWeaponState = state;
 		pPlayer->m_fWeapon = TRUE;
 	}
@@ -900,21 +921,32 @@ void CBasePlayerWeapon::SendWeaponAnim( int iAnim, int skiplocal, int body )
 	MESSAGE_END();
 }
 
-BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip, int iMaxCarry )
+BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip, int iMaxClip2, int iMaxCarry )
 {
 	int iIdAmmo;
 
 	if (iMaxClip < 1)
 	{
 		m_iClip = -1;
+		m_iClip2 = -1;
 		iIdAmmo = m_pPlayer->GiveAmmo( iCount, szName, iMaxCarry );
 	}
-	else if (m_iClip == 0)
+	else if (m_iClip == 0 || m_iClip2 == 0)
 	{
-		int i;
-		i = min( m_iClip + iCount, iMaxClip ) - m_iClip;
-		m_iClip += i;
-		iIdAmmo = m_pPlayer->GiveAmmo( iCount - i, szName, iMaxCarry );
+		int i = 0;
+		int i2 = 0;
+
+		if ( m_iClip == 0 ) {
+			i = min( m_iClip + iCount, iMaxClip ) - m_iClip;
+			m_iClip += i;
+		} 
+
+		if ( m_iClip2 == 0 ) {
+			i2 = min( m_iClip2 + iCount, iMaxClip2 ) - m_iClip2;
+			m_iClip2 += i2;
+		}
+
+		iIdAmmo = m_pPlayer->GiveAmmo( iCount - i - i2, szName, iMaxCarry );
 	}
 	else
 	{
@@ -939,6 +971,17 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 					break;
 			}
 		}
+	}
+
+	// Got twin pistols? Synchronize right pistol clip with single pistol instance
+	if ( m_iId == WEAPON_GLOCK_TWIN ) {
+		int singleGlockClip = UTIL_GetWeaponClip( WEAPON_GLOCK );
+		if ( singleGlockClip != -1 ) {
+			m_iClip = singleGlockClip;
+		}
+	} else if ( m_iId == WEAPON_GLOCK ) {
+		// Ammo has been added to single pistol clip, synchronize it with twin pistols
+		UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
 	}
 
 	return iIdAmmo > 0 ? TRUE : FALSE;
@@ -976,7 +1019,7 @@ BOOL CBasePlayerWeapon :: AddSecondaryAmmo( int iCount, char *szName, int iMax )
 //=========================================================
 BOOL CBasePlayerWeapon :: IsUseable( void )
 {
-	if ( m_iClip <= 0 )
+	if ( m_iClip <= 0 && m_iClip2 <= 0 )
 	{
 		if ( m_pPlayer->m_rgAmmo[ PrimaryAmmoIndex() ] <= 0 && iMaxAmmo1() != -1 )			
 		{
@@ -1006,7 +1049,7 @@ BOOL CBasePlayerWeapon :: CanDeploy( void )
 	{
 		bHasAmmo |= (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] != 0);
 	}
-	if (m_iClip > 0)
+	if (m_iClip > 0 || m_iClip2 > 0)
 	{
 		bHasAmmo |= 1;
 	}
@@ -1047,8 +1090,9 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay,
 		return FALSE;
 
 	int j = min(iClipSize - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
+	int j2 = min( iClipSize - m_iClip2, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] );
 
-	if (j == 0)
+	if (j == 0 && j2 == 0)
 		return FALSE;
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
@@ -1180,7 +1224,7 @@ int CBasePlayerWeapon::ExtractAmmo( CBasePlayerWeapon *pWeapon )
 	{
 		// blindly call with m_iDefaultAmmo. It's either going to be a value or zero. If it is zero,
 		// we only get the ammo in the weapon's clip, which is what we want. 
-		iReturn = pWeapon->AddPrimaryAmmo( m_iDefaultAmmo, (char *)pszAmmo1(), iMaxClip(), iMaxAmmo1() );
+		iReturn = pWeapon->AddPrimaryAmmo( m_iDefaultAmmo, (char *)pszAmmo1(), iMaxClip(), iMaxClip2(), iMaxAmmo1() );
 		m_iDefaultAmmo = 0;
 	}
 
@@ -1199,7 +1243,7 @@ int CBasePlayerWeapon::ExtractClipAmmo( CBasePlayerWeapon *pWeapon )
 {
 	int			iAmmo;
 
-	if ( m_iClip == WEAPON_NOCLIP )
+	if ( m_iClip == WEAPON_NOCLIP && m_iClip2 == WEAPON_NOCLIP )
 	{
 		iAmmo = 0;// guns with no clips always come empty if they are second-hand
 	}
@@ -1594,6 +1638,7 @@ void CBasePlayerWeapon::PrintState( void )
 //	ALERT( at_console, "m_finsr:  %i\n", m_fInSpecialReload );
 
 	ALERT( at_console, "m_iclip:  %i\n", m_iClip );
+	ALERT( at_console, "m_iclip2: %i\n", m_iClip2 );
 }
 
 
