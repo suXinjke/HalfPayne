@@ -844,6 +844,8 @@ void EV_FirePython( event_args_t *args )
 	vec3_t up, right, forward;
 	float flSpread = 0.01;
 
+	int empty = args->bparam1;
+
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
@@ -858,7 +860,7 @@ void EV_FirePython( event_args_t *args )
 
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation( PYTHON_FIRE1, multiplayer ? 1 : 0 );
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? PYTHON_FIRE1_NOSHOT : PYTHON_FIRE1, multiplayer ? 1 : 0 );
 
 		V_PunchAxisAdditive( 0, -5.0 );
 	}

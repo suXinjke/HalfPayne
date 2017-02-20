@@ -25,13 +25,15 @@
 
 enum python_e {
 	PYTHON_IDLE1 = 0,
+	PYTHON_IDLE_NOSHOT,
 	PYTHON_FIDGET,
 	PYTHON_FIRE1,
+	PYTHON_FIRE1_NOSHOT,
 	PYTHON_RELOAD,
+	PYTHON_RELOAD_NOSHOT,
 	PYTHON_HOLSTER,
 	PYTHON_DRAW,
-	PYTHON_IDLE2,
-	PYTHON_IDLE3
+	PYTHON_DRAW_NOSHOT
 };
 
 LINK_ENTITY_TO_CLASS( weapon_python, CPython );
@@ -102,7 +104,9 @@ BOOL CPython::Deploy( )
 		pev->body = 0;
 	}
 
-	return DefaultDeploy( "models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", UseDecrement(), pev->body );
+	int drawAnimation = m_iClip > 0 ? PYTHON_DRAW : PYTHON_DRAW_NOSHOT;
+
+	return DefaultDeploy( "models/v_357.mdl", "models/p_357.mdl", drawAnimation, "python", UseDecrement(), pev->body );
 }
 
 
@@ -206,8 +210,10 @@ void CPython::PrimaryAttack()
 	flags = 0;
 #endif
 
+	int empty = m_iClip == 0;
+
 	m_pPlayer->pev->punchangle[0] -= 5.0f;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
@@ -215,7 +221,7 @@ void CPython::PrimaryAttack()
 
 	m_flNextPrimaryAttack = 0.4;
 	shotOnce = true;
-	m_flTimeWeaponIdle = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + ( 19.0f / 30.0f );
 }
 
 
@@ -237,7 +243,7 @@ void CPython::Reload( void )
 	bUseScope = g_pGameRules->IsMultiplayer();
 #endif
 
-	DefaultReload( 6, PYTHON_RELOAD, 2.0, bUseScope );
+	DefaultReload( 7, m_iClip > 0 ? PYTHON_RELOAD : PYTHON_RELOAD_NOSHOT, 2.0, bUseScope );
 }
 
 
@@ -250,28 +256,14 @@ void CPython::WeaponIdle( void )
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
-	int iAnim;
+	int iAnim = m_iClip > 0 ? PYTHON_IDLE1 : PYTHON_IDLE_NOSHOT;
 	float flRand = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 0, 1 );
-	if (flRand <= 0.5)
-	{
-		iAnim = PYTHON_IDLE1;
-		m_flTimeWeaponIdle = (70.0/30.0);
-	}
-	else if (flRand <= 0.7)
-	{
-		iAnim = PYTHON_IDLE2;
-		m_flTimeWeaponIdle = (60.0/30.0);
-	}
-	else if (flRand <= 0.9)
-	{
-		iAnim = PYTHON_IDLE3;
-		m_flTimeWeaponIdle = (88.0/30.0);
-	}
-	else
+	if (flRand <= 0.5 && m_iClip > 0)
 	{
 		iAnim = PYTHON_FIDGET;
-		m_flTimeWeaponIdle = (170.0/30.0);
 	}
+
+	m_flTimeWeaponIdle = (49.0/30.0);
 	
 	int bUseScope = FALSE;
 #ifdef CLIENT_DLL
