@@ -229,6 +229,7 @@ enum crossbow_e {
 	CROSSBOW_FIRE2,		// reload
 	CROSSBOW_FIRE3,		// empty
 	CROSSBOW_RELOAD,	// from empty
+	CROSSBOW_RELOAD_FAST,
 	CROSSBOW_DRAW1,		// full
 	CROSSBOW_DRAW2,		// empty
 	CROSSBOW_HOLSTER1,	// full
@@ -461,7 +462,8 @@ void CCrossbow::Reload( void )
 		SecondaryAttack();
 	}
 
-	if ( DefaultReload( 5, CROSSBOW_RELOAD, 4.5 ) )
+	float reloadTime = 4.5f;
+	if ( DefaultReload( 5, m_pPlayer->slowMotionEnabled ? CROSSBOW_RELOAD_FAST : CROSSBOW_RELOAD, reloadTime, 0, reloadTime / 2.0f ) )
 	{
 		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/xbow_reload1.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 93 + RANDOM_LONG(0,0xF));
 	}

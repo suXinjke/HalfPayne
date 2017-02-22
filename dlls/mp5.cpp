@@ -29,7 +29,9 @@ enum mp5_e
 	MP5_IDLE1,
 	MP5_LAUNCH,
 	MP5_RELOAD,
+	MP5_RELOAD_FAST,
 	MP5_DEPLOY,
+	MP5_DEPLOY2,
 	MP5_FIRE1,
 	MP5_FIRE2,
 	MP5_FIRE3,
@@ -279,7 +281,9 @@ void CMP5::Reload( void )
 	if ( m_pPlayer->ammo_9mm <= 0 )
 		return;
 
-	DefaultReload( MP5_MAX_CLIP, MP5_RELOAD, 1.5 );
+	float reloadTime = 1.5f;
+
+	DefaultReload( MP5_MAX_CLIP, m_pPlayer->slowMotionEnabled ? MP5_RELOAD_FAST : MP5_RELOAD, reloadTime, 0, reloadTime / 2.0f );
 	stress = 0.0f;
 }
 

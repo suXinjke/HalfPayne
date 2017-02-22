@@ -146,7 +146,7 @@ void CBaseEntity :: Killed( entvars_t *pevAttacker, int iGib )
 CBasePlayerWeapon :: DefaultReload
 =====================
 */
-BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay, int body )
+BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay, int body, float delayWhenInSlowmotion )
 {
 
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
@@ -158,6 +158,7 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay,
 		return FALSE;
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
+	m_pPlayer->nextAttackSlowmotionOffset = m_pPlayer->slowMotionEnabled ? max( 0.0f, fDelay - delayWhenInSlowmotion ) : 0.0f;
 
 	//!!UNDONE -- reload sound goes here !!!
 	SendWeaponAnim( iAnim, UseDecrement(), body );

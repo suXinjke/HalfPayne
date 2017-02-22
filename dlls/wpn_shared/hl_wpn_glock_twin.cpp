@@ -38,27 +38,46 @@ enum glock_twin_e {
 	GLOCK_TWIN_SHOOT_LEFT_THEN_EMPTY_WHEN_RIGHT_EMPTY,
 
 	GLOCK_TWIN_RELOAD,
+	GLOCK_TWIN_RELOAD_FAST,
+
 	GLOCK_TWIN_RELOAD_NOSHOT_BOTH,
+	GLOCK_TWIN_RELOAD_NOSHOT_BOTH_FAST,
 	GLOCK_TWIN_RELOAD_NOSHOT_LEFT,
+	GLOCK_TWIN_RELOAD_NOSHOT_LEFT_FAST,
 	GLOCK_TWIN_RELOAD_NOSHOT_RIGHT,
+	GLOCK_TWIN_RELOAD_NOSHOT_RIGHT_FAST,
 
 	GLOCK_TWIN_RELOAD_ONLY_LEFT,
+	GLOCK_TWIN_RELOAD_ONLY_LEFT_FAST,
 	GLOCK_TWIN_RELOAD_ONLY_LEFT_NOSHOT,
+	GLOCK_TWIN_RELOAD_ONLY_LEFT_NOSHOT_FAST,
 	GLOCK_TWIN_RELOAD_ONLY_LEFT_NOSHOT_BOTH,
+	GLOCK_TWIN_RELOAD_ONLY_LEFT_NOSHOT_BOTH_FAST,
 
 	GLOCK_TWIN_RELOAD_ONLY_RIGHT,
+	GLOCK_TWIN_RELOAD_ONLY_RIGHT_FAST,
 	GLOCK_TWIN_RELOAD_ONLY_RIGHT_NOSHOT,
+	GLOCK_TWIN_RELOAD_ONLY_RIGHT_NOSHOT_FAST,
 	GLOCK_TWIN_RELOAD_ONLY_RIGHT_NOSHOT_BOTH,
+	GLOCK_TWIN_RELOAD_ONLY_RIGHT_NOSHOT_BOTH_FAST,
 
 	GLOCK_TWIN_DRAW,
+	GLOCK_TWIN_DRAW_FAST,
 	GLOCK_TWIN_DRAW_NOSHOT_BOTH,
+	GLOCK_TWIN_DRAW_NOSHOT_BOTH_FAST,
 	GLOCK_TWIN_DRAW_NOSHOT_LEFT,
+	GLOCK_TWIN_DRAW_NOSHOT_LEFT_FAST,
 	GLOCK_TWIN_DRAW_NOSHOT_RIGHT,
+	GLOCK_TWIN_DRAW_NOSHOT_RIGHT_FAST,
 
 	GLOCK_TWIN_DRAW_ONLY_LEFT,
+	GLOCK_TWIN_DRAW_ONLY_LEFT_FAST,
 	GLOCK_TWIN_DRAW_NOSHOT_BOTH_ONLY_LEFT,
+	GLOCK_TWIN_DRAW_NOSHOT_BOTH_ONLY_LEFT_FAST,
 	GLOCK_TWIN_DRAW_NOSHOT_LEFT_ONLY_LEFT,
-	GLOCK_TWIN_DRAW_NOSHOT_RIGHT_ONLY_LEFT
+	GLOCK_TWIN_DRAW_NOSHOT_LEFT_ONLY_LEFT_FAST,
+	GLOCK_TWIN_DRAW_NOSHOT_RIGHT_ONLY_LEFT,
+	GLOCK_TWIN_DRAW_NOSHOT_RIGHT_ONLY_LEFT_FAST
 };
 
 LINK_ENTITY_TO_CLASS( weapon_glock_twin, CGlockTwin );
@@ -120,11 +139,9 @@ BOOL CGlockTwin::Deploy() {
 
 	bool drawingFromSingle = false;
 
-	if ( m_pPlayer ) {
-		if ( m_pPlayer->m_pLastItem ) {
-			if ( m_pPlayer->m_pLastItem->m_iId == WEAPON_GLOCK ) {
-				drawingFromSingle = true;
-			}
+	if ( m_pPlayer->m_pLastItem ) {
+		if ( m_pPlayer->m_pLastItem->m_iId == WEAPON_GLOCK ) {
+			drawingFromSingle = true;
 		}
 	}
 
@@ -136,6 +153,10 @@ BOOL CGlockTwin::Deploy() {
 		anim = drawingFromSingle ? GLOCK_TWIN_DRAW_NOSHOT_RIGHT_ONLY_LEFT : GLOCK_TWIN_DRAW_NOSHOT_RIGHT;
 	} else if ( m_iClip2 == 0 ) {
 		anim = drawingFromSingle ? GLOCK_TWIN_DRAW_NOSHOT_LEFT_ONLY_LEFT : GLOCK_TWIN_DRAW_NOSHOT_LEFT;
+	}
+
+	if ( m_pPlayer->slowMotionEnabled ) {
+		anim++;
 	}
 
 	return DefaultDeploy( "models/v_9mmhandgun_twin.mdl", "models/p_9mmhandgun.mdl", anim, "onehanded", /*UseDecrement() ? 1 : 0*/ 0 );
@@ -260,7 +281,7 @@ void CGlockTwin::GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + ( 16.0f / 58.0f );
 
 	if ( stress < 1.5f ) {
-		stress += 0.3f;
+		stress += 0.5f;
 	}
 }
 
@@ -307,7 +328,12 @@ void CGlockTwin::Reload( void ) {
 		realodingOnlyOneGun = true;
 	}
 
-	int iResult = DefaultReload( 17, anim, realodingOnlyOneGun ? 2.375 : 3.05 );
+	if ( m_pPlayer->slowMotionEnabled ) {
+		anim++;
+	}
+
+	float reloadTime = realodingOnlyOneGun ? 2.375 : 3.05;
+	int iResult = DefaultReload( 17, anim, reloadTime, 0, reloadTime / 2.0f );
 
 	if ( iResult )
 	{

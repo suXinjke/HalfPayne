@@ -29,10 +29,14 @@
 enum shotgun_e {
 	SHOTGUN_IDLE = 0,
 	SHOTGUN_FIRE,
+	SHOTGUN_FIRE_FAST,
 	SHOTGUN_FIRE2,
+	SHOTGUN_FIRE2_FAST,
 	SHOTGUN_RELOAD,
 	SHOTGUN_PUMP,
+	SHOTGUN_PUMP_FAST,
 	SHOTGUN_START_RELOAD,
+	SHOTGUN_START_RELOAD_FAST,
 	SHOTGUN_DRAW,
 	SHOTGUN_HOLSTER,
 	SHOTGUN_IDLE4,
@@ -192,15 +196,21 @@ void CShotgun::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
+	float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.25 : 0.5;
 	if (m_iClip != 0)
-		m_flPumpTime = gpGlobals->time + 0.5;
+		m_flPumpTime = gpGlobals->time + pumpDelay;
 
-	m_flNextPrimaryAttack = GetNextAttackDelay(0.75);
-	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.75;
+	float attackDelay = 0.75f;
+	if ( m_pPlayer->slowMotionEnabled ) {
+		attackDelay /= 1.6f;
+	}
+
+	m_flNextPrimaryAttack = GetNextAttackDelay(attackDelay);
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + attackDelay;
 	if (m_iClip != 0)
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5.0;
 	else
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + attackDelay;
 	m_fInSpecialReload = 0;
 
 	shotOnce = true;
@@ -273,15 +283,21 @@ void CShotgun::SecondaryAttack( void )
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
+	float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.6 : 0.95;
 	if (m_iClip != 0)
-		m_flPumpTime = gpGlobals->time + 0.95;
+		m_flPumpTime = gpGlobals->time + pumpDelay;
 
-	m_flNextPrimaryAttack = GetNextAttackDelay(1.5);
-	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.5;
+	float attackDelay = 1.5f;
+	if ( m_pPlayer->slowMotionEnabled ) {
+		attackDelay /= 1.6f;
+	}
+
+	m_flNextPrimaryAttack = GetNextAttackDelay(attackDelay);
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + attackDelay;
 	if (m_iClip != 0)
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 6.0;
 	else
-		m_flTimeWeaponIdle = 1.5;
+		m_flTimeWeaponIdle = attackDelay;
 
 	m_fInSpecialReload = 0;
 
@@ -302,12 +318,19 @@ void CShotgun::Reload( void )
 	// check to see if we're ready to reload
 	if (m_fInSpecialReload == 0)
 	{
-		SendWeaponAnim( SHOTGUN_START_RELOAD );
+		float delay1 = 0.2;
+		float delay2 = 0.5;
+		if ( m_pPlayer->slowMotionEnabled ) {
+			delay1 /= 2.0f;
+			delay2 /= 2.0f;
+		}
+
+		SendWeaponAnim( m_pPlayer->slowMotionEnabled ? SHOTGUN_START_RELOAD_FAST : SHOTGUN_START_RELOAD );
 		m_fInSpecialReload = 1;
-		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.2;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.2;
-		m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
+		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + delay1;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + delay1;
+		m_flNextPrimaryAttack = GetNextAttackDelay(delay2);
+		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + delay2;
 		return;
 	}
 	else if (m_fInSpecialReload == 1)
@@ -324,8 +347,8 @@ void CShotgun::Reload( void )
 
 		SendWeaponAnim( SHOTGUN_RELOAD );
 
-		m_flNextReload = UTIL_WeaponTimeBase() + 0.25;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.25;
+		m_flNextReload = UTIL_WeaponTimeBase() + 0.35;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.35;
 	}
 	else
 	{
@@ -366,13 +389,20 @@ void CShotgun::WeaponIdle( void )
 			}
 			else
 			{
+				float pumpTime = 1.5f;
+				int anim = SHOTGUN_PUMP;
+
+				if ( m_pPlayer->slowMotionEnabled ) {
+					pumpTime /= 2.0f;
+					anim = SHOTGUN_PUMP_FAST;
+				}
 				// reload debounce has timed out
-				SendWeaponAnim( SHOTGUN_PUMP );
+				SendWeaponAnim( anim );
 				
 				// play cocking sound
 				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 95 + RANDOM_LONG(0,0x1f));
 				m_fInSpecialReload = 0;
-				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
+				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + pumpTime;
 			}
 		}
 		else

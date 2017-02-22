@@ -29,11 +29,20 @@ enum python_e {
 	PYTHON_FIDGET,
 	PYTHON_FIRE1,
 	PYTHON_FIRE1_NOSHOT,
+
 	PYTHON_RELOAD,
+	PYTHON_RELOAD_FAST,
+
 	PYTHON_RELOAD_NOSHOT,
+	PYTHON_RELOAD_NOSHOT_FAST,
+
 	PYTHON_HOLSTER,
+
 	PYTHON_DRAW,
-	PYTHON_DRAW_NOSHOT
+	PYTHON_DRAW_FAST,
+
+	PYTHON_DRAW_NOSHOT,
+	PYTHON_DRAW_NOSHOT_FAST
 };
 
 LINK_ENTITY_TO_CLASS( weapon_python, CPython );
@@ -105,6 +114,9 @@ BOOL CPython::Deploy( )
 	}
 
 	int drawAnimation = m_iClip > 0 ? PYTHON_DRAW : PYTHON_DRAW_NOSHOT;
+	if ( m_pPlayer->slowMotionEnabled ) {
+		drawAnimation++;
+	}
 
 	return DefaultDeploy( "models/v_357.mdl", "models/p_357.mdl", drawAnimation, "python", UseDecrement(), pev->body );
 }
@@ -243,7 +255,13 @@ void CPython::Reload( void )
 	bUseScope = g_pGameRules->IsMultiplayer();
 #endif
 
-	DefaultReload( 7, m_iClip > 0 ? PYTHON_RELOAD : PYTHON_RELOAD_NOSHOT, 2.0, bUseScope );
+	float reloadTime = 2.0f;
+	int anim = m_iClip > 0 ? PYTHON_RELOAD : PYTHON_RELOAD_NOSHOT;
+	if ( m_pPlayer->slowMotionEnabled ) {
+		anim++;
+	}
+
+	DefaultReload( 7, anim, reloadTime, bUseScope, reloadTime / 2.0f );
 }
 
 

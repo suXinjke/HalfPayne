@@ -145,6 +145,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, nextAttackSlowmotionOffset, FIELD_FLOAT ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3729,6 +3731,9 @@ bool CBasePlayer::DeactivateSlowMotion()
 			return false;
 		}
 	}
+
+	m_flNextAttack += nextAttackSlowmotionOffset;
+	nextAttackSlowmotionOffset = 0.0f;
 
 	SetSlowMotion( false );
 

@@ -668,6 +668,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		}
 
 		m_pPlayer->TabulateAmmo();
+		m_pPlayer->nextAttackSlowmotionOffset = 0.0f;
 
 		m_fInReload = FALSE;
 	}
@@ -1084,7 +1085,7 @@ BOOL CBasePlayerWeapon :: DefaultDeploy( char *szViewModel, char *szWeaponModel,
 }
 
 
-BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay, int body )
+BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay, int body, float delayWhenInSlowmotion )
 {
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
@@ -1095,7 +1096,12 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay,
 	if (j == 0 && j2 == 0)
 		return FALSE;
 
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
+	if ( delayWhenInSlowmotion <= 0.0f ) {
+		delayWhenInSlowmotion = fDelay;
+	}
+
+	m_pPlayer->m_flNextAttack = m_pPlayer->slowMotionEnabled ? UTIL_WeaponTimeBase() + delayWhenInSlowmotion : UTIL_WeaponTimeBase() + fDelay;
+	m_pPlayer->nextAttackSlowmotionOffset = m_pPlayer->slowMotionEnabled ? max( 0.0f, fDelay - delayWhenInSlowmotion ) : 0.0f;
 
 	//!!UNDONE -- reload sound goes here !!!
 	SendWeaponAnim( iAnim, UseDecrement() ? 1 : 0 );

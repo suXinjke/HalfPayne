@@ -31,6 +31,7 @@
 #include "in_defs.h"
 
 #include <string.h>
+#define M_PI 3.14159265358979323846
 
 #include "r_studioint.h"
 #include "com_model.h"
@@ -487,10 +488,25 @@ void EV_FireGlock1( event_args_t *args )
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/pl_gun3.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
 
 	EV_GetGunPosition( args, vecSrc, origin );
+
+	// Offset the source of trace to the right alittle, and then rotate the aim to the left according to the distance
+	// Simillar code is present in other 'fire' events. This could be moved to dedicated function.
+
+	pmtrace_t tr;
+	vec3_t vecEnd;
+	float traceDistance = 8192;
+	float rightOffset = 20;
+
+	VectorMA( vecSrc, traceDistance, forward, vecEnd );
+
+	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
+	float hitDistance = ( tr.endpos - vecSrc ).Length();
+	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
 	
+	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
 	VectorCopy( forward, vecAiming );
 
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, 0, args->fparam1, args->fparam2 );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, traceDistance, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 
 void EV_FireGlock2( event_args_t *args )
@@ -612,9 +628,21 @@ void EV_FireGlockTwin( event_args_t *args ) {
 
 	EV_GetGunPosition( args, vecSrc, origin );
 
+	pmtrace_t tr;
+	vec3_t vecEnd;
+	float traceDistance = 8192;
+	float rightOffset = shootingRight ? 20 : -20;
+
+	VectorMA( vecSrc, traceDistance, forward, vecEnd );
+
+	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
+	float hitDistance = ( tr.endpos - vecSrc ).Length();
+	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
+
+	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
 	VectorCopy( forward, vecAiming );
 
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, 0, args->fparam1, args->fparam2 );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 //======================
 //	  GLOCK TWIN END
@@ -648,17 +676,25 @@ void EV_FireShotGunDouble( event_args_t *args )
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shotgunshell.mdl");// brass shell
 
+	int anim = SHOTGUN_FIRE2;
+	// DUMB! should look for slowmotionEnabled directly?
+	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+
+	if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+		anim = SHOTGUN_FIRE2_FAST;
+	}
+
 	if ( EV_IsLocal( idx ) )
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation( SHOTGUN_FIRE2, 2 );
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( anim, 2 );
 		V_PunchAxisAdditive( 0, -5.0 );
 	}
 
 	for ( j = 0; j < 2; j++ )
 	{
-		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 6 );
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 18 );
 
 		EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHOTSHELL ); 
 	}
@@ -670,11 +706,11 @@ void EV_FireShotGunDouble( event_args_t *args )
 
 	if ( gEngfuncs.GetMaxClients() > 1 )
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 8, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], 0.17365, 0.04362 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 8, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 1, &tracerCount[idx-1], 0.17365, 0.04362 );
 	}
 	else
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 12, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], 0.08716, 0.08716 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 12, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 1, &tracerCount[idx-1], 0.08716, 0.08716 );
 	}
 }
 
@@ -702,16 +738,24 @@ void EV_FireShotGunSingle( event_args_t *args )
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shotgunshell.mdl");// brass shell
 
+	int anim = SHOTGUN_FIRE;
+	// DUMB! should look for slowmotionEnabled directly?
+	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+
+	if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+		anim = SHOTGUN_FIRE_FAST;
+	}
+
 	if ( EV_IsLocal( idx ) )
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation( SHOTGUN_FIRE, 2 );
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( anim, 2 );
 
 		V_PunchAxisAdditive( 0, -2.5 );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 6 );
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 18 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHOTSHELL ); 
 
@@ -722,11 +766,11 @@ void EV_FireShotGunSingle( event_args_t *args )
 
 	if ( gEngfuncs.GetMaxClients() > 1 )
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 4, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], 0.08716, 0.04362 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 4, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 1, &tracerCount[idx-1], 0.08716, 0.04362 );
 	}
 	else
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 6, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], 0.08716, 0.08716 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 6, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 1, &tracerCount[idx-1], 0.08716, 0.08716 );
 	}
 }
 //======================
@@ -791,11 +835,11 @@ void EV_FireMP5( event_args_t *args )
 
 	if ( gEngfuncs.GetMaxClients() > 1 )
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 2, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 	}
 	else
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 2, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 	}
 }
 
@@ -840,6 +884,9 @@ void EV_FirePython( event_args_t *args )
 	vec3_t angles;
 	vec3_t velocity;
 
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shell.mdl");
 	vec3_t vecSrc, vecAiming;
 	vec3_t up, right, forward;
 	float flSpread = 0.01;
@@ -875,11 +922,27 @@ void EV_FirePython( event_args_t *args )
 		break;
 	}
 
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+
+	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
+
 	EV_GetGunPosition( args, vecSrc, origin );
 	
+	pmtrace_t tr;
+	vec3_t vecEnd;
+	float traceDistance = 8192;
+	float rightOffset = 20;
+
+	VectorMA( vecSrc, traceDistance, forward, vecEnd );
+
+	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
+	float hitDistance = ( tr.endpos - vecSrc ).Length();
+	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
+
+	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
 	VectorCopy( forward, vecAiming );
 
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_357, 0, 0, args->fparam1, args->fparam2 );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_357, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 //======================
 //	    PHYTON END 
@@ -1279,6 +1342,7 @@ enum crossbow_e {
 	CROSSBOW_FIRE2,		// reload
 	CROSSBOW_FIRE3,		// empty
 	CROSSBOW_RELOAD,	// from empty
+	CROSSBOW_RELOAD_FAST,
 	CROSSBOW_DRAW1,		// full
 	CROSSBOW_DRAW2,		// empty
 	CROSSBOW_HOLSTER1,	// full

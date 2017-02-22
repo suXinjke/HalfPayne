@@ -28,13 +28,26 @@ enum glock_e {
 	GLOCK_SHOOT,
 	GLOCK_SHOOT_EMPTY,
 	GLOCK_RELOAD_NOT_EMPTY,
+	GLOCK_RELOAD_NOT_EMPTY_FAST,
 	GLOCK_RELOAD,
+	GLOCK_RELOAD_FAST,
+
 	GLOCK_DRAW,
+	GLOCK_DRAW_FAST,
+
 	GLOCK_HOLSTER,
+	
 	GLOCK_DRAW_FROM_TWIN,
+	GLOCK_DRAW_FROM_TWIN_FAST,
+
 	GLOCK_DRAW_FROM_TWIN_NOSHOT_BOTH,
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_BOTH_FAST,
+
 	GLOCK_DRAW_FROM_TWIN_NOSHOT_LEFT,
-	GLOCK_DRAW_FROM_TWIN_NOSHOT_RIGHT
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_LEFT_FAST,
+
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_RIGHT,
+	GLOCK_DRAW_FROM_TWIN_NOSHOT_RIGHT_FAST
 };
 
 LINK_ENTITY_TO_CLASS( weapon_glock, CGlock );
@@ -101,11 +114,9 @@ BOOL CGlock::Deploy( )
 
 	bool drawingFromTwin = false;
 
-	if ( m_pPlayer ) {
-		if ( m_pPlayer->m_pLastItem ) {
-			if ( m_pPlayer->m_pLastItem->m_iId == WEAPON_GLOCK_TWIN ) {
-				drawingFromTwin = true;
-			}
+	if ( m_pPlayer->m_pLastItem ) {
+		if ( m_pPlayer->m_pLastItem->m_iId == WEAPON_GLOCK_TWIN ) {
+			drawingFromTwin = true;
 		}
 	}
 
@@ -116,6 +127,10 @@ BOOL CGlock::Deploy( )
 		} else {
 			anim = m_iClip > 0 ? GLOCK_DRAW_FROM_TWIN_NOSHOT_LEFT : GLOCK_DRAW_FROM_TWIN_NOSHOT_BOTH;
 		}
+	}
+
+	if ( m_pPlayer->slowMotionEnabled ) {
+		anim++;
 	}
 
 	// pev->body = 1;
@@ -252,7 +267,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
 
 	if ( stress < 1.5f ) {
-		stress += 0.3f;
+		stress += 0.5f;
 	}
 }
 
@@ -264,11 +279,14 @@ void CGlock::Reload( void )
 
 	int iResult;
 
-	if ( m_iClip == 0 ) {
-		iResult = DefaultReload( 17, GLOCK_RELOAD, 1.5 );
-	} else {
-		iResult = DefaultReload( 17, GLOCK_RELOAD_NOT_EMPTY, 1.5 );
+	float reloadTime = 1.5f;
+
+	int anim = m_iClip == 0 ? GLOCK_RELOAD : GLOCK_RELOAD_NOT_EMPTY;
+	if ( m_pPlayer->slowMotionEnabled ) {
+		anim++;
 	}
+
+	iResult = DefaultReload( 17, anim, reloadTime, 0, reloadTime / 2.0f );
 
 	if (iResult)
 	{
