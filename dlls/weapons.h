@@ -1066,5 +1066,20 @@ private:
 	unsigned short m_usSnarkFire;
 };
 
+class CBullet : public CBaseEntity
+{
+	void Spawn( void );
+	void Precache( void );
+	int  Classify ( void );
+	void EXPORT BubbleThink( void );
+	void EXPORT BulletTouch( CBaseEntity *pOther );
+
+	int m_iTrail;
+	int bulletType;
+
+public:
+	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, edict_t *owner = NULL );
+};
+
 
 #endif // WEAPONS_H

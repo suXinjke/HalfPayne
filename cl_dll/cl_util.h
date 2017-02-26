@@ -194,3 +194,9 @@ inline void UnpackRGB(int &r, int &g, int &b, unsigned long ulRGB)\
 }
 
 SPRITE_HANDLE LoadSprite(const char *pszName);
+
+inline bool isSlowmotionEnabled() {
+	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+
+	return host_framerate > 0.0f && host_framerate < 0.009;
+}

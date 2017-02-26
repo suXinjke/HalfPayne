@@ -45,9 +45,6 @@
     <ClCompile Include="..\..\dlls\aflock.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\agrunt.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\airtank.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
@@ -359,6 +356,12 @@
     </ClCompile>
     <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp">
       <Filter>Source Files\dlls\wpn_shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dlls\agrunt.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dlls\bullet.cpp">
+      <Filter>Source Files\dlls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

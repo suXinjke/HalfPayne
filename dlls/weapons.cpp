@@ -408,6 +408,10 @@ void W_Precache(void)
 	PRECACHE_MODEL ("models/grenade.mdl");
 	PRECACHE_MODEL ("sprites/explode1.spr");
 
+	PRECACHE_MODEL ("sprites/streak2.spr");
+	PRECACHE_MODEL ("models/bullet_9mm.mdl");
+	PRECACHE_MODEL ("models/bullet_12g.mdl");
+
 	PRECACHE_SOUND ("weapons/debris1.wav");// explosion aftermaths
 	PRECACHE_SOUND ("weapons/debris2.wav");// explosion aftermaths
 	PRECACHE_SOUND ("weapons/debris3.wav");// explosion aftermaths

@@ -384,6 +384,22 @@ float UTIL_AngleDiff( float destAngle, float srcAngle )
 	return delta;
 }
 
+// Offset the source of trace to the right\left alittle, and then rotate the aim to the left\right according to the distance
+Vector UTIL_VecSkew( const Vector &vecSrc, Vector vecAiming, float rightOffset, edict_t *shooter ) {
+	TraceResult tr;
+	Vector vecEnd;
+	float traceDistance = 8192;
+
+	UTIL_TraceLine( vecSrc, vecSrc + gpGlobals->v_forward * traceDistance, dont_ignore_monsters, shooter, &tr );
+	float hitDistance = ( tr.vecEndPos - vecSrc ).Length();
+	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
+
+	g_engfuncs.pfnAngleVectors( UTIL_VecToAngles( vecAiming ) + Vector( 0.0, yawRotation, 0.0 ), vecAiming, Vector(), Vector() );
+	vecAiming.z *= -1.0;
+
+	return vecAiming;
+}
+
 Vector UTIL_VecToAngles( const Vector &vec )
 {
 	float rgflVecOut[3];

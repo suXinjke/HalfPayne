@@ -105,6 +105,7 @@ void UTIL_SetSize( entvars_t *pev, const Vector &vecMin, const Vector &vecMax ){
 CBaseEntity *UTIL_FindEntityInSphere( CBaseEntity *pStartEntity, const Vector &vecCenter, float flRadius ){ return 0;}
 
 Vector UTIL_VecToAngles( const Vector &vec ){ return 0; }
+Vector UTIL_VecSkew( const Vector &vecSrc, Vector vecAiming, float rightOffset, edict_t *shooter ) { return 0; }
 CSprite *CSprite::SpriteCreate( const char *pSpriteName, const Vector &origin, BOOL animate ) { return 0; }
 void CBeam::PointEntInit( const Vector &start, int endIndex ) { }
 CBeam *CBeam::BeamCreate( const char *pSpriteName, int width ) { return NULL; }

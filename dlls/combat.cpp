@@ -535,14 +535,6 @@ void CBaseMonster::BecomeDead( void )
 	// make the corpse fly away from the attack vector
 	pev->movetype = MOVETYPE_TOSS;
 	
-	// Let the player immediatly pass through the dying monster (while dying animation is playing).
-	// The hacky way to do this is copied from CBaseMonster::RunTask
-	if ( !BBoxFlat( ) ) {
-		UTIL_SetSize( pev, Vector( -4, -4, 0 ), Vector( 4, 4, 1 ) );
-	} else {
-		UTIL_SetSize( pev, Vector( pev->mins.x, pev->mins.y, pev->mins.z + 1 ), Vector( pev->maxs.x, pev->maxs.y, pev->mins.z + 2 ) );
-	}
-
 	//pev->flags &= ~FL_ONGROUND;
 	//pev->origin.z += 2;
 	//pev->velocity = g_vecAttackDir * -1;
@@ -1430,6 +1422,8 @@ This version is used by Monsters.
 */
 void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iBulletType, int iTracerFreq, int iDamage, entvars_t *pevAttacker )
 {
+	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+
 	static int tracerCount;
 	int tracer;
 	TraceResult tr;
@@ -1455,6 +1449,19 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 		Vector vecDir = vecDirShooting +
 						x * vecSpread.x * vecRight +
 						y * vecSpread.y * vecUp;
+
+
+		if ( player->slowMotionEnabled ) {
+
+			CBullet::BulletCreate( vecSrc, vecDir * 2000, iBulletType, edict() );
+			bool lastShot = iShot == cShots;
+			if ( lastShot ) {
+				return;
+			} else {
+				continue;
+			}
+		}
+
 		Vector vecEnd;
 
 		vecEnd = vecSrc + vecDir * flDistance;
@@ -1564,6 +1571,8 @@ This version is used by Players, uses the random seed generator to sync client a
 */
 Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iBulletType, int iTracerFreq, int iDamage, entvars_t *pevAttacker, int shared_rand )
 {
+	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+
 	static int tracerCount;
 	TraceResult tr;
 	Vector vecRight = gpGlobals->v_right;
@@ -1587,6 +1596,17 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		Vector vecDir = vecDirShooting +
 						x * vecSpread.x * vecRight +
 						y * vecSpread.y * vecUp;
+
+		if ( player->slowMotionEnabled ) {
+			CBullet::BulletCreate( vecSrc, vecDir * 2000, iBulletType, edict() );
+			bool lastShot = iShot == cShots;
+			if ( lastShot ) {
+				return Vector( x * vecSpread.x, y * vecSpread.y, 0.0 );
+			} else {
+				continue;
+			}
+		}
+
 		Vector vecEnd;
 
 		vecEnd = vecSrc + vecDir * flDistance;

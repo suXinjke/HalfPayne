@@ -176,6 +176,15 @@ void CMP5::PrimaryAttack()
 	// Accuracy lowers with more bullets you shot (bulletsShot up to 3)
 	Vector vecBullet = VECTOR_CONE_2DEGREES * stress;
 
+	if ( m_pPlayer->slowMotionEnabled ) {
+
+		float rightOffset = 2;
+
+		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
+
+		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
+	}
+
 #ifdef CLIENT_DLL
 	if ( !bIsMultiplayer() )
 #else

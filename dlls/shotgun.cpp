@@ -174,6 +174,15 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecDir;
 
+	if ( m_pPlayer->slowMotionEnabled ) {
+
+		float rightOffset = 2;
+
+		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
+
+		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
+	}
+
 #ifdef CLIENT_DLL
 	if ( bIsMultiplayer() )
 #else
@@ -260,6 +269,16 @@ void CShotgun::SecondaryAttack( void )
 	Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
 
 	Vector vecDir;
+
+	if ( m_pPlayer->slowMotionEnabled ) {
+		
+		float rightOffset = 2;
+
+		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
+
+		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
+	}
+
 	
 #ifdef CLIENT_DLL
 	if ( bIsMultiplayer() )

@@ -252,6 +252,16 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		vecAiming = gpGlobals->v_forward;
 	}
 
+	if ( m_pPlayer->slowMotionEnabled ) {
+
+		float rightOffset = 8;
+
+		vecSrc = vecSrc + gpGlobals->v_forward * 5;
+		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
+
+		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
+	}
+
 	Vector vecDir;
 	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_2DEGREES * stress, 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 

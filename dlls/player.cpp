@@ -2250,6 +2250,28 @@ void CBasePlayer::PreThink(void)
 	}
 
 	g_slowMotionCharge = slowMotionCharge;
+
+	CBaseEntity *pEntity = NULL;
+	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, pev->origin, 48.0f ) ) != NULL ) {
+
+		const char *entityName = STRING( pEntity->pev->classname );
+
+		CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pEntity );
+		if ( monster ) {
+
+			// Let the player immediatly pass through the dying monster (while dying animation is playing).
+			// The hacky way to do this is copied from CBaseMonster::RunTask
+			// Previously this was executed immediatly on any monster's death, but that would make physical bullets go through monster.
+			if ( monster->pev->deadflag == DEAD_DYING && monster->pev->iuser4 == 0 ) {
+				if ( !monster->BBoxFlat( ) ) {
+					UTIL_SetSize( monster->pev, Vector( -4, -4, 0 ), Vector( 4, 4, 1 ) );
+				} else {
+					UTIL_SetSize( monster->pev, Vector( monster->pev->mins.x, monster->pev->mins.y, monster->pev->mins.z + 1 ), Vector( monster->pev->maxs.x, monster->pev->maxs.y, monster->pev->mins.z + 2 ) );
+					monster->pev->iuser4 = 1;
+				}
+			}
+		}
+	}
 }
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:

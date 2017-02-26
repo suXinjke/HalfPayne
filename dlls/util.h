@@ -210,6 +210,7 @@ extern float		UTIL_VecToYaw			(const Vector &vec);
 extern Vector		UTIL_VecToAngles		(const Vector &vec);
 extern float		UTIL_AngleMod			(float a);
 extern float		UTIL_AngleDiff			( float destAngle, float srcAngle );
+extern Vector		UTIL_VecSkew			( const Vector &vecSrc, Vector vecAiming, float rightOffset, edict_t *shooter );
 
 extern CBaseEntity	*UTIL_FindEntityInSphere(CBaseEntity *pStartEntity, const Vector &vecCenter, float flRadius);
 extern CBaseEntity	*UTIL_FindEntityByString(CBaseEntity *pStartEntity, const char *szKeyword, const char *szValue );

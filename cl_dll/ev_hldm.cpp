@@ -92,6 +92,23 @@ void EV_TrainPitchAdjust( struct event_args_s *args );
 #define VECTOR_CONE_15DEGREES Vector( 0.13053, 0.13053, 0.13053 )
 #define VECTOR_CONE_20DEGREES Vector( 0.17365, 0.17365, 0.17365 )
 
+// Offset the source of trace to the right\left alittle, and then rotate the aim to the left\right according to the distance
+// ( function should be moved to UTIL? )
+void VectorSkew( vec3_t vecSrc, vec3_t angles, vec3_t forward, float *vecAiming, float rightOffset ) {
+	
+	pmtrace_t tr;
+	vec3_t vecEnd;
+	float traceDistance = 8192;
+
+	VectorMA( vecSrc, traceDistance, forward, vecEnd );
+
+	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
+	float hitDistance = ( tr.endpos - vecSrc ).Length();
+	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
+
+	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
+	VectorCopy( forward, vecAiming );
+}
 
 // play a strike sound based on the texture that was hit by the attack traceline.  VecSrc/VecEnd are the
 // original traceline endpoints used by the attacker, iBulletType is the type of bullet that hit the texture.
@@ -487,26 +504,15 @@ void EV_FireGlock1( event_args_t *args )
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/pl_gun3.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
 
+	if ( isSlowmotionEnabled() ) {
+		return;
+	}
+
 	EV_GetGunPosition( args, vecSrc, origin );
 
-	// Offset the source of trace to the right alittle, and then rotate the aim to the left according to the distance
-	// Simillar code is present in other 'fire' events. This could be moved to dedicated function.
-
-	pmtrace_t tr;
-	vec3_t vecEnd;
-	float traceDistance = 8192;
 	float rightOffset = 20;
-
-	VectorMA( vecSrc, traceDistance, forward, vecEnd );
-
-	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
-	float hitDistance = ( tr.endpos - vecSrc ).Length();
-	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
-	
-	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
-	VectorCopy( forward, vecAiming );
-
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, traceDistance, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 
 void EV_FireGlock2( event_args_t *args )
@@ -626,22 +632,14 @@ void EV_FireGlockTwin( event_args_t *args ) {
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/pl_gun3.wav", gEngfuncs.pfnRandomFloat( 0.92, 1.0 ), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
 
+	if ( isSlowmotionEnabled() ) {
+		return;
+	}
+
 	EV_GetGunPosition( args, vecSrc, origin );
 
-	pmtrace_t tr;
-	vec3_t vecEnd;
-	float traceDistance = 8192;
 	float rightOffset = shootingRight ? 20 : -20;
-
-	VectorMA( vecSrc, traceDistance, forward, vecEnd );
-
-	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
-	float hitDistance = ( tr.endpos - vecSrc ).Length();
-	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
-
-	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
-	VectorCopy( forward, vecAiming );
-
+	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
 	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 //======================
@@ -676,11 +674,10 @@ void EV_FireShotGunDouble( event_args_t *args )
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shotgunshell.mdl");// brass shell
 
-	int anim = SHOTGUN_FIRE2;
-	// DUMB! should look for slowmotionEnabled directly?
-	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+	
 
-	if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+	int anim = SHOTGUN_FIRE2;
+	if ( isSlowmotionEnabled() ) {
 		anim = SHOTGUN_FIRE2_FAST;
 	}
 
@@ -700,6 +697,10 @@ void EV_FireShotGunDouble( event_args_t *args )
 	}
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/dbarrel1.wav", gEngfuncs.pfnRandomFloat(0.98, 1.0), ATTN_NORM, 0, 85 + gEngfuncs.pfnRandomLong( 0, 0x1f ) );
+
+	if ( isSlowmotionEnabled() ) {
+		return;
+	}
 
 	EV_GetGunPosition( args, vecSrc, origin );
 	VectorCopy( forward, vecAiming );
@@ -739,10 +740,7 @@ void EV_FireShotGunSingle( event_args_t *args )
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shotgunshell.mdl");// brass shell
 
 	int anim = SHOTGUN_FIRE;
-	// DUMB! should look for slowmotionEnabled directly?
-	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
-
-	if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+	if ( isSlowmotionEnabled() ) {
 		anim = SHOTGUN_FIRE_FAST;
 	}
 
@@ -760,6 +758,10 @@ void EV_FireShotGunSingle( event_args_t *args )
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHOTSHELL ); 
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/sbarrel1.wav", gEngfuncs.pfnRandomFloat(0.95, 1.0), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong( 0, 0x1f ) );
+
+	if ( isSlowmotionEnabled() ) {
+		return;
+	}
 
 	EV_GetGunPosition( args, vecSrc, origin );
 	VectorCopy( forward, vecAiming );
@@ -828,6 +830,10 @@ void EV_FireMP5( event_args_t *args )
 	case 1:
 		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
 		break;
+	}
+
+	if ( isSlowmotionEnabled() ) {
+		return;
 	}
 
 	EV_GetGunPosition( args, vecSrc, origin );
@@ -926,22 +932,14 @@ void EV_FirePython( event_args_t *args )
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
+	if ( isSlowmotionEnabled() ) {
+		return;
+	}
+
 	EV_GetGunPosition( args, vecSrc, origin );
 	
-	pmtrace_t tr;
-	vec3_t vecEnd;
-	float traceDistance = 8192;
-	float rightOffset = 20;
-
-	VectorMA( vecSrc, traceDistance, forward, vecEnd );
-
-	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
-	float hitDistance = ( tr.endpos - vecSrc ).Length();
-	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
-
-	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
-	VectorCopy( forward, vecAiming );
-
+	float rightOffset = 5;
+	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
 	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_357, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 //======================
