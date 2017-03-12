@@ -721,6 +721,12 @@ void CBaseEntity :: SUB_FadeOut ( void  )
 	}
 }
 
+void CGib::SetSolid( void ) {
+	pev->solid = SOLID_SLIDEBOX;
+	pev->nextthink = 3.9;
+	SetThink ( &CGib::WaitTillLand );
+}
+
 //=========================================================
 // WaitTillLand - in order to emit their meaty scent from
 // the proper location, gibs should wait until they stop 
@@ -838,15 +844,16 @@ void CGib :: Spawn( const char *szGibModel )
 	pev->renderamt = 255;
 	pev->rendermode = kRenderNormal;
 	pev->renderfx = kRenderFxNone;
-	pev->solid = SOLID_SLIDEBOX;/// hopefully this will fix the VELOCITY TOO LOW crap
+	pev->solid = SOLID_NOT;
+	//pev->solid = SOLID_SLIDEBOX;/// hopefully this will fix the VELOCITY TOO LOW crap
 	pev->classname = MAKE_STRING("gib");
 
 	SET_MODEL(ENT(pev), szGibModel);
 	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0));
 
-	pev->nextthink = gpGlobals->time + 4;
+	pev->nextthink = gpGlobals->time + 0.1;
 	m_lifeTime = 25;
-	SetThink ( &CGib::WaitTillLand );
+	SetThink ( &CGib::SetSolid );
 	SetTouch ( &CGib::BounceGibTouch );
 
 	m_material = matNone;

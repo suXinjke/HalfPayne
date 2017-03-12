@@ -148,6 +148,7 @@ public:
 	void EXPORT BounceGibTouch ( CBaseEntity *pOther );
 	void EXPORT StickyGibTouch ( CBaseEntity *pOther );
 	void EXPORT WaitTillLand( void );
+	void		SetSolid( void );
 	void		LimitVelocity( void );
 
 	virtual int	ObjectCaps( void ) { return (CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE; }
