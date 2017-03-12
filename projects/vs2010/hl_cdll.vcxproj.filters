@@ -324,6 +324,9 @@
     <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\endscreen.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">

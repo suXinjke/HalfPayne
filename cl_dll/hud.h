@@ -300,9 +300,6 @@ private:
 
 	float nextRuntimeSoundTime;
 
-	int currentEndScreenMessage;
-	float nextEndScreenMessageTime;
-
 	void DrawMessages( int x, int y );
 	void DrawEndScreen();
 	void DrawEndScreenTimes( int x, int y );
@@ -312,7 +309,32 @@ private:
 	std::string endScreenLevelCompletedMessage;
 
 	std::vector<CHudTimerMessage>	messages;
-	std::vector<std::string>		endScreenMessages;
+};
+
+class CHudEndScreen : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+	int MsgFunc_CustomEnd( const char *pszName, int iSize, void *pbuf );
+
+private:
+	bool ended;
+
+	int kills;
+	int headshotKills;
+	int explosiveKills;
+	int crowbarKills;
+	int projectileKills;
+	float secondsInSlowmotion;
+
+	void DrawEndScreen();
+	void DrawEndScreenStatistics( int x, int y );
+
+	std::string endScreenLevelCompletedMessage;
+
+	std::vector<CHudTimerMessage>	messages;
 };
 
 //
@@ -769,6 +791,7 @@ public:
 	CHudSlowMotion  m_SlowMotion;
 	CHudPainkiller  m_Painkiller;
 	CHudTimer		m_Timer;
+	CHudEndScreen	m_endScreen;
 
 	void Init( void );
 	void VidInit( void );

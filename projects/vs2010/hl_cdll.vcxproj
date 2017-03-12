@@ -120,6 +120,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\cl_dlls
     <ClCompile Include="..\..\cl_dll\com_weapons.cpp" />
     <ClCompile Include="..\..\cl_dll\death.cpp" />
     <ClCompile Include="..\..\cl_dll\demo.cpp" />
+    <ClCompile Include="..\..\cl_dll\endscreen.cpp" />
     <ClCompile Include="..\..\cl_dll\entity.cpp" />
     <ClCompile Include="..\..\cl_dll\events.cpp" />
     <ClCompile Include="..\..\cl_dll\ev_common.cpp" />

@@ -29,7 +29,7 @@ public:
 
 	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar );
 	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int seconds, const char *message );
-	virtual void End( CBasePlayer *pPlayer );
+	virtual void OnEnd( CBasePlayer *pPlayer );
 
 	virtual void PauseTimer( CBasePlayer *pPlayer );
 	virtual void ResumeTimer( CBasePlayer *pPlayer );

@@ -2,7 +2,6 @@
 #include "cl_util.h"
 #include "../common/event_api.h"
 #include "parsemsg.h"
-#include "com_weapons.h"
 #include "triangleapi.h"
 
 DECLARE_MESSAGE( m_Timer, TimerValue )
@@ -44,7 +43,6 @@ void CHudTimer::Reset( void )
 	blinked = false;
 	time = 0.0f;
 	messages.clear();
-	endScreenMessages.clear();
 
 	kills = 0;
 	headshotKills = 0;

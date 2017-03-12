@@ -355,6 +355,7 @@ void CHud :: Init( void )
 	m_SlowMotion.Init();
 	m_Painkiller.Init();
 	m_Timer.Init();
+	m_endScreen.Init();
 	m_SayText.Init();
 	m_Spectator.Init();
 	m_Geiger.Init();
@@ -505,6 +506,7 @@ void CHud :: VidInit( void )
 	m_Health.VidInit();
 	m_Painkiller.VidInit();
 	m_Timer.VidInit();
+	m_endScreen.VidInit();
 	m_SlowMotion.VidInit();
 	m_Spectator.VidInit();
 	m_Geiger.VidInit();

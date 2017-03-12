@@ -11,6 +11,8 @@
 
 // Custom Game Mode Rules
 
+int	gmsgCustomEnd	= 0;
+
 // CGameRules were recreated each level change and there were no built-in saving method,
 // that means we'd lose config file state on each level change.
 //
@@ -21,6 +23,10 @@ extern int g_changeLevelOccured;
 
 CCustomGameModeRules::CCustomGameModeRules( const char *configFolder ) : config( configFolder )
 {
+	if ( !gmsgCustomEnd ) {
+		gmsgCustomEnd = REG_USER_MSG( "CustomEnd", -1 );
+	}
+
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
 	// and they take some of the difficulty info at spawn (like CWallHealth)
 
@@ -222,7 +228,37 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 }
 
 void CCustomGameModeRules::End( CBasePlayer *pPlayer ) {
-	// TODO: send a message to HUD and show black screen like in BMM
+
+	if ( ended ) {
+		return;
+	}
+
+	if ( pPlayer->slowMotionEnabled ) {
+		pPlayer->ToggleSlowMotion();
+	}
+
+	ended = true;
+
+	pPlayer->pev->movetype = MOVETYPE_NONE;
+	pPlayer->pev->flags |= FL_NOTARGET;
+	pPlayer->RemoveAllItems( true );
+
+	OnEnd( pPlayer );
+}
+
+void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
+	MESSAGE_BEGIN( MSG_ONE, gmsgCustomEnd, NULL, pPlayer->pev );
+
+	WRITE_STRING( config.name.c_str() );
+
+		WRITE_FLOAT( secondsInSlowmotion );
+		WRITE_SHORT( kills );
+		WRITE_SHORT( headshotKills );
+		WRITE_SHORT( explosiveKills );
+		WRITE_SHORT( crowbarKills );
+		WRITE_SHORT( projectileKills );
+
+	MESSAGE_END();
 }
 
 void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )

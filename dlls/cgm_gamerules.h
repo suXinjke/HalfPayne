@@ -47,6 +47,9 @@ public:
 	float secondsInSlowmotion;
 
 	CustomGameModeConfig config;
+
+protected:
+	virtual void OnEnd( CBasePlayer *pPlayer );
 };
 
 #endif // CGM_GAMERULES_H

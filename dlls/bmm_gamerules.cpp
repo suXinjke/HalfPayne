@@ -178,21 +178,9 @@ void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPo
 	MESSAGE_END();
 }
 
-void CBlackMesaMinute::End( CBasePlayer *pPlayer ) {
-	if ( ended ) {
-		return;
-	}
+void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 
-	if ( pPlayer->slowMotionEnabled ) {
-		pPlayer->ToggleSlowMotion();
-	}
-
-	ended = true;
 	PauseTimer( pPlayer );
-
-	pPlayer->pev->movetype = MOVETYPE_NONE;
-	pPlayer->pev->flags |= FL_NOTARGET;
-	pPlayer->RemoveAllItems( true );
 
 	BlackMesaMinuteRecord record( config.configName.c_str() );
 	
