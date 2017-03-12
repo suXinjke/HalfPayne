@@ -156,7 +156,7 @@ static char grgchTextureType[CTEXTURESMAX];
 
 int g_onladder = 0;
 int g_slowMotionCharge = 0;
-int doneDiving = 0;
+int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
 
@@ -1085,7 +1085,10 @@ void PM_WalkMove ()
 
 	// When landing on the ground after diving
 	if ( pmove->flags & FL_DIVING ) {
-		pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
+		if ( !landedAfterDiving ) {
+			pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
+			landedAfterDiving = 1;
+		}
 
 		if (pmove->cmd.buttons & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) ) {
 			// Stand up after diving
@@ -2786,6 +2789,7 @@ void PM_Dive(void)
 
 	// Now diving
 	pmove->flags |= FL_DIVING;
+	landedAfterDiving = 0;
 	// Turn the slowmotion on
 	pmove->flags |= FL_ACTIVATE_SLOWMOTION_REQUESTED;
 }
@@ -3313,6 +3317,7 @@ void PM_PlayerMove ( qboolean server )
 			if ( pmove->flags & FL_DIVING) {
 				pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
 				pmove->flags &= ~FL_DIVING;
+				landedAfterDiving = 1;
 			}
 
 			// Perform regular water movement
