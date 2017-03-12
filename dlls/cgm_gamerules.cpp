@@ -29,12 +29,12 @@ CCustomGameModeRules::CCustomGameModeRules( const char *configFolder ) : config(
 	config.ReadFile( configName );
 	RefreshSkillData();
 
-	// For subsequent level changes
-	//SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
+	ended = false;
 
 	cheated = false;
 	cheatedMessageSent = false;
 
+	timeDelta = 0.0f;
 	lastGlobalTime = 0.0f;
 
 	kills = 0;
@@ -42,7 +42,7 @@ CCustomGameModeRules::CCustomGameModeRules( const char *configFolder ) : config(
 	explosiveKills = 0;
 	crowbarKills = 0;
 	projectileKills = 0;
-	secondsInSlowmotion = 0;
+	secondsInSlowmotion = 0.0f;
 }
 
 BOOL CCustomGameModeRules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
@@ -55,8 +55,6 @@ BOOL CCustomGameModeRules::ClientConnected( edict_t *pEntity, const char *pszNam
 			return FALSE;
 		}
 	}
-
-	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
 	return TRUE;
 }
@@ -83,19 +81,9 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
-	cheated = false;
-	cheatedMessageSent = false;
-
-	kills = 0;
-	headshotKills = 0;
-	explosiveKills = 0;
-	crowbarKills = 0;
-	projectileKills = 0;
-	secondsInSlowmotion = 0;
-
-	if ( config.infiniteAmmo ) {
-		pPlayer->infiniteAmmo = true;
-	}
+	pPlayer->weaponRestricted = config.weaponRestricted;
+	pPlayer->noSaving = config.noSaving;
+	pPlayer->infiniteAmmo = config.infiniteAmmo;
 
 	if ( config.instaGib ) {
 		config.weaponRestricted = true;
@@ -134,10 +122,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 	pPlayer->SetEvilImpulse101( false );
 
-	if ( config.weaponRestricted ) {
-		pPlayer->weaponRestricted = true;
-	}
-	
 	if ( !config.emptySlowmotion ) {
 		pPlayer->TakeSlowmotionCharge( 100 );
 	}
@@ -165,10 +149,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 	} else {
 		pPlayer->noSlowmotion = true;
-	}
-
-	if ( config.noSaving ) {
-		pPlayer->noSaving = true;
 	}
 
 	// Do not let player cheat by not starting at the [startmap]
@@ -199,40 +179,32 @@ BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerI
 
 void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 {
-	if ( pPlayer->pev->deadflag == DEAD_NO ) {
-		float timeDelta = ( gpGlobals->time - lastGlobalTime );
+	timeDelta = ( gpGlobals->time - lastGlobalTime );
 
+	lastGlobalTime = gpGlobals->time;
+
+	if ( pPlayer->pev->deadflag == DEAD_NO ) {
+		
 		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
 		// It was made to prevent timer messup during level changes, because each level has it's own local time
-		if ( fabs( timeDelta ) > 0.1 ) {
-			lastGlobalTime = gpGlobals->time;
-		}
-		else {
-			lastGlobalTime = gpGlobals->time;
-
+		if ( fabs( timeDelta ) <= 0.1 ) {
 			if ( pPlayer->slowMotionEnabled ) {
 				secondsInSlowmotion += timeDelta;
 			}
 		}
-	}
 
-	CheckForCheats( pPlayer );
+		CheckForCheats( pPlayer );
+	}
 }
 
 void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 {
-	if ( cheated && cheatedMessageSent 
-		//|| ended
-		) {
+	if ( cheated && cheatedMessageSent || ended ) {
 		return;
 	}
 
 	if ( cheated ) {
-		//MESSAGE_BEGIN( MSG_ONE, gmsgTimerCheat, NULL, pPlayer->pev );
-		//MESSAGE_END();
-		//
-		//cheatedMessageSent = true;
-		// send cheat message function
+		OnCheated( pPlayer );
 		return;
 	}
 
@@ -243,6 +215,10 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 		cheated = true;
 	}
 
+}
+
+void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
+	cheatedMessageSent = true;
 }
 
 void CCustomGameModeRules::End( CBasePlayer *pPlayer ) {

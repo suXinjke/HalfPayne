@@ -33,13 +33,12 @@ public:
 
 	virtual void PauseTimer( CBasePlayer *pPlayer );
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
+	
+	virtual void OnCheated( CBasePlayer *pPlayer );
 
 	virtual void HookModelIndex( edict_t *activator, const char *mapName, int modelIndex );
 
-	virtual void CheckForCheats( CBasePlayer *pPlayer );
-
 	bool timerPaused;
-	bool ended;
 
 	float currentTime;
 	float currentRealTime;

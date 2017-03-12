@@ -25,14 +25,18 @@ public:
 	virtual BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
 
 	virtual void CheckForCheats( CBasePlayer *pPlayer );
+	virtual void OnCheated( CBasePlayer *pPlayer );
 
 	virtual void Precache();
 
 	virtual void RestartGame();
 
+	bool ended;
+
 	bool cheated;
 	bool cheatedMessageSent;
 
+	float timeDelta;
 	float lastGlobalTime;
 
 	int kills;

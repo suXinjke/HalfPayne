@@ -28,7 +28,6 @@ CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( "bmm_cfg" )
 	}
 
 	timerPaused = false;
-	ended = false;
 
 	currentTime = 60.0f;
 	currentRealTime = 0.0f;
@@ -42,12 +41,6 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->bmmEnabled = 1;
 	pPlayer->noSaving = true;
 
-	timerPaused = false;
-	ended = false;
-
-	currentTime = 60.0f;
-	currentRealTime = 0.0f;
-
 	if ( config.holdTimer ) {
 		PauseTimer( pPlayer );
 	}
@@ -56,70 +49,38 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
 {
-	// Black Mesa Minute running timer
-	if ( !timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
-		float timeDelta = ( gpGlobals->time - lastGlobalTime );
+	CCustomGameModeRules::PlayerThink( pPlayer );
 
-		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
-		// It was made to prevent timer messup during level changes, because each level has it's own local time
-		if ( fabs( timeDelta ) > 0.1 ) {
-			lastGlobalTime = gpGlobals->time;
-		}
-		else {
+	if ( !timerPaused && !UTIL_IsPaused() && pPlayer->pev->deadflag == DEAD_NO ) {
+		
+		if ( fabs( timeDelta ) <= 0.1 ) {
 			currentTime -= timeDelta;
-			lastGlobalTime = gpGlobals->time;
-
-			if ( pPlayer->slowMotionEnabled ) {
-				secondsInSlowmotion += timeDelta;
-			}
-			
-			if ( currentTime <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
-				ClientKill( ENT( pPlayer->pev ) );
-			}
 		}
 		
 		// Counting real time
-		if ( !UTIL_IsPaused() ) {
-			float realTimeDetla = ( g_engfuncs.pfnTime() - lastRealTime );
+		float realTimeDetla = ( g_engfuncs.pfnTime() - lastRealTime );
+		
+		lastRealTime = g_engfuncs.pfnTime();
 
-			if ( fabs( realTimeDetla ) > 0.1 ) {
-				lastRealTime = g_engfuncs.pfnTime();
-			} else {
-				currentRealTime += realTimeDetla;
-				lastRealTime = g_engfuncs.pfnTime();
-			}
+		if ( fabs( realTimeDetla ) <= 0.1 ) {
+			currentRealTime += realTimeDetla;
 		}
+	}
+
+	if ( currentTime <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+		ClientKill( ENT( pPlayer->pev ) );
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
 		WRITE_FLOAT( currentTime );
 	MESSAGE_END();
-
-	CheckForCheats( pPlayer );
 }
 
-// TODO: call derived function and only send message
-void CBlackMesaMinute::CheckForCheats( CBasePlayer *pPlayer )
-{
-	if ( cheated && cheatedMessageSent || ended ) {
-		return;
-	}
+void CBlackMesaMinute::OnCheated( CBasePlayer *pPlayer ) {
+	CCustomGameModeRules::OnCheated( pPlayer );
 
-	if ( cheated ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerCheat, NULL, pPlayer->pev );
-		MESSAGE_END();
-		
-		cheatedMessageSent = true;
-		return;
-	}
-
-	if ( ( pPlayer->pev->flags & FL_GODMODE ) ||
-		 ( pPlayer->pev->flags & FL_NOTARGET ) ||
-		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
-		 pPlayer->usedCheat ) {
-		cheated = true;
-	}
-
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerCheat, NULL, pPlayer->pev );
+	MESSAGE_END();
 }
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
