@@ -23,7 +23,7 @@
 #include "cbase.h"
 #include "doors.h"
 #include "gamerules.h"
-#include "bmm_gamerules.h"
+#include "cgm_gamerules.h"
 
 extern void SetMovedir(entvars_t* ev);
 
@@ -560,9 +560,9 @@ int CBaseDoor::DoorActivate( )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
-	if ( bmm ) {
-		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+	if ( cgm ) {
+		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
 	return 1;

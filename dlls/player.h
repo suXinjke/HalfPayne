@@ -233,6 +233,8 @@ public:
 	char m_szTeamName[TEAM_NAME_LENGTH];
 
 	Uint32 nextTime; // required for FPS cap
+	bool noSlowmotion;
+	bool constantSlowmotion;
 	bool slowMotionEnabled;
 	float slowMotionNextHeartbeatSound;
 
@@ -384,6 +386,7 @@ public:
 	float healthChargeTime;
 
 	int bmmEnabled;
+	bool noSaving;
 
 	void GiveAll( bool nonCheat = false ); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );

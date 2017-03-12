@@ -75,6 +75,15 @@ void U_Srand( unsigned int seed )
 	glSeed = seed_table[ seed & 0xff ];
 }
 
+#include "cgm_gamerules.h"
+extern int g_changeLevelOccured;
+
+// Also see CWorld::Precache for notifying custom gamemode on change level
+void CHANGE_LEVEL( char *s1, char *s2 ) {
+	g_changeLevelOccured = 1;
+	g_engfuncs.pfnChangeLevel( s1, s2 );
+}
+
 /*
 =====================
 UTIL_SharedRandomLong

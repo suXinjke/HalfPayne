@@ -27,7 +27,7 @@
 #include "saverestore.h"
 #include "trains.h"			// trigger_camera has train functionality
 #include "gamerules.h"
-#include "bmm_gamerules.h"
+#include "cgm_gamerules.h"
 
 #define	SF_TRIGGER_PUSH_START_OFF	2//spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE	1// Only fire hurt target once
@@ -734,9 +734,9 @@ void CTriggerCDAudio :: PlayTrack( void )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
-	if ( bmm ) {
-		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+	if ( cgm ) {
+		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
 	PlayCDTrack( (int)pev->health );
@@ -1207,9 +1207,9 @@ void CBaseTrigger :: ActivateMultiTrigger( CBaseEntity *pActivator )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
-	if ( bmm ) {
-		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+	if ( cgm ) {
+		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 }
 
@@ -1486,6 +1486,8 @@ void CChangeLevel :: UseChangeLevel ( CBaseEntity *pActivator, CBaseEntity *pCal
 	ChangeLevelNow( pActivator );
 }
 
+int g_changeLevelOccured = 0;
+
 void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 {
 	edict_t	*pentLandmark;
@@ -1548,15 +1550,15 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	
-	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
-	if ( bmm ) {
-		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+	if ( cgm ) {
+		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
 	// Are we changing to the map that should end Black Mesa Minute run?
-	if ( bmm && strcmp( st_szNextMap, gBMMConfig.endMap.c_str() ) == 0 ) {
+	if ( cgm && strcmp( st_szNextMap, cgm->config.endMap.c_str() ) == 0 ) {
 		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-		bmm->End( player );
+		cgm->End( player );
 	} else {
 		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
 		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
@@ -2041,9 +2043,9 @@ void CTriggerEndSection::EndSectionUse( CBaseEntity *pActivator, CBaseEntity *pC
 
 	if ( pev->message )
 	{
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-			bmm->End( player );
+			cgm->End( player );
 		} else {
 			g_engfuncs.pfnEndSection( STRING( pev->message ) );
 		}
@@ -2077,10 +2079,10 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 
 	if (pev->message)
 	{
-		CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
-		if ( bmm && strcmp( st_szNextMap, gBMMConfig.endMap.c_str() ) == 0 ) {
+		CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+		if ( cgm && strcmp( st_szNextMap, cgm->config.endMap.c_str() ) == 0 ) {
 			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-			bmm->End( player );
+			cgm->End( player );
 		} else {
 			ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
 			CHANGE_LEVEL( st_szNextMap, st_szNextSpot );

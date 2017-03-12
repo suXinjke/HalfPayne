@@ -22,9 +22,7 @@ extern "C"
 #include <string.h>
 #include <ctype.h>
 #include "Exports.h"
-#include "bmm_config.h"
-
-extern BlackMesaMinuteConfig gBMMConfig;
+#include "custom_gamemode_config.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -68,8 +66,8 @@ cvar_t	*cl_pitchspeed;
 cvar_t	*cl_anglespeedkey;
 cvar_t	*cl_vsmoothing;
 
-cvar_t	*bmm_enabled;
-cvar_t  *bmm_config;
+cvar_t	*gamemode;
+cvar_t  *gamemode_config;
 
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
@@ -939,9 +937,11 @@ void RunBlackMesaMinute()
 	
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
+	CustomGameModeConfig gBMMConfig( "bmm_cfg" );
+
 	// Parse config file and retrieve the map name from [startmap] section
 	gBMMConfig.Reset();
-	if ( !gBMMConfig.Init( configName ) ) {
+	if ( !gBMMConfig.ReadFile( configName ) ) {
 		gEngfuncs.Con_Printf( "%s\n", gBMMConfig.error.c_str() );
 		return;
 	}
@@ -949,11 +949,42 @@ void RunBlackMesaMinute()
 	// Prepare Black Mesa Minute gamemode and try to launch [startmap]
 	// Launching the map then will execute CBlackMesaMinute::ClientConnected and CBlackMesaMinute::Spawn
 	// Where the file will be parsed again for additional parameters
-	gEngfuncs.Cvar_Set( "bmm_config", configName );
-	gEngfuncs.Cvar_Set( "bmm_enabled", "1" );
+	gEngfuncs.Cvar_Set( "gamemode_config", configName );
+	gEngfuncs.Cvar_Set( "gamemode", "bmm" );
 	
 	char mapCmd[64];
 	sprintf( mapCmd, "map %s", gBMMConfig.startMap.c_str() );
+	gEngfuncs.pfnClientCmd( mapCmd );
+}
+
+// Not sure if this is a right place for this function
+void RunCustomGameMode()
+{
+	int argCount = gEngfuncs.Cmd_Argc();
+	if ( argCount < 2 ) {
+		gEngfuncs.pfnConsolePrint( "cgm <configname> : launches custom gamemode with settings specified in cgm_cfg\\<configname>\n" );
+		return;
+	}
+
+	char *configName = gEngfuncs.Cmd_Argv( 1 );
+
+	CustomGameModeConfig gCGMConfig( "cgm_cfg" );
+
+	// Parse config file and retrieve the map name from [startmap] section
+	gCGMConfig.Reset();
+	if ( !gCGMConfig.ReadFile( configName ) ) {
+		gEngfuncs.Con_Printf( "%s\n", gCGMConfig.error.c_str() );
+		return;
+	}
+
+	// Prepare custom gamemode and try to launch [startmap]
+	// Launching the map then will execute CCustomGameMode::ClientConnected and CCustomGameMode::Spawn
+	// Where the file will be parsed again for additional parameters
+	gEngfuncs.Cvar_Set( "gamemode_config", configName );
+	gEngfuncs.Cvar_Set( "gamemode", "custom" );
+
+	char mapCmd[64];
+	sprintf( mapCmd, "map %s", gCGMConfig.startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
@@ -1038,8 +1069,10 @@ void InitInput (void)
 	m_forward			= gEngfuncs.pfnRegisterVariable ( "m_forward","1", FCVAR_ARCHIVE );
 	m_side				= gEngfuncs.pfnRegisterVariable ( "m_side","0.8", FCVAR_ARCHIVE );
 
-	bmm_enabled = gEngfuncs.pfnRegisterVariable( "bmm_enabled", "0", 0 );
-	bmm_config			= gEngfuncs.pfnRegisterVariable( "bmm_config", "", 0 );
+	gamemode			= gEngfuncs.pfnRegisterVariable( "gamemode", "vanilla", 0 );
+	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );
+
+	gEngfuncs.pfnAddCommand( "cgm", RunCustomGameMode );
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
 
 	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );

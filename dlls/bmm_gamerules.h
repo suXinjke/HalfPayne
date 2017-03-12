@@ -1,18 +1,30 @@
 #ifndef BMM_GAMERULES_H
 #define BMM_GAMERULES_H
 
-#include "bmm_config.h"
-#include "gamerules.h"
+#include "cgm_gamerules.h"
+
+class BlackMesaMinuteRecord
+{
+public:
+	BlackMesaMinuteRecord( const char *recordName );
+	void Save();
+
+	float time;
+	float realTime;
+	float realTimeMinusTime;
+
+private:
+	const float DEFAULT_TIME = 59999.0f; // 999:59.00
+	std::string filePath;
+};
 
 // CBlackMesaMinute - rules for time/score attack gamemode
-class CBlackMesaMinute : public CHalfLifeRules {
+class CBlackMesaMinute : public CCustomGameModeRules {
 
 public:
 	CBlackMesaMinute();
 
-	virtual BOOL ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] );
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
-	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );
 
 	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar );
@@ -24,34 +36,14 @@ public:
 
 	virtual void HookModelIndex( edict_t *activator, const char *mapName, int modelIndex );
 
-	virtual void SpawnEnemiesByConfig( const char *mapName );
-
-	virtual BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
-
 	virtual void CheckForCheats( CBasePlayer *pPlayer );
+
+	bool timerPaused;
+	bool ended;
+
+	float currentTime;
+	float currentRealTime;
+	float lastRealTime;
 };
-
-namespace BMM
-{
-	extern bool timerPaused;
-	extern bool ended;
-	
-	extern bool cheated;
-	extern bool cheatedMessageSent;
-
-	extern float currentTime;
-	extern float currentRealTime;
-	extern float lastGlobalTime;
-	extern float lastRealTime;
-
-	extern int kills;
-	extern int headshotKills;
-	extern int explosiveKills;
-	extern int crowbarKills;
-	extern int projectileKills;
-	extern float secondsInSlowmotion;
-};
-
-extern BlackMesaMinuteConfig gBMMConfig;
 
 #endif // BMM_GAMERULES_H

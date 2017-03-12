@@ -128,6 +128,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClCompile Include="..\..\dlls\bullsquid.cpp" />
     <ClCompile Include="..\..\dlls\buttons.cpp" />
     <ClCompile Include="..\..\dlls\cbase.cpp" />
+    <ClCompile Include="..\..\dlls\cgm_gamerules.cpp" />
     <ClCompile Include="..\..\dlls\client.cpp" />
     <ClCompile Include="..\..\dlls\combat.cpp" />
     <ClCompile Include="..\..\dlls\controller.cpp" />
@@ -213,7 +214,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp" />
     <ClCompile Include="..\..\dlls\xen.cpp" />
     <ClCompile Include="..\..\dlls\zombie.cpp" />
-    <ClCompile Include="..\..\game_shared\bmm_config.cpp" />
+    <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp" />
     <ClCompile Include="..\..\game_shared\string_aux.cpp" />
     <ClCompile Include="..\..\game_shared\voice_gamemgr.cpp" />
     <ClCompile Include="..\..\pm_shared\pm_debug.c" />
@@ -228,6 +229,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClInclude Include="..\..\dlls\bmm_gamerules.h" />
     <ClInclude Include="..\..\dlls\cbase.h" />
     <ClInclude Include="..\..\dlls\cdll_dll.h" />
+    <ClInclude Include="..\..\dlls\cgm_gamerules.h" />
     <ClInclude Include="..\..\dlls\client.h" />
     <ClInclude Include="..\..\dlls\decals.h" />
     <ClInclude Include="..\..\dlls\defaultai.h" />
@@ -261,7 +263,7 @@ call ..\..\filecopy.bat $(TargetDir)\$(TargetName).pdb ..\..\..\game\mod\dlls\$(
     <ClInclude Include="..\..\dlls\vector.h" />
     <ClInclude Include="..\..\dlls\weapons.h" />
     <ClInclude Include="..\..\engine\eiface.h" />
-    <ClInclude Include="..\..\game_shared\bmm_config.h" />
+    <ClInclude Include="..\..\game_shared\custom_gamemode_config.h" />
     <ClInclude Include="..\..\game_shared\string_aux.h" />
     <ClInclude Include="..\..\pm_shared\pm_debug.h" />
     <ClInclude Include="..\..\pm_shared\pm_defs.h" />

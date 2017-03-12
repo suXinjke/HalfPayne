@@ -129,6 +129,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_iHideHUD, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
 
+	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, constantSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
@@ -140,6 +142,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 
+	DEFINE_FIELD( CBasePlayer, noSaving, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, bmmEnabled, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
@@ -449,10 +452,8 @@ void CBasePlayer::UsePainkiller()
 
 void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 {
-	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-		if ( gBMMConfig.noSlowmotion ) {
-			return;
-		}
+	if ( noSlowmotion ) {
+		return;
 	}
 
 	this->slowMotionCharge += slowMotionCharge;
@@ -3205,6 +3206,7 @@ void CBasePlayer::Spawn( void )
 	painkillerCount = 0;
 	
 	bmmEnabled = 0;
+	noSaving = false;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -3258,6 +3260,8 @@ void CBasePlayer::Spawn( void )
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
 	
+	noSlowmotion = false;
+	constantSlowmotion = false;
 	slowMotionEnabled = false;
 	slowMotionNextHeartbeatSound = 0;
 	SetSlowMotion( false );
@@ -3721,12 +3725,15 @@ bool CBasePlayer::ActivateSlowMotion()
 		return false;
 	}
 
-	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-		if ( BMM::ended ) {
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		if ( constantSlowmotion ) {
 			return false;
 		}
-		if ( gBMMConfig.constantSlowmotion ) {
-			return false;
+
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			if ( bmm->ended ) {
+				return false;
+			}
 		}
 	}
 
@@ -3745,12 +3752,15 @@ bool CBasePlayer::DeactivateSlowMotion()
 		return false;
 	}
 
-	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-		if ( BMM::ended ) {
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		if ( constantSlowmotion ) {
 			return false;
 		}
-		if ( gBMMConfig.constantSlowmotion ) {
-			return false;
+		
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			if ( bmm->ended ) {
+				return false;
+			}
 		}
 	}
 

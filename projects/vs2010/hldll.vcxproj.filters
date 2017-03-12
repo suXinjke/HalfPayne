@@ -345,9 +345,6 @@
     <ClCompile Include="..\..\dlls\xen.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\game_shared\bmm_config.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\game_shared\string_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
@@ -361,6 +358,12 @@
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\bullet.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dlls\cgm_gamerules.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
   </ItemGroup>
@@ -500,13 +503,16 @@
     <ClInclude Include="..\..\dlls\vector.h">
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\game_shared\bmm_config.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\game_shared\string_aux.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\bmm_gamerules.h">
+      <Filter>Header Files\dlls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\custom_gamemode_config.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlls\cgm_gamerules.h">
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
   </ItemGroup>

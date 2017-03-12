@@ -318,10 +318,11 @@ CGameRules *InstallGameRules( void )
 	{
 		// generic half-life
 		g_teamplay = 0;
-		if ( CVAR_GET_FLOAT( "bmm_enabled" ) >= 1.0f ) {
+		if ( strcmp( CVAR_GET_STRING( "gamemode" ), "custom" ) == 0 ) {
+			return new CCustomGameModeRules;
+		} else if ( strcmp( CVAR_GET_STRING( "gamemode" ), "bmm" ) == 0 ) {
 			return new CBlackMesaMinute;
-		}
-		else {
+		} else {
 			return new CHalfLifeRules;
 		}
 	

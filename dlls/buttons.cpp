@@ -26,7 +26,7 @@
 #include "saverestore.h"
 #include "doors.h"
 #include "gamerules.h"
-#include "bmm_gamerules.h"
+#include "cgm_gamerules.h"
 
 #if !defined ( _WIN32 )
 #include <string.h> // memset())))
@@ -697,9 +697,9 @@ void CBaseButton::ButtonActivate( )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules );
-	if ( bmm ) {
-		bmm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+	if ( cgm ) {
+		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 }
 

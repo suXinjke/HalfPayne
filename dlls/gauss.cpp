@@ -24,9 +24,6 @@
 #include "soundent.h"
 #include "shake.h"
 #include "gamerules.h"
-#include "bmm_config.h"
-
-extern BlackMesaMinuteConfig gBMMConfig;
 
 #define	GAUSS_PRIMARY_CHARGE_VOLUME	256// how loud gauss is while charging
 #define GAUSS_PRIMARY_FIRE_VOLUME	450// how loud gauss is when discharged
@@ -161,7 +158,7 @@ void CGauss::PrimaryAttack()
 	m_fInAttack = 0;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 	
-	if ( gBMMConfig.instaGib ) {
+	if ( m_pPlayer->instaGib ) {
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	} else {
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.2;
@@ -386,13 +383,13 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 #endif
 	
 	// The main firing event is sent unreliably so it won't be delayed.
-	PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usGaussFire, 0.0, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, flDamage, 0.0, gBMMConfig.instaGib, 0, m_fPrimaryFire ? 1 : 0, 0 );
+	PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usGaussFire, 0.0, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, flDamage, 0.0, m_pPlayer->instaGib, 0, m_fPrimaryFire ? 1 : 0, 0 );
 
 	// This reliable event is used to stop the spinning sound
 	// It's delayed by a fraction of second to make sure it is delayed by 1 frame on the client
 	// It's sent reliably anyway, which could lead to other delays
 
-	PLAYBACK_EVENT_FULL( FEV_NOTHOST | FEV_RELIABLE, m_pPlayer->edict(), m_usGaussFire, 0.01, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, 0.0, 0.0, gBMMConfig.instaGib, 0, 0, 1 );
+	PLAYBACK_EVENT_FULL( FEV_NOTHOST | FEV_RELIABLE, m_pPlayer->edict(), m_usGaussFire, 0.01, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, 0.0, 0.0, m_pPlayer->instaGib, 0, 0, 1 );
 
 	
 	/*ALERT( at_console, "%f %f %f\n%f %f %f\n", 
@@ -428,12 +425,12 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 		
 		if (pEntity->pev->takedamage)
 		{
-			if ( gBMMConfig.instaGib ) {
+			if ( m_pPlayer->instaGib ) {
 				flDamage = 9999.0f;
 			}
 
 			ClearMultiDamage();
-			if ( gBMMConfig.instaGib ) {
+			if ( m_pPlayer->instaGib ) {
 				// Allow instagib to destroy Gargantua
 				pEntity->TraceAttack( m_pPlayer->pev, flDamage, vecDir, &tr, DMG_BULLET | DMG_ENERGYBEAM );
 			} else {
@@ -442,7 +439,7 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 			ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 		}
 
-		if ( pEntity->ReflectGauss() && !gBMMConfig.instaGib )
+		if ( pEntity->ReflectGauss() && !m_pPlayer->instaGib )
 		{
 			float n;
 
@@ -573,7 +570,7 @@ void CGauss::WeaponIdle( void )
 	if (m_fInAttack != 0)
 	{
 		StartFire();
-		if ( gBMMConfig.instaGib ) {
+		if ( m_pPlayer->instaGib ) {
 			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 		}
 		m_fInAttack = 0;

@@ -155,14 +155,7 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 	else
 	{   
 		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			char mapName[256];
-			sprintf( mapName, "%s", gBMMConfig.startMap.c_str() );
-
-			// Change level to the BMM's [startmap] and queue the 'restart' command
-			// for CBlackMesaMinute::PlayerSpawn.
-			// Would be better just to execute bmm command directly somehow.
-			gBMMConfig.markedForRestart = true;
-			CHANGE_LEVEL( mapName, NULL );
+			bmm->RestartGame();
 		} else {
 
 			// restart the entire server
@@ -936,10 +929,8 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
 	PRECACHE_SOUND( "var/death.wav" );
 
-	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-		for ( std::string spawn : gBMMConfig.entitiesToPrecache ) {
-			UTIL_PrecacheOther( spawn.c_str() );
-		}
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		cgm->Precache();
 	}
 }
 
@@ -1764,6 +1755,8 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 			cd->ammo_rockets	= pl->ammo_rockets;
 			cd->ammo_cells		= pl->ammo_uranium;
 			cd->vuser2.x		= pl->ammo_hornets;
+
+			cd->vuser3.x		= pl->instaGib;
 			
 
 			if ( pl->m_pActiveItem )

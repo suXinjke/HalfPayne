@@ -33,6 +33,7 @@
 #include "weapons.h"
 #include "gamerules.h"
 #include "teamplay_gamerules.h"
+#include "cgm_gamerules.h"
 
 extern CGraph WorldGraph;
 extern CSoundEnt *pSoundEnt;
@@ -469,6 +470,8 @@ LINK_ENTITY_TO_CLASS( worldspawn, CWorld );
 extern DLL_GLOBAL BOOL		g_fGameOver;
 float g_flWeaponCheat; 
 
+extern int g_changeLevelOccured;
+
 void CWorld :: Spawn( void )
 {
 	g_fGameOver = FALSE;
@@ -493,10 +496,17 @@ void CWorld :: Precache( void )
 	// Set up game rules
 	if (g_pGameRules)
 	{
-		delete g_pGameRules;
+		if ( !g_changeLevelOccured ) {
+			delete g_pGameRules;
+			g_pGameRules = InstallGameRules( );
+		}
+	} else {
+
+		g_pGameRules = InstallGameRules( );
+
 	}
 
-	g_pGameRules = InstallGameRules( );
+	g_changeLevelOccured = 0;
 
 	//!!!UNDONE why is there so much Spawn code in the Precache function? I'll just keep it here 
 
@@ -664,6 +674,11 @@ void CWorld :: Precache( void )
 	else
 	{
 		CVAR_SET_FLOAT( "mp_defaultteam", 0 );
+	}
+
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+	if ( cgm ) {
+		cgm->OnChangeLevel();
 	}
 }
 
