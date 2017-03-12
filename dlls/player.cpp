@@ -507,9 +507,6 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 {
 	const char *victimName = STRING( victim->pev->classname );
 
-	Vector deathPos = victim->pev->origin;
-	deathPos.z += victim->pev->size.z + 5.0f;
-
 	bool killConfirmed = false;
 	
 	bool isHeadshot = false;
@@ -584,8 +581,6 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
 			killConfirmed = true;
-
-			deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
 		}
 		else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
 			bool snarkOwnedByPlayer = victim->pev->owner != 0;
@@ -604,21 +599,15 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
 		killConfirmed = true;
 	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
-		// DUMB EXCEPTION for snipers in Surface tension
-		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
 		killConfirmed = true;
 	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
-		// DUMB EXCEPTION for Nihilant's healing crystals
-		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			bmm->IncreaseTime( this, deathPos, 10, "TIME BONUS" );
-		}
+		killConfirmed = true;
 	}
 
-	if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 		if ( killConfirmed ) {
-			bmm->IncreaseTime( this, deathPos, isHeadshot, killedByExplosion, false, killedByCrowbar );
+			cgm->OnKilledEntityByPlayer( this, victim );
 		}
 	}
 }

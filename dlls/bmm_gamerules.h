@@ -27,9 +27,8 @@ public:
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void PlayerThink( CBasePlayer *pPlayer );
 
-	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar );
 	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int seconds, const char *message );
-	virtual void OnEnd( CBasePlayer *pPlayer );
+	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim );
 
 	virtual void PauseTimer( CBasePlayer *pPlayer );
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
@@ -43,6 +42,9 @@ public:
 	float currentTime;
 	float currentRealTime;
 	float lastRealTime;
+
+protected:
+	virtual void OnEnd( CBasePlayer *pPlayer );
 };
 
 #endif // BMM_GAMERULES_H

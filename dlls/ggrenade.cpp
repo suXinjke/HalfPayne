@@ -163,9 +163,9 @@ void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 	} else {
 		// Destroying enemy grenade nets bonus time for the player
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
-			if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
-				bmm->IncreaseTime( player, pev->origin, false, false, true, false );
+				cgm->OnKilledEntityByPlayer( player, this );
 			}	
 
 			this->killedOrCausedByPlayer = true;

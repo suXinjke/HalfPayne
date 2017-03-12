@@ -3,11 +3,11 @@
 #include	"cbase.h"
 #include	"player.h"
 #include	"client.h"
-#include	"skill.h"
 #include	"weapons.h"
 #include	"cgm_gamerules.h"
 #include	"custom_gamemode_config.h"
 #include	<algorithm>
+#include	"monsters.h"
 
 // Custom Game Mode Rules
 
@@ -200,6 +200,32 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 
 		CheckForCheats( pPlayer );
+	}
+}
+
+// TODO: isHeadshot and other flags are having DRY issue with overloaded function in CBlackMesaMinute
+void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim ) {
+	bool isHeadshot = false;
+	if ( CBaseMonster *monsterVictim = dynamic_cast< CBaseMonster * >( victim ) ) {
+		if ( monsterVictim->m_LastHitGroup == HITGROUP_HEAD ) {
+			isHeadshot = true;
+		}
+	}
+	
+	bool killedByExplosion = victim->killedByExplosion;
+	bool killedByCrowbar = victim->killedByCrowbar;
+	bool destroyedGrenade = strcmp( STRING( victim->pev->classname ), "grenade" ) == 0;
+
+	kills++;
+
+	if ( killedByExplosion ) {
+		explosiveKills++;
+	} else if ( killedByCrowbar ) {
+		crowbarKills++;
+	} else if ( isHeadshot ) {
+		headshotKills++;
+	} else if ( destroyedGrenade ) {
+		projectileKills++;
 	}
 }
 

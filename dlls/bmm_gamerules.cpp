@@ -3,11 +3,11 @@
 #include	"cbase.h"
 #include	"player.h"
 #include	"client.h"
-#include	"skill.h"
 #include	"weapons.h"
 #include	"bmm_gamerules.h"
 #include	<algorithm>
 #include <fstream>
+#include	"monsters.h"
 
 // Black Mesa Minute
 
@@ -83,84 +83,59 @@ void CBlackMesaMinute::OnCheated( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 }
 
-void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, bool isHeadshot, bool killedByExplosion, bool destroyedGrenade, bool killedByCrowbar ) {
+void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim ) {
+	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim );
 
-	if ( timerPaused ) {
-		return;
+	const char *victimName = STRING( victim->pev->classname );
+
+	bool isHeadshot = false;
+	if ( CBaseMonster *monsterVictim = dynamic_cast< CBaseMonster * >( victim ) ) {
+		if ( monsterVictim->m_LastHitGroup == HITGROUP_HEAD ) {
+			isHeadshot = true;
+		}
 	}
 
-	kills++;
-		
+	bool killedByExplosion = victim->killedByExplosion;
+	bool killedByCrowbar = victim->killedByCrowbar;
+	bool destroyedGrenade = strcmp( victimName, "grenade" ) == 0;
+	
+	int timeToAdd = 0;
+	std::string message;
+
 	if ( killedByExplosion ) {
-		int timeToAdd = TIMEATTACK_EXPLOSION_BONUS_TIME;
-		currentTime += timeToAdd;
-		explosiveKills++;
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
-			WRITE_STRING( "EXPLOSION BONUS" );
-			WRITE_LONG( timeToAdd );
-			WRITE_COORD( eventPos.x );
-			WRITE_COORD( eventPos.y );
-			WRITE_COORD( eventPos.z );
-		MESSAGE_END();
-	}
-	else if ( killedByCrowbar ) {
-		int timeToAdd = TIMEATTACK_KILL_CROWBAR_BONUS_TIME;
-		currentTime += timeToAdd;
-		crowbarKills++;
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
-			WRITE_STRING( "MELEE BONUS" );
-			WRITE_LONG( timeToAdd );
-			WRITE_COORD( eventPos.x );
-			WRITE_COORD( eventPos.y );
-			WRITE_COORD( eventPos.z );
-		MESSAGE_END( );
-	}
-	else if ( isHeadshot ) {
-		int timeToAdd = TIMEATTACK_KILL_BONUS_TIME + TIMEATTACK_HEADSHOT_BONUS_TIME;
-		currentTime += timeToAdd;
-		headshotKills++;
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
-			WRITE_STRING( "HEADSHOT BONUS" );
-			WRITE_LONG( timeToAdd );
-			WRITE_COORD( eventPos.x );
-			WRITE_COORD( eventPos.y );
-			WRITE_COORD( eventPos.z );
-		MESSAGE_END();
-	}
-	else if ( destroyedGrenade ) {
-		int timeToAdd = TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME;
-		currentTime += timeToAdd;
-		projectileKills++;
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
-			WRITE_STRING( "PROJECTILE BONUS" );
-			WRITE_LONG( timeToAdd );
-			WRITE_COORD( eventPos.x );
-			WRITE_COORD( eventPos.y );
-			WRITE_COORD( eventPos.z );
-		MESSAGE_END( );
-	}
-	else {
-		int timeToAdd = TIMEATTACK_KILL_BONUS_TIME;
-		currentTime += timeToAdd;
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
-			WRITE_STRING( "TIME BONUS" );
-			WRITE_LONG( timeToAdd );
-			WRITE_COORD( eventPos.x );
-			WRITE_COORD( eventPos.y );
-			WRITE_COORD( eventPos.z );
-		MESSAGE_END( );
+		timeToAdd = TIMEATTACK_EXPLOSION_BONUS_TIME;
+		message = "EXPLOSION BONUS";
+	} else if ( killedByCrowbar ) {
+		timeToAdd = TIMEATTACK_KILL_CROWBAR_BONUS_TIME;
+		message = "MELEE BONUS";
+	} else if ( isHeadshot ) {
+		timeToAdd = TIMEATTACK_KILL_BONUS_TIME + TIMEATTACK_HEADSHOT_BONUS_TIME;
+		message = "HEADSHOT BONUS";
+	} else if ( destroyedGrenade ) {
+		timeToAdd = TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME;
+		message = "PROJECTILE BONUS";
+	} else {
+		timeToAdd = TIMEATTACK_KILL_BONUS_TIME;
+		message = "TIME BONUS";
 	}
 
+	Vector deathPos = victim->pev->origin;
+	deathPos.z += victim->pev->size.z + 5.0f;
 
+	if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
+		deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
+	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
+		// DUMB EXCEPTION for snipers in Surface tension
+		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) ) {
+		// DUMB EXCEPTION for Nihilant's healing crystals
+		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+		timeToAdd = 10;
+	}
+
+	IncreaseTime( pPlayer, deathPos, timeToAdd, message.c_str() );
 }
 
-// Added for Gonarch
-// Might actually call this from old IncreaseTime
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message )
 {
 	if ( timerPaused ) {
