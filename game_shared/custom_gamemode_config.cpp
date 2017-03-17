@@ -119,9 +119,6 @@ void CustomGameModeConfig::Reset() {
 
 	this->markedForRestart = false;
 
-	
-	this->entitiesToPrecache.clear();
-
 	this->name.clear();
 	this->startMap.clear();
 	this->endMap.clear();
@@ -131,8 +128,10 @@ void CustomGameModeConfig::Reset() {
 	this->timerPauses.clear();
 	this->timerResumes.clear();
 	this->endTriggers.clear();
+	this->sounds.clear();
 	this->entitySpawns.clear();
 	this->entitiesToPrecache.clear();
+	this->soundsToPrecache.clear();
 
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
@@ -177,6 +176,8 @@ void CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = FILE_SECTION_TIMER_PAUSE;
 	} else if ( sectionName == "timerresume" ) {
 		currentFileSection = FILE_SECTION_TIMER_RESUME;
+	} else if ( sectionName == "sound" ) {
+		currentFileSection = FILE_SECTION_SOUND;
 	}
 
 	return;
@@ -313,6 +314,17 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 		}
 
+		case FILE_SECTION_SOUND: {
+
+			ModelIndexWithSound modelIndex = ParseModelIndexWithSoundString( line, lineCount );
+			sounds.insert( modelIndex );
+
+			soundsToPrecache.insert( modelIndex.soundPath );
+
+			break;
+
+		}
+
 		case FILE_SECTION_ENTITY_SPAWN: {
 			std::vector<std::string> entitySpawnStrings = Split( line, ' ' );
 
@@ -357,6 +369,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 			}
 
 			entitySpawns.push_back( { mapName, entityName, { originValues.at( 0 ), originValues.at( 1 ), originValues.at( 2 ) }, entityAngle } );
+			entitiesToPrecache.insert( entityName );
 			break;
 
 		}
@@ -440,6 +453,40 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 	}
 
 	return ModelIndex( mapName, modelIndex, constant );
+}
+
+// TODO: This is dumb copy of parser above, would simplify
+const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( std::string line, int lineCount ) {
+	std::vector<std::string> modelIndexStrings = Split( line, ' ' );
+
+	if ( modelIndexStrings.size() < 3 ) {
+		char errorCString[1024];
+		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: <mapname> <modelindex> <soundpath> not specified.\n", configName.c_str(), lineCount );
+		OnError( errorCString );
+		return ModelIndexWithSound();
+	}
+
+	std::string mapName = modelIndexStrings.at( 0 );
+	int modelIndex;
+	try {
+		modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
+	} catch ( std::invalid_argument ) {
+		char errorCString[1024];
+		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: model index incorrectly specified.\n", configName.c_str(), lineCount );
+		OnError( errorCString );
+		return ModelIndexWithSound();
+	}
+	std::string soundPath = modelIndexStrings.at( 2 );
+
+	bool constant = false;
+	if ( modelIndexStrings.size() >= 4 ) {
+		std::string constantString = modelIndexStrings.at( 3 );
+		if ( constantString == "const" ) {
+			constant = true;
+		}
+	}
+
+	return ModelIndexWithSound( mapName, modelIndex, soundPath, constant );
 }
 
 bool operator < ( const ModelIndex &modelIndex1, const ModelIndex &modelIndex2 ) {

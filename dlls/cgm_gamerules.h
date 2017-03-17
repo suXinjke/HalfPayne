@@ -40,13 +40,6 @@ public:
 	float timeDelta;
 	float lastGlobalTime;
 
-	int kills;
-	int headshotKills;
-	int explosiveKills;
-	int crowbarKills;
-	int projectileKills;
-	float secondsInSlowmotion;
-
 	CustomGameModeConfig config;
 
 protected:

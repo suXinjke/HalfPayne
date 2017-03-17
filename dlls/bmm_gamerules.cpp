@@ -170,12 +170,12 @@ void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 		WRITE_FLOAT( record.realTime );
 		WRITE_FLOAT( record.realTimeMinusTime );
 
-		WRITE_FLOAT( secondsInSlowmotion );
-		WRITE_SHORT( kills );
-		WRITE_SHORT( headshotKills );
-		WRITE_SHORT( explosiveKills );
-		WRITE_SHORT( crowbarKills );
-		WRITE_SHORT( projectileKills );
+		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
+		WRITE_SHORT( pPlayer->kills );
+		WRITE_SHORT( pPlayer->headshotKills );
+		WRITE_SHORT( pPlayer->explosiveKills );
+		WRITE_SHORT( pPlayer->crowbarKills );
+		WRITE_SHORT( pPlayer->projectileKills );
 		
 	MESSAGE_END();
 

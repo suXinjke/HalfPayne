@@ -80,8 +80,10 @@ static char *allowedEntities[] {
 
 };
 
-struct ModelIndex
+class ModelIndex
 {
+
+public:
 	std::string key;
 
 	std::string mapName;
@@ -101,9 +103,37 @@ struct ModelIndex
 		this->modelIndex = modelIndex;
 		this->constant = constant;
 
-		this->key = mapName + std::to_string( modelIndex );
+		this->key = GetKey();
+	}
+
+protected:
+	virtual std::string GetKey() {
+		return mapName + std::to_string( modelIndex ); 
 	}
 };
+
+class ModelIndexWithSound : public ModelIndex {
+
+public:
+	std::string soundPath;
+
+	ModelIndexWithSound() : ModelIndex() {
+		this->soundPath = "";
+	}
+
+	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &soundPath, bool constant = false ) 
+		: ModelIndex( mapName, modelIndex, constant ) {
+		
+		this->soundPath = soundPath;
+		this->key = GetKey();
+	}
+
+private:
+	virtual std::string GetKey() {
+		return mapName + std::to_string( modelIndex ) + soundPath; 
+	}
+};
+
 bool operator < ( const ModelIndex &modelIndex1, const ModelIndex &modelIndex2 );
 
 struct EntitySpawn
@@ -129,6 +159,7 @@ public:
 		FILE_SECTION_ENTITY_SPAWN,
 		FILE_SECTION_ENTITY_REMOVE,
 		FILE_SECTION_ENTITY_MOVE,
+		FILE_SECTION_SOUND,
 		FILE_SECTION_MODS,
 
 		// Black Mesa Minute
@@ -156,6 +187,7 @@ public:
 	static int GetAllowedEntityIndex( const char *allowedEntity );
 
 	const ModelIndex ParseModelIndexString( std::string line, int lineCount );
+	const ModelIndexWithSound ParseModelIndexWithSoundString( std::string line, int lineCount );
 
 	std::string configName;
 	std::string error;
@@ -170,9 +202,11 @@ public:
 
 	std::set<ModelIndex>	     timerPauses;
 	std::set<ModelIndex>	     timerResumes;
+	std::set<ModelIndexWithSound>	     sounds;
 	std::set<ModelIndex>	     endTriggers;
 	std::vector<EntitySpawn>     entitySpawns;
 	std::set<std::string>		 entitiesToPrecache;
+	std::set<std::string>		 soundsToPrecache;
 
 	bool startPositionSpecified;
 	float startPosition[3];

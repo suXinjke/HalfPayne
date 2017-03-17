@@ -42,13 +42,6 @@ CCustomGameModeRules::CCustomGameModeRules( const char *configFolder ) : config(
 
 	timeDelta = 0.0f;
 	lastGlobalTime = 0.0f;
-
-	kills = 0;
-	headshotKills = 0;
-	explosiveKills = 0;
-	crowbarKills = 0;
-	projectileKills = 0;
-	secondsInSlowmotion = 0.0f;
 }
 
 BOOL CCustomGameModeRules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
@@ -195,7 +188,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		// It was made to prevent timer messup during level changes, because each level has it's own local time
 		if ( fabs( timeDelta ) <= 0.1 ) {
 			if ( pPlayer->slowMotionEnabled ) {
-				secondsInSlowmotion += timeDelta;
+				pPlayer->secondsInSlowmotion += timeDelta;
 			}
 		}
 
@@ -216,16 +209,16 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 	bool killedByCrowbar = victim->killedByCrowbar;
 	bool destroyedGrenade = strcmp( STRING( victim->pev->classname ), "grenade" ) == 0;
 
-	kills++;
+	pPlayer->kills++;
 
 	if ( killedByExplosion ) {
-		explosiveKills++;
+		pPlayer->explosiveKills++;
 	} else if ( killedByCrowbar ) {
-		crowbarKills++;
+		pPlayer->crowbarKills++;
 	} else if ( isHeadshot ) {
-		headshotKills++;
+		pPlayer->headshotKills++;
 	} else if ( destroyedGrenade ) {
-		projectileKills++;
+		pPlayer->projectileKills++;
 	}
 }
 
@@ -277,12 +270,12 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 
 	WRITE_STRING( config.name.c_str() );
 
-		WRITE_FLOAT( secondsInSlowmotion );
-		WRITE_SHORT( kills );
-		WRITE_SHORT( headshotKills );
-		WRITE_SHORT( explosiveKills );
-		WRITE_SHORT( crowbarKills );
-		WRITE_SHORT( projectileKills );
+		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
+		WRITE_SHORT( pPlayer->kills );
+		WRITE_SHORT( pPlayer->headshotKills );
+		WRITE_SHORT( pPlayer->explosiveKills );
+		WRITE_SHORT( pPlayer->crowbarKills );
+		WRITE_SHORT( pPlayer->projectileKills );
 
 	MESSAGE_END();
 }
@@ -302,7 +295,25 @@ void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapNa
 		config.endTriggers.erase( foundIndex );
 
 		End( pPlayer );
-		return;
+	}
+
+	// Does 'sounds' contain such index?
+	auto soundIndex = config.sounds.begin();
+	while ( soundIndex != config.sounds.end() ) {
+
+		if ( soundIndex->mapName == std::string( mapName ) &&
+			 soundIndex->modelIndex == modelIndex &&
+			 !pPlayer->ModelIndexHasBeenHooked( soundIndex->key.c_str() ) ) {
+			EMIT_SOUND( pPlayer->edict(), CHAN_AUTO, soundIndex->soundPath.c_str(), 1.0, ATTN_STATIC );
+			if ( !soundIndex->constant ) {
+				pPlayer->RememberHookedModelIndex( ALLOC_STRING( soundIndex->key.c_str() ) );
+				config.sounds.erase( soundIndex );
+			}
+
+			break;
+		}
+
+		soundIndex++;
 	}
 }
 
@@ -323,9 +334,16 @@ void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 }
 
 void CCustomGameModeRules::Precache() {
+
 	for ( std::string spawn : config.entitiesToPrecache ) {
 		UTIL_PrecacheOther( spawn.c_str() );
 	}
+	
+	// I'm very sorry for this memory leak for now
+	for ( std::string sound : config.soundsToPrecache ) {
+		PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
+	}
+
 }
 
 // Hardcoded values so it won't depend on console variables

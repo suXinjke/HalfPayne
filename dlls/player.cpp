@@ -129,6 +129,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, m_iHideHUD, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, m_iFOV, FIELD_INTEGER ),
 
+	DEFINE_ARRAY( CBasePlayer, hookedModelIndexes, FIELD_STRING, MAX_HOOKED_MODEL_INDEXES ),
+	DEFINE_FIELD( CBasePlayer, hookedModelIndexesCount, FIELD_INTEGER ),
+
 	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, constantSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
@@ -148,6 +151,13 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, explosiveKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, crowbarKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, projectileKills, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, secondsInSlowmotion, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, nextAttackSlowmotionOffset, FIELD_FLOAT ),
 	
@@ -3176,6 +3186,11 @@ void CBasePlayer::Spawn( void )
 
 	m_flgeigerDelay = gpGlobals->time + 2.0;	// wait a few seconds until user-defined message registrations
 												// are recieved by all clients
+
+	for ( int i = 0 ; i < MAX_HOOKED_MODEL_INDEXES ; i++ ) {
+		hookedModelIndexes[i] = 0;
+	}
+	hookedModelIndexesCount = 0;
 	
 	m_flTimeStepSound	= 0;
 	m_iStepLeft = 0;
@@ -3264,8 +3279,39 @@ void CBasePlayer::Spawn( void )
 
 	usedCheat = false;
 
+	kills = 0;
+	headshotKills = 0;
+	explosiveKills = 0;
+	crowbarKills = 0;
+	projectileKills = 0;
+	secondsInSlowmotion = 0.0f;
+
 	g_pGameRules->PlayerSpawn( this );
 }
+
+void CBasePlayer::RememberHookedModelIndex( string_t string )
+{
+	if ( hookedModelIndexesCount + 1 == MAX_HOOKED_MODEL_INDEXES ) {
+		hookedModelIndexesCount = 0;
+	}
+
+	hookedModelIndexes[hookedModelIndexesCount] = string;
+	ALERT( at_notice, "REMEMBERED: %d %s\n", hookedModelIndexes[hookedModelIndexesCount], STRING( hookedModelIndexes[hookedModelIndexesCount] ) );	
+	hookedModelIndexesCount++;
+}
+
+bool CBasePlayer::ModelIndexHasBeenHooked( const char *modelIndexKey )
+{
+	for ( int i = 0 ; i < hookedModelIndexesCount ; i++ ) {
+		const char *hookedModelIndex = STRING( hookedModelIndexes[i] );
+		if ( strcmp( hookedModelIndex, modelIndexKey ) == 0 ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 void CBasePlayer :: Precache( void )
 {
@@ -3398,7 +3444,7 @@ int CBasePlayer::Restore( CRestore &restore )
 	CVAR_SET_FLOAT( "cam_idealpitch", 0.0f );
 	CVAR_SET_FLOAT( "cam_idealdist", 70.0f );
 	CVAR_SET_FLOAT( "cam_command", 2.0f );
-
+	
 	return status;
 }
 

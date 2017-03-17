@@ -90,6 +90,8 @@
 #define TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME 1
 #define TIMEATTACK_EXPLOSION_BONUS_TIME 10
 
+#define MAX_HOOKED_MODEL_INDEXES 1024
+
 typedef enum
 {
 	PLAYER_IDLE,
@@ -360,6 +362,11 @@ public:
 	float m_flAmmoStartCharge;
 	float m_flPlayAftershock;
 	float m_flNextAmmoBurn;// while charging, when to absorb another unit of player's ammo?
+
+	int hookedModelIndexes[MAX_HOOKED_MODEL_INDEXES];
+	int hookedModelIndexesCount;
+	void RememberHookedModelIndex( string_t string );
+	bool ModelIndexHasBeenHooked( const char *modelIndexKey );
 	
 	//Player ID
 	void InitStatusBar( void );
@@ -387,6 +394,14 @@ public:
 
 	int bmmEnabled;
 	bool noSaving;
+
+	// Statistics
+	int kills;
+	int headshotKills;
+	int explosiveKills;
+	int crowbarKills;
+	int projectileKills;
+	float secondsInSlowmotion;
 
 	void GiveAll( bool nonCheat = false ); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );
