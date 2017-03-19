@@ -5,6 +5,8 @@
 #include <vector>
 #include <set>
 
+#define CHANGE_LEVEL_MODEL_INDEX -1
+
 static char *allowedItems[] = {
 	"all",
 	"item_suit",
@@ -116,15 +118,18 @@ class ModelIndexWithSound : public ModelIndex {
 
 public:
 	std::string soundPath;
+	float delay;
 
 	ModelIndexWithSound() : ModelIndex() {
 		this->soundPath = "";
+		this->delay = 0.0f;
 	}
 
-	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &soundPath, bool constant = false ) 
+	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &soundPath, float delay = 0.0f, bool constant = false ) 
 		: ModelIndex( mapName, modelIndex, constant ) {
 		
 		this->soundPath = soundPath;
+		this->delay = delay;
 		this->key = GetKey();
 	}
 

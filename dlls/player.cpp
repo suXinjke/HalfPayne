@@ -132,6 +132,10 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_ARRAY( CBasePlayer, hookedModelIndexes, FIELD_STRING, MAX_HOOKED_MODEL_INDEXES ),
 	DEFINE_FIELD( CBasePlayer, hookedModelIndexesCount, FIELD_INTEGER ),
 
+	DEFINE_ARRAY( CBasePlayer, soundQueueSoundNames, FIELD_STRING, MAX_SOUND_QUEUE ),
+	DEFINE_ARRAY( CBasePlayer, soundQueueSoundDelays, FIELD_FLOAT, MAX_SOUND_QUEUE ),
+	DEFINE_FIELD( CBasePlayer, soundQueueCounter, FIELD_INTEGER ),
+
 	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, constantSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
@@ -2867,6 +2871,37 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 	//ALERT ( at_console, "%d/%d\n", iVolume, m_iTargetVolume );
 }
 
+void CBasePlayer::CheckSoundQueue()
+{
+	for ( int i = 0 ; i < MAX_SOUND_QUEUE ; i++ ) {
+		if ( soundQueueSoundNames[i] != 0 && gpGlobals->time >= soundQueueSoundDelays[i] ) {
+			EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC );
+			soundQueueSoundNames[i] = 0;
+			soundQueueSoundDelays[i] = 0;
+		}
+	}
+}
+
+void CBasePlayer::AddToSoundQueue( string_t string, float delay )
+{
+	if ( soundQueueCounter == MAX_SOUND_QUEUE ) {
+		soundQueueCounter = 0;
+	}
+
+	soundQueueSoundNames[soundQueueCounter] = string;
+	soundQueueSoundDelays[soundQueueCounter] = gpGlobals->time + delay;
+
+	soundQueueCounter++;
+}
+
+void CBasePlayer::ClearSoundQueue()
+{
+	for ( int i = 0 ; i < MAX_SOUND_QUEUE; i++ ) {
+		soundQueueSoundNames[i] = 0;
+		soundQueueSoundDelays[i] = 0.0f;
+	}
+	soundQueueCounter = 0;
+}
 
 void CBasePlayer::PostThink()
 {
@@ -2892,6 +2927,8 @@ void CBasePlayer::PostThink()
 
 // do weapon stuff
 	ItemPostFrame( );
+
+	CheckSoundQueue();
 
 // check to see if player landed hard enough to make a sound
 // falling farther than half of the maximum safe distance, but not as far a max safe distance will
@@ -3191,6 +3228,8 @@ void CBasePlayer::Spawn( void )
 		hookedModelIndexes[i] = 0;
 	}
 	hookedModelIndexesCount = 0;
+
+	ClearSoundQueue();
 	
 	m_flTimeStepSound	= 0;
 	m_iStepLeft = 0;
@@ -3296,7 +3335,6 @@ void CBasePlayer::RememberHookedModelIndex( string_t string )
 	}
 
 	hookedModelIndexes[hookedModelIndexesCount] = string;
-	ALERT( at_notice, "REMEMBERED: %d %s\n", hookedModelIndexes[hookedModelIndexesCount], STRING( hookedModelIndexes[hookedModelIndexesCount] ) );	
 	hookedModelIndexesCount++;
 }
 
@@ -3444,6 +3482,11 @@ int CBasePlayer::Restore( CRestore &restore )
 	CVAR_SET_FLOAT( "cam_idealpitch", 0.0f );
 	CVAR_SET_FLOAT( "cam_idealdist", 70.0f );
 	CVAR_SET_FLOAT( "cam_command", 2.0f );
+
+	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		cgm->HookModelIndex( this->edict(), STRING( gpGlobals->mapname ), -1 );
+	}
 	
 	return status;
 }

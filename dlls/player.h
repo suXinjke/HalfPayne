@@ -91,6 +91,7 @@
 #define TIMEATTACK_EXPLOSION_BONUS_TIME 10
 
 #define MAX_HOOKED_MODEL_INDEXES 1024
+#define MAX_SOUND_QUEUE 64
 
 typedef enum
 {
@@ -367,6 +368,13 @@ public:
 	int hookedModelIndexesCount;
 	void RememberHookedModelIndex( string_t string );
 	bool ModelIndexHasBeenHooked( const char *modelIndexKey );
+
+	int soundQueueSoundNames[MAX_SOUND_QUEUE];
+	float soundQueueSoundDelays[MAX_SOUND_QUEUE];
+	int soundQueueCounter;
+	void CheckSoundQueue();
+	void AddToSoundQueue( string_t string, float delay = 0.0f );
+	void ClearSoundQueue();
 	
 	//Player ID
 	void InitStatusBar( void );

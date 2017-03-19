@@ -457,7 +457,7 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 
 // TODO: This is dumb copy of parser above, would simplify
 const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( std::string line, int lineCount ) {
-	std::vector<std::string> modelIndexStrings = Split( line, ' ' );
+	std::deque<std::string> modelIndexStrings = SplitDeque( line, ' ' );
 
 	if ( modelIndexStrings.size() < 3 ) {
 		char errorCString[1024];
@@ -467,26 +467,52 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 	}
 
 	std::string mapName = modelIndexStrings.at( 0 );
+	modelIndexStrings.pop_front();
+
 	int modelIndex;
 	try {
-		modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
+		modelIndex = std::stoi( modelIndexStrings.at( 0 ) );
 	} catch ( std::invalid_argument ) {
 		char errorCString[1024];
 		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: model index incorrectly specified.\n", configName.c_str(), lineCount );
 		OnError( errorCString );
 		return ModelIndexWithSound();
 	}
-	std::string soundPath = modelIndexStrings.at( 2 );
+	modelIndexStrings.pop_front();
+
+
+	std::string soundPath = modelIndexStrings.at( 0 );
+	modelIndexStrings.pop_front();
 
 	bool constant = false;
-	if ( modelIndexStrings.size() >= 4 ) {
-		std::string constantString = modelIndexStrings.at( 3 );
+	float delay = 0.0f;
+	
+	while ( modelIndexStrings.size() > 0 ) {
+		std::string constantString = modelIndexStrings.at( 0 );
 		if ( constantString == "const" ) {
 			constant = true;
+		} else {
+			delay = 0.0f;
+			try {
+				delay = std::stof( modelIndexStrings.at( 0 ) );
+			} catch ( std::invalid_argument ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: delay incorrectly specified.\n", configName.c_str(), lineCount );
+				OnError( errorCString );
+				return ModelIndexWithSound();
+			}
 		}
+
+		modelIndexStrings.pop_front();
 	}
 
-	return ModelIndexWithSound( mapName, modelIndex, soundPath, constant );
+	// this forced delay is required for CHANGE_LEVEL calls, becuase they mess
+	// up with global time and player's sound queue is not able to catch it.
+	if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
+		delay = 0.101f;
+	}
+
+	return ModelIndexWithSound( mapName, modelIndex, soundPath, delay, constant );
 }
 
 bool operator < ( const ModelIndex &modelIndex1, const ModelIndex &modelIndex2 ) {

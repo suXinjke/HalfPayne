@@ -79,6 +79,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
+	HookModelIndex( pPlayer->edict(), STRING( gpGlobals->mapname ), CHANGE_LEVEL_MODEL_INDEX );
 
 	pPlayer->weaponRestricted = config.weaponRestricted;
 	pPlayer->noSaving = config.noSaving;
@@ -161,6 +162,13 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnChangeLevel() {
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
+
+	// it was previously a C style cast like everywhere else,
+	// but this particular call could return CWorld instance
+	// according to debugger - what the fuck?
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		pPlayer->ClearSoundQueue();
+	}
 }
 
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
@@ -304,13 +312,16 @@ void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapNa
 		if ( soundIndex->mapName == std::string( mapName ) &&
 			 soundIndex->modelIndex == modelIndex &&
 			 !pPlayer->ModelIndexHasBeenHooked( soundIndex->key.c_str() ) ) {
-			EMIT_SOUND( pPlayer->edict(), CHAN_AUTO, soundIndex->soundPath.c_str(), 1.0, ATTN_STATIC );
+
+			// I'm very sorry for this memory leak for now
+			string_t soundPathAllocated = ALLOC_STRING( soundIndex->soundPath.c_str() );
+
+			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay );
 			if ( !soundIndex->constant ) {
-				pPlayer->RememberHookedModelIndex( ALLOC_STRING( soundIndex->key.c_str() ) );
+				pPlayer->RememberHookedModelIndex( soundPathAllocated );
 				config.sounds.erase( soundIndex );
 			}
 
-			break;
 		}
 
 		soundIndex++;
