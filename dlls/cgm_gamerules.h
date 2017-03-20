@@ -10,7 +10,6 @@ class CCustomGameModeRules : public CHalfLifeRules {
 public:
 	CCustomGameModeRules( const char *configFolder = "cgm_cfg" );
 
-	virtual BOOL ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] );
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void OnChangeLevel();
 	virtual void RefreshSkillData();

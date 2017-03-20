@@ -44,20 +44,6 @@ CCustomGameModeRules::CCustomGameModeRules( const char *configFolder ) : config(
 	lastGlobalTime = 0.0f;
 }
 
-BOOL CCustomGameModeRules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128] )
-{
-	// Prevent loading of save file if it's not allowed
-	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
-		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
-		if ( player->noSaving ) {
-			g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
 void CCustomGameModeRules::RestartGame() {
 	char mapName[256];
 	sprintf( mapName, "%s", config.startMap.c_str() );
@@ -76,6 +62,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		SERVER_COMMAND( "restart\n" );
 		return;
 	}
+
+	pPlayer->activeGameMode = GAME_MODE_CUSTOM;
 
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );

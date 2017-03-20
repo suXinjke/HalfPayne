@@ -98,11 +98,11 @@ BOOL CHalfLifeRules :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem 
 //=========================================================
 BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
-	// Prevent loading of Black Mesa Minute saves
+
 	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
 		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
-		if ( player->bmmEnabled ) {
-			g_engfuncs.pfnServerPrint( "You're not allowed to load Black Mesa Minute savefiles.\n" );
+		if ( player->noSaving ) {
+			g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
 			return FALSE;
 		}
 	}

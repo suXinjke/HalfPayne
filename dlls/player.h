@@ -103,6 +103,12 @@ typedef enum
 	PLAYER_ATTACK1,
 } PLAYER_ANIM;
 
+enum GAME_MODE {
+	GAME_MODE_VANILLA,
+	GAME_MODE_CUSTOM,
+	GAME_MODE_BMM
+};
+
 #define MAX_ID_RANGE 2048
 #define SBAR_STRING_SIZE 128
 
@@ -400,7 +406,7 @@ public:
 	float lastDamageTime;
 	float healthChargeTime;
 
-	int bmmEnabled;
+	GAME_MODE activeGameMode;
 	bool noSaving;
 
 	// Statistics

@@ -150,7 +150,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, noSaving, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, bmmEnabled, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
@@ -3248,7 +3248,7 @@ void CBasePlayer::Spawn( void )
 
 	painkillerCount = 0;
 	
-	bmmEnabled = 0;
+	activeGameMode = GAME_MODE_VANILLA;
 	noSaving = false;
 
 	deathCameraYaw = 0.0f;

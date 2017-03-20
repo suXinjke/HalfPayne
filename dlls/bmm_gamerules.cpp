@@ -38,7 +38,7 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerSpawn( pPlayer );
 
-	pPlayer->bmmEnabled = 1;
+	pPlayer->activeGameMode = GAME_MODE_BMM;
 	pPlayer->noSaving = true;
 
 	if ( config.holdTimer ) {
