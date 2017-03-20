@@ -368,10 +368,10 @@ public:
 	// and allows for easy saving at the cost of bloating the save alittle.
 	bool ActualOwnerIsPlayer();
 	edict_t *auxOwner;
-	bool killedOrCausedByPlayer;
+	BOOL killedOrCausedByPlayer;
 
-	bool killedByExplosion;
-	bool killedByCrowbar;
+	BOOL killedByExplosion;
+	BOOL killedByCrowbar;
 };
 
 

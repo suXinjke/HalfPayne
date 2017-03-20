@@ -152,7 +152,7 @@ public:
 
 	float				slowMotionUpdateTime;
 	int					slowMotionCharge;
-	bool				infiniteSlowMotion;
+	BOOL				infiniteSlowMotion;
 
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
@@ -242,9 +242,9 @@ public:
 	char m_szTeamName[TEAM_NAME_LENGTH];
 
 	Uint32 nextTime; // required for FPS cap
-	bool noSlowmotion;
-	bool constantSlowmotion;
-	bool slowMotionEnabled;
+	BOOL noSlowmotion;
+	BOOL constantSlowmotion;
+	BOOL slowMotionEnabled;
 	float slowMotionNextHeartbeatSound;
 
 	virtual void Spawn( void );
@@ -407,7 +407,7 @@ public:
 	float healthChargeTime;
 
 	GAME_MODE activeGameMode;
-	bool noSaving;
+	BOOL noSaving;
 
 	// Statistics
 	int kills;
@@ -420,11 +420,11 @@ public:
 	void GiveAll( bool nonCheat = false ); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );
 
-	bool infiniteAmmo;
-	bool weaponRestricted;
-	bool instaGib;
+	BOOL infiniteAmmo;
+	BOOL weaponRestricted;
+	BOOL instaGib;
 
-	bool usedCheat;
+	BOOL usedCheat;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
