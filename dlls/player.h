@@ -407,6 +407,7 @@ public:
 	float healthChargeTime;
 
 	GAME_MODE activeGameMode;
+	int activeGameModeConfig;
 	BOOL noSaving;
 
 	// Statistics

@@ -23,6 +23,7 @@
 #include	"gamerules.h"
 #include	"skill.h"
 #include	"items.h"
+#include	"cgm_gamerules.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
@@ -99,11 +100,24 @@ BOOL CHalfLifeRules :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem 
 BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
 
-	if ( strlen( STRING( VARS( pEntity )->classname ) ) != 0 ) {
-		CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pEntity );
+	if ( CBasePlayer *player = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( pEntity ) ) ) {
 		if ( player->noSaving ) {
 			g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
 			return FALSE;
+		}
+
+		// Gotta initialize custom game mode if you're loading the game but didn't set it up
+		if ( player->activeGameMode == GAME_MODE_CUSTOM &&
+			( strcmp( CVAR_GET_STRING( "gamemode" ), "custom" ) != 0 ||
+			strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 ) ) {
+
+			CVAR_SET_STRING( "gamemode", "custom" );
+			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
+
+			// Blatant replacement of gamerules here causes
+			// new CCustomGameModeRules instance to parse specified config file above
+			delete g_pGameRules;
+			g_pGameRules = new CCustomGameModeRules;
 		}
 	}
 	

@@ -64,6 +64,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 
 	pPlayer->activeGameMode = GAME_MODE_CUSTOM;
+	pPlayer->activeGameModeConfig = ALLOC_STRING( config.configName.c_str() );
 
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
