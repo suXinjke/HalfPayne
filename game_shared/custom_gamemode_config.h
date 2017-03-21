@@ -119,17 +119,19 @@ class ModelIndexWithSound : public ModelIndex {
 public:
 	std::string soundPath;
 	float delay;
+	bool isMaxCommentary;
 
 	ModelIndexWithSound() : ModelIndex() {
 		this->soundPath = "";
 		this->delay = 0.0f;
 	}
 
-	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &soundPath, float delay = 0.0f, bool constant = false ) 
+	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &soundPath, bool isMaxCommentary = false, float delay = 0.0f, bool constant = false ) 
 		: ModelIndex( mapName, modelIndex, constant ) {
 		
 		this->soundPath = soundPath;
 		this->delay = delay;
+		this->isMaxCommentary = isMaxCommentary;
 		this->key = GetKey();
 	}
 
@@ -165,6 +167,7 @@ public:
 		FILE_SECTION_ENTITY_REMOVE,
 		FILE_SECTION_ENTITY_MOVE,
 		FILE_SECTION_SOUND,
+		FILE_SECTION_MAX_COMMENTARY,
 		FILE_SECTION_MODS,
 
 		// Black Mesa Minute
@@ -192,7 +195,7 @@ public:
 	static int GetAllowedEntityIndex( const char *allowedEntity );
 
 	const ModelIndex ParseModelIndexString( std::string line, int lineCount );
-	const ModelIndexWithSound ParseModelIndexWithSoundString( std::string line, int lineCount );
+	const ModelIndexWithSound ParseModelIndexWithSoundString( std::string line, int lineCount, bool isMaxCommentary );
 
 	std::string configName;
 	std::string error;

@@ -178,6 +178,8 @@ void CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = FILE_SECTION_TIMER_RESUME;
 	} else if ( sectionName == "sound" ) {
 		currentFileSection = FILE_SECTION_SOUND;
+	} else if ( sectionName == "maxcommentary" ) {
+		currentFileSection = FILE_SECTION_MAX_COMMENTARY;
 	}
 
 	return;
@@ -314,9 +316,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 		}
 
-		case FILE_SECTION_SOUND: {
+		case FILE_SECTION_SOUND:
+		case FILE_SECTION_MAX_COMMENTARY: {
 
-			ModelIndexWithSound modelIndex = ParseModelIndexWithSoundString( line, lineCount );
+			bool isMaxCommentary = currentFileSection == FILE_SECTION_MAX_COMMENTARY;
+
+			ModelIndexWithSound modelIndex = ParseModelIndexWithSoundString( line, lineCount, isMaxCommentary );
 			sounds.insert( modelIndex );
 
 			soundsToPrecache.insert( modelIndex.soundPath );
@@ -456,7 +461,7 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 }
 
 // TODO: This is dumb copy of parser above, would simplify
-const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( std::string line, int lineCount ) {
+const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( std::string line, int lineCount, bool isMaxCommentary ) {
 	std::deque<std::string> modelIndexStrings = SplitDeque( line, ' ' );
 
 	if ( modelIndexStrings.size() < 3 ) {
@@ -512,7 +517,7 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 		delay = 0.101f;
 	}
 
-	return ModelIndexWithSound( mapName, modelIndex, soundPath, delay, constant );
+	return ModelIndexWithSound( mapName, modelIndex, soundPath, isMaxCommentary, delay, constant );
 }
 
 bool operator < ( const ModelIndex &modelIndex1, const ModelIndex &modelIndex2 ) {

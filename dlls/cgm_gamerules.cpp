@@ -305,7 +305,7 @@ void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapNa
 			// I'm very sorry for this memory leak for now
 			string_t soundPathAllocated = ALLOC_STRING( soundIndex->soundPath.c_str() );
 
-			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay );
+			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary );
 			if ( !soundIndex->constant ) {
 				pPlayer->RememberHookedModelIndex( soundPathAllocated );
 				config.sounds.erase( soundIndex );

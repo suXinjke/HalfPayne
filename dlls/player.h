@@ -377,9 +377,10 @@ public:
 
 	int soundQueueSoundNames[MAX_SOUND_QUEUE];
 	float soundQueueSoundDelays[MAX_SOUND_QUEUE];
+	BOOL soundQueueIsMaxPayneCommentarySound[MAX_SOUND_QUEUE];
 	int soundQueueCounter;
 	void CheckSoundQueue();
-	void AddToSoundQueue( string_t string, float delay = 0.0f );
+	void AddToSoundQueue( string_t string, float delay, bool isMaxCommentary );
 	void ClearSoundQueue();
 	
 	//Player ID

@@ -2876,14 +2876,15 @@ void CBasePlayer::CheckSoundQueue()
 {
 	for ( int i = 0 ; i < MAX_SOUND_QUEUE ; i++ ) {
 		if ( soundQueueSoundNames[i] != 0 && gpGlobals->time >= soundQueueSoundDelays[i] ) {
-			EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC );
+			EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC, soundQueueIsMaxPayneCommentarySound[i] );
 			soundQueueSoundNames[i] = 0;
 			soundQueueSoundDelays[i] = 0;
+			soundQueueIsMaxPayneCommentarySound[i] = false;
 		}
 	}
 }
 
-void CBasePlayer::AddToSoundQueue( string_t string, float delay )
+void CBasePlayer::AddToSoundQueue( string_t string, float delay, bool isMaxCommentary )
 {
 	if ( soundQueueCounter == MAX_SOUND_QUEUE ) {
 		soundQueueCounter = 0;
@@ -2891,6 +2892,7 @@ void CBasePlayer::AddToSoundQueue( string_t string, float delay )
 
 	soundQueueSoundNames[soundQueueCounter] = string;
 	soundQueueSoundDelays[soundQueueCounter] = gpGlobals->time + delay;
+	soundQueueIsMaxPayneCommentarySound[soundQueueCounter] = isMaxCommentary;
 
 	soundQueueCounter++;
 }
