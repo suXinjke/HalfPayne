@@ -7,12 +7,13 @@
 
 LINK_ENTITY_TO_CLASS( bullet, CBullet );
 
-CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, edict_t *owner )
+CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, bool trailActive, edict_t *owner )
 {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;
 	bullet->bulletType = bulletType;
 	bullet->pev->owner = owner;
+	bullet->activateTrail = trailActive;
 
 	switch ( bulletType ) {
 		case BULLET_PLAYER_BUCKSHOT:
@@ -43,21 +44,6 @@ void CBullet::Spawn( )
 	SetTouch( &CBullet::BulletTouch );
 	SetThink( &CBullet::BubbleThink );
 	pev->nextthink = gpGlobals->time + 0.01;
-
-	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
-		WRITE_BYTE( TE_BEAMFOLLOW );
-		WRITE_SHORT( entindex() );	// entity
-		WRITE_SHORT( m_iTrail );	// model
-		WRITE_BYTE( 2 ); // life
-		WRITE_BYTE( 1 ); // width
-
-		WRITE_BYTE( 255 ); // r, g, b
-		WRITE_BYTE( 255 ); // r, g, b
-		WRITE_BYTE( 255 ); // r, g, b
-
-		WRITE_BYTE( 64 );	// brightness
-
-	MESSAGE_END();
 }
 
 
@@ -156,6 +142,25 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 void CBullet::BubbleThink( void )
 {
 	pev->nextthink = gpGlobals->time + 0.01;
+
+	if ( activateTrail ) {
+		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+			WRITE_BYTE( TE_BEAMFOLLOW );
+			WRITE_SHORT( entindex() );	// entity
+			WRITE_SHORT( m_iTrail );	// model
+			WRITE_BYTE( 2 ); // life
+			WRITE_BYTE( 1 ); // width
+
+			WRITE_BYTE( 255 ); // r, g, b
+			WRITE_BYTE( 255 ); // r, g, b
+			WRITE_BYTE( 255 ); // r, g, b
+
+			WRITE_BYTE( 64 );	// brightness
+
+		MESSAGE_END();
+
+		activateTrail = false;
+	}
 
 	if (pev->waterlevel == 0)
 		return;
