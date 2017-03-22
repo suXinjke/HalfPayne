@@ -109,6 +109,13 @@ enum GAME_MODE {
 	GAME_MODE_BMM
 };
 
+enum BULLET_PHYSICS_MODE {
+	BULLET_PHYSICS_DISABLED,
+	BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION,
+	BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION,
+	BULLET_PHYSICS_CONSTANT
+};
+
 #define MAX_ID_RANGE 2048
 #define SBAR_STRING_SIZE 128
 
@@ -410,6 +417,9 @@ public:
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;
+
+	BULLET_PHYSICS_MODE bulletPhysicsMode;
+	BOOL shouldProducePhysicalBullets;
 
 	// Statistics
 	int kills;

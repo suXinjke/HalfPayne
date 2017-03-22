@@ -140,6 +140,14 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->noSlowmotion = true;
 	}
 
+	if ( config.bulletPhysicsConstant ) {
+		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_CONSTANT;
+	} else if ( config.bulletPhysicsEnemiesAndPlayerOnSlowmotion ) {
+		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION;
+	} else if ( config.bulletPhysicsDisabled ) {
+		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_DISABLED;
+	}
+
 	// Do not let player cheat by not starting at the [startmap]
 	const char *startMap = config.startMap.c_str();
 	const char *actualMap = STRING( gpGlobals->mapname );

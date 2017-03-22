@@ -153,6 +153,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, activeGameModeConfig, FIELD_STRING ),
 
+	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
+
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
@@ -2933,6 +2935,9 @@ void CBasePlayer::PostThink()
 
 	CheckSoundQueue();
 
+	shouldProducePhysicalBullets = ( bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ) ||
+								   ( slowMotionEnabled && bulletPhysicsMode == BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION );
+
 // check to see if player landed hard enough to make a sound
 // falling farther than half of the maximum safe distance, but not as far a max safe distance will
 // play a bootscrape sound, and no damage will be inflicted. Fallling a distance shorter than half
@@ -3254,6 +3259,9 @@ void CBasePlayer::Spawn( void )
 	activeGameMode = GAME_MODE_VANILLA;
 	activeGameModeConfig = 0;
 	noSaving = false;
+
+	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
+	shouldProducePhysicalBullets = false;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );

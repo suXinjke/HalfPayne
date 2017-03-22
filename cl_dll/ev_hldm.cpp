@@ -486,6 +486,7 @@ void EV_FireGlock1( event_args_t *args )
 	VectorCopy( args->velocity, velocity );
 
 	empty = args->bparam1;
+	int shouldProducePhysicalBullets = args->bparam2;
 	AngleVectors( angles, forward, right, up );
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shell.mdl");// brass shell
@@ -504,7 +505,7 @@ void EV_FireGlock1( event_args_t *args )
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/pl_gun3.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
 
-	if ( isSlowmotionEnabled() ) {
+	if ( shouldProducePhysicalBullets ) {
 		return;
 	}
 
@@ -586,6 +587,7 @@ void EV_FireGlockTwin( event_args_t *args ) {
 
 	int empty = args->iparam1;
 	int empty2 = args->iparam2;
+	int shouldProducePhysicalBullets = args->bparam1;
 	int shootingRight = args->bparam2;
 
 	AngleVectors( angles, forward, right, up );
@@ -632,7 +634,7 @@ void EV_FireGlockTwin( event_args_t *args ) {
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/pl_gun3.wav", gEngfuncs.pfnRandomFloat( 0.92, 1.0 ), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
 
-	if ( isSlowmotionEnabled() ) {
+	if ( shouldProducePhysicalBullets ) {
 		return;
 	}
 
@@ -664,6 +666,8 @@ void EV_FireShotGunDouble( event_args_t *args )
 	vec3_t vecSpread;
 	vec3_t up, right, forward;
 	float flSpread = 0.01;
+
+	int shouldProducePhysicalBullets = args->bparam1;
 
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
@@ -698,7 +702,7 @@ void EV_FireShotGunDouble( event_args_t *args )
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/dbarrel1.wav", gEngfuncs.pfnRandomFloat(0.98, 1.0), ATTN_NORM, 0, 85 + gEngfuncs.pfnRandomLong( 0, 0x1f ) );
 
-	if ( isSlowmotionEnabled() ) {
+	if ( shouldProducePhysicalBullets ) {
 		return;
 	}
 
@@ -730,6 +734,8 @@ void EV_FireShotGunSingle( event_args_t *args )
 	vec3_t up, right, forward;
 	float flSpread = 0.01;
 
+	int shouldProducePhysicalBullets = args->bparam1;
+
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
@@ -759,7 +765,7 @@ void EV_FireShotGunSingle( event_args_t *args )
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/sbarrel1.wav", gEngfuncs.pfnRandomFloat(0.95, 1.0), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong( 0, 0x1f ) );
 
-	if ( isSlowmotionEnabled() ) {
+	if ( shouldProducePhysicalBullets ) {
 		return;
 	}
 
@@ -799,6 +805,8 @@ void EV_FireMP5( event_args_t *args )
 	// interpret iparam1 back as float
 	float stress = max( 0.4f, ( ( *( float * ) &args->iparam1 ) ) );
 
+	int shouldProducePhysicalBullets = args->bparam1;
+
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
@@ -832,7 +840,7 @@ void EV_FireMP5( event_args_t *args )
 		break;
 	}
 
-	if ( isSlowmotionEnabled() ) {
+	if ( shouldProducePhysicalBullets ) {
 		return;
 	}
 
@@ -898,6 +906,7 @@ void EV_FirePython( event_args_t *args )
 	float flSpread = 0.01;
 
 	int empty = args->bparam1;
+	int shouldProducePhysicalBullets = args->bparam2;
 
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
@@ -932,7 +941,7 @@ void EV_FirePython( event_args_t *args )
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
-	if ( isSlowmotionEnabled() ) {
+	if ( shouldProducePhysicalBullets ) {
 		return;
 	}
 

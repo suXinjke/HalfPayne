@@ -212,13 +212,15 @@ void CPython::PrimaryAttack()
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( );
 	Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+#ifndef CLIENT_DLL
+	if ( m_pPlayer->shouldProducePhysicalBullets ) {
 		float rightOffset = 3;
 
 		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 	}
+#endif
 
 	Vector vecDir;
 	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_357, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
@@ -233,7 +235,7 @@ void CPython::PrimaryAttack()
 	int empty = m_iClip == 0;
 
 	m_pPlayer->pev->punchangle[0] -= 5.0f;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, m_pPlayer->shouldProducePhysicalBullets );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

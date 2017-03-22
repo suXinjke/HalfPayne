@@ -180,7 +180,7 @@ public:
 		GAME_DIFFICULTY_MEDIUM,
 		GAME_DIFFICULTY_HARD
 	};
-
+	
 	CustomGameModeConfig( const char *folderName );
 
 	bool ReadFile( const char *fileName );
@@ -237,6 +237,11 @@ public:
 	bool infiniteAmmo;
 	bool weaponRestricted;
 	bool instaGib;
+
+	// dumb, but I'd like to avoid including player.h where BULLET_PHYSICS_MODE enum is defined
+	bool bulletPhysicsDisabled;
+	bool bulletPhysicsEnemiesAndPlayerOnSlowmotion;
+	bool bulletPhysicsConstant;
 
 protected:
 	std::string folderPath;

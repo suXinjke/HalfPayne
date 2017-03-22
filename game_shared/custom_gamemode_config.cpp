@@ -151,6 +151,10 @@ void CustomGameModeConfig::Reset() {
 	this->infiniteAmmo = false;
 	this->weaponRestricted = false;
 	this->instaGib = false;
+
+	this->bulletPhysicsDisabled = false;
+	this->bulletPhysicsEnemiesAndPlayerOnSlowmotion = false;
+	this->bulletPhysicsConstant = false;
 }
 
 void CustomGameModeConfig::OnNewSection( std::string sectionName ) {
@@ -405,6 +409,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				holdTimer = true;
 			} else if ( line == "nosaving" ) {
 				noSaving = true;
+			} else if ( line == "bulletphysicsdisabled" ) {
+				bulletPhysicsDisabled = true;
+			} else if ( line == "bulletphysicsenemiesandplayeronslowmotion" ) {
+				bulletPhysicsEnemiesAndPlayerOnSlowmotion = true;
+			} else if ( line == "bulletphysicsconstant" ) {
+				bulletPhysicsConstant = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName.c_str(), lineCount, line.c_str() );

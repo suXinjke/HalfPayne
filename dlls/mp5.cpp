@@ -176,7 +176,8 @@ void CMP5::PrimaryAttack()
 	// Accuracy lowers with more bullets you shot (bulletsShot up to 3)
 	Vector vecBullet = VECTOR_CONE_2DEGREES * stress;
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+#ifndef CLIENT_DLL
+	if ( m_pPlayer->shouldProducePhysicalBullets ) {
 
 		float rightOffset = 2;
 
@@ -184,6 +185,7 @@ void CMP5::PrimaryAttack()
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 	}
+#endif
 
 #ifdef CLIENT_DLL
 	if ( !bIsMultiplayer() )
@@ -210,7 +212,7 @@ void CMP5::PrimaryAttack()
 	// There's not enough room for float type, so it's interpreted as int
 	int stressPacked = *( int * ) &stress;
 
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usMP5, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, 0, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usMP5, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

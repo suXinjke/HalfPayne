@@ -845,6 +845,7 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	player.m_flAmmoStartCharge = from->client.fuser3;
 
 	player.instaGib = from->client.vuser3[0];
+	player.shouldProducePhysicalBullets = from->client.vuser3[1];
 
 	//Stores all our ammo info, so the client side weapons can use them.
 	player.ammo_9mm			= (int)from->client.vuser1[0];
@@ -937,6 +938,7 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	to->client.ammo_rockets				= player.ammo_rockets;
 
 	to->client.vuser3[0]				= player.instaGib;
+	to->client.vuser3[1]				= player.shouldProducePhysicalBullets;
 
 	if ( player.m_pActiveItem->m_iId == WEAPON_RPG )
 	{

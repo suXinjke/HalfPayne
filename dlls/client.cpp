@@ -1723,6 +1723,7 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 	cd->weaponanim		= pev->weaponanim;
 
 	cd->pushmsec		= pev->pushmsec;
+	cd->vuser3.y		= pl->shouldProducePhysicalBullets;
 
 	//Spectator mode
 	if ( pevOrg != NULL )
@@ -1736,7 +1737,6 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 		cd->iuser1			= pev->iuser1;
 		cd->iuser2			= pev->iuser2;
 	}
-
 	
 
 #if defined( CLIENT_WEAPONS )

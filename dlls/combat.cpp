@@ -1458,7 +1458,8 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 						y * vecSpread.y * vecUp;
 
 
-		if ( player->slowMotionEnabled ) {
+		if ( player->bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
+			( player->slowMotionEnabled && player->bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) {
 
 			CBullet::BulletCreate( vecSrc, vecDir * 2000, iBulletType, edict() );
 			bool lastShot = iShot == cShots;
@@ -1604,7 +1605,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 						x * vecSpread.x * vecRight +
 						y * vecSpread.y * vecUp;
 
-		if ( player->slowMotionEnabled ) {
+		if ( player->shouldProducePhysicalBullets ) {
 			CBullet::BulletCreate( vecSrc, vecDir * 2000, iBulletType, edict() );
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {

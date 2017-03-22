@@ -174,7 +174,8 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecDir;
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+#ifndef CLIENT_DLL
+	if ( m_pPlayer->shouldProducePhysicalBullets ) {
 
 		float rightOffset = 2;
 
@@ -182,6 +183,7 @@ void CShotgun::PrimaryAttack()
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 	}
+#endif
 
 #ifdef CLIENT_DLL
 	if ( bIsMultiplayer() )
@@ -198,7 +200,7 @@ void CShotgun::PrimaryAttack()
 	}
 
 	m_pPlayer->pev->punchangle[0] -= 2.5f;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
 
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
@@ -270,7 +272,8 @@ void CShotgun::SecondaryAttack( void )
 
 	Vector vecDir;
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+#ifndef CLIENT_DLL
+	if ( m_pPlayer->shouldProducePhysicalBullets ) {
 		
 		float rightOffset = 2;
 
@@ -278,6 +281,7 @@ void CShotgun::SecondaryAttack( void )
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 	}
+#endif
 
 	
 #ifdef CLIENT_DLL
@@ -296,7 +300,7 @@ void CShotgun::SecondaryAttack( void )
 	}
 		
 	m_pPlayer->pev->punchangle[0] -= 5.0f;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
