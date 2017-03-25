@@ -150,7 +150,7 @@ void CGauss::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = GAUSS_PRIMARY_FIRE_VOLUME;
 	m_fPrimaryFire = TRUE;
 
-	if ( !m_pPlayer->infiniteAmmo ) {
+	if ( !m_pPlayer->infiniteAmmo && !m_pPlayer->instaGib ) {
 		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 2;
 	}
 
@@ -196,7 +196,7 @@ void CGauss::SecondaryAttack()
 
 		m_fPrimaryFire = FALSE;
 
-		if ( !m_pPlayer->infiniteAmmo ) {
+		if ( !m_pPlayer->infiniteAmmo && !m_pPlayer->instaGib ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;// take one ammo just to start the spin
 		}
 		m_pPlayer->m_flNextAmmoBurn = UTIL_WeaponTimeBase();

@@ -73,19 +73,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->weaponRestricted = config.weaponRestricted;
 	pPlayer->noSaving = config.noSaving;
 	pPlayer->infiniteAmmo = config.infiniteAmmo;
-
-	if ( config.instaGib ) {
-		config.weaponRestricted = true;
-		config.infiniteAmmo = true;
-
-		pPlayer->weaponRestricted = true;
-		pPlayer->infiniteAmmo = true;
-		pPlayer->instaGib = true;
-
-		pPlayer->SetEvilImpulse101( true );
-		pPlayer->GiveNamedItem( "weapon_gauss", true );
-		pPlayer->SetEvilImpulse101( false );
-	}
+	pPlayer->instaGib = config.instaGib;
 
 	pPlayer->SetEvilImpulse101( true );
 	for ( size_t i = 0; i < config.loadout.size( ); i++ ) {
