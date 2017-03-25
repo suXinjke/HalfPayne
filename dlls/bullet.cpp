@@ -70,9 +70,16 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 	SetTouch( NULL );
 	SetThink( NULL );
 
+	Vector vecSrc = pev->origin;
+	Vector vecEnd = pev->origin + pev->velocity.Normalize() * 3;
+	TraceResult tr;
+	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, ENT(pev), &tr );
+	TEXTURETYPE_PlaySound( &tr, vecSrc, vecEnd, bulletType );
+	DecalGunshot( &tr, bulletType );
+
 	if ( pOther->pev->takedamage )
 	{
-		TraceResult tr = UTIL_GetGlobalTrace( );
+		tr = UTIL_GetGlobalTrace( );
 		entvars_t *pevOwner = VARS( pev->owner );
 		ClearMultiDamage();
 
@@ -129,13 +136,6 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 	{
 		SetThink( &CBaseEntity::SUB_Remove );
 		pev->nextthink = gpGlobals->time + 0.01;
-
-		Vector vecSrc = pev->origin;
-		Vector vecEnd = pev->origin + pev->velocity.Normalize() * 3;
-		TraceResult tr;
-		UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, ENT(pev), &tr );
-		TEXTURETYPE_PlaySound( &tr, vecSrc, vecEnd, bulletType );
-		DecalGunshot( &tr, bulletType );
 	}
 }
 
