@@ -511,7 +511,9 @@ void EV_FireGlock1( event_args_t *args )
 
 	EV_GetGunPosition( args, vecSrc, origin );
 
-	float rightOffset = 20;
+	vecSrc = vecSrc + forward * 5;
+
+	float rightOffset = 8;
 	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
 	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
@@ -640,7 +642,9 @@ void EV_FireGlockTwin( event_args_t *args ) {
 
 	EV_GetGunPosition( args, vecSrc, origin );
 
-	float rightOffset = shootingRight ? 20 : -20;
+	vecSrc = vecSrc + forward * 5;
+
+	float rightOffset = shootingRight ? 8 : -8;
 	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
 	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
