@@ -320,20 +320,16 @@ void CBarnacle :: BarnacleThink ( void )
 //=========================================================
 void CBarnacle :: Killed( entvars_t *pevAttacker, int iGib )
 {
-	if ( pev->deadflag != DEAD_DEAD ) {
-		KilledTryToNotifyPlayer( pevAttacker );
-	}
-
 	if ( ShouldGibMonster( iGib ) ) {
 		CGib::SpawnRandomGibs( pev, RANDOM_LONG( 3, 7 ), 1 );
 		GibMonster();
-
-		return;
 	}
 
 	if ( pev->deadflag == DEAD_DEAD ) {
 		return;
 	}
+
+	KilledTryToNotifyPlayer( pevAttacker );
 
 	CBaseMonster *pVictim;
 
@@ -349,6 +345,13 @@ void CBarnacle :: Killed( entvars_t *pevAttacker, int iGib )
 		{
 			pVictim->BarnacleVictimReleased();
 		}
+	}
+
+	if ( ShouldGibMonster( iGib ) ) {
+		CGib::SpawnRandomGibs( pev, RANDOM_LONG( 3, 7 ), 1 );
+		GibMonster();
+
+		return;
 	}
 
 //	CGib::SpawnRandomGibs( pev, 4, 1 );

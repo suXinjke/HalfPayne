@@ -767,7 +767,14 @@ void CGib :: BounceGibTouch ( CBaseEntity *pOther )
 {
 	Vector	vecSpot;
 	TraceResult	tr;
-	
+
+	// sometimes gibs stuck in each other and fall down in a weird way
+	// unstuck them
+	if ( strcmp( STRING( pOther->pev->classname ), "gib" ) == 0 ) {
+		pev->velocity.x += RANDOM_LONG( -50, 50 );
+		pev->velocity.y += RANDOM_LONG( -50, 50 );
+		pev->velocity.z += RANDOM_LONG( 0, 10 );
+	}
 	//if ( RANDOM_LONG(0,1) )
 	//	return;// don't bleed everytime
 
