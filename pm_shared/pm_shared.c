@@ -1479,6 +1479,13 @@ void PM_AirMove (void)
 	// Add in any base velocity to the current velocity.
 	VectorAdd (pmove->velocity, pmove->basevelocity, pmove->velocity );
 
+	// Dumb attempt to prevent diving forever on a slidey surface
+	if ( pmove->flags & FL_DIVING ) {
+		if ( Length( pmove->velocity ) < 10.0f ) {
+			pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
+			landedAfterDiving = 1;
+		}
+	}
 
 	PM_FlyMove ();
 }
