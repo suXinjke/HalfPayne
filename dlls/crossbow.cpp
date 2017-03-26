@@ -42,18 +42,21 @@ class CCrossbowBolt : public CBaseEntity
 	void EXPORT ExplodeThink( void );
 
 	int m_iTrail;
+	int m_iTrail2;
+	int activateTrail;
 
 public:
-	static CCrossbowBolt *BoltCreate( void );
+	static CCrossbowBolt *BoltCreate( bool trailActive );
 };
 LINK_ENTITY_TO_CLASS( crossbow_bolt, CCrossbowBolt );
 
-CCrossbowBolt *CCrossbowBolt::BoltCreate( void )
+CCrossbowBolt *CCrossbowBolt::BoltCreate( bool trailActive )
 {
 	// Create a new entity with CCrossbowBolt private data
 	CCrossbowBolt *pBolt = GetClassPtr( (CCrossbowBolt *)NULL );
 	pBolt->pev->classname = MAKE_STRING("bolt");
 	pBolt->Spawn();
+	pBolt->activateTrail = trailActive;
 
 	return pBolt;
 }
@@ -73,7 +76,7 @@ void CCrossbowBolt::Spawn( )
 
 	SetTouch( &CCrossbowBolt::BoltTouch );
 	SetThink( &CCrossbowBolt::BubbleThink );
-	pev->nextthink = gpGlobals->time + 0.2;
+	pev->nextthink = gpGlobals->time + 0.01;
 }
 
 
@@ -86,6 +89,7 @@ void CCrossbowBolt::Precache( )
 	PRECACHE_SOUND("weapons/xbow_hit1.wav");
 	PRECACHE_SOUND("fvox/beep.wav");
 	m_iTrail = PRECACHE_MODEL("sprites/streak.spr");
+	m_iTrail2 = PRECACHE_MODEL("sprites/streak2.spr");
 }
 
 
@@ -171,7 +175,26 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 
 void CCrossbowBolt::BubbleThink( void )
 {
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.01;
+
+	if ( activateTrail ) {
+		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+			WRITE_BYTE( TE_BEAMFOLLOW );
+			WRITE_SHORT( entindex() );	// entity
+			WRITE_SHORT( m_iTrail2 );	// model
+			WRITE_BYTE( 2 ); // life
+			WRITE_BYTE( 1 ); // width
+
+			WRITE_BYTE( 255 ); // r, g, b
+			WRITE_BYTE( 255 ); // r, g, b
+			WRITE_BYTE( 255 ); // r, g, b
+
+			WRITE_BYTE( 64 );	// brightness
+
+		MESSAGE_END();
+
+		activateTrail = false;
+	}
 
 	if (pev->waterlevel == 0)
 		return;
@@ -405,7 +428,7 @@ void CCrossbow::FireBolt()
 	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 
 #ifndef CLIENT_DLL
-	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate();
+	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( m_pPlayer->slowMotionEnabled );
 	pBolt->pev->origin = vecSrc;
 	pBolt->pev->angles = anglesAim;
 	pBolt->pev->owner = m_pPlayer->edict();
