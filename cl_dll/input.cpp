@@ -69,6 +69,8 @@ cvar_t	*cl_vsmoothing;
 cvar_t	*gamemode;
 cvar_t  *gamemode_config;
 
+cvar_t  *max_commentary;
+
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
 cvar_t  *hud_autoswitch;
@@ -1071,6 +1073,8 @@ void InitInput (void)
 
 	gamemode			= gEngfuncs.pfnRegisterVariable( "gamemode", "vanilla", 0 );
 	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );
+
+	max_commentary		= gEngfuncs.pfnRegisterVariable( "max_commentary", "1", FCVAR_ARCHIVE );
 
 	gEngfuncs.pfnAddCommand( "cgm", RunCustomGameMode );
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );

@@ -2854,7 +2854,12 @@ void CBasePlayer::CheckSoundQueue()
 {
 	for ( int i = 0 ; i < MAX_SOUND_QUEUE ; i++ ) {
 		if ( soundQueueSoundNames[i] != 0 && gpGlobals->time >= soundQueueSoundDelays[i] ) {
-			EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC, soundQueueIsMaxPayneCommentarySound[i] );
+
+			BOOL isMaxCommentary = soundQueueIsMaxPayneCommentarySound[i];
+
+			if ( !isMaxCommentary || ( isMaxCommentary && strcmp( CVAR_GET_STRING( "max_commentary" ), "1" ) == 0 ) ) {
+				EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC, soundQueueIsMaxPayneCommentarySound[i] );
+			}
 			soundQueueSoundNames[i] = 0;
 			soundQueueSoundDelays[i] = 0;
 			soundQueueIsMaxPayneCommentarySound[i] = false;
