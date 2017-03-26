@@ -1151,6 +1151,7 @@ public:
 	// other functions
 	void Shoot(Vector &vecSrc, Vector &vecDirToEnemy);
 	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
+	void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType );
 	void EXPORT SentryTouch( CBaseEntity *pOther );
 	void EXPORT SentryDeath( void );
 
@@ -1229,6 +1230,12 @@ int CSentry::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float f
 	}
 
 	return 1;
+}
+
+void CSentry::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) {
+	UTIL_Ricochet( ptr->vecEndPos, 1.0 );
+
+	CBaseTurret::TraceAttack( pevAttacker, flDamage, vecDir, ptr, bitsDamageType );
 }
 
 
