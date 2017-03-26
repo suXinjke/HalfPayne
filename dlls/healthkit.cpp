@@ -105,24 +105,10 @@ class CWallHealth : public CBaseToggle
 public:
 	void Spawn( );
 	void Precache( void );
-	void EXPORT Off(void);
-	void EXPORT Recharge(void);
-	void KeyValue( KeyValueData *pkvd );
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
-	virtual int	ObjectCaps( void ) { return (CBaseToggle :: ObjectCaps() | FCAP_CONTINUOUS_USE) & ~FCAP_ACROSS_TRANSITION; }
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	virtual int	ObjectCaps( void ) { return (CBaseToggle :: ObjectCaps() | FCAP_CONTINUOUS_USE); }
+
     void WaitUntilOpened( void );
-
-	static	TYPEDESCRIPTION m_SaveData[];
-
-	float m_flNextCharge; 
-	int		m_iReactivate ; // DeathMatch Delay until reactvated
-	int		m_iJuice;
-	int		m_iOn;			// 0 = off, 1 = startup, 2 = going
-	float   m_flSoundTime;
-
-	int painkillersLeft;
 
     enum WALL_HEALTH_ANIM {
         IDLE,
@@ -131,39 +117,8 @@ public:
     };
 };
 
-TYPEDESCRIPTION CWallHealth::m_SaveData[] =
-{
-	DEFINE_FIELD( CWallHealth, m_flNextCharge, FIELD_TIME),
-	DEFINE_FIELD( CWallHealth, m_iReactivate, FIELD_INTEGER),
-	DEFINE_FIELD( CWallHealth, m_iJuice, FIELD_INTEGER),
-	DEFINE_FIELD( CWallHealth, m_iOn, FIELD_INTEGER),
-	DEFINE_FIELD( CWallHealth, m_flSoundTime, FIELD_TIME),
-	DEFINE_FIELD( CWallHealth, painkillersLeft, FIELD_INTEGER ),
-};
-
-IMPLEMENT_SAVERESTORE( CWallHealth, CBaseEntity );
-
 LINK_ENTITY_TO_CLASS(func_healthcharger, CWallHealth);
 
-
-void CWallHealth::KeyValue( KeyValueData *pkvd )
-{
-	if (	FStrEq(pkvd->szKeyName, "style") ||
-				FStrEq(pkvd->szKeyName, "height") ||
-				FStrEq(pkvd->szKeyName, "value1") ||
-				FStrEq(pkvd->szKeyName, "value2") ||
-				FStrEq(pkvd->szKeyName, "value3"))
-	{
-		pkvd->fHandled = TRUE;
-	}
-	else if (FStrEq(pkvd->szKeyName, "dmdelay"))
-	{
-		m_iReactivate = atoi(pkvd->szValue);
-		pkvd->fHandled = TRUE;
-	}
-	else
-        CBaseToggle::KeyValue( pkvd );
-}
 
 void CWallHealth::Spawn()
 {
@@ -171,7 +126,6 @@ void CWallHealth::Spawn()
 
 	pev->solid		= SOLID_SLIDEBOX;
 	pev->movetype	= MOVETYPE_PUSH;
-
 	
 
 	UTIL_SetOrigin(pev, pev->origin );		// set size and link into world
@@ -228,9 +182,7 @@ void CWallHealth::Spawn()
         UTIL_SetSize( pev, Vector( -6, -5, 0 ), Vector( 6, 5, 50 ) );
     }
 
-	m_iJuice = gSkillData.healthchargerCapacity;
-
-	painkillersLeft = ceil( gSkillData.healthchargerCapacity / 10.0f ) - 1;
+	int painkillersToSpawn = ceil( gSkillData.healthchargerCapacity / 10.0f ) - 1;
 
     // Attachment points for painkillers inside the cabinet, with random position offset
     float diversity = 1.5f;
@@ -253,7 +205,7 @@ void CWallHealth::Spawn()
 	std::random_shuffle( std::begin( verticalPainkillerSpots ), std::end( verticalPainkillerSpots ) );
 
     // Put painkillers inside the cabinet
-    for ( int i = 0; i < painkillersLeft; i++ ) {
+    for ( int i = 0; i < painkillersToSpawn; i++ ) {
         int offset = horizontallyPlaced ? 0 : 4;
 
         CBaseEntity *healthKit = CBaseEntity::Create( "item_healthkit", realPos, Vector( 0, RANDOM_FLOAT( 0, 360 ), 0 ), NULL );
