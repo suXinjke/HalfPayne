@@ -20,6 +20,7 @@
 #include	"client.h"
 #include	"decals.h"
 #include	"gamerules.h"
+#include	"cgm_gamerules.h"
 #include	"game.h"
 
 void EntvarsKeyvalue( entvars_t *pev, KeyValueData *pkvd );
@@ -407,6 +408,29 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 			}
 		}
 	}
+
+	// If required, setup correct custom game mode and game mode config file after loading game world info
+	// This seems like a dumb place for this, but player has correct info and it's been loaded already,
+	// and you're allowed to Precache here
+	if ( CBasePlayer *player = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+
+		// Gotta initialize custom game mode if you're loading the game but didn't set it up
+		if ( player->activeGameMode == GAME_MODE_CUSTOM &&
+			( strcmp( CVAR_GET_STRING( "gamemode" ), "custom" ) != 0 ||
+				strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 ) ) {
+
+			CVAR_SET_STRING( "gamemode", "custom" );
+			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
+
+			// Blatant replacement of gamerules here causes
+			// new CCustomGameModeRules instance to parse specified config file above
+			delete g_pGameRules;
+			CCustomGameModeRules *newRules = new CCustomGameModeRules;
+			g_pGameRules = newRules;
+			newRules->Precache();
+		}
+	}
+
 	return 0;
 }
 

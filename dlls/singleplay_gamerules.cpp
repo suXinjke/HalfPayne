@@ -105,20 +105,6 @@ BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, c
 			g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
 			return FALSE;
 		}
-
-		// Gotta initialize custom game mode if you're loading the game but didn't set it up
-		if ( player->activeGameMode == GAME_MODE_CUSTOM &&
-			( strcmp( CVAR_GET_STRING( "gamemode" ), "custom" ) != 0 ||
-			strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 ) ) {
-
-			CVAR_SET_STRING( "gamemode", "custom" );
-			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
-
-			// Blatant replacement of gamerules here causes
-			// new CCustomGameModeRules instance to parse specified config file above
-			delete g_pGameRules;
-			g_pGameRules = new CCustomGameModeRules;
-		}
 	}
 	
 	return TRUE;
