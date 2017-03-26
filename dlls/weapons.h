@@ -1074,12 +1074,16 @@ class CBullet : public CBaseEntity
 	void EXPORT BubbleThink( void );
 	void EXPORT BulletTouch( CBaseEntity *pOther );
 
+	virtual int		Save( CSave &save );
+	virtual int		Restore( CRestore &restore );
+
 	int m_iTrail;
 	int bulletType;
 	int activateTrail;
 
 public:
 	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, bool trailActive = false, edict_t *owner = NULL );
+	static TYPEDESCRIPTION m_SaveData[];
 };
 
 

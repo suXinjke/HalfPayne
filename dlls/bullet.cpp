@@ -7,6 +7,12 @@
 
 LINK_ENTITY_TO_CLASS( bullet, CBullet );
 
+TYPEDESCRIPTION	CBullet::m_SaveData[] = 
+{
+	DEFINE_FIELD( CBullet, bulletType, FIELD_INTEGER )
+};
+IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
+
 CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, bool trailActive, edict_t *owner )
 {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
