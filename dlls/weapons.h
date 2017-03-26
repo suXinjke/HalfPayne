@@ -1082,7 +1082,7 @@ class CBullet : public CBaseEntity
 	int activateTrail;
 
 public:
-	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, bool trailActive = false, edict_t *owner = NULL );
+	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive = false, edict_t *owner = NULL );
 	static TYPEDESCRIPTION m_SaveData[];
 };
 

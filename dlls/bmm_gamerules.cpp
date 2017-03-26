@@ -95,9 +95,9 @@ void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity
 		}
 	}
 
-	bool killedByExplosion = victim->killedByExplosion;
-	bool killedByCrowbar = victim->killedByCrowbar;
-	bool destroyedGrenade = strcmp( victimName, "grenade" ) == 0;
+	BOOL killedByExplosion = victim->killedByExplosion;
+	BOOL killedByCrowbar = victim->killedByCrowbar;
+	BOOL destroyedGrenade = strcmp( victimName, "grenade" ) == 0;
 	
 	int timeToAdd = 0;
 	std::string message;

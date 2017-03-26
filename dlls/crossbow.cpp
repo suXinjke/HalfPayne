@@ -46,11 +46,11 @@ class CCrossbowBolt : public CBaseEntity
 	int activateTrail;
 
 public:
-	static CCrossbowBolt *BoltCreate( bool trailActive );
+	static CCrossbowBolt *BoltCreate( BOOL trailActive );
 };
 LINK_ENTITY_TO_CLASS( crossbow_bolt, CCrossbowBolt );
 
-CCrossbowBolt *CCrossbowBolt::BoltCreate( bool trailActive )
+CCrossbowBolt *CCrossbowBolt::BoltCreate( BOOL trailActive )
 {
 	// Create a new entity with CCrossbowBolt private data
 	CCrossbowBolt *pBolt = GetClassPtr( (CCrossbowBolt *)NULL );

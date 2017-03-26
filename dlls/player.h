@@ -301,7 +301,7 @@ public:
 	void			ToggleSlowMotion();
 	bool			ActivateSlowMotion();
 	bool			DeactivateSlowMotion();
-	void			SetSlowMotion( bool slowMotionEnabled );
+	void			SetSlowMotion( BOOL slowMotionEnabled );
 	BOOL			FlashlightIsOn( void );
 	void			FlashlightTurnOn( void );
 	void			FlashlightTurnOff( void );

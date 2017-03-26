@@ -524,106 +524,82 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 {
 	const char *victimName = STRING( victim->pev->classname );
 
-	bool killConfirmed = false;
+	bool killConfirmed = true;
 	
-	bool isHeadshot = false;
-	bool killedByExplosion = victim->killedByExplosion;
-	bool killedByCrowbar = victim->killedByCrowbar;
-
 	if ( strstr( victimName, "monster_" ) != NULL ) {
 		CBaseMonster *monsterVictim = ( CBaseMonster * ) victim;
 
-		isHeadshot = monsterVictim->m_LastHitGroup == HITGROUP_HEAD;
-
 		if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_babycrab" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BABYCRAB );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
-			killConfirmed = true;
 		}
 		else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
 			bool snarkOwnedByPlayer = victim->pev->owner != 0;
 		
 			if ( !snarkOwnedByPlayer ) {
 				TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
-				killConfirmed = true;
 			}
 		}
 		else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
 			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
-			killConfirmed = true;
 		}
 
 	} else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-		killConfirmed = true;
 	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
 		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-		killConfirmed = true;
 	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
-		killConfirmed = true;
+		// kill confirmed
+	} else {
+		killConfirmed = false;
 	}
 
-	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( killConfirmed ) {
+	if ( killConfirmed ) {
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 			cgm->OnKilledEntityByPlayer( this, victim );
 		}
 	}
@@ -3864,7 +3840,7 @@ bool CBasePlayer::DeactivateSlowMotion()
 	return true;
 }
 
-void CBasePlayer::SetSlowMotion( bool slowMotionEnabled ) {
+void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 	if ( slowMotionEnabled ) {
 		SERVER_COMMAND( "host_framerate 0.0025\n" );
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;

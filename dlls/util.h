@@ -499,10 +499,10 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 // fast as EMIT_SOUND (the pitchshift mixer is not native coded).
 
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
-						   int flags, int pitch, bool ignoreSlowmotion = false);
+						   int flags, int pitch, BOOL ignoreSlowmotion = false);
 
-void EMIT_SOUND( edict_t *entity, int channel, const char *sample, float volume, float attenuation, bool ignoreSlowmotion = false );
-inline void EMIT_SOUND(edict_t *entity, int channel, const char *sample, float volume, float attenuation, bool ignoreSlowmotion)
+void EMIT_SOUND( edict_t *entity, int channel, const char *sample, float volume, float attenuation, BOOL ignoreSlowmotion = false );
+inline void EMIT_SOUND(edict_t *entity, int channel, const char *sample, float volume, float attenuation, BOOL ignoreSlowmotion)
 {
 	EMIT_SOUND_DYN(entity, channel, sample, volume, attenuation, 0, PITCH_NORM, ignoreSlowmotion);
 }

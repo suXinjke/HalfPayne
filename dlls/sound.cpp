@@ -1410,7 +1410,7 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum)
 }
 
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
-						   int flags, int pitch, bool ignoreSlowmotion)
+						   int flags, int pitch, BOOL ignoreSlowmotion)
 {
 	// dumb, should check player's slowmotionEnabled?
 	if ( !ignoreSlowmotion ) {

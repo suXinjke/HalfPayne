@@ -13,7 +13,7 @@ TYPEDESCRIPTION	CBullet::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
 
-CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, bool trailActive, edict_t *owner )
+CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive, edict_t *owner )
 {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;

@@ -198,9 +198,9 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		}
 	}
 	
-	bool killedByExplosion = victim->killedByExplosion;
-	bool killedByCrowbar = victim->killedByCrowbar;
-	bool destroyedGrenade = strcmp( STRING( victim->pev->classname ), "grenade" ) == 0;
+	BOOL killedByExplosion = victim->killedByExplosion;
+	BOOL killedByCrowbar = victim->killedByCrowbar;
+	BOOL destroyedGrenade = strcmp( STRING( victim->pev->classname ), "grenade" ) == 0;
 
 	pPlayer->kills++;
 
