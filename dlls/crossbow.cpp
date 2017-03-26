@@ -400,6 +400,10 @@ void CCrossbow::FireBolt()
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( ) - gpGlobals->v_up * 2;
 	Vector vecDir	 = gpGlobals->v_forward;
 
+	float rightOffset = 4;
+	vecDir = UTIL_VecSkew( vecSrc, vecDir, rightOffset, ENT( pev ) );
+	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
+
 #ifndef CLIENT_DLL
 	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate();
 	pBolt->pev->origin = vecSrc;
