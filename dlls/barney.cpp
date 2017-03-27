@@ -85,6 +85,8 @@ public:
 	// UNDONE: What is this for?  It isn't used?
 	float	m_flPlayerDamage;// how much pain has the player inflicted on me?
 
+	float	helmetHealth;
+
 	CUSTOM_SCHEDULES;
 };
 
@@ -97,6 +99,7 @@ TYPEDESCRIPTION	CBarney::m_SaveData[] =
 	DEFINE_FIELD( CBarney, m_checkAttackTime, FIELD_TIME ),
 	DEFINE_FIELD( CBarney, m_lastAttackCheck, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBarney, m_flPlayerDamage, FIELD_FLOAT ),
+	DEFINE_FIELD( CBarney, helmetHealth, FIELD_FLOAT )
 };
 
 IMPLEMENT_SAVERESTORE( CBarney, CTalkMonster );
@@ -423,6 +426,8 @@ void CBarney :: Spawn()
 
 	m_afCapability		= bits_CAP_HEAR | bits_CAP_TURN_HEAD | bits_CAP_DOORS_GROUP;
 
+	helmetHealth		= 10.0f;
+
 	MonsterInit();
 	SetUse( &CBarney::FollowerUse );
 }
@@ -591,14 +596,21 @@ void CBarney::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir
 		}
 		break;
 	case 10:
+		
 		if (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_CLUB))
 		{
-			flDamage -= 20;
-			if (flDamage <= 0)
-			{
-				UTIL_Ricochet( ptr->vecEndPos, 1.0 );
-				flDamage = 0.01;
+			if ( helmetHealth > 0.0f ) {
+				if ( helmetHealth < flDamage ) {
+					float nonAbsorbedDamage = flDamage - helmetHealth;
+					helmetHealth = 0.0f;
+					flDamage = nonAbsorbedDamage;
+				} else {
+					helmetHealth -= flDamage;
+					flDamage = 0.01f;
+				}
 			}
+
+			UTIL_Ricochet( ptr->vecEndPos, 1.0 );
 		}
 		// always a head shot
 		ptr->iHitgroup = HITGROUP_HEAD;
