@@ -676,9 +676,8 @@ void CWorld :: Precache( void )
 		CVAR_SET_FLOAT( "mp_defaultteam", 0 );
 	}
 
-	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
-	if ( cgm ) {
-		cgm->OnChangeLevel();
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->OnChangeLevel();
 	}
 }
 

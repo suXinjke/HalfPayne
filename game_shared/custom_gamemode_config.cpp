@@ -62,6 +62,8 @@ CustomGameModeConfig::CustomGameModeConfig( const char *folderName )
 
 bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
+	error = "";
+
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
 
 	int lineCount = 0;

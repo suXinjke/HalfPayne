@@ -734,9 +734,8 @@ void CTriggerCDAudio :: PlayTrack( void )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
-	if ( cgm ) {
-		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
 	PlayCDTrack( (int)pev->health );
@@ -1207,9 +1206,8 @@ void CBaseTrigger :: ActivateMultiTrigger( CBaseEntity *pActivator )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
-	if ( cgm ) {
-		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 }
 
@@ -1550,12 +1548,13 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	
-	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
-	if ( cgm ) {
-		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
-	// Are we changing to the map that should end Black Mesa Minute run?
+	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
+
+	// Are we changing to the map that should end Custom Game Mode session?
 	if ( cgm && strcmp( st_szNextMap, cgm->config.endMap.c_str() ) == 0 ) {
 		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 		cgm->End( player );

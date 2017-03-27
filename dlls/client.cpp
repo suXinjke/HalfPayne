@@ -929,8 +929,8 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
 	PRECACHE_SOUND( "var/death.wav" );
 
-	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		cgm->Precache();
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->Precache();
 	}
 }
 

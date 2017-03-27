@@ -146,14 +146,9 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 }
 
 void CCustomGameModeRules::OnChangeLevel() {
-	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
+	CHalfLifeRules::OnChangeLevel();
 
-	// it was previously a C style cast like everywhere else,
-	// but this particular call could return CWorld instance
-	// according to debugger - what the fuck?
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		pPlayer->ClearSoundQueue();
-	}
+	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 }
 
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
@@ -275,6 +270,8 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 
 void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )
 {
+	CHalfLifeRules::HookModelIndex( activator, mapName, modelIndex );
+
 	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 	if ( !pPlayer ) {
 		return;
@@ -288,28 +285,6 @@ void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapNa
 		config.endTriggers.erase( foundIndex );
 
 		End( pPlayer );
-	}
-
-	// Does 'sounds' contain such index?
-	auto soundIndex = config.sounds.begin();
-	while ( soundIndex != config.sounds.end() ) {
-
-		if ( soundIndex->mapName == std::string( mapName ) &&
-			 soundIndex->modelIndex == modelIndex &&
-			 !pPlayer->ModelIndexHasBeenHooked( soundIndex->key.c_str() ) ) {
-
-			// I'm very sorry for this memory leak for now
-			string_t soundPathAllocated = ALLOC_STRING( soundIndex->soundPath.c_str() );
-
-			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary );
-			if ( !soundIndex->constant ) {
-				pPlayer->RememberHookedModelIndex( soundPathAllocated );
-				config.sounds.erase( soundIndex );
-			}
-
-		}
-
-		soundIndex++;
 	}
 }
 
@@ -330,16 +305,11 @@ void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 }
 
 void CCustomGameModeRules::Precache() {
+	CHalfLifeRules::Precache();
 
 	for ( std::string spawn : config.entitiesToPrecache ) {
 		UTIL_PrecacheOther( spawn.c_str() );
 	}
-	
-	// I'm very sorry for this memory leak for now
-	for ( std::string sound : config.soundsToPrecache ) {
-		PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
-	}
-
 }
 
 // Hardcoded values so it won't depend on console variables

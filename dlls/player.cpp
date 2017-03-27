@@ -3477,8 +3477,8 @@ int CBasePlayer::Restore( CRestore &restore )
 	CVAR_SET_FLOAT( "cam_command", 2.0f );
 
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
-	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		cgm->HookModelIndex( this->edict(), STRING( gpGlobals->mapname ), -1 );
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( this->edict(), STRING( gpGlobals->mapname ), -1 );
 	}
 	
 	return status;

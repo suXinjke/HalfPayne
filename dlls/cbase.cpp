@@ -427,8 +427,11 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 			delete g_pGameRules;
 			CCustomGameModeRules *newRules = new CCustomGameModeRules;
 			g_pGameRules = newRules;
-			newRules->Precache();
 		}
+	}
+
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->Precache();
 	}
 
 	return 0;

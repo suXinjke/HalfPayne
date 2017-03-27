@@ -33,9 +33,60 @@ extern int gmsgMOTD;
 
 //=========================================================
 //=========================================================
-CHalfLifeRules::CHalfLifeRules( void )
+CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( "map_cfg" )
 {
+	mapConfig.ReadFile( STRING( gpGlobals->mapname ) );
+
 	RefreshSkillData();
+}
+
+void CHalfLifeRules::OnChangeLevel()
+{
+	// it was previously a C style cast like everywhere else,
+	// but this particular call could return CWorld instance
+	// according to debugger - what the fuck?
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		pPlayer->ClearSoundQueue();
+	}
+
+	mapConfig.ReadFile( STRING( gpGlobals->mapname ) );
+}
+
+void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )
+{
+	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+	if ( !pPlayer ) {
+		return;
+	}
+
+	// Does 'sounds' contain such index?
+	auto soundIndex = mapConfig.sounds.begin();
+	while ( soundIndex != mapConfig.sounds.end() ) {
+
+		if ( soundIndex->mapName == std::string( mapName ) &&
+			soundIndex->modelIndex == modelIndex &&
+			!pPlayer->ModelIndexHasBeenHooked( soundIndex->key.c_str() ) ) {
+
+			// I'm very sorry for this memory leak for now
+			string_t soundPathAllocated = ALLOC_STRING( soundIndex->soundPath.c_str() );
+
+			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary );
+			if ( !soundIndex->constant ) {
+				pPlayer->RememberHookedModelIndex( soundPathAllocated );
+				mapConfig.sounds.erase( soundIndex );
+			}
+
+		}
+
+		soundIndex++;
+	}
+}
+void CHalfLifeRules::Precache()
+{
+	// I'm very sorry for this memory leak for now
+	for ( std::string sound : mapConfig.soundsToPrecache ) {
+		PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
+	}
 }
 
 //=========================================================

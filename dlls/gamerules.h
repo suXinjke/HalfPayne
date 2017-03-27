@@ -21,6 +21,8 @@
 //#include "weapons.h"
 //#include "items.h"
 
+#include "custom_gamemode_config.h"
+
 class CBasePlayerItem;
 class CBasePlayer;
 class CItem;
@@ -173,6 +175,12 @@ class CHalfLifeRules : public CGameRules
 {
 public:
 	CHalfLifeRules ( void );
+
+	CustomGameModeConfig mapConfig;
+
+	virtual void OnChangeLevel();
+	virtual void HookModelIndex( edict_t *activator, const char *mapName, int modelIndex );
+	virtual void Precache();
 
 // GR_Think
 	virtual void Think( void );

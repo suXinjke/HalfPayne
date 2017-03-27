@@ -560,9 +560,8 @@ int CBaseDoor::DoorActivate( )
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
-	if ( cgm ) {
-		cgm->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
 	}
 
 	return 1;
