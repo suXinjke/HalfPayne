@@ -158,7 +158,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
-
+	
 	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, explosiveKills, FIELD_INTEGER ),
@@ -517,91 +517,142 @@ void CBasePlayer::SetEvilImpulse101( bool evilImpulse101 ) {
 	gEvilImpulse101 = evilImpulse101;
 }
 
-// oh god why
-// Increase slowmotion charge based on monster you've killed or what you've destroyed
-// Give player bonus time in Black Mesa Minute
+// Intercepts certain entity kills by player
+// Gives slowmotion charge based on that and forwards the killed entity to custom game mode
 void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 {
 	const char *victimName = STRING( victim->pev->classname );
 
-	bool killConfirmed = true;
+	KILLED_ENTITY_TYPE killedEntity = KILLED_ENTITY_UNDEFINED;
 	
-	if ( strstr( victimName, "monster_" ) != NULL ) {
-		CBaseMonster *monsterVictim = ( CBaseMonster * ) victim;
-
-		if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER );
-		}
-		else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT );
-		}
-		else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE );
-		}
-		else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-		}
-		else if ( strcmp( victimName, "monster_babycrab" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BABYCRAB );
-		}
-		else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BARNACLE );
-		}
-		else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BIG_MOMMA );
-		}
-		else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_BULLSQUID );
-		}
-		else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_GARGANTUA );
-		}
-		else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HEADCRAB );
-		}
-		else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HOUNDEYE );
-		}
-		else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN );
-		}
-		else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-		}
-		else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ICHTYOSAUR );
-		}
-		else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_MINITURRET );
-		}
-		else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SENTRY );
-		}
-		else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
-			bool snarkOwnedByPlayer = victim->pev->owner != 0;
+	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ALIEN_CONTROLLER;
+	}
+	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ALIEN_GRUNT;
+	}
+	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ALIEN_SLAVE;
+	}
+	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ARMORED_VEHICLE;
+	}
+	else if ( strcmp( victimName, "monster_babycrab" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_BABYCRAB;
+	}
+	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_BARNACLE;
+	}
+	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_BIG_MOMMA;
+	}
+	else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_BULLSQUID;
+	}
+	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_GARGANTUA;
+	}
+	else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_HEADCRAB;
+	}
+	else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_HOUNDEYE;
+	}
+	else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_HUMAN_ASSASSIN;
+	}
+	else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_HUMAN_GRUNT;
+	}
+	else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ICHTYOSAUR;
+	}
+	else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_MINITURRET;
+	}
+	else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_SENTRY;
+	}
+	else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
+		bool snarkOwnedByPlayer = victim->pev->owner != 0;
 		
-			if ( !snarkOwnedByPlayer ) {
-				TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_SNARK );
-			}
+		if ( !snarkOwnedByPlayer ) {
+			killedEntity = KILLED_ENTITY_SNARK;
 		}
-		else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
-			TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ZOMBIE );
-		}
-
-	} else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE );
-	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
-		TakeSlowmotionCharge( SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT );
-	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
-		// kill confirmed
-	} else {
-		killConfirmed = false;
+	}
+	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ZOMBIE;
 	}
 
-	if ( killConfirmed ) {
-		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-			cgm->OnKilledEntityByPlayer( this, victim );
+	else if ( strcmp( victimName, "grenade" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_GRENADE;
+	}
+	
+	else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_ARMORED_VEHICLE;
+	}
+	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
+		killedEntity = KILLED_ENTITY_SNIPER;
+	}
+	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
+		killedEntity = KILLED_ENTITY_NIHILANTH_CRYSTAL;
+	}
+
+	TakeSlowmotionCharge( KilledEntityToSlowmotionCharge( killedEntity ) );
+
+	BOOL isHeadshot = false;
+	if ( CBaseMonster *monsterVictim = dynamic_cast< CBaseMonster * >( victim ) ) {
+		if ( monsterVictim->m_LastHitGroup == HITGROUP_HEAD ) {
+			isHeadshot = true;
 		}
+	}
+	
+	BOOL killedByExplosion = victim->killedByExplosion;
+	BOOL killedByCrowbar = victim->killedByCrowbar;
+
+	if ( killedEntity != KILLED_ENTITY_UNDEFINED ) {
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			cgm->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+		}
+	}
+}
+
+int CBasePlayer::KilledEntityToSlowmotionCharge( KILLED_ENTITY_TYPE killedEntity )
+{
+	switch ( killedEntity ) {
+		case KILLED_ENTITY_BIG_MOMMA:
+		case KILLED_ENTITY_GARGANTUA:
+		case KILLED_ENTITY_ARMORED_VEHICLE:
+		case KILLED_ENTITY_ICHTYOSAUR:
+			return 100;
+
+		case KILLED_ENTITY_ALIEN_CONTROLLER:
+		case KILLED_ENTITY_ALIEN_GRUNT:
+		case KILLED_ENTITY_HUMAN_ASSASSIN:
+		case KILLED_ENTITY_HUMAN_GRUNT:
+		case KILLED_ENTITY_SNIPER:
+			return 20;
+
+		case KILLED_ENTITY_ALIEN_SLAVE:
+		case KILLED_ENTITY_MINITURRET:
+		case KILLED_ENTITY_SENTRY:
+			return 15;
+
+		case KILLED_ENTITY_BULLSQUID:
+		case KILLED_ENTITY_ZOMBIE:
+			return 10;
+
+		case KILLED_ENTITY_HEADCRAB:
+		case KILLED_ENTITY_HOUNDEYE:
+		case KILLED_ENTITY_SNARK:
+			return 5;
+
+		case KILLED_ENTITY_BABYCRAB:
+		case KILLED_ENTITY_BARNACLE:
+			return 1;
+
+		default:
+			return 0;
 	}
 }
 

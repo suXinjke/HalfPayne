@@ -161,14 +161,11 @@ void CGrenade::Killed( entvars_t *pevAttacker, int iGib )
 	if ( ActualOwnerIsPlayer() ) {
 		this->killedOrCausedByPlayer = true;
 	} else {
-		// Destroying enemy grenade nets bonus time for the player
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
-			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-				CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
-				cgm->OnKilledEntityByPlayer( player, this );
-			}	
-
 			this->killedOrCausedByPlayer = true;
+
+			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
+			player->OnKilledEntity( this );
 		}
 	}
 

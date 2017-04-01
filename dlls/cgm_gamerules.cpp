@@ -184,18 +184,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	}
 }
 
-// TODO: isHeadshot and other flags are having DRY issue with overloaded function in CBlackMesaMinute
-void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim ) {
-	bool isHeadshot = false;
-	if ( CBaseMonster *monsterVictim = dynamic_cast< CBaseMonster * >( victim ) ) {
-		if ( monsterVictim->m_LastHitGroup == HITGROUP_HEAD ) {
-			isHeadshot = true;
-		}
-	}
-	
-	BOOL killedByExplosion = victim->killedByExplosion;
-	BOOL killedByCrowbar = victim->killedByCrowbar;
-	BOOL destroyedGrenade = strcmp( STRING( victim->pev->classname ), "grenade" ) == 0;
+void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
 
 	pPlayer->kills++;
 
@@ -205,8 +194,10 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		pPlayer->crowbarKills++;
 	} else if ( isHeadshot ) {
 		pPlayer->headshotKills++;
-	} else if ( destroyedGrenade ) {
+	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
 		pPlayer->projectileKills++;
+	} else if ( killedEntity == KILLED_ENTITY_NIHILANTH ) {
+		End( pPlayer );
 	}
 }
 

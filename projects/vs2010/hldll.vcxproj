@@ -188,6 +188,7 @@
     <ClCompile Include="..\..\dlls\rat.cpp" />
     <ClCompile Include="..\..\dlls\roach.cpp" />
     <ClCompile Include="..\..\dlls\rpg.cpp" />
+    <ClCompile Include="..\..\dlls\sagm_gamerules.cpp" />
     <ClCompile Include="..\..\dlls\satchel.cpp" />
     <ClCompile Include="..\..\dlls\schedule.cpp" />
     <ClCompile Include="..\..\dlls\scientist.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="..\..\dlls\nodes.h" />
     <ClInclude Include="..\..\dlls\plane.h" />
     <ClInclude Include="..\..\dlls\player.h" />
+    <ClInclude Include="..\..\dlls\sagm_gamerules.h" />
     <ClInclude Include="..\..\dlls\saverestore.h" />
     <ClInclude Include="..\..\dlls\schedule.h" />
     <ClInclude Include="..\..\dlls\scripted.h" />

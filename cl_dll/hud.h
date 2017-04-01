@@ -217,24 +217,39 @@ private:
 #define TIME_ADDED_REMOVAL_TIME 1.0f
 #define TIME_ADDED_FLASHING_TIME 0.1f
 
+// TODO: Class purpose is dumb now - it is also used in score attack
+// which has nothing to do with timers.
+// This class should more general and string formatting is something for the upper level
 class CHudTimerMessage
 {
 public:
-	CHudTimerMessage( const std::string &message, int timeAdded, const Vector &coords, float initialTime ) {
+	CHudTimerMessage( const std::string &message, const Vector &coords, float initialTime, const std::string &scoreMessageUpper = "" ) {
 		this->message = message;
+		this->timeAddedUpperString = scoreMessageUpper;
 		this->coords = coords;
 		this->timerMessageRemovalTime = initialTime + TIMER_MESSAGE_REMOVAL_TIME;
 		this->timeAddedRemovalTime = initialTime + TIME_ADDED_REMOVAL_TIME;
 
 		this->timeAddedFlash1Time = TIME_ADDED_FLASHING_TIME;
 		this->timeAddedFlash2Time = TIME_ADDED_FLASHING_TIME * 2;
+	}
+
+	CHudTimerMessage( const std::string &message, int timeAdded, const Vector &coords, float initialTime, const std::string &scoreMessageUpper = "" ) 
+		: CHudTimerMessage( message, coords, initialTime, scoreMessageUpper ) {
 
 		char timeAddedCString[6];
 		sprintf( timeAddedCString, "00:%02d", timeAdded ); // mm:ss
 		timeAddedString = std::string( timeAddedCString );
 	}
 
+	CHudTimerMessage( const std::string &message, const std::string &scoreMessage, const Vector &coords, float initialTime, const std::string &scoreMessageUpper = "" )
+		: CHudTimerMessage( message, coords, initialTime, scoreMessageUpper ) {
+
+		timeAddedString = scoreMessage;
+	}
+
 	std::string message;
+	std::string timeAddedUpperString;
 	std::string timeAddedString;
 	Vector coords;
 	float timerMessageRemovalTime;
@@ -256,6 +271,25 @@ private:
 	float time;
 	float endTime;
 	float timeStep;
+
+	float nextUpdateTime;
+};
+
+// TODO: this is a duplicate of CHudRunningTimerAnimation but with different
+// Draw function. RunningAnimation should be more abstract
+class CHudRunningScoreAnimation
+{
+public:
+	CHudRunningScoreAnimation();
+	void StartRunning( int endScore, float stepFraction = 60.0f );
+	int Draw( int x, int y, int r, int g, int b );
+
+	bool isRunning;
+
+private:
+	int score;
+	int endScore;
+	float scoreStep;
 
 	float nextUpdateTime;
 };
@@ -303,6 +337,49 @@ private:
 	void DrawMessages( int x, int y );
 	void DrawEndScreen();
 	void DrawEndScreenTimes( int x, int y );
+	void DrawEndScreenRecords( int x, int y );
+	void DrawEndScreenStatistics( int x, int y );
+
+	std::string endScreenLevelCompletedMessage;
+
+	std::vector<CHudTimerMessage>	messages;
+};
+
+class CHudScore : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+	int MsgFunc_ScoreMsg( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_ScoreEnd( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_ScoreValue( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_ScoreCheat( const char *pszName, int iSize, void *pbuf );
+
+private:
+	bool ended;
+	bool cheated;
+
+	int currentScore;
+
+	int comboMultiplier;
+	float comboMultiplierReset;
+
+	int oldScoreRecord;
+
+	int kills;
+	int headshotKills;
+	int explosiveKills;
+	int crowbarKills;
+	int projectileKills;
+	float secondsInSlowmotion;
+
+	float nextRuntimeSoundTime;
+	CHudRunningScoreAnimation scoreRunningAnimation;
+
+	void DrawMessages( int x, int y );
+	void DrawEndScreen();
+	void DrawEndScreenScore( int x, int y );
 	void DrawEndScreenRecords( int x, int y );
 	void DrawEndScreenStatistics( int x, int y );
 
@@ -739,7 +816,9 @@ public:
 	void DrawColon( int x, int y, int r, int g, int b );
 	void DrawDecimalSeparator( int x, int y, int r, int g, int b );
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
+	int DrawHudNumber( int x, int y, int iFlags, char iNumber, int r, int g, int b);
 	int DrawFormattedTime( float time, int x, int y, int r, int g, int b );
+	int DrawFormattedNumber( int number, int x, int y, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, const char *szString, int r, int g, int b );
 	int DrawHudStringKeepRight( int x, int y, int iMaxX, const char *szString, int r, int g, int b );
 	int DrawHudStringKeepCenter( int x, int y, int iMaxX, const char *szString, int r, int g, int b );
@@ -791,6 +870,7 @@ public:
 	CHudSlowMotion  m_SlowMotion;
 	CHudPainkiller  m_Painkiller;
 	CHudTimer		m_Timer;
+	CHudScore		m_Score;
 	CHudEndScreen	m_endScreen;
 
 	void Init( void );

@@ -22,7 +22,7 @@
 #include "nodes.h"
 #include "effects.h"
 #include "player.h"
-#include "bmm_gamerules.h"
+#include "cgm_gamerules.h"
 
 #define N_SCALE		15
 #define N_SPHERES	20
@@ -441,10 +441,11 @@ void CNihilanth :: DyingThink( void )
 	{
 		Flight( );
 		
-		// EXCEPTION - Nihilanth started dying, end Black Mesa Minute right here
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-			bmm->End( player );
+		// Hook Nihilanth's death
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			if ( CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
+				cgm->OnKilledEntityByPlayer( player, this, KILLED_ENTITY_NIHILANTH, false, false, false );
+			}
 		}	
 
 		if (fabs( pev->origin.z - m_flMaxZ ) < 16)

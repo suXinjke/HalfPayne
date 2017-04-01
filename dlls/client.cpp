@@ -41,6 +41,7 @@
 #include "pm_shared.h"
 
 #include "bmm_gamerules.h"
+#include "sagm_gamerules.h"
 
 #if !defined ( _WIN32 )
 #include <ctype.h>
@@ -156,6 +157,8 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 	{   
 		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
 			bmm->RestartGame();
+		} else if ( CScoreAttack *sagm = dynamic_cast< CScoreAttack * >( g_pGameRules ) ) {
+			sagm->RestartGame();
 		} else {
 
 			// restart the entire server

@@ -9,8 +9,6 @@
 #include <fstream>
 #include	"monsters.h"
 
-// Black Mesa Minute
-
 int	gmsgTimerMsg	= 0;
 int	gmsgTimerEnd	= 0;
 int gmsgTimerValue	= 0;
@@ -83,54 +81,52 @@ void CBlackMesaMinute::OnCheated( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 }
 
-void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim ) {
-	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim );
+void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 
-	const char *victimName = STRING( victim->pev->classname );
-
-	bool isHeadshot = false;
-	if ( CBaseMonster *monsterVictim = dynamic_cast< CBaseMonster * >( victim ) ) {
-		if ( monsterVictim->m_LastHitGroup == HITGROUP_HEAD ) {
-			isHeadshot = true;
-		}
-	}
-
-	BOOL killedByExplosion = victim->killedByExplosion;
-	BOOL killedByCrowbar = victim->killedByCrowbar;
-	BOOL destroyedGrenade = strcmp( victimName, "grenade" ) == 0;
-	
 	int timeToAdd = 0;
 	std::string message;
 
 	if ( killedByExplosion ) {
-		timeToAdd = TIMEATTACK_EXPLOSION_BONUS_TIME;
+		timeToAdd = 10;
 		message = "EXPLOSION BONUS";
 	} else if ( killedByCrowbar ) {
-		timeToAdd = TIMEATTACK_KILL_CROWBAR_BONUS_TIME;
+		timeToAdd = 10;
 		message = "MELEE BONUS";
 	} else if ( isHeadshot ) {
-		timeToAdd = TIMEATTACK_KILL_BONUS_TIME + TIMEATTACK_HEADSHOT_BONUS_TIME;
+		timeToAdd = 6;
 		message = "HEADSHOT BONUS";
-	} else if ( destroyedGrenade ) {
-		timeToAdd = TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME;
+	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
+		timeToAdd = 1;
 		message = "PROJECTILE BONUS";
 	} else {
-		timeToAdd = TIMEATTACK_KILL_BONUS_TIME;
+		timeToAdd = 5;
 		message = "TIME BONUS";
 	}
 
 	Vector deathPos = victim->pev->origin;
 	deathPos.z += victim->pev->size.z + 5.0f;
 
-	if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
-		deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
-	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
-		// DUMB EXCEPTION for snipers in Surface tension
-		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
-	} else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) ) {
-		// DUMB EXCEPTION for Nihilant's healing crystals
-		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
-		timeToAdd = 10;
+	switch ( killedEntity ) {
+		case KILLED_ENTITY_SENTRY:
+			deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
+			break;
+
+		case KILLED_ENTITY_SNIPER:
+			deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+			break;
+
+		case KILLED_ENTITY_NIHILANTH_CRYSTAL:
+			deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+			timeToAdd = 10;
+			break;
+
+		case KILLED_ENTITY_GONARCH_SACK:
+			timeToAdd = 10;
+			break;
+
+		default:
+			break;
 	}
 
 	IncreaseTime( pPlayer, deathPos, timeToAdd, message.c_str() );

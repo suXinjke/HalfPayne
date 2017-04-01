@@ -990,6 +990,33 @@ void RunCustomGameMode()
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
+// TODO: A single function instead of this copy paste
+void RunScoreAttack()
+{
+	int argCount = gEngfuncs.Cmd_Argc();
+	if ( argCount < 2 ) {
+		gEngfuncs.pfnConsolePrint( "sagm <configname> : launches score attack gamemode with settings specified in sagm_cfg\\<configname>\n" );
+		return;
+	}
+
+	char *configName = gEngfuncs.Cmd_Argv( 1 );
+
+	CustomGameModeConfig gCGMConfig( "sagm_cfg" );
+
+	gCGMConfig.Reset();
+	if ( !gCGMConfig.ReadFile( configName ) ) {
+		gEngfuncs.Con_Printf( "%s\n", gCGMConfig.error.c_str() );
+		return;
+	}
+
+	gEngfuncs.Cvar_Set( "gamemode_config", configName );
+	gEngfuncs.Cvar_Set( "gamemode", "sagm" );
+
+	char mapCmd[64];
+	sprintf( mapCmd, "map %s", gCGMConfig.startMap.c_str() );
+	gEngfuncs.pfnClientCmd( mapCmd );
+}
+
 /*
 ============
 InitInput
@@ -1078,6 +1105,7 @@ void InitInput (void)
 
 	gEngfuncs.pfnAddCommand( "cgm", RunCustomGameMode );
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
+	gEngfuncs.pfnAddCommand( "sagm", RunScoreAttack );
 
 	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );
 	printaimcoordinates = gEngfuncs.pfnRegisterVariable( "print_aim_coordinates", "0", FCVAR_ARCHIVE );

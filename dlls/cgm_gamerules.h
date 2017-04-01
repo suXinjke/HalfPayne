@@ -14,7 +14,7 @@ public:
 	virtual void OnChangeLevel();
 	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );
-	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim );
+	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 
 	virtual void End( CBasePlayer *pPlayer );
 

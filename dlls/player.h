@@ -65,30 +65,6 @@
 #define TEAM_NAME_LENGTH	16
 
 #define MAX_SLOWMOTION_CHARGE 100
-#define SLOWMOTION_CHARGE_FOR_ALIEN_CONTROLLER 20
-#define SLOWMOTION_CHARGE_FOR_ALIEN_GRUNT 20
-#define SLOWMOTION_CHARGE_FOR_ALIEN_SLAVE 15
-#define SLOWMOTION_CHARGE_FOR_ARMORED_VEHICLE 100
-#define SLOWMOTION_CHARGE_FOR_BARNACLE 2
-#define SLOWMOTION_CHARGE_FOR_BIG_MOMMA 100
-#define SLOWMOTION_CHARGE_FOR_BULLSQUID 10
-#define SLOWMOTION_CHARGE_FOR_GARGANTUA 100
-#define SLOWMOTION_CHARGE_FOR_BABYCRAB 1
-#define SLOWMOTION_CHARGE_FOR_HEADCRAB 5
-#define SLOWMOTION_CHARGE_FOR_HOUNDEYE 5
-#define SLOWMOTION_CHARGE_FOR_HUMAN_ASSASSIN 20
-#define SLOWMOTION_CHARGE_FOR_HUMAN_GRUNT 20
-#define SLOWMOTION_CHARGE_FOR_ICHTYOSAUR 100
-#define SLOWMOTION_CHARGE_FOR_MINITURRET 15
-#define SLOWMOTION_CHARGE_FOR_SENTRY 15
-#define SLOWMOTION_CHARGE_FOR_SNARK 5
-#define SLOWMOTION_CHARGE_FOR_ZOMBIE 10
-
-#define TIMEATTACK_KILL_BONUS_TIME 5
-#define TIMEATTACK_KILL_CROWBAR_BONUS_TIME 10
-#define TIMEATTACK_HEADSHOT_BONUS_TIME 1
-#define TIMEATTACK_GREANDE_DESTROYED_BONUS_TIME 1
-#define TIMEATTACK_EXPLOSION_BONUS_TIME 10
 
 #define MAX_HOOKED_MODEL_INDEXES 1024
 #define MAX_SOUND_QUEUE 64
@@ -106,7 +82,8 @@ typedef enum
 enum GAME_MODE {
 	GAME_MODE_VANILLA,
 	GAME_MODE_CUSTOM,
-	GAME_MODE_BMM
+	GAME_MODE_BMM,
+	GAME_MODE_SCORE_ATTACK
 };
 
 enum BULLET_PHYSICS_MODE {
@@ -266,6 +243,7 @@ public:
 	virtual int TakeHealth( float flHealth, int bitsDamageType );
 	virtual void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
 	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType);
+	int KilledEntityToSlowmotionCharge( KILLED_ENTITY_TYPE killedEntity );
 	void TakeSlowmotionCharge( int slowMotionCharge );
 	void OnKilledEntity( CBaseEntity *victim );
 	virtual void	Killed( entvars_t *pevAttacker, int iGib );

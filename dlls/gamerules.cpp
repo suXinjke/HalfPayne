@@ -23,6 +23,7 @@
 #include	"weapons.h"
 #include	"gamerules.h"
 #include	"bmm_gamerules.h"
+#include	"sagm_gamerules.h"
 #include	"teamplay_gamerules.h"
 #include	"skill.h"
 #include	"game.h"
@@ -322,6 +323,8 @@ CGameRules *InstallGameRules( void )
 			return new CCustomGameModeRules;
 		} else if ( strcmp( CVAR_GET_STRING( "gamemode" ), "bmm" ) == 0 ) {
 			return new CBlackMesaMinute;
+		}  else if ( strcmp( CVAR_GET_STRING( "gamemode" ), "sagm" ) == 0 ) {
+			return new CScoreAttack;
 		} else {
 			return new CHalfLifeRules;
 		}

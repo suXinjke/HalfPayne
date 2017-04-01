@@ -16,6 +16,7 @@
 // hud_redraw.cpp
 //
 #include <math.h>
+#include <string>
 #include "hud.h"
 #include "cl_util.h"
 #include "bench.h"
@@ -308,6 +309,36 @@ void CHud::DrawColon( int x, int y, int r, int g, int b )
 	DrawDot( x + 1, y - 2, r, g, b );
 }
 
+int CHud::DrawHudNumber( int x, int y, int iFlags, char iNumber, int r, int g, int b)
+{
+	
+	switch ( iNumber ) {
+		case '0':
+			return DrawHudNumber( x, y, iFlags, 0, r, g, b );
+		case '1':
+			return DrawHudNumber( x, y, iFlags, 1, r, g, b );
+		case '2':
+			return DrawHudNumber( x, y, iFlags, 2, r, g, b );
+		case '3':
+			return DrawHudNumber( x, y, iFlags, 3, r, g, b );
+		case '4':
+			return DrawHudNumber( x, y, iFlags, 4, r, g, b );
+		case '5':
+			return DrawHudNumber( x, y, iFlags, 5, r, g, b );
+		case '6':
+			return DrawHudNumber( x, y, iFlags, 6, r, g, b );
+		case '7':
+			return DrawHudNumber( x, y, iFlags, 7, r, g, b );
+		case '8':
+			return DrawHudNumber( x, y, iFlags, 8, r, g, b );
+		case '9':
+			return DrawHudNumber( x, y, iFlags, 9, r, g, b );
+
+		default:
+			return x;
+	}
+}
+
 int CHud :: DrawHudNumber( int x, int y, int iFlags, int iNumber, int r, int g, int b)
 {
 	int iWidth = GetNumberSpriteWidth();
@@ -431,6 +462,26 @@ int CHud::DrawFormattedTime( float time, int x, int y, int r, int g, int b )
 	}
 
 	x += NUMBER_WIDTH;
+
+	return x;
+}
+
+// Formats number == 9123456789 like
+// 9 123 456 789
+int CHud::DrawFormattedNumber( int number, int x, int y, int r, int g, int b )
+{
+	const int NUMBER_WIDTH = gHUD.GetNumberSpriteWidth();
+
+	std::string numberString = std::to_string( number );
+
+	for ( size_t i = 0 ; i < numberString.size() ; i++ ) {
+		gHUD.DrawHudNumber( x, y, DHN_DRAWZERO, numberString[i], r, g, b );
+		x += NUMBER_WIDTH;
+
+		if ( ( numberString.size() - 1 - i ) % 3 == 0 ) {
+			x += NUMBER_WIDTH / 2;
+		}
+	}
 
 	return x;
 }
