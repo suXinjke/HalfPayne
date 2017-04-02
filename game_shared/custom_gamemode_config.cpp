@@ -95,7 +95,13 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 		std::smatch sectionName;
 
 		if ( std::regex_match( line, sectionName, sectionRegex ) ) {
-			OnNewSection( sectionName.str( 1 ) );
+			if ( !OnNewSection( sectionName.str( 1 ) ) ) {
+			
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: unknown section [%s]\n", configName.c_str(), lineCount, sectionName.str( 1 ).c_str() );
+				OnError( std::string( errorCString ) );
+			
+			};
 		} else {
 			OnSectionData( line, lineCount );
 		}
@@ -159,36 +165,38 @@ void CustomGameModeConfig::Reset() {
 	this->bulletPhysicsConstant = false;
 }
 
-void CustomGameModeConfig::OnNewSection( std::string sectionName ) {
+bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 
-	if ( sectionName == "startmap" ) {
+	if ( sectionName == "start_map" ) {
 		currentFileSection = FILE_SECTION_START_MAP;
-	} else if ( sectionName == "endmap" ) {
+	} else if ( sectionName == "end_map" ) {
 		currentFileSection = FILE_SECTION_END_MAP;
 	} else if ( sectionName == "loadout" ) {
 		currentFileSection = FILE_SECTION_LOADOUT;
-	} else if ( sectionName == "startposition" ) {
+	} else if ( sectionName == "start_position" ) {
 		currentFileSection = FILE_SECTION_START_POSITION;
 		startPositionSpecified = true;
 	} else if ( sectionName == "name" ) {
 		currentFileSection = FILE_SECTION_NAME;
-	} else if ( sectionName == "endtrigger" ) {
+	} else if ( sectionName == "end_trigger" ) {
 		currentFileSection = FILE_SECTION_END_TRIGGER;
-	} else if ( sectionName == "entityspawn" ) {
+	} else if ( sectionName == "entity_spawn" ) {
 		currentFileSection = FILE_SECTION_ENTITY_SPAWN;
 	} else if ( sectionName == "mods" ) {
 		currentFileSection = FILE_SECTION_MODS;
-	} else if ( sectionName == "timerpause" ) {
+	} else if ( sectionName == "timer_pause" ) {
 		currentFileSection = FILE_SECTION_TIMER_PAUSE;
-	} else if ( sectionName == "timerresume" ) {
+	} else if ( sectionName == "timer_resume" ) {
 		currentFileSection = FILE_SECTION_TIMER_RESUME;
 	} else if ( sectionName == "sound" ) {
 		currentFileSection = FILE_SECTION_SOUND;
-	} else if ( sectionName == "maxcommentary" ) {
+	} else if ( sectionName == "max_commentary" ) {
 		currentFileSection = FILE_SECTION_MAX_COMMENTARY;
+	} else {
+		return false;
 	}
 
-	return;
+	return true;
 }
 
 void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
@@ -391,31 +399,31 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				difficulty = GAME_DIFFICULTY_EASY;
 			} else if ( line == "hard" ) {
 				difficulty = GAME_DIFFICULTY_HARD;
-			} else if ( line == "constantslowmotion" ) {
+			} else if ( line == "constant_slowmotion" ) {
 				constantSlowmotion = true;
-			} else if ( line == "infiniteslowmotion" ) {
+			} else if ( line == "infinite_slowmotion" ) {
 				infiniteSlowmotion = true;
-			} else if ( line == "emptyslowmotion" ) {
+			} else if ( line == "empty_slowmotion" ) {
 				emptySlowmotion = true;
-			} else if ( line == "noslowmotion" ) {
+			} else if ( line == "no_slowmotion" ) {
 				noSlowmotion = true;
 			} else if ( line == "headshots" ) {
 				powerfulHeadshots = true;
-			} else if ( line == "infiniteammo" ) {
+			} else if ( line == "infinite_ammo" ) {
 				infiniteAmmo = true;
-			} else if ( line == "weaponrestricted" ) {
+			} else if ( line == "weapon_restricted" ) {
 				weaponRestricted = true;
 			} else if ( line == "instagib" ) {
 				instaGib = true;
-			} else if ( line == "holdtimer" ) {
+			} else if ( line == "hold_timer" ) {
 				holdTimer = true;
-			} else if ( line == "nosaving" ) {
+			} else if ( line == "no_saving" ) {
 				noSaving = true;
-			} else if ( line == "bulletphysicsdisabled" ) {
+			} else if ( line == "bullet_physics_disabled" ) {
 				bulletPhysicsDisabled = true;
-			} else if ( line == "bulletphysicsenemiesandplayeronslowmotion" ) {
+			} else if ( line == "bullet_physics_enemies_and_player_on_slowmotion" ) {
 				bulletPhysicsEnemiesAndPlayerOnSlowmotion = true;
-			} else if ( line == "bulletphysicsconstant" ) {
+			} else if ( line == "bullet_physics_constant" ) {
 				bulletPhysicsConstant = true;
 			} else {
 				char errorCString[1024];

@@ -186,7 +186,7 @@ public:
 	bool ReadFile( const char *fileName );
 
 	void Reset();
-	void OnNewSection( std::string sectionName );
+	bool OnNewSection( std::string sectionName );
 	void OnSectionData( std::string line, int lineCount );
 	void OnError( std::string );
 
