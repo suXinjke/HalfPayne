@@ -70,7 +70,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 	HookModelIndex( pPlayer->edict(), STRING( gpGlobals->mapname ), CHANGE_LEVEL_MODEL_INDEX );
 
-	pPlayer->weaponRestricted = config.weaponRestricted;
 	pPlayer->noSaving = config.noSaving;
 	pPlayer->infiniteAmmo = config.infiniteAmmo;
 	pPlayer->instaGib = config.instaGib;
@@ -135,6 +134,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	} else if ( config.bulletPhysicsDisabled ) {
 		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_DISABLED;
 	}
+
+	pPlayer->weaponRestricted = config.weaponRestricted; // must be set after player has received his weapons
 
 	// Do not let player cheat by not starting at the [startmap]
 	const char *startMap = config.startMap.c_str();
