@@ -681,7 +681,6 @@ private:
 	float						m_gameTitleTime;
 	client_textmessage_t		*m_pGameTitle;
 
-	int m_HUD_title_life;
 	int m_HUD_title_half;
 };
 
