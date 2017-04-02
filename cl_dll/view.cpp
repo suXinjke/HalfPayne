@@ -91,6 +91,10 @@ cvar_t	*cl_bobup;
 cvar_t	*cl_waterdist;
 cvar_t	*cl_chasedist;
 
+cvar_t  *cl_rollangle;
+cvar_t  *cl_rollspeed;
+cvar_t  *cl_rollenabled;
+
 // These cvars are not registered (so users can't cheat), so set the ->value field directly
 // Register these cvars in V_Init() if needed for easy tweaking
 cvar_t	v_iyaw_cycle		= {"v_iyaw_cycle", "2", 0, 2};
@@ -410,7 +414,11 @@ void V_CalcViewRoll ( struct ref_params_s *pparams )
 	if ( !viewentity )
 		return;
 
-	side = V_CalcRoll ( viewentity->angles, pparams->simvel, pparams->movevars->rollangle, pparams->movevars->rollspeed );
+	side = V_CalcRoll (
+		viewentity->angles, pparams->simvel,
+		cl_rollenabled->value > 0.0f ? cl_rollangle->value : pparams->movevars->rollangle,
+		cl_rollenabled->value > 0.0f ? cl_rollspeed->value : pparams->movevars->rollspeed
+	);
 
 	pparams->viewangles[ROLL] += side;
 
@@ -1721,6 +1729,10 @@ void V_Init (void)
 	cl_bobup			= gEngfuncs.pfnRegisterVariable( "cl_bobup","0.5", 0 );
 	cl_waterdist		= gEngfuncs.pfnRegisterVariable( "cl_waterdist","4", 0 );
 	cl_chasedist		= gEngfuncs.pfnRegisterVariable( "cl_chasedist","112", 0 );
+
+	cl_rollangle		= gEngfuncs.pfnRegisterVariable( "cl_rollangle", "2", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+	cl_rollspeed		= gEngfuncs.pfnRegisterVariable( "cl_rollspeed", "300", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+	cl_rollenabled		= gEngfuncs.pfnRegisterVariable( "cl_rollenabled", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
 }
 
 
