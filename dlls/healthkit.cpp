@@ -72,7 +72,7 @@ void CHealthKit::Precache( void )
 
 BOOL CHealthKit::MyTouch( CBasePlayer *pPlayer )
 {
-	if ( pPlayer->pev->deadflag != DEAD_NO )
+	if ( pPlayer->pev->deadflag != DEAD_NO || !(pPlayer->pev->weapons & ( 1 << WEAPON_SUIT ) ) )
 	{
 		return FALSE;
 	}
