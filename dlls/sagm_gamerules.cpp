@@ -17,7 +17,7 @@ int	gmsgScoreEnd	= 0;
 int gmsgScoreValue	= 0;
 int gmsgScoreCheat	= 0;
 
-CScoreAttack::CScoreAttack() : CCustomGameModeRules( "sagm_cfg" )
+CScoreAttack::CScoreAttack() : CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM )
 {
 	if ( !gmsgScoreMsg ) {
 

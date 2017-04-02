@@ -8,7 +8,7 @@
 class CCustomGameModeRules : public CHalfLifeRules {
 
 public:
-	CCustomGameModeRules( const char *configFolder = "cgm_cfg" );
+	CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType = CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
 
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void OnChangeLevel();

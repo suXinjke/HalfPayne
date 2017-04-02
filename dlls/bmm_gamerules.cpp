@@ -15,7 +15,7 @@ int gmsgTimerValue	= 0;
 int gmsgTimerPause  = 0;
 int gmsgTimerCheat  = 0;
 
-CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( "bmm_cfg" )
+CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_BMM )
 {
 	if ( !gmsgTimerMsg ) {
 		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );

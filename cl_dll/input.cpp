@@ -939,7 +939,7 @@ void RunBlackMesaMinute()
 	
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
-	CustomGameModeConfig gBMMConfig( "bmm_cfg" );
+	CustomGameModeConfig gBMMConfig( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
 
 	// Parse config file and retrieve the map name from [startmap] section
 	gBMMConfig.Reset();
@@ -970,7 +970,7 @@ void RunCustomGameMode()
 
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
-	CustomGameModeConfig gCGMConfig( "cgm_cfg" );
+	CustomGameModeConfig gCGMConfig( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
 
 	// Parse config file and retrieve the map name from [startmap] section
 	gCGMConfig.Reset();
@@ -1001,7 +1001,7 @@ void RunScoreAttack()
 
 	char *configName = gEngfuncs.Cmd_Argv( 1 );
 
-	CustomGameModeConfig gCGMConfig( "sagm_cfg" );
+	CustomGameModeConfig gCGMConfig( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
 
 	gCGMConfig.Reset();
 	if ( !gCGMConfig.ReadFile( configName ) ) {

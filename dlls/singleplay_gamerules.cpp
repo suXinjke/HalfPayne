@@ -33,9 +33,11 @@ extern int gmsgMOTD;
 
 //=========================================================
 //=========================================================
-CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( "map_cfg" )
+CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CustomGameModeConfig::GAME_MODE_CONFIG_MAP )
 {
-	mapConfig.ReadFile( STRING( gpGlobals->mapname ) );
+	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
+		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
+	}
 
 	RefreshSkillData();
 }
@@ -49,7 +51,9 @@ void CHalfLifeRules::OnChangeLevel()
 		pPlayer->ClearSoundQueue();
 	}
 
-	mapConfig.ReadFile( STRING( gpGlobals->mapname ) );
+	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
+		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
+	}
 }
 
 void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )

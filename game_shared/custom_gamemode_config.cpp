@@ -50,8 +50,12 @@ void CustomGameModeConfig::OnError( std::string message ) {
 	error = message;
 }
 
-CustomGameModeConfig::CustomGameModeConfig( const char *folderName )
+CustomGameModeConfig::CustomGameModeConfig( GAME_MODE_CONFIG_TYPE configType )
 {
+	this->configType = configType;
+
+	std::string folderName = ConfigTypeToDirectoryName( configType );
+
 	folderPath = GetGamePath() + "\\" + folderName;
 
 	// Create directory if it's not there
@@ -60,10 +64,30 @@ CustomGameModeConfig::CustomGameModeConfig( const char *folderName )
 	Reset();
 }
 
+std::string CustomGameModeConfig::ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TYPE configType ) {
+	switch ( configType ) {
+		case GAME_MODE_CONFIG_MAP:
+			return "map_cfg";
+
+		case GAME_MODE_CONFIG_CGM:
+			return "cgm_cfg";
+
+		case GAME_MODE_CONFIG_BMM:
+			return "bmm_cfg";
+
+		case GAME_MODE_CONFIG_SAGM:
+			return "sagm_cfg";
+
+		default:
+			return "";
+	}
+}
+
 bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	error = "";
 
+	configName = fileName;
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
 
 	int lineCount = 0;
@@ -71,7 +95,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	std::ifstream inp( filePath );
 	if ( !inp.is_open( ) ) {
 		char errorCString[1024];
-		sprintf_s( errorCString, "Config file '%s.txt' doesn't exist in '%s' directory.\n", fileName, folderPath.c_str() );
+		sprintf_s( errorCString, "Config file %s\\%s.txt doesn't exist\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName );
 		OnError( std::string( errorCString ) );
 
 		return false;
@@ -98,9 +122,8 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 			if ( !OnNewSection( sectionName.str( 1 ) ) ) {
 			
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: unknown section [%s]\n", configName.c_str(), lineCount, sectionName.str( 1 ).c_str() );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: unknown section [%s]\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName, lineCount, sectionName.str( 1 ).c_str() );
 				OnError( std::string( errorCString ) );
-			
 			};
 		} else {
 			OnSectionData( line, lineCount );
@@ -114,7 +137,6 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	inp.close(); // TODO: find out if it's called automatically
 
-	configName = fileName;
 	return true;
 }
 
@@ -203,7 +225,13 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 	switch ( currentFileSection ) {
 		case FILE_SECTION_START_MAP: {
-			
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [start_map] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
 			startMap = line;
 			currentFileSection = FILE_SECTION_NO_SECTION;
 			break;
@@ -211,7 +239,13 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_END_MAP: {
-		
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [end_map] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
 			endMap = line;
 			currentFileSection = FILE_SECTION_NO_SECTION;
 			break;
@@ -219,13 +253,19 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_LOADOUT: {
-			
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [loadout] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
 			std::vector<std::string> loadoutStrings = Split( line, ' ' );
 
 			std::string itemName = loadoutStrings.at( 0 );
 			if ( GetAllowedItemIndex( itemName.c_str() ) == -1 ) {
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: incorrect loadout item name in [loadout] section: %s\n", configName.c_str(), lineCount, itemName.c_str() );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect loadout item name in [loadout] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, itemName.c_str() );
 				OnError( errorCString );
 				return;
 			}
@@ -237,7 +277,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 					itemCount = std::stoi( loadoutStrings.at( 1 ) );
 				} catch ( std::invalid_argument e ) {
 					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: loadout item count incorrectly specified.\n", configName.c_str(), lineCount );
+					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: loadout item count incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 					OnError( errorCString );
 					return;
 				}
@@ -252,6 +292,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_START_POSITION: {
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [start_position] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			std::vector<std::string> startPositionValueStrings = Split( line, ' ' );
 			std::vector<float> startPositionValues;
@@ -263,7 +309,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				}
 				catch ( std::invalid_argument e ) {
 					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: incorrect value in [startposition] section: %s\n", configName.c_str(), lineCount, startPositionValueString.c_str() );
+					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect value in [start_position] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, startPositionValueString.c_str() );
 					OnError( errorCString );
 					return;
 				}
@@ -273,7 +319,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 			if ( startPositionValues.size() < 3 ) {
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: not enough coordinates provided in [startposition] section\n", configName.c_str(), lineCount );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: not enough coordinates provided in [start_position] section\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 				OnError( errorCString );
 				return;
 			}
@@ -293,6 +339,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_NAME: {
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [name] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			name = Uppercase( line );
 			if ( name.size() > 54 ) {
@@ -304,6 +356,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_END_TRIGGER: {
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [end_trigger] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
 			endTriggers.insert( modelIndex );
@@ -313,6 +371,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_TIMER_PAUSE: {
+			if ( configType != GAME_MODE_CONFIG_BMM ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [timer_pause] section is only allowed for Black Mesa Minute configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
 			timerPauses.insert( modelIndex );
@@ -322,6 +386,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_TIMER_RESUME: {
+			if ( configType != GAME_MODE_CONFIG_BMM ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [timer_resume] section is only allowed for Black Mesa Minute configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
 			timerResumes.insert( modelIndex );
@@ -332,6 +402,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 		case FILE_SECTION_SOUND:
 		case FILE_SECTION_MAX_COMMENTARY: {
+			if ( configType != GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [sound] or [max_commentary] sections are only allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			bool isMaxCommentary = currentFileSection == FILE_SECTION_MAX_COMMENTARY;
 
@@ -345,11 +421,18 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_ENTITY_SPAWN: {
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [entity_spawn] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
 			std::vector<std::string> entitySpawnStrings = Split( line, ' ' );
 
 			if ( entitySpawnStrings.size() < 5 ) {
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: <mapname> <entityname> <x> <y> <z> [angle] not specified in [entityspawn] section.\n", configName.c_str(), lineCount );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: <map_name> <entity_name> <x> <y> <z> [angle] not specified in [entity_spawn] section\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 				OnError( errorCString );
 				return;
 			}
@@ -359,7 +442,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 			std::string entityName = entitySpawnStrings.at( 1 );
 			if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: incorrect entity name in [entityspawn] section: %s\n", configName.c_str(), lineCount, entityName.c_str() );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect entity name in [entity_spawn] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, entityName.c_str() );
 				OnError( errorCString );
 				return;
 			}
@@ -375,7 +458,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				}
 				catch ( std::invalid_argument e ) {
 					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: incorrect value in [entityspawn] section: %s\n", configName.c_str(), lineCount, entitySpawnString.c_str() );
+					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect value in [entity_spawn] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, entitySpawnString.c_str() );
 					OnError( errorCString );
 					return;
 				}
@@ -394,6 +477,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		}
 
 		case FILE_SECTION_MODS: {
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [mods] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
 
 			if ( line == "easy" ) {
 				difficulty = GAME_DIFFICULTY_EASY;
@@ -416,6 +505,12 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 			} else if ( line == "instagib" ) {
 				instaGib = true;
 			} else if ( line == "hold_timer" ) {
+				if ( configType != GAME_MODE_CONFIG_BMM ) {
+					char errorCString[1024];
+					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: hold_timer mod is only allowed for Black Mesa Minute configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+					OnError( errorCString );
+					return;
+				}
 				holdTimer = true;
 			} else if ( line == "no_saving" ) {
 				noSaving = true;
@@ -427,7 +522,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				bulletPhysicsConstant = true;
 			} else {
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", configName.c_str(), lineCount, line.c_str() );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );
 				OnError( errorCString );
 				return;
 			}
@@ -440,7 +535,7 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 		default: {
 
 			char errorCString[1024];
-			sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: preceding section not specified.\n", configName.c_str(), lineCount );
+			sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: preceding section not specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 			OnError( errorCString );
 			break;
 
@@ -453,7 +548,7 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 
 	if ( modelIndexStrings.size() < 2 ) {
 		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: <mapname> <modelindex> not specified.\n", configName.c_str(), lineCount );
+		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: <mapname> <modelindex> not specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 		OnError( errorCString );
 		return ModelIndex();
 	}
@@ -464,7 +559,7 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 		modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
 	} catch ( std::invalid_argument ) {
 		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: model index incorrectly specified.\n", configName.c_str(), lineCount );
+		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: model index incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 		OnError( errorCString );
 		return ModelIndex();
 	}
@@ -486,7 +581,7 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 
 	if ( modelIndexStrings.size() < 3 ) {
 		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: <mapname> <modelindex> <soundpath> not specified.\n", configName.c_str(), lineCount );
+		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: <map_name> <model_index> <sound_path> not specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 		OnError( errorCString );
 		return ModelIndexWithSound();
 	}
@@ -499,7 +594,7 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 		modelIndex = std::stoi( modelIndexStrings.at( 0 ) );
 	} catch ( std::invalid_argument ) {
 		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: model index incorrectly specified.\n", configName.c_str(), lineCount );
+		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: model index incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 		OnError( errorCString );
 		return ModelIndexWithSound();
 	}
@@ -522,7 +617,7 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 				delay = std::stof( modelIndexStrings.at( 0 ) );
 			} catch ( std::invalid_argument ) {
 				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing cfg\\%s.txt, line %d: delay incorrectly specified.\n", configName.c_str(), lineCount );
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: delay incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
 				OnError( errorCString );
 				return ModelIndexWithSound();
 			}

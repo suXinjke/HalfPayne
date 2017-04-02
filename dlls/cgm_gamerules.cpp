@@ -21,7 +21,7 @@ int	gmsgCustomEnd	= 0;
 
 extern int g_changeLevelOccured;
 
-CCustomGameModeRules::CCustomGameModeRules( const char *configFolder ) : config( configFolder )
+CCustomGameModeRules::CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) : config( configType )
 {
 	if ( !gmsgCustomEnd ) {
 		gmsgCustomEnd = REG_USER_MSG( "CustomEnd", -1 );

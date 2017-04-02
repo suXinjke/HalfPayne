@@ -155,6 +155,13 @@ class CustomGameModeConfig {
 
 public:
 
+	enum GAME_MODE_CONFIG_TYPE {
+		GAME_MODE_CONFIG_MAP,
+		GAME_MODE_CONFIG_CGM,
+		GAME_MODE_CONFIG_BMM,
+		GAME_MODE_CONFIG_SAGM
+	};
+
 	enum FILE_SECTION {
 		FILE_SECTION_NO_SECTION,
 		FILE_SECTION_NAME,
@@ -181,7 +188,7 @@ public:
 		GAME_DIFFICULTY_HARD
 	};
 	
-	CustomGameModeConfig( const char *folderName );
+	CustomGameModeConfig( GAME_MODE_CONFIG_TYPE configType );
 
 	bool ReadFile( const char *fileName );
 
@@ -189,6 +196,8 @@ public:
 	bool OnNewSection( std::string sectionName );
 	void OnSectionData( std::string line, int lineCount );
 	void OnError( std::string );
+
+	std::string ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TYPE configType );
 
 	static std::string GetGamePath();
 	static int GetAllowedItemIndex( const char *allowedItem );
@@ -199,6 +208,7 @@ public:
 
 	std::string configName;
 	std::string error;
+	GAME_MODE_CONFIG_TYPE configType;
 
 	bool		markedForRestart;
 
