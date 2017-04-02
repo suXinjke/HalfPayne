@@ -504,14 +504,6 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				weaponRestricted = true;
 			} else if ( line == "instagib" ) {
 				instaGib = true;
-			} else if ( line == "hold_timer" ) {
-				if ( configType != GAME_MODE_CONFIG_BMM ) {
-					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: hold_timer mod is only allowed for Black Mesa Minute configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-					OnError( errorCString );
-					return;
-				}
-				holdTimer = true;
 			} else if ( line == "no_saving" ) {
 				noSaving = true;
 			} else if ( line == "bullet_physics_disabled" ) {
