@@ -789,11 +789,24 @@ void EV_FireShotGunSingle( event_args_t *args )
 //	   SHOTGUN END
 //======================
 
+float latestShoot = 0.0f;
+
 //======================
 //	    MP5 START
 //======================
 void EV_FireMP5( event_args_t *args )
 {
+	// DUMBEST HACK to prevent double executing of the event
+	// The root cause is client prediction - cl_lw 0 would fix the issue,
+	// but I'd prefer not to change the default value
+	// 0.011 - is approximation
+	// also see: https://github.com/ValveSoftware/halflife/issues/1621
+	float currentAbsoluteTime = gEngfuncs.GetClientTime();
+	if ( fabs( currentAbsoluteTime - latestShoot ) < 0.011f ) {
+		return;
+	}
+	latestShoot = currentAbsoluteTime;
+
 	int idx;
 	vec3_t origin;
 	vec3_t angles;
