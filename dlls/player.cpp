@@ -2674,6 +2674,8 @@ void CBasePlayer::CheckSuitUpdate()
 
 void CBasePlayer::SetSuitUpdate(char *name, int fgroup, int iNoRepeatTime)
 {
+	return; // POWER ARMOR IS FOR PUSSIES
+
 	int i;
 	int isentence;
 	int iempty = -1;

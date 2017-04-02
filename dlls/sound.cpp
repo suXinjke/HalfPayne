@@ -1437,6 +1437,8 @@ void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volu
 
 void EMIT_SOUND_SUIT(edict_t *entity, const char *sample)
 {
+	return; // POWER ARMOR IS FOR PUSSIES
+
 	float fvol;
 	int pitch = PITCH_NORM;
 
