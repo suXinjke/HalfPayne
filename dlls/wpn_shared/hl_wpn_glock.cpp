@@ -34,6 +34,8 @@ enum glock_e {
 
 	GLOCK_DRAW,
 	GLOCK_DRAW_FAST,
+	GLOCK_DRAW_NOSHOT,
+	GLOCK_DRAW_NOSHOT_FAST,
 
 	GLOCK_HOLSTER,
 	
@@ -127,6 +129,8 @@ BOOL CGlock::Deploy( )
 		} else {
 			anim = m_iClip > 0 ? GLOCK_DRAW_FROM_TWIN_NOSHOT_LEFT : GLOCK_DRAW_FROM_TWIN_NOSHOT_BOTH;
 		}
+	} else if ( m_iClip == 0 ) {
+		anim = GLOCK_DRAW_NOSHOT;
 	}
 
 	if ( m_pPlayer->slowMotionEnabled ) {
