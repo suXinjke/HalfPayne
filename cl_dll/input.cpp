@@ -933,9 +933,9 @@ void RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType )
 	if ( argCount < 2 ) {
 		gEngfuncs.Con_Printf(
 			"%s <configname> : launches %s game mode with settings specified in %s\\<configname>\n",
-			CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ),
-			CustomGameModeConfig::ConfigTypeToGameModeName( configType ),
-			CustomGameModeConfig::ConfigTypeToDirectoryName( configType )
+			CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ).c_str(),
+			CustomGameModeConfig::ConfigTypeToGameModeName( configType ).c_str(),
+			CustomGameModeConfig::ConfigTypeToDirectoryName( configType ).c_str()
 		);
 		return;
 	}
