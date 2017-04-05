@@ -15,6 +15,7 @@ static char *allowedItems[] = {
 	"item_healthkit",
 	"weapon_crowbar",
 	"weapon_9mmhandgun",
+	"weapon_9mmhandgun_twin",
 	"ammo_9mmclip",
 	"weapon_shotgun",
 	"ammo_buckshot",
