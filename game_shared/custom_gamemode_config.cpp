@@ -83,6 +83,91 @@ std::string CustomGameModeConfig::ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TY
 	}
 }
 
+std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( GAME_MODE_CONFIG_TYPE configType ) {
+	switch ( configType ) {
+		case GAME_MODE_CONFIG_CGM:
+			return "cgm";
+
+		case GAME_MODE_CONFIG_BMM:
+			return "bmm";
+
+		case GAME_MODE_CONFIG_SAGM:
+			return "sagm";
+
+		default:
+			return "";
+	}
+}
+
+std::string CustomGameModeConfig::ConfigTypeToGameModeName( GAME_MODE_CONFIG_TYPE configType ) {
+	switch ( configType ) {
+		case GAME_MODE_CONFIG_CGM:
+			return "Custom";
+
+		case GAME_MODE_CONFIG_BMM:
+			return "Black Mesa Minute";
+
+		case GAME_MODE_CONFIG_SAGM:
+			return "Score Attack";
+
+		default:
+			return "";
+	}
+}
+
+std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames() {
+	return GetAllConfigFileNames( folderPath.c_str() );
+}
+
+// Based on this answer
+// http://stackoverflow.com/questions/2314542/listing-directory-contents-using-c-and-windows
+std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames( const char *path ) {
+
+	std::vector<std::string> result;
+
+	WIN32_FIND_DATA fdFile;
+	HANDLE hFind = NULL;
+
+	char sPath[2048];
+	sprintf( sPath, "%s\\*.*", path );
+
+	if ( ( hFind = FindFirstFile( sPath, &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+		return std::vector<std::string>();
+	}
+
+	do {
+		if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
+			
+			sprintf( sPath, "%s\\%s", path, fdFile.cFileName );
+
+			if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
+				std::vector<std::string> sub = GetAllConfigFileNames( sPath );
+				result.insert( result.end(), sub.begin(), sub.end() );
+			} else {
+				std::string path = sPath;
+				std::string pathSubstring = folderPath + "\\";
+				std::string extensionSubstring = ".txt";
+
+				std::string::size_type pos = path.find( pathSubstring );
+				if ( pos != std::string::npos ) {
+					path.erase( pos, pathSubstring.length() );
+				}
+
+				pos = path.rfind( extensionSubstring );
+				if ( pos != std::string::npos ) {
+
+					path.erase( pos, extensionSubstring.length() );
+					result.push_back( path );
+				}
+			}
+		}
+	} while ( FindNextFile( hFind, &fdFile ) );
+
+	FindClose( hFind );
+
+	return result;
+}
+
 bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	error = "";

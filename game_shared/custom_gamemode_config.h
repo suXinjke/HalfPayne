@@ -197,7 +197,12 @@ public:
 	void OnSectionData( std::string line, int lineCount );
 	void OnError( std::string );
 
-	std::string ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TYPE configType );
+	static std::string ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TYPE configType );
+	static std::string ConfigTypeToGameModeCommand( GAME_MODE_CONFIG_TYPE configType );
+	static std::string ConfigTypeToGameModeName( GAME_MODE_CONFIG_TYPE configType );
+
+	std::vector<std::string> GetAllConfigFileNames();
+	std::vector<std::string> GetAllConfigFileNames( const char *path );
 
 	static std::string GetGamePath();
 	static int GetAllowedItemIndex( const char *allowedItem );

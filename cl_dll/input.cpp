@@ -928,93 +928,83 @@ void CL_ResetButtonBits( int bits )
 	}
 }
 
-// Not sure if this is a right place for this function
+void RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+	int argCount = gEngfuncs.Cmd_Argc();
+	if ( argCount < 2 ) {
+		gEngfuncs.Con_Printf(
+			"%s <configname> : launches %s game mode with settings specified in %s\\<configname>\n",
+			CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ),
+			CustomGameModeConfig::ConfigTypeToGameModeName( configType ),
+			CustomGameModeConfig::ConfigTypeToDirectoryName( configType )
+		);
+		return;
+	}
+
+	char *configName = gEngfuncs.Cmd_Argv( 1 );
+
+	CustomGameModeConfig config( configType );
+
+	// Parse config file and retrieve the map name from [startmap] section
+	config.Reset();
+	if ( !config.ReadFile( configName ) ) {
+		gEngfuncs.Con_Printf( "%s\n", config.error.c_str() );
+		return;
+	}
+
+	// Prepare game mode and try to launch [start_map]
+	// Launching the map then will execute CustomGameModeConfig constructor on server,
+	// where the file will be parsed again.
+	gEngfuncs.Cvar_Set( "gamemode_config", configName );
+	gEngfuncs.Cvar_Set( "gamemode", ( char * ) CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ).c_str() );
+
+	char mapCmd[64];
+	sprintf( mapCmd, "map %s", config.startMap.c_str() );
+	gEngfuncs.pfnClientCmd( mapCmd );
+}
+
 void RunBlackMesaMinute()
 {
-	int argCount = gEngfuncs.Cmd_Argc();
-	if ( argCount < 2 ) {
-		gEngfuncs.pfnConsolePrint( "bmm <configname> : launches Black Mesa Minute gamemode with settings specified in bmm_cfg\\<configname>\n" );
-		return;
-	}
-	
-	char *configName = gEngfuncs.Cmd_Argv( 1 );
-
-	CustomGameModeConfig gBMMConfig( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
-
-	// Parse config file and retrieve the map name from [startmap] section
-	gBMMConfig.Reset();
-	if ( !gBMMConfig.ReadFile( configName ) ) {
-		gEngfuncs.Con_Printf( "%s\n", gBMMConfig.error.c_str() );
-		return;
-	}
-
-	// Prepare Black Mesa Minute gamemode and try to launch [startmap]
-	// Launching the map then will execute CBlackMesaMinute::ClientConnected and CBlackMesaMinute::Spawn
-	// Where the file will be parsed again for additional parameters
-	gEngfuncs.Cvar_Set( "gamemode_config", configName );
-	gEngfuncs.Cvar_Set( "gamemode", "bmm" );
-	
-	char mapCmd[64];
-	sprintf( mapCmd, "map %s", gBMMConfig.startMap.c_str() );
-	gEngfuncs.pfnClientCmd( mapCmd );
+	RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
 }
 
-// Not sure if this is a right place for this function
 void RunCustomGameMode()
 {
-	int argCount = gEngfuncs.Cmd_Argc();
-	if ( argCount < 2 ) {
-		gEngfuncs.pfnConsolePrint( "cgm <configname> : launches custom gamemode with settings specified in cgm_cfg\\<configname>\n" );
-		return;
-	}
-
-	char *configName = gEngfuncs.Cmd_Argv( 1 );
-
-	CustomGameModeConfig gCGMConfig( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
-
-	// Parse config file and retrieve the map name from [startmap] section
-	gCGMConfig.Reset();
-	if ( !gCGMConfig.ReadFile( configName ) ) {
-		gEngfuncs.Con_Printf( "%s\n", gCGMConfig.error.c_str() );
-		return;
-	}
-
-	// Prepare custom gamemode and try to launch [startmap]
-	// Launching the map then will execute CCustomGameMode::ClientConnected and CCustomGameMode::Spawn
-	// Where the file will be parsed again for additional parameters
-	gEngfuncs.Cvar_Set( "gamemode_config", configName );
-	gEngfuncs.Cvar_Set( "gamemode", "custom" );
-
-	char mapCmd[64];
-	sprintf( mapCmd, "map %s", gCGMConfig.startMap.c_str() );
-	gEngfuncs.pfnClientCmd( mapCmd );
+	RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
 }
 
-// TODO: A single function instead of this copy paste
 void RunScoreAttack()
 {
-	int argCount = gEngfuncs.Cmd_Argc();
-	if ( argCount < 2 ) {
-		gEngfuncs.pfnConsolePrint( "sagm <configname> : launches score attack gamemode with settings specified in sagm_cfg\\<configname>\n" );
-		return;
+	RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
+}
+
+void ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+	CustomGameModeConfig config( configType );
+	std::vector<std::string> files = config.GetAllConfigFileNames();
+	gEngfuncs.Con_Printf( "Command | Start map | Config name\n" );
+	for ( auto file : files ) {
+		if ( !config.ReadFile( file.c_str() ) ) {
+			continue;
+		};
+
+		std::string result = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + " " + file + " | " + config.startMap;
+		if ( config.name.length() > 0 ) {
+			result += " | " + config.name;
+		}
+		gEngfuncs.Con_Printf( "%s\n", result.c_str() );
+
 	}
+}
 
-	char *configName = gEngfuncs.Cmd_Argv( 1 );
+void ShowCustomGameModesList() {
+	ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
+}
 
-	CustomGameModeConfig gCGMConfig( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
+void ShowBlackMesaMinuteList() {
+	ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
+}
 
-	gCGMConfig.Reset();
-	if ( !gCGMConfig.ReadFile( configName ) ) {
-		gEngfuncs.Con_Printf( "%s\n", gCGMConfig.error.c_str() );
-		return;
-	}
-
-	gEngfuncs.Cvar_Set( "gamemode_config", configName );
-	gEngfuncs.Cvar_Set( "gamemode", "sagm" );
-
-	char mapCmd[64];
-	sprintf( mapCmd, "map %s", gCGMConfig.startMap.c_str() );
-	gEngfuncs.pfnClientCmd( mapCmd );
+void ShowScoreAttackList() {
+	ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
 }
 
 /*
@@ -1102,6 +1092,10 @@ void InitInput (void)
 	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );
 
 	max_commentary		= gEngfuncs.pfnRegisterVariable( "max_commentary", "1", FCVAR_ARCHIVE );
+
+	gEngfuncs.pfnAddCommand( "cgm_list", ShowCustomGameModesList );
+	gEngfuncs.pfnAddCommand( "bmm_list", ShowBlackMesaMinuteList );
+	gEngfuncs.pfnAddCommand( "sagm_list", ShowScoreAttackList );
 
 	gEngfuncs.pfnAddCommand( "cgm", RunCustomGameMode );
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
