@@ -34,6 +34,7 @@
 #include "decals.h"
 #include "gamerules.h"
 #include "bmm_gamerules.h"
+#include "sagm_gamerules.h"
 #include "game.h"
 #include "pm_shared.h"
 #include "hltv.h"
@@ -5480,7 +5481,13 @@ void CRevertSaved :: LoadThink( void )
 {
 	if ( !gpGlobals->deathmatch )
 	{
-		SERVER_COMMAND("reload\n");
+		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
+			bmm->RestartGame();
+		} else if ( CScoreAttack *sagm = dynamic_cast< CScoreAttack * >( g_pGameRules ) ) {
+			sagm->RestartGame();
+		} else {
+			SERVER_COMMAND( "reload\n" );
+		}
 	}
 }
 
