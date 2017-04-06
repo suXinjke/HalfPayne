@@ -40,6 +40,7 @@
 #include	"talkmonster.h"
 #include	"soundent.h"
 #include	"effects.h"
+#include	"player.h"
 #include	"customentity.h"
 
 int g_fGruntQuestion;				// true if an idle grunt asked a question. Cleared when someone answers.
@@ -807,7 +808,14 @@ void CHGrunt :: Shoot ( void )
 
 	Vector	vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT(40,90) + gpGlobals->v_up * RANDOM_FLOAT(75,200) + gpGlobals->v_forward * RANDOM_FLOAT(-40, 40);
 	EjectBrass ( vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL); 
-	FireBullets(1, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 2048, BULLET_MONSTER_MP5 ); // shoot +-5 degrees
+	Vector spread = VECTOR_CONE_10DEGREES;
+	if ( CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
+		if ( player->bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
+			( player->slowMotionEnabled && player->bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) { 
+			spread = VECTOR_CONE_3DEGREES;
+		}
+	}
+	FireBullets(1, vecShootOrigin, vecShootDir, spread, 2048, BULLET_MONSTER_MP5 ); // shoot +-5 degrees
 
 	pev->effects |= EF_MUZZLEFLASH;
 	
