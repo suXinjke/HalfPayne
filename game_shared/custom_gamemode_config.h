@@ -244,6 +244,7 @@ public:
 	bool infiniteSlowmotion;
 	bool emptySlowmotion;
 	bool noSlowmotion;
+	bool slowmotionOnDamage;
 	
 	bool noSaving;
 	

@@ -144,6 +144,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 
@@ -756,6 +757,14 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 
 	// keep track of amount of damage last sustained
 	m_lastDamageAmount = flDamage;
+
+	if ( slowmotionOnDamage ) {
+		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pAttacker ) ) {
+			if ( flDamage > 0 && ( bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_CLUB | DMG_SHOCK | DMG_SONIC | DMG_ENERGYBEAM ) ) ) {
+				TakeSlowmotionCharge( max( 1, flDamage / 2.0f ) );
+			}
+		}
+	}
 
 	// Armor. 
 	if (pev->armorvalue && !(bitsDamageType & (DMG_FALL | DMG_DROWN)) )// armor doesn't protect against fall or drown damage!
@@ -3290,6 +3299,8 @@ void CBasePlayer::Spawn( void )
 	slowMotionCharge = 0;
 	slowMotionUpdateTime = 1;
 	infiniteSlowMotion = 0;
+
+	slowmotionOnDamage = 0;
 
 	painkillerCount = 0;
 	

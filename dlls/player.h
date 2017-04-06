@@ -138,6 +138,8 @@ public:
 	int					slowMotionCharge;
 	BOOL				infiniteSlowMotion;
 
+	BOOL				slowmotionOnDamage;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;

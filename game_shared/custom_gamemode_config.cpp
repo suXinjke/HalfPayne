@@ -257,6 +257,7 @@ void CustomGameModeConfig::Reset() {
 	this->infiniteSlowmotion = false;
 	this->emptySlowmotion = false;
 	this->noSlowmotion = false;
+	this->slowmotionOnDamage = false;
 
 	this->noSaving = false;
 
@@ -581,6 +582,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				emptySlowmotion = true;
 			} else if ( line == "no_slowmotion" ) {
 				noSlowmotion = true;
+			} else if ( line == "slowmotion_on_damage" ) {
+				slowmotionOnDamage = true;
 			} else if ( line == "headshots" ) {
 				powerfulHeadshots = true;
 			} else if ( line == "infinite_ammo" ) {
