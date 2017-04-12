@@ -220,16 +220,11 @@ void CBlackMesaMinute::ResumeTimer( CBasePlayer *pPlayer )
 	MESSAGE_END();
 }
 
-void CBlackMesaMinute::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )
+void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex )
 {
-	CCustomGameModeRules::HookModelIndex( activator, mapName, modelIndex );
+	CCustomGameModeRules::OnHookedModelIndex( pPlayer, activator, modelIndex );
 
-	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-	if ( !pPlayer ) {
-		return;
-	}
-
-	ModelIndex indexToFind( mapName, modelIndex );
+	ModelIndex indexToFind( STRING( gpGlobals->mapname ), modelIndex );
 
 	// Does timerPauses contain such index?
 	auto foundIndex = config.timerPauses.find( indexToFind ); // it's complex iterator type, so leave it auto

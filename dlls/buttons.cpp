@@ -691,14 +691,8 @@ void CBaseButton::ButtonActivate( )
 	else
 		AngularMove( m_vecAngle2, pev->speed);
 
-	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
-		char message[128];
-		sprintf( message, "[%s] Activated button: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
-		g_engfuncs.pfnServerPrint( message );
-	}
-
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+		singlePlayerRules->HookModelIndex( this->edict() );
 	}
 }
 

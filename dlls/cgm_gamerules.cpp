@@ -63,12 +63,13 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		return;
 	}
 
+	CHalfLifeRules::PlayerSpawn( pPlayer );
+
 	pPlayer->activeGameMode = GAME_MODE_CUSTOM;
 	pPlayer->activeGameModeConfig = ALLOC_STRING( config.configName.c_str() );
 
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
-	HookModelIndex( pPlayer->edict(), STRING( gpGlobals->mapname ), CHANGE_LEVEL_MODEL_INDEX );
 
 	pPlayer->noSaving = config.noSaving;
 	pPlayer->infiniteAmmo = config.infiniteAmmo;
@@ -261,16 +262,11 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 }
 
-void CCustomGameModeRules::HookModelIndex( edict_t *activator, const char *mapName, int modelIndex )
+void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex )
 {
-	CHalfLifeRules::HookModelIndex( activator, mapName, modelIndex );
+	CHalfLifeRules::OnHookedModelIndex( pPlayer, activator, modelIndex );
 
-	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-	if ( !pPlayer ) {
-		return;
-	}
-
-	ModelIndex indexToFind( mapName, modelIndex );
+	ModelIndex indexToFind( STRING( gpGlobals->mapname ), modelIndex );
 	
 	// Does endTriggers contain such index?
 	auto foundIndex = config.endTriggers.find( indexToFind );

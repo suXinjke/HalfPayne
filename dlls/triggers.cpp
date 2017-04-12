@@ -728,14 +728,8 @@ void PlayCDTrack( int iTrack )
 // only plays for ONE client, so only use in single play!
 void CTriggerCDAudio :: PlayTrack( void )
 {
-	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
-		char message[128];
-		sprintf( message, "[%s] Activated trigger: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
-		g_engfuncs.pfnServerPrint( message );
-	}
-
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+		singlePlayerRules->HookModelIndex( this->edict() );
 	}
 
 	PlayCDTrack( (int)pev->health );
@@ -1199,15 +1193,9 @@ void CBaseTrigger :: ActivateMultiTrigger( CBaseEntity *pActivator )
 		pev->nextthink = gpGlobals->time + 0.1;
 		SetThink(  &CBaseTrigger::SUB_Remove );
 	}
-	
-	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
-		char message[128];
-		sprintf( message, "[%s] Activated trigger: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
-		g_engfuncs.pfnServerPrint( message );
-	}
 
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+		singlePlayerRules->HookModelIndex( this->edict() );
 	}
 }
 
@@ -1540,16 +1528,9 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 		gpGlobals->vecLandmarkOffset = VARS(pentLandmark)->origin;
 	}
 //	ALERT( at_console, "Level touches %d levels\n", ChangeList( levels, 16 ) );
-
-	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
-		char message[128];
-		sprintf( message, "[%s] Activated trigger: %d %s\n", STRING( gpGlobals->mapname ), pev->modelindex, STRING( pev->classname ) );
-		g_engfuncs.pfnServerPrint( message );
-	}
-
 	
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->HookModelIndex( m_hActivator.Get(), STRING( gpGlobals->mapname ), pev->modelindex );
+		singlePlayerRules->HookModelIndex( this->edict() );
 	}
 
 	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );

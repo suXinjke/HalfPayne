@@ -179,7 +179,8 @@ public:
 	CustomGameModeConfig mapConfig;
 
 	virtual void OnChangeLevel();
-	virtual void HookModelIndex( edict_t *activator, const char *mapName, int modelIndex );
+	virtual void HookModelIndex( edict_t *activator );
+	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex );
 	virtual void Precache();
 
 // GR_Think
