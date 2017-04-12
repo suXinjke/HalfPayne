@@ -635,13 +635,11 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 
 	std::string mapName = modelIndexStrings.at( 0 );
 	int modelIndex;
+	std::string targetName = "";
 	try {
 		modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
 	} catch ( std::invalid_argument ) {
-		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: model index incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-		OnError( errorCString );
-		return ModelIndex();
+		targetName = modelIndexStrings.at( 1 );
 	}
 
 	bool constant = false;
@@ -652,7 +650,7 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 		}
 	}
 
-	return ModelIndex( mapName, modelIndex, constant );
+	return ModelIndex( mapName, modelIndex, targetName, constant );
 }
 
 // TODO: This is dumb copy of parser above, would simplify
@@ -670,13 +668,11 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 	modelIndexStrings.pop_front();
 
 	int modelIndex;
+	std::string targetName = "";
 	try {
 		modelIndex = std::stoi( modelIndexStrings.at( 0 ) );
 	} catch ( std::invalid_argument ) {
-		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: model index incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-		OnError( errorCString );
-		return ModelIndexWithSound();
+		targetName = modelIndexStrings.at( 1 );
 	}
 	modelIndexStrings.pop_front();
 
@@ -712,7 +708,7 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 		delay = 0.101f;
 	}
 
-	return ModelIndexWithSound( mapName, modelIndex, soundPath, isMaxCommentary, delay, constant );
+	return ModelIndexWithSound( mapName, modelIndex, targetName, soundPath, isMaxCommentary, delay, constant );
 }
 
 bool operator < ( const ModelIndex &modelIndex1, const ModelIndex &modelIndex2 ) {

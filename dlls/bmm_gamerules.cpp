@@ -220,15 +220,20 @@ void CBlackMesaMinute::ResumeTimer( CBasePlayer *pPlayer )
 	MESSAGE_END();
 }
 
-void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex )
+void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
-	CCustomGameModeRules::OnHookedModelIndex( pPlayer, activator, modelIndex );
+	CCustomGameModeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
 
-	ModelIndex indexToFind( STRING( gpGlobals->mapname ), modelIndex );
+	ModelIndex indexToFind( STRING( gpGlobals->mapname ), modelIndex, targetName );
 
 	// Does timerPauses contain such index?
-	auto foundIndex = config.timerPauses.find( indexToFind ); // it's complex iterator type, so leave it auto
-	if ( foundIndex != config.timerPauses.end() ) {
+	auto foundIndex = config.timerPauses.begin(); // it's complex iterator type, so leave it auto
+	while ( foundIndex != config.timerPauses.end() ) {
+		if ( foundIndex->modelIndex != modelIndex && foundIndex->targetName != targetName && foundIndex->targetName.size() > 0 ) {
+			foundIndex++;
+			continue;
+		}
+
 		bool constant = foundIndex->constant;
 
 		if ( !constant ) {
@@ -240,8 +245,13 @@ void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activa
 	}
 
 	// Does timerResumes contain such index?
-	foundIndex = config.timerResumes.find( indexToFind );
-	if ( foundIndex != config.timerResumes.end() ) {
+	foundIndex = config.timerResumes.begin();
+	while ( foundIndex != config.timerResumes.end() ) {
+		if ( foundIndex->modelIndex != modelIndex && foundIndex->targetName != targetName && foundIndex->targetName.size() > 0 ) {
+			foundIndex++;
+			continue;
+		}
+
 		bool constant = foundIndex->constant;
 
 		if ( !constant ) {

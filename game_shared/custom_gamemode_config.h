@@ -91,19 +91,22 @@ public:
 
 	std::string mapName;
 	int			modelIndex;
+	std::string targetName;
 	bool		constant;
 
 	ModelIndex() {
 		this->mapName = "";
-		this->modelIndex = -1;
+		this->modelIndex = -2;
+		this->targetName = "";
 		this->constant = false;
 
 		this->key = mapName + std::to_string( modelIndex );
 	}
 
-	ModelIndex( const std::string &mapName, int modelIndex, bool constant = false ) {
+	ModelIndex( const std::string &mapName, int modelIndex, const std::string &targetName, bool constant = false ) {
 		this->mapName = mapName;
 		this->modelIndex = modelIndex;
+		this->targetName = targetName;
 		this->constant = constant;
 
 		this->key = GetKey();
@@ -111,7 +114,7 @@ public:
 
 protected:
 	virtual std::string GetKey() {
-		return mapName + std::to_string( modelIndex ); 
+		return mapName + std::to_string( modelIndex ) + targetName; 
 	}
 };
 
@@ -127,8 +130,8 @@ public:
 		this->delay = 0.0f;
 	}
 
-	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &soundPath, bool isMaxCommentary = false, float delay = 0.0f, bool constant = false ) 
-		: ModelIndex( mapName, modelIndex, constant ) {
+	ModelIndexWithSound( const std::string &mapName, int modelIndex, const std::string &targetName, const std::string &soundPath, bool isMaxCommentary = false, float delay = 0.0f, bool constant = false ) 
+		: ModelIndex( mapName, modelIndex, targetName, constant ) {
 		
 		this->soundPath = soundPath;
 		this->delay = delay;
@@ -138,7 +141,7 @@ public:
 
 private:
 	virtual std::string GetKey() {
-		return mapName + std::to_string( modelIndex ) + soundPath; 
+		return mapName + std::to_string( modelIndex ) + targetName + soundPath; 
 	}
 };
 

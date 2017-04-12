@@ -262,11 +262,11 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 }
 
-void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex )
+void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
-	CHalfLifeRules::OnHookedModelIndex( pPlayer, activator, modelIndex );
+	CHalfLifeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
 
-	ModelIndex indexToFind( STRING( gpGlobals->mapname ), modelIndex );
+	ModelIndex indexToFind( STRING( gpGlobals->mapname ), modelIndex, targetName );
 	
 	// Does endTriggers contain such index?
 	auto foundIndex = config.endTriggers.find( indexToFind );

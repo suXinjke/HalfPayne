@@ -3546,7 +3546,7 @@ int CBasePlayer::Restore( CRestore &restore )
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
-			singlePlayerRules->OnHookedModelIndex( pPlayer, NULL, CHANGE_LEVEL_MODEL_INDEX );
+			singlePlayerRules->OnHookedModelIndex( pPlayer, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
 		}
 	}
 	

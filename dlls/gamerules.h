@@ -180,7 +180,7 @@ public:
 
 	virtual void OnChangeLevel();
 	virtual void HookModelIndex( edict_t *activator );
-	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex );
+	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
 	virtual void Precache();
 
 // GR_Think

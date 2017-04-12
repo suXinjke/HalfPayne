@@ -18,7 +18,7 @@ public:
 
 	virtual void End( CBasePlayer *pPlayer );
 
-	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex );
+	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
 
 	virtual void SpawnEnemiesByConfig( const char *mapName );
 

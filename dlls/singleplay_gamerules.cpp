@@ -70,24 +70,25 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator )
 
 	int modelIndex = activator->v.modelindex;
 	const char *className = STRING( activator->v.classname );
+	std::string targetName = STRING( activator->v.targetname );
 
 	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
 		char message[128];
-		sprintf( message, "[%s] Hooked model index: %d %s\n", STRING( gpGlobals->mapname ), modelIndex, className );
+		sprintf( message, "[%s] Hooked model index: %d; target name: %s; class name: %s\n", STRING( gpGlobals->mapname ), modelIndex, targetName.c_str(), className );
 		g_engfuncs.pfnServerPrint( message );
 	}
 	
-	OnHookedModelIndex( pPlayer, activator, modelIndex );
+	OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
 }
 
-void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex )
+void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
 	// Does 'sounds' contain such index?
 	auto soundIndex = mapConfig.sounds.begin();
 	while ( soundIndex != mapConfig.sounds.end() ) {
 
 		if ( soundIndex->mapName == std::string( STRING( gpGlobals->mapname ) ) &&
-			soundIndex->modelIndex == modelIndex &&
+			( soundIndex->modelIndex == modelIndex || ( soundIndex->targetName == targetName && soundIndex->targetName.size() > 0 ) ) &&
 			!pPlayer->ModelIndexHasBeenHooked( soundIndex->key.c_str() ) ) {
 
 			// I'm very sorry for this memory leak for now
@@ -208,7 +209,7 @@ float CHalfLifeRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 //=========================================================
 void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 {
-	OnHookedModelIndex( pPlayer, NULL, CHANGE_LEVEL_MODEL_INDEX );
+	OnHookedModelIndex( pPlayer, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
 }
 
 //=========================================================
