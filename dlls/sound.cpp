@@ -547,6 +547,10 @@ void CAmbientGeneric :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCalle
 
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->HookModelIndex( this->edict() );
+
+		if ( singlePlayerRules->EntityShouldBePrevented( this->edict() ) ) {
+			return;
+		}
 	}
 
 	if (useType == USE_SET && m_fActive)		// Momentary buttons will pass down a float in here

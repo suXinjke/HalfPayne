@@ -178,6 +178,8 @@ public:
 
 	CustomGameModeConfig mapConfig;
 
+	bool EntityShouldBePrevented( edict_t *entity );
+
 	virtual void OnChangeLevel();
 	virtual void HookModelIndex( edict_t *activator );
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );

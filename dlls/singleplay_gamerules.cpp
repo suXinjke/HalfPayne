@@ -42,6 +42,27 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CustomGameModeConfig::GAME_M
 	RefreshSkillData();
 }
 
+bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
+{
+	if ( entity ) {
+		int modelIndex = entity->v.modelindex;
+		std::string targetName = STRING( entity->v.targetname );
+
+		auto foundIndex = mapConfig.entitiesToPrevent.begin();
+		while ( foundIndex != mapConfig.entitiesToPrevent.end() ) {
+			if ( foundIndex->mapName == std::string( STRING( gpGlobals->mapname ) ) &&
+				( foundIndex->modelIndex == modelIndex || ( foundIndex->targetName == targetName && foundIndex->targetName.size() > 0 ) ) ) {
+				return true;
+			}
+			
+			foundIndex++;
+			continue;
+		}
+	}
+
+	return false;
+}
+
 void CHalfLifeRules::OnChangeLevel()
 {
 	// it was previously a C style cast like everywhere else,

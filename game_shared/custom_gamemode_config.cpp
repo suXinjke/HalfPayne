@@ -247,6 +247,7 @@ void CustomGameModeConfig::Reset() {
 	this->entitySpawns.clear();
 	this->entitiesToPrecache.clear();
 	this->soundsToPrecache.clear();
+	this->entitiesToPrevent.clear();
 
 	this->startPositionSpecified = false;
 	this->startYawSpecified = false;
@@ -300,6 +301,8 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = FILE_SECTION_SOUND;
 	} else if ( sectionName == "max_commentary" ) {
 		currentFileSection = FILE_SECTION_MAX_COMMENTARY;
+	} else if ( sectionName == "sound_prevent" ) {
+		currentFileSection = FILE_SECTION_SOUND_PREVENT;
 	} else {
 		return false;
 	}
@@ -484,6 +487,20 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 			break;
 
+		}
+
+		case FILE_SECTION_SOUND_PREVENT: {
+			if ( configType != GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [sound_prevent] section is only allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
+			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
+			entitiesToPrevent.insert( modelIndex );
+
+			break;
 		}
 
 		case FILE_SECTION_SOUND:
