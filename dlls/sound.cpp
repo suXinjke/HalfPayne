@@ -545,6 +545,10 @@ void CAmbientGeneric :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCalle
 	}
 	// Directly change pitch if arg passed. Only works if sound is already playing.
 
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( this->edict() );
+	}
+
 	if (useType == USE_SET && m_fActive)		// Momentary buttons will pass down a float in here
 	{
 
