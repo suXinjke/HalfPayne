@@ -651,7 +651,7 @@ const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, 
 	}
 
 	std::string mapName = modelIndexStrings.at( 0 );
-	int modelIndex;
+	int modelIndex = -2;
 	std::string targetName = "";
 	try {
 		modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
@@ -684,12 +684,12 @@ const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( 
 	std::string mapName = modelIndexStrings.at( 0 );
 	modelIndexStrings.pop_front();
 
-	int modelIndex;
+	int modelIndex = -2;
 	std::string targetName = "";
 	try {
 		modelIndex = std::stoi( modelIndexStrings.at( 0 ) );
 	} catch ( std::invalid_argument ) {
-		targetName = modelIndexStrings.at( 1 );
+		targetName = modelIndexStrings.at( 0 );
 	}
 	modelIndexStrings.pop_front();
 
