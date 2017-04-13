@@ -1207,6 +1207,9 @@ void CBasePlayerAmmo :: DefaultTouch( CBaseEntity *pOther )
 			SetTouch( NULL );
 			SetThink(&CBasePlayerAmmo::SUB_Remove);
 			pev->nextthink = gpGlobals->time + .1;
+
+			CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+			g_pGameRules->PlayerGotAmmo( pPlayer, this );
 		}
 	}
 	else if (gEvilImpulse101)

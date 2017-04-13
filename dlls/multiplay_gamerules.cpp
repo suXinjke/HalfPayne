@@ -1017,7 +1017,7 @@ Vector CHalfLifeMultiplay::VecItemRespawnSpot( CItem *pItem )
 
 //=========================================================
 //=========================================================
-void CHalfLifeMultiplay::PlayerGotAmmo( CBasePlayer *pPlayer, char *szName, int iCount )
+void CHalfLifeMultiplay::PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *pAmmo )
 {
 }
 

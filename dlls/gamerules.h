@@ -126,7 +126,7 @@ public:
 
 // Ammo retrieval
 	virtual BOOL CanHaveAmmo( CBasePlayer *pPlayer, const char *pszAmmoName, int iMaxCarry );// can this player take more of this ammo?
-	virtual void PlayerGotAmmo( CBasePlayer *pPlayer, char *szName, int iCount ) = 0;// called each time a player picks up some ammo in the world
+	virtual void PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *pAmmo ) = 0;// called each time a player picks up some ammo in the world
 
 // Ammo spawn/respawn control
 	virtual int AmmoShouldRespawn( CBasePlayerAmmo *pAmmo ) = 0;// should this ammo item respawn?
@@ -238,7 +238,7 @@ public:
 	virtual Vector VecItemRespawnSpot( CItem *pItem );
 
 // Ammo retrieval
-	virtual void PlayerGotAmmo( CBasePlayer *pPlayer, char *szName, int iCount );
+	virtual void PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *ammo );
 
 // Ammo spawn/respawn control
 	virtual int AmmoShouldRespawn( CBasePlayerAmmo *pAmmo );
@@ -333,7 +333,7 @@ public:
 	virtual Vector VecItemRespawnSpot( CItem *pItem );
 
 // Ammo retrieval
-	virtual void PlayerGotAmmo( CBasePlayer *pPlayer, char *szName, int iCount );
+	virtual void PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *pAmmo );
 
 // Ammo spawn/respawn control
 	virtual int AmmoShouldRespawn( CBasePlayerAmmo *pAmmo );

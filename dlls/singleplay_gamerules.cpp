@@ -290,6 +290,7 @@ void CHalfLifeRules::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entv
 //=========================================================
 void CHalfLifeRules :: PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
+	HookModelIndex( pWeapon->edict() );
 }
 
 //=========================================================
@@ -340,6 +341,7 @@ BOOL CHalfLifeRules::CanHaveItem( CBasePlayer *pPlayer, CItem *pItem )
 //=========================================================
 void CHalfLifeRules::PlayerGotItem( CBasePlayer *pPlayer, CItem *pItem )
 {
+	HookModelIndex( pItem->edict() );
 }
 
 //=========================================================
@@ -376,8 +378,9 @@ BOOL CHalfLifeRules::IsAllowedToSpawn( CBaseEntity *pEntity )
 
 //=========================================================
 //=========================================================
-void CHalfLifeRules::PlayerGotAmmo( CBasePlayer *pPlayer, char *szName, int iCount )
+void CHalfLifeRules::PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *pAmmo )
 {
+	HookModelIndex( pAmmo->edict() );
 }
 
 //=========================================================
