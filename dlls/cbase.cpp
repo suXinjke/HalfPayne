@@ -593,6 +593,10 @@ void CBaseEntity::KilledTryToNotifyPlayer() {
 	if ( player ) {
 		player->OnKilledEntity( this );
 	}
+
+	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		rules->HookModelIndex( this->edict() );
+	}
 }
 
 void CBaseEntity :: Killed( entvars_t *pevAttacker, int iGib )
