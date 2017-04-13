@@ -1029,6 +1029,29 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/pain/SELF_PAIN_19.wav" );
 	PRECACHE_SOUND( "max/pain/SELF_PAIN_20.wav" );
 
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_1.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_2.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_3.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_4.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_5.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_6.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_7.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_8.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_9.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_10.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_11.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_12.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_13.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_14.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_15.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_16.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_17.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_18.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_19.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_20.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_21.wav" );
+	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_22.wav" );
+
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->Precache();
 	}

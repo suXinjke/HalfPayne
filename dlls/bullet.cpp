@@ -4,6 +4,7 @@
 #include "weapons.h"
 #include "skill.h"
 #include "gamerules.h"
+#include "player.h"
 
 LINK_ENTITY_TO_CLASS( bullet, CBullet );
 
@@ -82,6 +83,10 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, ENT(pev), &tr );
 	TEXTURETYPE_PlaySound( &tr, vecSrc, vecEnd, bulletType );
 	DecalGunshot( &tr, bulletType );
+
+	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pev->owner ) ) ) {
+		player->OnBulletHit( pOther );
+	}
 
 	if ( pOther->pev->takedamage )
 	{

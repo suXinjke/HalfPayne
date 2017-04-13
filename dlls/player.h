@@ -352,6 +352,8 @@ public:
 
 	void HandleSlowmotionFlags();
 
+	void OnBulletHit( CBaseEntity *hitEntity );
+
 	float m_flStartCharge;
 	float m_flAmmoStartCharge;
 	float m_flPlayAftershock;
@@ -400,6 +402,10 @@ public:
 
 	float allowedToReactOnMinorInjury;
 	float allowedToReactOnSeriousInjury;
+
+	int dumbShots;
+	bool readyToComplainAboutDumbShots;
+	float allowedToComplainAboutDumbShots;
 
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;

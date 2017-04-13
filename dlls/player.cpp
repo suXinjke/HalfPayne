@@ -39,6 +39,7 @@
 #include "pm_shared.h"
 #include "hltv.h"
 #include "client.h"
+#include "func_break.h"
 
 // #define DUCKFIX
 
@@ -3386,6 +3387,10 @@ void CBasePlayer::Spawn( void )
 	allowedToReactOnMinorInjury = 0.0f;
 	allowedToReactOnSeriousInjury = 0.0f;
 
+	dumbShots = 0;
+	readyToComplainAboutDumbShots = false;
+	allowedToComplainAboutDumbShots = 0.0f;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
 
@@ -3628,6 +3633,10 @@ int CBasePlayer::Restore( CRestore &restore )
 	allowedToReactOnMinorInjury = 0.0f;
 	allowedToReactOnSeriousInjury = 0.0f;
 
+	dumbShots = 0;
+	readyToComplainAboutDumbShots = false;
+	allowedToComplainAboutDumbShots = 0.0f;
+
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
@@ -3638,7 +3647,34 @@ int CBasePlayer::Restore( CRestore &restore )
 	return status;
 }
 
+void CBasePlayer::OnBulletHit( CBaseEntity *hitEntity )
+{
+	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutDumbShots ) {
+		return;
+	}
 
+	const char *entityClassName = STRING( hitEntity->pev->classname );
+
+	if ( CBreakable *breakable = dynamic_cast<CBreakable *>( hitEntity ) ) {
+		if ( FStringNull( breakable->pev->target ) && !m_iszKillTarget ) {
+			dumbShots++;
+		} else {
+			dumbShots = 0;
+			readyToComplainAboutDumbShots = false;
+			return;
+		}
+	} else if ( hitEntity->pev->takedamage <= 0.0f ) {
+		dumbShots++;
+	} else {
+		dumbShots = 0;
+		readyToComplainAboutDumbShots = false;
+		return;
+	}
+
+	if ( RANDOM_LONG( 40, 200 ) < dumbShots ) {
+		readyToComplainAboutDumbShots = true;
+	}
+}
 
 void CBasePlayer::SelectNextItem( int iItem )
 {
@@ -4851,6 +4887,15 @@ void CBasePlayer :: UpdateClientData( void )
 		slowMotionCharge = 100;
 	}
 
+	if ( readyToComplainAboutDumbShots && !( this->pev->button & IN_ATTACK ) ) {
+		char fileName[256];
+		sprintf_s( fileName, "max/dumb_shoot/SHOOT_THING_%d.wav", RANDOM_LONG( 1, 22 ) );
+		EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+		readyToComplainAboutDumbShots = false;
+		dumbShots = 0;
+
+		allowedToComplainAboutDumbShots = gpGlobals->time + 10.0f;
+	}
 
 	if (m_iTrain & TRAIN_NEW)
 	{

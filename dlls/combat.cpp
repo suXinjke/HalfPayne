@@ -1636,6 +1636,8 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		if (tr.flFraction != 1.0)
 		{
 			CBaseEntity *pEntity = CBaseEntity::Instance(tr.pHit);
+			
+			player->OnBulletHit( pEntity );
 
 			if ( iDamage )
 			{

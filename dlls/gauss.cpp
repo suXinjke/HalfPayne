@@ -415,6 +415,8 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 		if (pEntity == NULL)
 			break;
 
+		m_pPlayer->OnBulletHit( pEntity );
+
 		if ( fFirstBeam )
 		{
 			m_pPlayer->pev->effects |= EF_MUZZLEFLASH;
