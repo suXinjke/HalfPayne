@@ -932,6 +932,51 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
 	PRECACHE_SOUND( "var/death.wav" );
 
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_1.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_2.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_3.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_4.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_5.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_6.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_7.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_8.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_9.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_10.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_11.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_12.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_13.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_14.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_15.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_16.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_17.wav" );
+	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_18.wav" );
+
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_1.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_2.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_3.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_4.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_5.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_6.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_7.wav" );
+	PRECACHE_SOUND( "max/painkiller/TAKE_PILLS_8.wav" );
+
+	PRECACHE_SOUND( "max/painkiller/HAS_PILLS_1.wav" );
+	PRECACHE_SOUND( "max/painkiller/HAS_PILLS_2.wav" );
+	PRECACHE_SOUND( "max/painkiller/HAS_PILLS_3.wav" );
+	PRECACHE_SOUND( "max/painkiller/HAS_PILLS_4.wav" );
+	PRECACHE_SOUND( "max/painkiller/HAS_PILLS_5.wav" );
+	PRECACHE_SOUND( "max/painkiller/HAS_PILLS_6.wav" );
+
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_1.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_2.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_3.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_4.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_5.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_6.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_7.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_8.wav" );
+	PRECACHE_SOUND( "max/painkiller/NO_PILLS_9.wav" );
+
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->Precache();
 	}

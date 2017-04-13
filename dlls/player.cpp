@@ -451,6 +451,18 @@ int CBasePlayer::TakePainkiller()
 
 	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills.wav", 1, ATTN_NORM, true );
 
+	if (
+		CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+		RANDOM_LONG( 0, 100 ) < 33 &&
+		gpGlobals->time > allowedToReactOnPainkillerPickup
+	) {
+		char fileName[256];
+		sprintf_s( fileName, "max/painkiller/FIND_PILLS_%d.wav", RANDOM_LONG( 1, 16 ) );
+		EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+
+		allowedToReactOnPainkillerPickup = gpGlobals->time + 30.0f;
+	}
+
 	return 1;
 }
 
@@ -466,6 +478,18 @@ void CBasePlayer::UsePainkiller()
 		// white screen flash
 		UTIL_ScreenFade( this, Vector( 255, 255, 255 ), 0.08, 0.08, 120.0, FFADE_IN );
 		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM, true );
+
+		if (
+			CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+			RANDOM_LONG( 0, 100 ) < 33 &&
+			gpGlobals->time > allowedToReactOnPainkillerTake
+		) {
+			char fileName[256];
+			sprintf_s( fileName, "max/painkiller/TAKE_PILLS_%d.wav", RANDOM_LONG( 1, 8 ) );
+			EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+
+			allowedToReactOnPainkillerTake = gpGlobals->time + 30.0f;
+		}
 	}
 }
 
@@ -3308,6 +3332,10 @@ void CBasePlayer::Spawn( void )
 	activeGameModeConfig = 0;
 	noSaving = false;
 
+	allowedToReactOnPainkillerPickup = 0.0f;
+	allowedToReactOnPainkillerTake = 0.0f;
+	allowedToReactOnPainkillerNeed = 0.0f;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
 
@@ -3542,6 +3570,10 @@ int CBasePlayer::Restore( CRestore &restore )
 	CVAR_SET_FLOAT( "cam_idealpitch", 0.0f );
 	CVAR_SET_FLOAT( "cam_idealdist", 70.0f );
 	CVAR_SET_FLOAT( "cam_command", 2.0f );
+
+	allowedToReactOnPainkillerPickup = 0.0f;
+	allowedToReactOnPainkillerTake = 0.0f;
+	allowedToReactOnPainkillerNeed = 0.0f;
 
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -4688,6 +4720,24 @@ void CBasePlayer :: UpdateClientData( void )
 		if ( pev->health < 20 ) {
 			healthChargeTime = HEALTH_CHARGE_TIME + gpGlobals->time;
 			pev->health++;
+
+			if ( pev->health >= 20 ) {
+				if (
+					CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+					RANDOM_LONG( 0, 100 ) < 50 &&
+					gpGlobals->time > allowedToReactOnPainkillerNeed
+					) {
+					char fileName[256];
+					if ( painkillerCount > 0 ) {
+						sprintf_s( fileName, "max/painkiller/HAS_PILLS_%d.wav", RANDOM_LONG( 1, 6 ) );
+					} else {
+						sprintf_s( fileName, "max/painkiller/NO_PILLS_%d.wav", RANDOM_LONG( 1, 9 ) );
+					}
+					EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+
+					allowedToReactOnPainkillerNeed = gpGlobals->time + 30.0f;
+				}
+			}
 		}
 	}
 

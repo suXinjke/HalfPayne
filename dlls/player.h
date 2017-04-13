@@ -394,6 +394,10 @@ public:
 	float lastDamageTime;
 	float healthChargeTime;
 
+	float allowedToReactOnPainkillerPickup;
+	float allowedToReactOnPainkillerTake;
+	float allowedToReactOnPainkillerNeed;
+
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;
