@@ -70,6 +70,7 @@ cvar_t	*gamemode;
 cvar_t  *gamemode_config;
 
 cvar_t  *max_commentary;
+cvar_t  *max_commentary_pain;
 
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
@@ -1092,6 +1093,7 @@ void InitInput (void)
 	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );
 
 	max_commentary		= gEngfuncs.pfnRegisterVariable( "max_commentary", "1", FCVAR_ARCHIVE );
+	max_commentary_pain		= gEngfuncs.pfnRegisterVariable( "max_commentary_pain", "1", FCVAR_ARCHIVE );
 
 	gEngfuncs.pfnAddCommand( "cgm_list", ShowCustomGameModesList );
 	gEngfuncs.pfnAddCommand( "bmm_list", ShowBlackMesaMinuteList );

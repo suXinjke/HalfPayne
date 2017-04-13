@@ -398,6 +398,9 @@ public:
 	float allowedToReactOnPainkillerTake;
 	float allowedToReactOnPainkillerNeed;
 
+	float allowedToReactOnMinorInjury;
+	float allowedToReactOnSeriousInjury;
+
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;

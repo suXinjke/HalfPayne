@@ -977,6 +977,58 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/painkiller/NO_PILLS_8.wav" );
 	PRECACHE_SOUND( "max/painkiller/NO_PILLS_9.wav" );
 
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_1.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_2.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_3.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_4.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_5.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_6.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_7.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_8.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_9.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_10.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_11.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_12.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_13.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_14.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_15.wav" );
+	PRECACHE_SOUND( "max/pain/MINOR_PAIN_16.wav" );
+
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_1.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_2.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_3.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_4.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_5.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_6.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_7.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_8.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_9.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_10.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_11.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_12.wav" );
+	PRECACHE_SOUND( "max/pain/SERIOUS_PAIN_13.wav" );
+
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_1.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_2.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_3.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_4.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_5.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_6.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_7.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_8.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_9.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_10.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_11.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_12.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_13.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_14.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_15.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_16.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_17.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_18.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_19.wav" );
+	PRECACHE_SOUND( "max/pain/SELF_PAIN_20.wav" );
+
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->Precache();
 	}

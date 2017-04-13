@@ -773,6 +773,53 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	
 	CBaseEntity *pAttacker = CBaseEntity::Instance(pevAttacker);
 
+	bool gonnaDie = flDamage >= pev->health;
+
+	// this looks more complicated than it should
+	
+	// always play pain sounds when falling, but never play sounds if you're going to die
+	if ( ( bitsDamage & DMG_FALL || CVAR_GET_FLOAT( "max_commentary_pain" ) > 0.0f ) && !gonnaDie ) {
+		if ( bitsDamageType & ( DMG_BULLET | DMG_FALL | DMG_SHOCK | DMG_CLUB | DMG_CRUSH | DMG_ENERGYBEAM | DMG_SLASH | DMG_SONIC ) ) {
+
+			// don't play pain sounds too often, but always play a sound after falling
+			if (
+				bitsDamage & DMG_FALL || (
+					( ( gpGlobals->time > allowedToReactOnSeriousInjury && flDamage >= 30.0f ) || ( gpGlobals->time > allowedToReactOnMinorInjury && flDamage < 30.0f ) ) &&
+					RANDOM_LONG( 0, 100 ) < 66
+				)
+			) {
+				char fileName[256];
+				if ( flDamage < 30.0f ) {
+					sprintf_s( fileName, "max/pain/MINOR_PAIN_%d.wav", RANDOM_LONG( 1, 16 ) );
+					EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+					allowedToReactOnMinorInjury = gpGlobals->time + 1.0f;
+				} else {
+					if ( bitsDamage & DMG_FALL ) {
+						sprintf_s( fileName, "max/pain/SERIOUS_PAIN_%d.wav", RANDOM_LONG( 8, 13 ) ); // DUMB: a subset of serious pain sounds which is alright only for falls
+					} else {
+						sprintf_s( fileName, "max/pain/SERIOUS_PAIN_%d.wav", RANDOM_LONG( 1, 13 ) );
+					}
+					EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+					allowedToReactOnSeriousInjury = gpGlobals->time + 10.0f;
+
+					// if you've fallen down or made such an injury with explosive yourself - leave a remark
+					if (
+						CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+						CVAR_GET_FLOAT( "max_commentary_pain" ) > 0.0f && (
+							bitsDamageType & DMG_FALL ||
+							( pAttacker && pAttacker->auxOwner && strcmp( STRING( pAttacker->auxOwner->v.classname ), "player" ) == 0 )
+						)
+					) {
+						sprintf_s( fileName, "max/pain/SELF_PAIN_%d.wav", RANDOM_LONG( 1, 20 ) );
+
+						// sorry for this memory leak
+						AddToSoundQueue( ALLOC_STRING( fileName ), 1.5f, true );
+					}
+				}
+			}
+		}
+	}
+
 	if ( !g_pGameRules->FPlayerCanTakeDamage( this, pAttacker ) )
 	{
 		// Refuse the damage
@@ -3336,6 +3383,9 @@ void CBasePlayer::Spawn( void )
 	allowedToReactOnPainkillerTake = 0.0f;
 	allowedToReactOnPainkillerNeed = 0.0f;
 
+	allowedToReactOnMinorInjury = 0.0f;
+	allowedToReactOnSeriousInjury = 0.0f;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
 
@@ -3574,6 +3624,9 @@ int CBasePlayer::Restore( CRestore &restore )
 	allowedToReactOnPainkillerPickup = 0.0f;
 	allowedToReactOnPainkillerTake = 0.0f;
 	allowedToReactOnPainkillerNeed = 0.0f;
+
+	allowedToReactOnMinorInjury = 0.0f;
+	allowedToReactOnSeriousInjury = 0.0f;
 
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
