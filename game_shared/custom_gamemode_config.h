@@ -177,6 +177,7 @@ public:
 		FILE_SECTION_ENTITY_SPAWN,
 		FILE_SECTION_ENTITY_REMOVE,
 		FILE_SECTION_ENTITY_MOVE,
+		FILE_SECTION_ENTITY_USE,
 		FILE_SECTION_SOUND_PREVENT,
 		FILE_SECTION_SOUND,
 		FILE_SECTION_MAX_COMMENTARY,
@@ -233,6 +234,7 @@ public:
 	std::set<ModelIndexWithSound>	     sounds;
 	std::set<ModelIndex>	     endTriggers;
 	std::vector<EntitySpawn>     entitySpawns;
+	std::set<ModelIndex>		 entityUses;
 	std::set<std::string>		 entitiesToPrecache;
 	std::set<std::string>		 soundsToPrecache;
 	std::set<ModelIndex>		 entitiesToPrevent;

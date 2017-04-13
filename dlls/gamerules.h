@@ -177,6 +177,7 @@ public:
 	CHalfLifeRules ( void );
 
 	CustomGameModeConfig mapConfig;
+	bool				 entitiesUsed;
 
 	bool EntityShouldBePrevented( edict_t *entity );
 

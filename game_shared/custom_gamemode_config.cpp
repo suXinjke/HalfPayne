@@ -291,6 +291,8 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = FILE_SECTION_END_TRIGGER;
 	} else if ( sectionName == "entity_spawn" ) {
 		currentFileSection = FILE_SECTION_ENTITY_SPAWN;
+	} else if ( sectionName == "entity_use" ) {
+		currentFileSection = FILE_SECTION_ENTITY_USE;
 	} else if ( sectionName == "mods" ) {
 		currentFileSection = FILE_SECTION_MODS;
 	} else if ( sectionName == "timer_pause" ) {
@@ -518,6 +520,21 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 			sounds.insert( modelIndex );
 
 			soundsToPrecache.insert( modelIndex.soundPath );
+
+			break;
+
+		}
+
+		case FILE_SECTION_ENTITY_USE: {
+			if ( configType != GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [entity_use] section is only allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
+			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
+			entityUses.insert( modelIndex );
 
 			break;
 

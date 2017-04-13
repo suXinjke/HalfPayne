@@ -35,6 +35,8 @@ extern int gmsgMOTD;
 //=========================================================
 CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CustomGameModeConfig::GAME_MODE_CONFIG_MAP )
 {
+	entitiesUsed = false;
+
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
 	}
@@ -75,6 +77,8 @@ void CHalfLifeRules::OnChangeLevel()
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
 	}
+
+	entitiesUsed = false;
 }
 
 void CHalfLifeRules::HookModelIndex( edict_t *activator )
@@ -247,6 +251,29 @@ BOOL CHalfLifeRules :: AllowAutoTargetCrosshair( void )
 //=========================================================
 void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 {
+	if ( !entitiesUsed ) {
+		auto entityToUse = mapConfig.entityUses.begin();
+		while ( entityToUse != mapConfig.entityUses.end() ) {
+			if ( entityToUse->mapName == std::string( STRING( gpGlobals->mapname ) ) ) {
+				for ( int i = 0 ; i < 1024 ; i++ ) {
+					edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+					if ( !edict ) {
+						continue;
+					}
+
+					if ( entityToUse->modelIndex == edict->v.modelindex ) {
+						if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+							entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+						}
+					}
+				}
+			}
+
+			entityToUse++;
+		}
+
+		entitiesUsed = true;
+	}
 }
 
 
