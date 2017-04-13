@@ -182,6 +182,7 @@ public:
 
 	virtual void OnChangeLevel();
 	virtual void HookModelIndex( edict_t *activator );
+	virtual void HookModelIndex( edict_t *activator, const char *targetName );
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
 	virtual void Precache();
 

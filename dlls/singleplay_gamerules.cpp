@@ -79,6 +79,11 @@ void CHalfLifeRules::OnChangeLevel()
 
 void CHalfLifeRules::HookModelIndex( edict_t *activator )
 {
+	HookModelIndex( activator, STRING( activator->v.targetname ) );
+}
+
+void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName )
+{
 	if ( !activator ) {
 		return;
 	}
@@ -88,18 +93,16 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator )
 		return;
 	}
 
-
 	int modelIndex = activator->v.modelindex;
 	const char *className = STRING( activator->v.classname );
-	std::string targetName = STRING( activator->v.targetname );
 
 	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
 		char message[128];
-		sprintf( message, "[%s] Hooked model index: %d; target name: %s; class name: %s\n", STRING( gpGlobals->mapname ), modelIndex, targetName.c_str(), className );
+		sprintf( message, "[%s] Hooked model index: %d; target name: %s; class name: %s\n", STRING( gpGlobals->mapname ), modelIndex, targetName, className );
 		g_engfuncs.pfnServerPrint( message );
 	}
-	
-	OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
+
+	OnHookedModelIndex( pPlayer, activator, modelIndex, std::string( targetName ) );
 }
 
 void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
@@ -290,7 +293,7 @@ void CHalfLifeRules::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entv
 //=========================================================
 void CHalfLifeRules :: PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
-	HookModelIndex( pWeapon->edict() );
+	HookModelIndex( pWeapon->edict(), STRING( pWeapon->pev->classname ) );
 }
 
 //=========================================================
@@ -341,7 +344,7 @@ BOOL CHalfLifeRules::CanHaveItem( CBasePlayer *pPlayer, CItem *pItem )
 //=========================================================
 void CHalfLifeRules::PlayerGotItem( CBasePlayer *pPlayer, CItem *pItem )
 {
-	HookModelIndex( pItem->edict() );
+	HookModelIndex( pItem->edict(), STRING( pItem->pev->classname ) );
 }
 
 //=========================================================
@@ -380,7 +383,7 @@ BOOL CHalfLifeRules::IsAllowedToSpawn( CBaseEntity *pEntity )
 //=========================================================
 void CHalfLifeRules::PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *pAmmo )
 {
-	HookModelIndex( pAmmo->edict() );
+	HookModelIndex( pAmmo->edict(), STRING( pAmmo->pev->classname ) );
 }
 
 //=========================================================
