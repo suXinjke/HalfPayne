@@ -613,6 +613,12 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 
 	else if ( strcmp( victimName, "grenade" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_GRENADE;
+	} else if ( strcmp( victimName, "monster_barney" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_BARNEY;
+		ComplainAboutKillingInnocent();
+	} else if ( strcmp( victimName, "monster_scientist" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_SCIENTIST;
+		ComplainAboutKillingInnocent();
 	}
 	
 	else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
@@ -3391,6 +3397,8 @@ void CBasePlayer::Spawn( void )
 	readyToComplainAboutDumbShots = false;
 	allowedToComplainAboutDumbShots = 0.0f;
 
+	allowedToComplainAboutKillingInnocent = 0.0f;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
 
@@ -3637,6 +3645,8 @@ int CBasePlayer::Restore( CRestore &restore )
 	readyToComplainAboutDumbShots = false;
 	allowedToComplainAboutDumbShots = 0.0f;
 
+	allowedToComplainAboutKillingInnocent = 0.0f;
+
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
@@ -3645,6 +3655,19 @@ int CBasePlayer::Restore( CRestore &restore )
 	}
 	
 	return status;
+}
+
+void CBasePlayer::ComplainAboutKillingInnocent()
+{
+	if ( gpGlobals->time < allowedToComplainAboutKillingInnocent || RANDOM_LONG( 0, 100 ) > 33 ) {
+		return;
+	}
+
+	char fileName[256];
+	sprintf_s( fileName, "max/innocent_killed/INNOCENT_KILLED_%d.wav", RANDOM_LONG( 1, 5 ) );
+	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+
+	allowedToComplainAboutKillingInnocent = gpGlobals->time + 60.0f;
 }
 
 void CBasePlayer::OnBulletHit( CBaseEntity *hitEntity )

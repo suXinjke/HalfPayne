@@ -407,6 +407,9 @@ public:
 	bool readyToComplainAboutDumbShots;
 	float allowedToComplainAboutDumbShots;
 
+	float allowedToComplainAboutKillingInnocent;
+	void ComplainAboutKillingInnocent();
+
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;

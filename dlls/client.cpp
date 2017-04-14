@@ -1052,6 +1052,12 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_21.wav" );
 	PRECACHE_SOUND( "max/dumb_shoot/SHOOT_THING_22.wav" );
 
+	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_1.wav" );
+	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_2.wav" );
+	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_3.wav" );
+	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_4.wav" );
+	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_5.wav" );
+
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->Precache();
 	}
