@@ -780,7 +780,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	
 	// always play pain sounds when falling, but never play sounds if you're going to die
 	if ( ( bitsDamage & DMG_FALL || CVAR_GET_FLOAT( "max_commentary_pain" ) > 0.0f ) && !gonnaDie ) {
-		if ( bitsDamageType & ( DMG_BULLET | DMG_FALL | DMG_SHOCK | DMG_CLUB | DMG_CRUSH | DMG_ENERGYBEAM | DMG_SLASH | DMG_SONIC ) ) {
+		if ( bitsDamageType & ( DMG_BULLET | DMG_BLAST | DMG_FALL | DMG_SHOCK | DMG_CLUB | DMG_CRUSH | DMG_ENERGYBEAM | DMG_SLASH | DMG_SONIC ) ) {
 
 			// don't play pain sounds too often, but always play a sound after falling
 			if (
