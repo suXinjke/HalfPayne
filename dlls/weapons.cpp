@@ -1122,6 +1122,15 @@ BOOL CBasePlayerWeapon :: PlayEmptySound( void )
 	{
 		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/357_cock1.wav", 0.8, ATTN_NORM);
 		m_iPlayEmptySound = 0;
+		if ( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 && m_iClip <= 0 && m_iClip2 <= 0 ) {
+			m_pPlayer->ComplainAboutNoAmmo(
+				m_iId == WEAPON_GLOCK ||
+				m_iId == WEAPON_GLOCK_TWIN ||
+				m_iId == WEAPON_PYTHON ||
+				m_iId == WEAPON_MP5 ||
+				m_iId == WEAPON_SHOTGUN
+			);
+		}
 		return 0;
 	}
 	return 0;

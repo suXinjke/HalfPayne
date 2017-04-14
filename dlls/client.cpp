@@ -1058,6 +1058,27 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_4.wav" );
 	PRECACHE_SOUND( "max/innocent_killed/INNOCENT_KILLED_5.wav" );
 
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_1.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_2.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_3.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_4.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_5.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_6.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_7.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_8.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_9.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_10.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_11.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_12.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_13.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_14.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_15.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_16.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_17.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_18.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_19.wav" );
+	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_20.wav" );
+
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->Precache();
 	}

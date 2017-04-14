@@ -3670,6 +3670,24 @@ void CBasePlayer::ComplainAboutKillingInnocent()
 	allowedToComplainAboutKillingInnocent = gpGlobals->time + 60.0f;
 }
 
+void CBasePlayer::ComplainAboutNoAmmo( bool weaponIsBulletBased )
+{
+	if ( gpGlobals->time < allowedToComplainAboutNoAmmo || RANDOM_LONG( 0, 100 ) > 50 ) {
+		return;
+	}
+
+	char fileName[256];
+	if ( weaponIsBulletBased ) {
+		sprintf_s( fileName, "max/no_ammo/NO_AMMO_%d.wav", RANDOM_LONG( 1, 20 ) );
+	} else {
+		sprintf_s( fileName, "max/no_ammo/NO_AMMO_%d.wav", RANDOM_LONG( 1, 13 ) ); // not including bullet subset
+	}
+	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+
+	allowedToComplainAboutNoAmmo = gpGlobals->time + 10.0f;
+}
+
+
 void CBasePlayer::OnBulletHit( CBaseEntity *hitEntity )
 {
 	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutDumbShots ) {

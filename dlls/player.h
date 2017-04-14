@@ -410,6 +410,9 @@ public:
 	float allowedToComplainAboutKillingInnocent;
 	void ComplainAboutKillingInnocent();
 
+	float allowedToComplainAboutNoAmmo;
+	void ComplainAboutNoAmmo( bool weaponIsBulletBased );
+
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;
