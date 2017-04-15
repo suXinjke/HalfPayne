@@ -690,7 +690,12 @@ void CHGrunt :: SetYawSpeed ( void )
 		break;
 	}
 
-	pev->yaw_speed = ys;
+	float new_yaw_speed = ys;
+	if ( gSkillData.iSkillLevel > 1 ) {
+		new_yaw_speed *= 2.5f;
+	}
+
+	pev->yaw_speed = new_yaw_speed;
 }
 
 void CHGrunt :: IdleSound( void )
