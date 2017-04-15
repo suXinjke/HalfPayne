@@ -413,6 +413,10 @@ public:
 	float allowedToComplainAboutNoAmmo;
 	void ComplainAboutNoAmmo( bool weaponIsBulletBased );
 
+	float allowedToSayAboutRhetoricalQuestion;
+	edict_t *rhetoricalQuestionHolder;
+	void AnswerAboutRhetoricalQuestion();
+
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;

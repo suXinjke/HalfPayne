@@ -932,6 +932,8 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "slowmo/shootdodge.wav" );
 	PRECACHE_SOUND( "var/death.wav" );
 
+	PRECACHE_SOUND( "max/rhetorical_question.wav" );
+
 	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_1.wav" );
 	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_2.wav" );
 	PRECACHE_SOUND( "max/painkiller/FIND_PILLS_3.wav" );

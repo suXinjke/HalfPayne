@@ -3399,6 +3399,9 @@ void CBasePlayer::Spawn( void )
 
 	allowedToComplainAboutKillingInnocent = 0.0f;
 
+	allowedToSayAboutRhetoricalQuestion = 0.0f;
+	rhetoricalQuestionHolder = NULL;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
 
@@ -3647,6 +3650,9 @@ int CBasePlayer::Restore( CRestore &restore )
 
 	allowedToComplainAboutKillingInnocent = 0.0f;
 
+	allowedToSayAboutRhetoricalQuestion = 0.0f;
+	rhetoricalQuestionHolder = NULL;
+
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
@@ -3687,6 +3693,18 @@ void CBasePlayer::ComplainAboutNoAmmo( bool weaponIsBulletBased )
 	allowedToComplainAboutNoAmmo = gpGlobals->time + 10.0f;
 }
 
+void CBasePlayer::AnswerAboutRhetoricalQuestion()
+{
+	CBaseEntity *pEntity = NULL;
+	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 256.0f ) ) != NULL ) {
+		if ( pEntity->edict() == rhetoricalQuestionHolder ) {
+			AddToSoundQueue( MAKE_STRING( "max/rhetorical_question.wav" ), 0.1f, true );
+		}
+	}
+
+	allowedToSayAboutRhetoricalQuestion = 0.0f;
+	rhetoricalQuestionHolder = NULL;
+}
 
 void CBasePlayer::OnBulletHit( CBaseEntity *hitEntity )
 {
@@ -4936,6 +4954,10 @@ void CBasePlayer :: UpdateClientData( void )
 		dumbShots = 0;
 
 		allowedToComplainAboutDumbShots = gpGlobals->time + 10.0f;
+	}
+
+	if ( allowedToSayAboutRhetoricalQuestion && gpGlobals->time > allowedToSayAboutRhetoricalQuestion ) {
+		AnswerAboutRhetoricalQuestion();
 	}
 
 	if (m_iTrain & TRAIN_NEW)

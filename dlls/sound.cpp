@@ -1218,6 +1218,13 @@ int SENTENCEG_PlayRndSz(edict_t *entity, const char *szgroupname,
 	if (ipick >= 0 && name[0])
 		EMIT_SOUND_DYN(entity, CHAN_VOICE, name, volume, attenuation, flags, pitch);
 
+	if ( strcmp( name, "!SC_PIDLE1" ) == 0 ) {
+		if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
+			pPlayer->rhetoricalQuestionHolder = entity;
+			pPlayer->allowedToSayAboutRhetoricalQuestion = gpGlobals->time + 4.0f;
+		}
+	}
+
 	return ipick;
 }
 
