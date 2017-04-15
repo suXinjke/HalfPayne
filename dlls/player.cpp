@@ -3659,7 +3659,7 @@ int CBasePlayer::Restore( CRestore &restore )
 
 void CBasePlayer::ComplainAboutKillingInnocent()
 {
-	if ( gpGlobals->time < allowedToComplainAboutKillingInnocent || RANDOM_LONG( 0, 100 ) > 33 ) {
+	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutKillingInnocent || RANDOM_LONG( 0, 100 ) > 33 ) {
 		return;
 	}
 
@@ -3672,7 +3672,7 @@ void CBasePlayer::ComplainAboutKillingInnocent()
 
 void CBasePlayer::ComplainAboutNoAmmo( bool weaponIsBulletBased )
 {
-	if ( gpGlobals->time < allowedToComplainAboutNoAmmo || RANDOM_LONG( 0, 100 ) > 50 ) {
+	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutNoAmmo || RANDOM_LONG( 0, 100 ) > 50 ) {
 		return;
 	}
 
