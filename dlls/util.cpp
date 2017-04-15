@@ -1231,6 +1231,20 @@ Vector UTIL_RandomBloodVector( void )
 	return direction;
 }
 
+static cvar_t* sv_cheats = nullptr;
+
+// Thanks Solo Killer for reminding me of this problem, I always hated it
+// https://github.com/SamVanheer/HLEnhanced/commit/8d925dbb9de3263b6393c51af507bb617b1d1e5f
+bool UTIL_CheatsAllowed()
+{
+	if( !sv_cheats ) {
+		sv_cheats = CVAR_GET_POINTER( "sv_cheats" );
+	}
+	
+	ASSERT( sv_cheats );
+	
+	return sv_cheats->value != 0;
+}
 
 void UTIL_BloodDecalTrace( TraceResult *pTrace, int bloodColor )
 {
