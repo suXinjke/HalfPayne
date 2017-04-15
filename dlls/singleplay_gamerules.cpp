@@ -124,7 +124,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 
 			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary );
 			if ( !soundIndex->constant ) {
-				pPlayer->RememberHookedModelIndex( soundPathAllocated );
+				pPlayer->RememberHookedModelIndex( ALLOC_STRING( soundIndex->key.c_str() ) ); // memory leak
 				mapConfig.sounds.erase( soundIndex );
 			}
 
