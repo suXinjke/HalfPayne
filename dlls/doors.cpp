@@ -134,6 +134,13 @@ void PlayLockSounds(entvars_t *pev, locksound_t *pls, int flocked, int fbutton)
 			// play 'door locked' sound
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, (char*)STRING(pls->sLockedSound), fvol, ATTN_NORM);
 			pls->flwaitSound = gpGlobals->time + flsoundwait;
+
+			edict_t *edict = ENT( pev );
+			if ( edict ) {
+				if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+					singlePlayerRules->HookModelIndex( edict );
+				}
+			}
 		}
 
 		// if there is a sentence, we've not played all in list, and we've debounced, play sound
@@ -171,6 +178,13 @@ void PlayLockSounds(entvars_t *pev, locksound_t *pls, int flocked, int fbutton)
 		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, (char*)STRING(pls->sUnlockedSound), fvol, ATTN_NORM);
 			pls->flwaitSound = gpGlobals->time + flsoundwait;
+
+			edict_t *edict = ENT( pev );
+			if ( edict ) {
+				if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+					singlePlayerRules->HookModelIndex( edict );
+				}
+			}
 		}
 
 		// play next 'door unlocked' sentence in group
