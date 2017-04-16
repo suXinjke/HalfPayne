@@ -814,7 +814,8 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 						CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
 						CVAR_GET_FLOAT( "max_commentary_pain" ) > 0.0f && (
 							bitsDamageType & DMG_FALL ||
-							( pAttacker && pAttacker->auxOwner && strcmp( STRING( pAttacker->auxOwner->v.classname ), "player" ) == 0 )
+							strcmp( STRING( pAttacker->pev->classname ), "player" ) == 0 ||
+							( pAttacker && pAttacker->auxOwner && ( strcmp( STRING( pAttacker->auxOwner->v.classname ), "player" ) == 0 ) )
 						)
 					) {
 						sprintf_s( fileName, "max/pain/SELF_PAIN_%d.wav", RANDOM_LONG( 1, 20 ) );
