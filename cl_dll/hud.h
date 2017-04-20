@@ -414,6 +414,25 @@ private:
 	std::vector<CHudTimerMessage>	messages;
 };
 
+class CHudEndCredits : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual int VidInit( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+	int MsgFunc_EndCredits( const char *pszName, int iSize, void *pbuf );
+
+	int	XPosition( float x, int width, int lineWidth );
+	int YPosition( float y, int height );
+
+private:
+	bool ended;
+	float timeStart;
+
+	int creditSprites[9];
+};
+
 //
 //-----------------------------------------------------
 //
@@ -871,6 +890,7 @@ public:
 	CHudTimer		m_Timer;
 	CHudScore		m_Score;
 	CHudEndScreen	m_endScreen;
+	CHudEndCredits  m_endCredits;
 
 	void Init( void );
 	void VidInit( void );

@@ -1079,6 +1079,38 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_19.wav" );
 	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_20.wav" );
 
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_1.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_2.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_3.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_4.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_5.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_6.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_7.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_8.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_9.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_10.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_11.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_12.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_13.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_14.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_15.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_16.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_17.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_18.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_19.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_20.wav" );
+	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_21.wav" );
+
+	if ( strcmp( STRING( gpGlobals->mapname ), "c5a1" ) == 0 ) {
+
+		PRECACHE_SOUND( "music/finale.wav" );
+		PRECACHE_SOUND( "music/finale2.wav" );
+		PRECACHE_SOUND( "comment/finalewon.wav" );
+		PRECACHE_SOUND( "comment/execute.wav" );
+		PRECACHE_SOUND( "comment/finalespeech.wav" );
+		PRECACHE_SOUND( "comment/credits.wav" );
+	}
+
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->Precache();
 	}

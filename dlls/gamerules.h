@@ -181,6 +181,9 @@ public:
 
 	bool EntityShouldBePrevented( edict_t *entity );
 
+	bool ended;
+	virtual void End( CBasePlayer *pPlayer );
+
 	virtual void OnChangeLevel();
 	virtual void HookModelIndex( edict_t *activator );
 	virtual void HookModelIndex( edict_t *activator, const char *targetName );
@@ -262,6 +265,9 @@ public:
 // Teamplay stuff	
 	virtual const char *GetTeamID( CBaseEntity *pEntity ) {return "";};
 	virtual int PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pTarget );
+
+protected:
+	virtual void OnEnd( CBasePlayer *pPlayer );
 };
 
 //=========================================================

@@ -16,8 +16,6 @@ public:
 	virtual void PlayerThink( CBasePlayer *pPlayer );
 	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 
-	virtual void End( CBasePlayer *pPlayer );
-
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
 
 	virtual void SpawnEnemiesByConfig( const char *mapName );
@@ -41,7 +39,7 @@ public:
 
 	CustomGameModeConfig config;
 
-protected:
+private:
 	virtual void OnEnd( CBasePlayer *pPlayer );
 };
 

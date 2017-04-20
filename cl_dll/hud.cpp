@@ -357,6 +357,7 @@ void CHud :: Init( void )
 	m_Timer.Init();
 	m_Score.Init();
 	m_endScreen.Init();
+	m_endCredits.Init();
 	m_SayText.Init();
 	m_Spectator.Init();
 	m_Geiger.Init();
@@ -509,6 +510,7 @@ void CHud :: VidInit( void )
 	m_Timer.VidInit();
 	m_Score.VidInit();
 	m_endScreen.VidInit();
+	m_endCredits.VidInit();
 	m_SlowMotion.VidInit();
 	m_Spectator.VidInit();
 	m_Geiger.VidInit();

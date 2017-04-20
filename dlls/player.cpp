@@ -152,6 +152,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
 
+	DEFINE_FIELD( CBasePlayer, showCredits, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, noSaving, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, activeGameModeConfig, FIELD_STRING ),
@@ -161,6 +163,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, swearOnKill, FIELD_BOOLEAN ),
 	
 	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
@@ -170,6 +174,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, secondsInSlowmotion, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, nextAttackSlowmotionOffset, FIELD_FLOAT ),
+
+	DEFINE_FIELD( CBasePlayer, desperation, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, untilNextDesperation, FIELD_TIME ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -554,9 +561,17 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	
 	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ALIEN_CONTROLLER;
+
+		if ( desperation == DESPERATION_FIGHTING ) {
+			SayRandomSwear();
+		}
 	}
 	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ALIEN_GRUNT;
+
+		if ( desperation == DESPERATION_FIGHTING ) {
+			SayRandomSwear();
+		}
 	}
 	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ALIEN_SLAVE;
@@ -619,6 +634,13 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	} else if ( strcmp( victimName, "monster_scientist" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_SCIENTIST;
 		ComplainAboutKillingInnocent();
+	} else if ( strcmp( victimName, "monster_gman" ) == 0 ) {
+		killedEntity = KILLED_ENTITY_GMAN;
+
+		if ( desperation == DESPERATION_REVENGE ) {
+			untilNextDesperation = gpGlobals->time + 0.5f;
+		}
+
 	}
 	
 	else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
@@ -3198,6 +3220,16 @@ pt_end:
 
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
+
+	if ( desperation != DESPERATION_NO ) {
+		ThinkAboutFinalDesperation();
+	}
+
+	if ( showCredits ) {
+		if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+			rules->End( this );
+		}
+	}
 }
 
 
@@ -3403,8 +3435,13 @@ void CBasePlayer::Spawn( void )
 	allowedToSayAboutRhetoricalQuestion = 0.0f;
 	rhetoricalQuestionHolder = NULL;
 
+	swearOnKill = FALSE;
+	allowedToSwear = 0.0f;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
+
+	desperation = DESPERATION_NO;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -3457,6 +3494,8 @@ void CBasePlayer::Spawn( void )
 	m_flNextChatTime = gpGlobals->time;
 
 	nextTime = SDL_GetTicks() + TICK_INTERVAL;
+
+	showCredits = FALSE;
 	
 	noSlowmotion = false;
 	constantSlowmotion = false;
@@ -3480,7 +3519,145 @@ void CBasePlayer::Spawn( void )
 	projectileKills = 0;
 	secondsInSlowmotion = 0.0f;
 
+	finalDesperationMusic = false;
+
 	g_pGameRules->PlayerSpawn( this );
+}
+
+void CBasePlayer::SayRandomSwear()
+{
+	if ( gpGlobals->time <= allowedToSwear ) {
+		return;
+	}
+	
+	char fileName[256];
+	sprintf_s( fileName, "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_%d.wav", RANDOM_LONG( 1, 21 ) );
+	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+
+	allowedToSwear = gpGlobals->time + 1.5f;
+}
+
+void CBasePlayer::ThinkAboutFinalDesperation()
+{
+	if ( strcmp( STRING( gpGlobals->mapname ), "c5a1" ) != 0 ) {
+		return;
+	}
+
+	if ( untilNextDesperation && gpGlobals->time > untilNextDesperation ) {
+
+		untilNextDesperation = 0.0f;
+
+		switch ( desperation ) {
+			case DESPERATION_IMMINENT: {
+				GiveNamedItem( "weapon_9mmhandgun" );
+				GiveNamedItem( "weapon_9mmhandgun_twin" );
+
+				CBaseEntity *pEntity;
+				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
+					if (
+						( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
+						pEntity->pev->deadflag == DEAD_NO
+						) {
+						pEntity->pev->spawnflags = 0;
+					}
+				}
+
+				desperation = DESPERATION_FIGHTING;
+
+				break;
+			}
+
+			case DESPERATION_RELIEF: {
+				edict_t *edicts[] = {
+					FIND_ENTITY_BY_TARGETNAME( NULL, "backport" ),
+					FIND_ENTITY_BY_TARGETNAME( NULL, "zap_sound_1" ),
+					FIND_ENTITY_BY_TARGETNAME( NULL, "zap_sound_2" ),
+					FIND_ENTITY_BY_TARGETNAME( NULL, "start_flash" )
+				};
+
+				for ( int i = 0 ; i < 4 ; i++ ) {
+					if ( CBaseEntity *backport = CBaseEntity::Instance( edicts[i] ) ) {
+						backport->Use( this, this, USE_SET, 1 );
+					}
+				}
+
+				CBaseEntity *teleport = CBaseEntity::Create( "trigger_teleport", edicts[0]->v.origin, Vector( 0, 0, 0 ) );
+				UTIL_SetSize( VARS( teleport->edict() ), Vector( 161, -1815, 1350 ), Vector( 221, -1755, 1410  ) );
+				teleport->Spawn();
+				teleport->pev->target= MAKE_STRING( "backtrain" );
+
+				break;
+			}
+
+			case DESPERATION_ALL_FOR_REVENGE: {
+				GiveNamedItem( "weapon_9mmhandgun" );
+				gSkillData.plrDmg9MM = 9999.0f;
+				desperation = DESPERATION_REVENGE;
+				break;
+			}
+
+			case DESPERATION_REVENGE: {
+				AddToSoundQueue( MAKE_STRING( "comment/finalespeech.wav" ), 3, false );
+				constantSlowmotion = 0;
+				infiniteSlowMotion = 0;
+				DeactivateSlowMotion();
+				slowMotionCharge = 0;
+				desperation = DESPERATION_ALMOST_OVER;
+				untilNextDesperation = gpGlobals->time + 8.0f;
+				break;
+			}
+
+			case DESPERATION_ALMOST_OVER: {
+				desperation = DESPERATION_OVER;
+				RemoveAllItems( FALSE );
+				untilNextDesperation = gpGlobals->time + 25.5f;
+				break;
+			}
+
+			case DESPERATION_OVER: {
+				showCredits = TRUE;
+				break;
+			}
+
+			default:
+				break;
+		}
+
+		
+	}
+
+	if ( !finalDesperationMusic && desperation == DESPERATION_FIGHTING ) {
+		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale.wav", 1.0, ATTN_NORM, true );
+		finalDesperationMusic = true;
+	}
+
+	if ( ( desperation == DESPERATION_FIGHTING || desperation == DESPERATION_RELIEF ) && pev->origin.z < 1220 ) {
+		TakeDamage( pev, pev, 9999.9f, DMG_GENERIC );
+	}
+
+	bool theyAreAlive = false;
+	CBaseEntity *pEntity;
+	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
+		if (
+			( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
+			pEntity->pev->deadflag == DEAD_NO
+		) {
+			theyAreAlive = true;
+			break;
+		}
+	}
+
+	
+
+	if ( !theyAreAlive && desperation == DESPERATION_FIGHTING ) {
+		desperation = DESPERATION_RELIEF;
+		untilNextDesperation = gpGlobals->time + 14.1f;
+		RemoveAllItems( FALSE );
+
+		STOP_SOUND( edict(), CHAN_STATIC, "music/finale.wav" );
+		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale2.wav", 1.0, ATTN_NORM, true );
+		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, true );
+	}
 }
 
 void CBasePlayer::RememberHookedModelIndex( string_t string )
@@ -3653,6 +3830,10 @@ int CBasePlayer::Restore( CRestore &restore )
 
 	allowedToSayAboutRhetoricalQuestion = 0.0f;
 	rhetoricalQuestionHolder = NULL;
+
+	allowedToSwear = 0.0f;
+
+	finalDesperationMusic = false;
 
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -4042,19 +4223,13 @@ void CBasePlayer::ToggleSlowMotion() {
 
 bool CBasePlayer::ActivateSlowMotion()
 {
-	if ( slowMotionEnabled ) {
+	if ( slowMotionEnabled || constantSlowmotion ) {
 		return false;
 	}
 
 	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( constantSlowmotion ) {
+		if ( cgm->ended ) {
 			return false;
-		}
-
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			if ( bmm->ended ) {
-				return false;
-			}
 		}
 	}
 
@@ -4069,19 +4244,13 @@ bool CBasePlayer::ActivateSlowMotion()
 
 bool CBasePlayer::DeactivateSlowMotion()
 {
-	if ( !slowMotionEnabled ) {
+	if ( !slowMotionEnabled || constantSlowmotion ) {
 		return false;
 	}
 
 	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( constantSlowmotion ) {
+		if ( cgm->ended ) {
 			return false;
-		}
-		
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			if ( bmm->ended ) {
-				return false;
-			}
 		}
 	}
 

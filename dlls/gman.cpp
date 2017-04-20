@@ -42,7 +42,6 @@ public:
 
 	void StartTask( Task_t *pTask );
 	void RunTask( Task_t *pTask );
-	void Killed(entvars_t *pevAttacker, int iGib);
 
 	void PlayScriptedSentence( const char *pszSentence, float duration, float volume, float attenuation, BOOL bConcurrent, CBaseEntity *pListener );
 
@@ -192,22 +191,23 @@ void CGMan :: RunTask( Task_t *pTask )
 		}
 		CBaseMonster::RunTask( pTask );
 		break;
+	case TASK_DIE: {
+		// honestly I have no idea what am I doing here.
+		// but atleast this makes him fall instantly after getting a deadly shot
+		int headshot_sequence = LookupSequence( "headshot" );
+		if ( pev->sequence != headshot_sequence ) {
+			SetBoneController( 0, 0 );
+			pev->sequence = headshot_sequence;
+			ResetSequenceInfo();
+		}
+		CBaseMonster::RunTask( pTask );
+		break;
+	}
 	default:
 		SetBoneController( 0, 0 );
 		CBaseMonster::RunTask( pTask );
 		break;
 	}
-}
-
-void CGMan::Killed(entvars_t *pevAttacker, int iGib) {
-    if ( m_LastHitGroup == HITGROUP_HEAD ) {
-        pev->sequence = LookupSequence( "headshot" );
-    } else {
-        pev->sequence = LookupSequence( "gutshot" );
-    }
-    ResetSequenceInfo();
-
-    CBaseMonster::Killed( pevAttacker, iGib );
 }
 
 void CGMan::PlayScriptedSentence( const char *pszSentence, float duration, float volume, float attenuation, BOOL bConcurrent, CBaseEntity *pListener )

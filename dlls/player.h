@@ -383,6 +383,27 @@ public:
 	
 	float m_flNextChatTime;
 
+	BOOL showCredits;
+
+	enum DESPERATION_TYPE {
+		DESPERATION_NO,
+		DESPERATION_IMMINENT,
+		DESPERATION_FIGHTING,
+		DESPERATION_RELIEF,
+		DESPERATION_ALL_FOR_REVENGE,
+		DESPERATION_REVENGE,
+		DESPERATION_ALMOST_OVER,
+		DESPERATION_OVER
+	};
+	DESPERATION_TYPE desperation;
+	bool finalDesperationMusic;
+	float untilNextDesperation;
+	void ThinkAboutFinalDesperation();
+
+	BOOL swearOnKill;
+	float allowedToSwear;
+	void SayRandomSwear();
+
 	// Painkillers
 #define MAX_PAINKILLERS 9
 	int painkillerCount;

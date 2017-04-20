@@ -393,6 +393,23 @@ void CMultiManager :: ManagerThink ( void )
 	while ( m_index < m_cTargets && m_flTargetDelay[ m_index ] <= time )
 	{
 		FireTargets( STRING( m_iTargetName[ m_index ] ), m_hActivator, this, USE_TOGGLE, 0 );
+
+		// dumb c5a1 exception
+		if (
+			strcmp( STRING( gpGlobals->mapname ), "c5a1" ) == 0 &&
+			strcmp( STRING( m_iTargetName[ m_index ] ), "start_loser_mm" ) == 0
+		) {
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_IMMINENT;
+				pPlayer->untilNextDesperation = gpGlobals->time + 2.0f;
+				pPlayer->infiniteAmmo = true;
+				pPlayer->infiniteSlowMotion = true;
+				pPlayer->GiveNamedItem( "item_suit" );
+				pPlayer->painkillerCount = 6;
+				pPlayer->SetSlowMotion( true );
+			}
+		}
+
 		m_index++;
 	}
 
@@ -1917,6 +1934,33 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 			return;
 		}
 	}
+
+	// dumb c5a1 exception
+	if (
+		strcmp( STRING( pOther->pev->classname ), "player" ) == 0 &&
+		strcmp( STRING( gpGlobals->mapname ), "c5a1" ) == 0 &&
+		strcmp( STRING( pev->target ), "backtrain" ) == 0
+	) {
+		CBasePlayer *player = ( CBasePlayer * ) pOther;
+		player->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_ALL_FOR_REVENGE;
+		player->constantSlowmotion = true;
+		player->SetSlowMotion( true );
+		player->untilNextDesperation = gpGlobals->time + 1.6f;
+
+		edict_t *edicts[] = {
+			FIND_ENTITY_BY_TARGETNAME( NULL, "zap_sound_1" ),
+			FIND_ENTITY_BY_TARGETNAME( NULL, "zap_sound_2" ),
+			FIND_ENTITY_BY_TARGETNAME( NULL, "start_flash" )
+		};
+
+		for ( int i = 0 ; i < 3 ; i++ ) {
+			if ( CBaseEntity *entity = CBaseEntity::Instance( edicts[i] ) ) {
+				entity->Use( this, this, USE_SET, 1 );
+			}
+		}
+
+		player->AddToSoundQueue( MAKE_STRING( "comment/execute.wav" ), 0.6f, true );
+	}
 	
 	pentTarget = FIND_ENTITY_BY_TARGETNAME( pentTarget, STRING(pev->target) );
 	if (FNullEnt(pentTarget))
@@ -1944,6 +1988,10 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 
 	pevToucher->fixangle = TRUE;
 	pevToucher->velocity = pevToucher->basevelocity = g_vecZero;
+
+	if ( strcmp( STRING( pev->target ), "loser" ) == 0 ) {
+		UTIL_Remove( this );
+	}
 }
 
 

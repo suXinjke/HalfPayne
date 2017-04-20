@@ -31,10 +31,17 @@ extern int gmsgDeathMsg;	// client dll messages
 extern int gmsgScoreInfo;
 extern int gmsgMOTD;
 
+int	gmsgEndCredits	= 0;
+
 //=========================================================
 //=========================================================
 CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CustomGameModeConfig::GAME_MODE_CONFIG_MAP )
 {
+	if ( !gmsgEndCredits ) {
+		gmsgEndCredits = REG_USER_MSG( "EndCredits", 0 );
+	}
+
+	ended = false;
 	entitiesUsed = false;
 
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
@@ -63,6 +70,31 @@ bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
 	}
 
 	return false;
+}
+
+void CHalfLifeRules::End( CBasePlayer *pPlayer )
+{
+	if ( ended ) {
+		return;
+	}
+
+	if ( pPlayer->slowMotionEnabled ) {
+		pPlayer->ToggleSlowMotion();
+	}
+
+	ended = true;
+
+	pPlayer->pev->movetype = MOVETYPE_NONE;
+	pPlayer->pev->flags |= FL_NOTARGET;
+	pPlayer->RemoveAllItems( true );
+
+	OnEnd( pPlayer );
+}
+
+void CHalfLifeRules::OnEnd( CBasePlayer *pPlayer )
+{
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndCredits, NULL, pPlayer->pev );
+	MESSAGE_END();
 }
 
 void CHalfLifeRules::OnChangeLevel()

@@ -35,8 +35,6 @@ CCustomGameModeRules::CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONF
 	config.ReadFile( configName );
 	RefreshSkillData();
 
-	ended = false;
-
 	cheated = false;
 	cheatedMessageSent = false;
 
@@ -226,25 +224,6 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 	cheatedMessageSent = true;
-}
-
-void CCustomGameModeRules::End( CBasePlayer *pPlayer ) {
-
-	if ( ended ) {
-		return;
-	}
-
-	if ( pPlayer->slowMotionEnabled ) {
-		pPlayer->ToggleSlowMotion();
-	}
-
-	ended = true;
-
-	pPlayer->pev->movetype = MOVETYPE_NONE;
-	pPlayer->pev->flags |= FL_NOTARGET;
-	pPlayer->RemoveAllItems( true );
-
-	OnEnd( pPlayer );
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
