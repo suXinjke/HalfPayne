@@ -4227,8 +4227,8 @@ bool CBasePlayer::ActivateSlowMotion()
 		return false;
 	}
 
-	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( cgm->ended ) {
+	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		if ( rules->ended ) {
 			return false;
 		}
 	}
@@ -4248,8 +4248,8 @@ bool CBasePlayer::DeactivateSlowMotion()
 		return false;
 	}
 
-	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( cgm->ended ) {
+	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		if ( rules->ended ) {
 			return false;
 		}
 	}

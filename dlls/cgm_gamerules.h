@@ -29,8 +29,6 @@ public:
 
 	virtual void RestartGame();
 
-	bool ended;
-
 	bool cheated;
 	bool cheatedMessageSent;
 
