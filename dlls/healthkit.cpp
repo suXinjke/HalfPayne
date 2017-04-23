@@ -151,11 +151,11 @@ void CWallHealth::Spawn()
     TraceResult	tr1, tr2;
     float tr1Length, tr2Length;
     if ( horizontallyPlaced ) {
-        UTIL_TraceLine( beginPos, beginPos + Vector( 0, 10, 0 ), ignore_monsters, ENT( pev ), &tr1 );
-        UTIL_TraceLine( beginPos, beginPos - Vector( 0, 10, 0 ), ignore_monsters, ENT( pev ), &tr2 );
+        UTIL_TraceLine( beginPos, beginPos + Vector( 0, 13, 0 ), ignore_monsters, ENT( pev ), &tr1 );
+        UTIL_TraceLine( beginPos, beginPos - Vector( 0, 13, 0 ), ignore_monsters, ENT( pev ), &tr2 );
     } else {
-        UTIL_TraceLine( beginPos, beginPos - Vector( 10, 0, 0 ), ignore_monsters, ENT( pev ), &tr1 );
-        UTIL_TraceLine( beginPos, beginPos + Vector( 10, 0, 0 ), ignore_monsters, ENT( pev ), &tr2 );
+        UTIL_TraceLine( beginPos, beginPos - Vector( 13, 0, 0 ), ignore_monsters, ENT( pev ), &tr1 );
+        UTIL_TraceLine( beginPos, beginPos + Vector( 13, 0, 0 ), ignore_monsters, ENT( pev ), &tr2 );
     }
 
     tr1Length = ( beginPos - tr1.vecEndPos ).Length();
