@@ -34,32 +34,36 @@ public:
 	void Precache( void );
 	BOOL MyTouch( CBasePlayer *pPlayer );
 
-/*
+	BOOL pickable;
+
+
 	virtual int		Save( CSave &save ); 
 	virtual int		Restore( CRestore &restore );
 	
 	static	TYPEDESCRIPTION m_SaveData[];
-*/
+
 
 };
 
 
 LINK_ENTITY_TO_CLASS( item_healthkit, CHealthKit );
 
-/*
+
 TYPEDESCRIPTION	CHealthKit::m_SaveData[] = 
 {
-
+	DEFINE_FIELD( CHealthKit, pickable, FIELD_BOOLEAN ),
 };
 
 
-IMPLEMENT_SAVERESTORE( CHealthKit, CItem);
-*/
+IMPLEMENT_SAVERESTORE( CHealthKit, CItem );
+
 
 void CHealthKit :: Spawn( void )
 {
 	Precache( );
 	SET_MODEL(ENT(pev), "models/w_medkit.mdl");
+
+	pickable = TRUE;
 
 	CItem::Spawn();
 }
@@ -72,7 +76,7 @@ void CHealthKit::Precache( void )
 
 BOOL CHealthKit::MyTouch( CBasePlayer *pPlayer )
 {
-	if ( pPlayer->pev->deadflag != DEAD_NO || !(pPlayer->pev->weapons & ( 1 << WEAPON_SUIT ) ) )
+	if ( pPlayer->pev->deadflag != DEAD_NO || !(pPlayer->pev->weapons & ( 1 << WEAPON_SUIT ) ) || !pickable )
 	{
 		return FALSE;
 	}
@@ -208,13 +212,13 @@ void CWallHealth::Spawn()
     for ( int i = 0; i < painkillersToSpawn; i++ ) {
         int offset = horizontallyPlaced ? 0 : 4;
 
-        CBaseEntity *healthKit = CBaseEntity::Create( "item_healthkit", realPos, Vector( 0, RANDOM_FLOAT( 0, 360 ), 0 ), NULL );
+        CHealthKit *healthKit = ( CHealthKit * ) CBaseEntity::Create( "item_healthkit", realPos, Vector( 0, RANDOM_FLOAT( 0, 360 ), 0 ), NULL );
         healthKit->Spawn();
         UTIL_SetOrigin( healthKit->pev, horizontallyPlaced ? horizontalPainkillerSpots[i] : verticalPainkillerSpots[i] );
 
         // But don't let the player to take painkillers until the cabinet is opened
-        healthKit->pev->movetype = MOVETYPE_FLY;
-        healthKit->pev->solid = SOLID_NOT;
+        healthKit->pev->movetype = MOVETYPE_NONE;
+        healthKit->pickable = FALSE;
     }
 }
 
@@ -266,10 +270,8 @@ void CWallHealth::WaitUntilOpened( void ) {
         while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, vecSrc, 60.0f ) ) != NULL ) {
             const char *entityName = STRING( pEntity->pev->classname );
 
-            if ( strcmp( entityName, "item_healthkit" ) == 0 ) {
-
-                // Let the player to take painkillers
-                pEntity->pev->solid = SOLID_TRIGGER;
+            if ( CHealthKit *healthKit = dynamic_cast<CHealthKit *>( pEntity ) ) {
+				healthKit->pickable = TRUE;
             }
         }
     }
