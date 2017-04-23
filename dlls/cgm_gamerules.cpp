@@ -72,6 +72,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->noSaving = config.noSaving;
 	pPlayer->infiniteAmmo = config.infiniteAmmo;
 	pPlayer->instaGib = config.instaGib;
+	pPlayer->swearOnKill = config.swearOnKill;
 	pPlayer->slowmotionOnDamage = config.slowmotionOnDamage;
 
 	pPlayer->SetEvilImpulse101( true );

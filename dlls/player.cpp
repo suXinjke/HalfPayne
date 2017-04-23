@@ -558,72 +558,82 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	const char *victimName = STRING( victim->pev->classname );
 
 	KILLED_ENTITY_TYPE killedEntity = KILLED_ENTITY_UNDEFINED;
+	bool maySwearAfterKill = false;
 	
 	if ( strcmp( victimName, "monster_alien_controller" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ALIEN_CONTROLLER;
-
-		if ( desperation == DESPERATION_FIGHTING ) {
-			SayRandomSwear();
-		}
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_alien_grunt" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ALIEN_GRUNT;
-
-		if ( desperation == DESPERATION_FIGHTING ) {
-			SayRandomSwear();
-		}
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_alien_slave" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ALIEN_SLAVE;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_apache" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ARMORED_VEHICLE;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_babycrab" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_BABYCRAB;
 	}
 	else if ( strcmp( victimName, "monster_barnacle" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_BARNACLE;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_bigmomma" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_BIG_MOMMA;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_bullchicken" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_BULLSQUID;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_gargantua" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_GARGANTUA;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_headcrab" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_HEADCRAB;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_houndeye" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_HOUNDEYE;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_human_assassin" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_HUMAN_ASSASSIN;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_human_grunt" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_HUMAN_GRUNT;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_ichthyosaur" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ICHTYOSAUR;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_miniturret" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_MINITURRET;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_sentry" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_SENTRY;
+		maySwearAfterKill = true;
 	}
 	else if ( strcmp( victimName, "monster_snark" ) == 0 ) {
 		bool snarkOwnedByPlayer = victim->pev->owner != 0;
 		
 		if ( !snarkOwnedByPlayer ) {
 			killedEntity = KILLED_ENTITY_SNARK;
+			maySwearAfterKill = true;
 		}
 	}
 	else if ( strcmp( victimName, "monster_zombie" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ZOMBIE;
+		maySwearAfterKill = true;
 	}
 
 	else if ( strcmp( victimName, "grenade" ) == 0 ) {
@@ -645,12 +655,18 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	
 	else if ( strcmp( victimName, "func_tankmortar" ) == 0 || strcmp( victimName, "func_tankrocket" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_ARMORED_VEHICLE;
+		maySwearAfterKill = true;
 	}
 	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "sniper_die" ) ) {
 		killedEntity = KILLED_ENTITY_SNIPER;
+		maySwearAfterKill = true;
 	}
 	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
 		killedEntity = KILLED_ENTITY_NIHILANTH_CRYSTAL;
+	}
+
+	if ( ( maySwearAfterKill && swearOnKill ) || desperation == DESPERATION_FIGHTING ) {
+		SayRandomSwear();
 	}
 
 	TakeSlowmotionCharge( KilledEntityToSlowmotionCharge( killedEntity ) );
@@ -3509,6 +3525,7 @@ void CBasePlayer::Spawn( void )
 	infiniteAmmo = false;
 	weaponRestricted = false;
 	instaGib = false;
+	swearOnKill = false;
 
 	usedCheat = false;
 

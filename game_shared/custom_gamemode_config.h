@@ -261,6 +261,7 @@ public:
 	bool infiniteAmmo;
 	bool weaponRestricted;
 	bool instaGib;
+	bool swearOnKill;
 
 	// dumb, but I'd like to avoid including player.h where BULLET_PHYSICS_MODE enum is defined
 	bool bulletPhysicsDisabled;
