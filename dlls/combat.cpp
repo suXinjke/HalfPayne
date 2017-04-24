@@ -922,6 +922,13 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		PainSound();// "Ouch!"
 	}
 
+
+	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pevAttacker ) ) ) {
+		if ( player->oneHitKOFromPlayer ) {
+			flDamage = pev->health + 1;
+		}
+	}
+
 	//!!!LATER - make armor consideration here!
 	flTake = flDamage;
 

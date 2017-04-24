@@ -147,6 +147,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
 
+	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
@@ -817,6 +820,12 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 
 	
 	CBaseEntity *pAttacker = CBaseEntity::Instance(pevAttacker);
+
+	if ( oneHitKO ) {
+		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pAttacker ) ) {
+			flDamage = pev->health + 1;
+		}
+	}
 
 	bool gonnaDie = flDamage >= pev->health;
 
@@ -3428,6 +3437,9 @@ void CBasePlayer::Spawn( void )
 	infiniteSlowMotion = 0;
 
 	slowmotionOnDamage = 0;
+
+	oneHitKO = 0;
+	oneHitKOFromPlayer = 0;
 
 	painkillerCount = 0;
 	

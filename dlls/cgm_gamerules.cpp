@@ -74,6 +74,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->instaGib = config.instaGib;
 	pPlayer->swearOnKill = config.swearOnKill;
 	pPlayer->slowmotionOnDamage = config.slowmotionOnDamage;
+	pPlayer->oneHitKO = config.oneHitKO;
+	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
 
 	pPlayer->SetEvilImpulse101( true );
 	for ( size_t i = 0; i < config.loadout.size( ); i++ ) {

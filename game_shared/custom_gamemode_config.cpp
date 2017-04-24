@@ -269,6 +269,8 @@ void CustomGameModeConfig::Reset() {
 	this->weaponRestricted = false;
 	this->instaGib = false;
 	this->swearOnKill = false;
+	this->oneHitKO = false;
+	this->oneHitKOFromPlayer = false;
 
 	this->bulletPhysicsDisabled = false;
 	this->bulletPhysicsEnemiesAndPlayerOnSlowmotion = false;
@@ -637,6 +639,10 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				bulletPhysicsConstant = true;
 			} else if ( line == "swear_on_kill" ) { 
 				swearOnKill = true;
+			} else if ( line == "one_hit_ko" ) {
+				oneHitKO = true;
+			} else if ( line == "one_hit_ko_from_player" ) {
+				oneHitKOFromPlayer = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );

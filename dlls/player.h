@@ -140,6 +140,9 @@ public:
 
 	BOOL				slowmotionOnDamage;
 
+	BOOL				oneHitKO;
+	BOOL				oneHitKOFromPlayer;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;
