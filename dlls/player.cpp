@@ -3565,6 +3565,21 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 		untilNextDesperation = 0.0f;
 
 		switch ( desperation ) {
+			case DESPERATION_PRE_IMMINENT: {
+				CBaseEntity *pEntity;
+				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
+					if (
+						( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
+						pEntity->pev->deadflag == DEAD_NO
+					) {
+						pEntity->pev->effects |= EF_DIMLIGHT;
+					}
+				}
+				untilNextDesperation = gpGlobals->time + 0.6f;
+				desperation = DESPERATION_IMMINENT;
+				break;
+			}
+
 			case DESPERATION_IMMINENT: {
 				GiveNamedItem( "weapon_9mmhandgun" );
 				GiveNamedItem( "weapon_9mmhandgun_twin" );
@@ -3574,7 +3589,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 					if (
 						( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
 						pEntity->pev->deadflag == DEAD_NO
-						) {
+					) {
 						pEntity->pev->spawnflags = 0;
 					}
 				}
@@ -3660,7 +3675,10 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 			pEntity->pev->deadflag == DEAD_NO
 		) {
 			theyAreAlive = true;
-			break;
+			
+			if ( desperation == DESPERATION_FIGHTING ) {
+				pEntity->pev->effects |= EF_DIMLIGHT;
+			}
 		}
 	}
 

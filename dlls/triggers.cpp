@@ -400,8 +400,8 @@ void CMultiManager :: ManagerThink ( void )
 			strcmp( STRING( m_iTargetName[ m_index ] ), "start_loser_mm" ) == 0
 		) {
 			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_IMMINENT;
-				pPlayer->untilNextDesperation = gpGlobals->time + 2.0f;
+				pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_PRE_IMMINENT;
+				pPlayer->untilNextDesperation = gpGlobals->time + 1.4f;
 				pPlayer->infiniteAmmo = true;
 				pPlayer->infiniteSlowMotion = true;
 				pPlayer->GiveNamedItem( "item_suit" );
