@@ -605,9 +605,11 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 	if ( pevAttacker && m_IdealMonsterState != MONSTERSTATE_DEAD ) {
 		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
 			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
-			const char *weaponUsed = STRING( player->m_pActiveItem->pev->classname );
-			if ( strcmp( weaponUsed, "weapon_crowbar" ) == 0 ) {
-				this->killedByCrowbar = true;
+			if ( player->m_pActiveItem ) {
+				const char *weaponUsed = STRING( player->m_pActiveItem->pev->classname );
+				if ( strcmp( weaponUsed, "weapon_crowbar" ) == 0 ) {
+					this->killedByCrowbar = true;
+				}
 			}
 
 			player->OnKilledEntity( this );
