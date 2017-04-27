@@ -386,6 +386,8 @@ public:
 	
 	float m_flNextChatTime;
 
+	int crystalsDestroyed;
+
 	BOOL showCredits;
 
 	enum DESPERATION_TYPE {

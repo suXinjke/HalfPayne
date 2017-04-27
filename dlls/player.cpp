@@ -180,6 +180,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, desperation, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, untilNextDesperation, FIELD_TIME ),
+
+	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -666,6 +668,17 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	}
 	else if ( victim->killedOrCausedByPlayer && strstr( STRING( victim->pev->target ), "crystal" ) && strcmp( STRING( gpGlobals->mapname ), "c4a1" ) ) {
 		killedEntity = KILLED_ENTITY_NIHILANTH_CRYSTAL;
+
+		crystalsDestroyed++;
+		switch ( crystalsDestroyed ) {
+			case 1:
+				AddToSoundQueue( MAKE_STRING( "comment/onedowntwotogo.wav" ), 0.6f, true );
+				break;
+
+			case 2:
+				AddToSoundQueue( MAKE_STRING( "comment/twodownonetogo.wav" ), 0.6f, true );
+				break;
+		}
 	}
 
 	if ( ( maySwearAfterKill && swearOnKill ) || desperation == DESPERATION_FIGHTING ) {
@@ -3549,6 +3562,8 @@ void CBasePlayer::Spawn( void )
 	secondsInSlowmotion = 0.0f;
 
 	finalDesperationMusic = false;
+
+	crystalsDestroyed = 0;
 
 	g_pGameRules->PlayerSpawn( this );
 }
