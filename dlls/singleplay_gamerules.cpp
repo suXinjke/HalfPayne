@@ -293,7 +293,7 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 						continue;
 					}
 
-					if ( entityToUse->modelIndex == edict->v.modelindex ) {
+					if ( entityToUse->modelIndex == edict->v.modelindex || ( entityToUse->targetName.size() > 0 && entityToUse->targetName == std::string( STRING( edict->v.targetname ) ) ) ) {
 						if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
 							entity->Use( pPlayer, pPlayer, USE_SET, 1 );
 						}
