@@ -136,6 +136,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_ARRAY( CBasePlayer, soundQueueSoundNames, FIELD_STRING, MAX_SOUND_QUEUE ),
 	DEFINE_ARRAY( CBasePlayer, soundQueueSoundDelays, FIELD_FLOAT, MAX_SOUND_QUEUE ),
+	DEFINE_ARRAY( CBasePlayer, soundQueueIsMaxPayneCommentarySound, FIELD_BOOLEAN, MAX_SOUND_QUEUE ),
+	DEFINE_ARRAY( CBasePlayer, soundQueueIsMaxPayneCommentaryImportant, FIELD_BOOLEAN, MAX_SOUND_QUEUE ),
 	DEFINE_FIELD( CBasePlayer, soundQueueCounter, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
@@ -471,7 +473,7 @@ int CBasePlayer::TakePainkiller()
 	) {
 		char fileName[256];
 		sprintf_s( fileName, "max/painkiller/FIND_PILLS_%d.wav", RANDOM_LONG( 1, 16 ) );
-		EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+		TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 
 		allowedToReactOnPainkillerPickup = gpGlobals->time + 30.0f;
 	}
@@ -499,7 +501,7 @@ void CBasePlayer::UsePainkiller()
 		) {
 			char fileName[256];
 			sprintf_s( fileName, "max/painkiller/TAKE_PILLS_%d.wav", RANDOM_LONG( 1, 8 ) );
-			EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+			TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 
 			allowedToReactOnPainkillerTake = gpGlobals->time + 30.0f;
 		}
@@ -3054,24 +3056,47 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 	//ALERT ( at_console, "%d/%d\n", iVolume, m_iTargetVolume );
 }
 
+void CBasePlayer::TryToPlayMaxCommentary( string_t string, bool isImportant )
+{
+	bool isCommentaryPresent = latestMaxCommentaryTime && ( gpGlobals->time - latestMaxCommentaryTime < 10.0f );
+	if ( isImportant ) {
+		if ( isCommentaryPresent ) {
+			STOP_SOUND( edict(), CHAN_STATIC, latestMaxCommentary.c_str() );
+		}
+	} else {
+		if ( isCommentaryPresent ) {
+			return;
+		}
+	}
+
+	EMIT_SOUND( edict(), CHAN_STATIC, STRING( string ), 1.0, ATTN_STATIC, true );
+
+	latestMaxCommentary = STRING( string );
+	latestMaxCommentaryIsImportant = isImportant;
+	latestMaxCommentaryTime = gpGlobals->time;
+}
+
 void CBasePlayer::CheckSoundQueue()
 {
 	for ( int i = 0 ; i < MAX_SOUND_QUEUE ; i++ ) {
 		if ( soundQueueSoundNames[i] != 0 && gpGlobals->time >= soundQueueSoundDelays[i] ) {
-
+			
 			BOOL isMaxCommentary = soundQueueIsMaxPayneCommentarySound[i];
 
-			if ( !isMaxCommentary || ( isMaxCommentary && strcmp( CVAR_GET_STRING( "max_commentary" ), "1" ) == 0 ) ) {
+			if ( !isMaxCommentary ) {
 				EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC, soundQueueIsMaxPayneCommentarySound[i] );
+			} else if ( isMaxCommentary && strcmp( CVAR_GET_STRING( "max_commentary" ), "1" ) == 0 ) {
+				TryToPlayMaxCommentary( soundQueueSoundNames[i], soundQueueIsMaxPayneCommentaryImportant[i] );
 			}
 			soundQueueSoundNames[i] = 0;
 			soundQueueSoundDelays[i] = 0;
 			soundQueueIsMaxPayneCommentarySound[i] = false;
+			soundQueueIsMaxPayneCommentaryImportant[i] = false;
 		}
 	}
 }
 
-void CBasePlayer::AddToSoundQueue( string_t string, float delay, bool isMaxCommentary )
+void CBasePlayer::AddToSoundQueue( string_t string, float delay, bool isMaxCommentary, bool isImportant )
 {
 	if ( soundQueueCounter == MAX_SOUND_QUEUE ) {
 		soundQueueCounter = 0;
@@ -3080,6 +3105,7 @@ void CBasePlayer::AddToSoundQueue( string_t string, float delay, bool isMaxComme
 	soundQueueSoundNames[soundQueueCounter] = string;
 	soundQueueSoundDelays[soundQueueCounter] = gpGlobals->time + delay;
 	soundQueueIsMaxPayneCommentarySound[soundQueueCounter] = isMaxCommentary;
+	soundQueueIsMaxPayneCommentaryImportant[soundQueueCounter] = isImportant;
 
 	soundQueueCounter++;
 }
@@ -3565,6 +3591,9 @@ void CBasePlayer::Spawn( void )
 
 	crystalsDestroyed = 0;
 
+	latestMaxCommentaryTime = 0.0f;
+	latestMaxCommentaryIsImportant = false;
+
 	g_pGameRules->PlayerSpawn( this );
 }
 
@@ -3656,7 +3685,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 			}
 
 			case DESPERATION_REVENGE: {
-				AddToSoundQueue( MAKE_STRING( "comment/finalespeech.wav" ), 3, false );
+				AddToSoundQueue( MAKE_STRING( "comment/finalespeech.wav" ), 3, false, true );
 				constantSlowmotion = 0;
 				infiniteSlowMotion = 0;
 				DeactivateSlowMotion();
@@ -3718,7 +3747,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 
 		STOP_SOUND( edict(), CHAN_STATIC, "music/finale.wav" );
 		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale2.wav", 1.0, ATTN_NORM, true );
-		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, true );
+		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, true, true );
 	}
 }
 
@@ -3897,6 +3926,9 @@ int CBasePlayer::Restore( CRestore &restore )
 
 	finalDesperationMusic = false;
 
+	latestMaxCommentaryTime = 0.0f;
+	latestMaxCommentaryIsImportant = false;
+
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
@@ -3915,7 +3947,7 @@ void CBasePlayer::ComplainAboutKillingInnocent()
 
 	char fileName[256];
 	sprintf_s( fileName, "max/innocent_killed/INNOCENT_KILLED_%d.wav", RANDOM_LONG( 1, 5 ) );
-	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+	TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 
 	allowedToComplainAboutKillingInnocent = gpGlobals->time + 60.0f;
 }
@@ -3932,7 +3964,7 @@ void CBasePlayer::ComplainAboutNoAmmo( bool weaponIsBulletBased )
 	} else {
 		sprintf_s( fileName, "max/no_ammo/NO_AMMO_%d.wav", RANDOM_LONG( 1, 13 ) ); // not including bullet subset
 	}
-	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+	TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 
 	allowedToComplainAboutNoAmmo = gpGlobals->time + 10.0f;
 }
@@ -5111,7 +5143,7 @@ void CBasePlayer :: UpdateClientData( void )
 					} else {
 						sprintf_s( fileName, "max/painkiller/NO_PILLS_%d.wav", RANDOM_LONG( 1, 9 ) );
 					}
-					EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+					TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 
 					allowedToReactOnPainkillerNeed = gpGlobals->time + 30.0f;
 				}

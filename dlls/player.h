@@ -15,7 +15,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-
+#include <string>
 #include "pm_materials.h"
 #include <SDL2/SDL_timer.h>
 
@@ -370,10 +370,16 @@ public:
 	int soundQueueSoundNames[MAX_SOUND_QUEUE];
 	float soundQueueSoundDelays[MAX_SOUND_QUEUE];
 	BOOL soundQueueIsMaxPayneCommentarySound[MAX_SOUND_QUEUE];
+	BOOL soundQueueIsMaxPayneCommentaryImportant[MAX_SOUND_QUEUE];
 	int soundQueueCounter;
 	void CheckSoundQueue();
-	void AddToSoundQueue( string_t string, float delay, bool isMaxCommentary );
+	void AddToSoundQueue( string_t string, float delay, bool isMaxCommentary, bool isImportant = false );
 	void ClearSoundQueue();
+	void TryToPlayMaxCommentary( string_t string, bool isImportant );
+
+	std::string latestMaxCommentary;
+	float latestMaxCommentaryTime;
+	bool latestMaxCommentaryIsImportant;
 	
 	//Player ID
 	void InitStatusBar( void );

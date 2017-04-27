@@ -154,7 +154,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 			// I'm very sorry for this memory leak for now
 			string_t soundPathAllocated = ALLOC_STRING( soundIndex->soundPath.c_str() );
 
-			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary );
+			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary, true );
 			if ( !soundIndex->constant ) {
 				pPlayer->RememberHookedModelIndex( ALLOC_STRING( soundIndex->key.c_str() ) ); // memory leak
 				mapConfig.sounds.erase( soundIndex );
