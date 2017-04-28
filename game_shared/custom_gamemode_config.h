@@ -255,6 +255,7 @@ public:
 	
 	bool noSaving;
 	bool noPills;
+	bool preventMonsterSpawn;
 	
 	bool holdTimer;
 

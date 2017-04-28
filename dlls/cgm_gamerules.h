@@ -35,6 +35,8 @@ public:
 	float timeDelta;
 	float lastGlobalTime;
 
+	bool monsterSpawnPrevented;
+
 	CustomGameModeConfig config;
 
 private:

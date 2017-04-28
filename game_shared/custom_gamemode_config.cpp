@@ -262,6 +262,7 @@ void CustomGameModeConfig::Reset() {
 
 	this->noSaving = false;
 	this->noPills = false;
+	this->preventMonsterSpawn = false;
 
 	this->holdTimer = false;
 
@@ -634,6 +635,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				noSaving = true;
 			} else if ( line == "no_pills" ) {
 				noPills = true;
+			} else if ( line == "prevent_monster_spawn" ) {
+				preventMonsterSpawn = true;
 			} else if ( line == "bullet_physics_disabled" ) {
 				bulletPhysicsDisabled = true;
 			} else if ( line == "bullet_physics_enemies_and_player_on_slowmotion" ) {
