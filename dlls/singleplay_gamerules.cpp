@@ -42,7 +42,8 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CustomGameModeConfig::GAME_M
 	}
 
 	ended = false;
-	entitiesUsed = false;
+	playerProcessed = false;
+	entitiesUsed = true;
 
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
@@ -99,17 +100,15 @@ void CHalfLifeRules::OnEnd( CBasePlayer *pPlayer )
 
 void CHalfLifeRules::OnChangeLevel()
 {
-	// it was previously a C style cast like everywhere else,
-	// but this particular call could return CWorld instance
-	// according to debugger - what the fuck?
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		pPlayer->ClearSoundQueue();
-	}
-
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
 	}
 
+	playerProcessed = false;
+}
+
+void CHalfLifeRules::OnNewlyVisitedMap()
+{
 	entitiesUsed = false;
 }
 
@@ -283,6 +282,19 @@ BOOL CHalfLifeRules :: AllowAutoTargetCrosshair( void )
 //=========================================================
 void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 {
+	if ( !playerProcessed ) {
+		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+			pPlayer->ClearSoundQueue();
+
+			if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
+				pPlayer->AddVisitedMap( gpGlobals->mapname );
+				OnNewlyVisitedMap();
+			}
+		}
+
+		playerProcessed = true;
+	}
+
 	if ( !entitiesUsed ) {
 		auto entityToUse = mapConfig.entityUses.begin();
 		while ( entityToUse != mapConfig.entityUses.end() ) {

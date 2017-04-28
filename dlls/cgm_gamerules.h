@@ -11,7 +11,7 @@ public:
 	CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType = CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
 
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
-	virtual void OnChangeLevel();
+	virtual void OnNewlyVisitedMap();
 	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );
 	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );

@@ -152,8 +152,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 }
 
-void CCustomGameModeRules::OnChangeLevel() {
-	CHalfLifeRules::OnChangeLevel();
+void CCustomGameModeRules::OnNewlyVisitedMap() {
+	CHalfLifeRules::OnNewlyVisitedMap();
 
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 	monsterSpawnPrevented = false;
@@ -174,6 +174,8 @@ BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerI
 
 void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 {
+	CHalfLifeRules::PlayerThink( pPlayer );
+
 	timeDelta = ( gpGlobals->time - lastGlobalTime );
 
 	lastGlobalTime = gpGlobals->time;

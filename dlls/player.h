@@ -69,6 +69,8 @@
 #define MAX_HOOKED_MODEL_INDEXES 1024
 #define MAX_SOUND_QUEUE 64
 
+#define MAX_VISITED_MAPS 64
+
 typedef enum
 {
 	PLAYER_IDLE,
@@ -376,6 +378,11 @@ public:
 	void AddToSoundQueue( string_t string, float delay, bool isMaxCommentary, bool isImportant = false );
 	void ClearSoundQueue();
 	void TryToPlayMaxCommentary( string_t string, bool isImportant );
+
+	void AddVisitedMap( string_t mapName );
+	bool HasVisitedMap( string_t mapName );
+	int visitedMaps[MAX_VISITED_MAPS];
+	int visitedMapsCount;
 
 	std::string latestMaxCommentary;
 	float latestMaxCommentaryTime;

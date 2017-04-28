@@ -177,6 +177,7 @@ public:
 	CHalfLifeRules ( void );
 
 	CustomGameModeConfig mapConfig;
+	bool				 playerProcessed;
 	bool				 entitiesUsed;
 
 	bool EntityShouldBePrevented( edict_t *entity );
@@ -185,6 +186,7 @@ public:
 	virtual void End( CBasePlayer *pPlayer );
 
 	virtual void OnChangeLevel();
+	virtual void OnNewlyVisitedMap();
 	virtual void HookModelIndex( edict_t *activator );
 	virtual void HookModelIndex( edict_t *activator, const char *targetName );
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );

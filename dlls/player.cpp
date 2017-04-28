@@ -140,6 +140,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_ARRAY( CBasePlayer, soundQueueIsMaxPayneCommentaryImportant, FIELD_BOOLEAN, MAX_SOUND_QUEUE ),
 	DEFINE_FIELD( CBasePlayer, soundQueueCounter, FIELD_INTEGER ),
 
+	DEFINE_ARRAY( CBasePlayer, visitedMaps, FIELD_STRING, MAX_VISITED_MAPS ),
+	DEFINE_FIELD( CBasePlayer, visitedMapsCount, FIELD_INTEGER ),
+
 	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, constantSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
@@ -3461,6 +3464,11 @@ void CBasePlayer::Spawn( void )
 	hookedModelIndexesCount = 0;
 
 	ClearSoundQueue();
+
+	for ( int i = 0 ; i < MAX_VISITED_MAPS ; i++ ) {
+		visitedMaps[i] = 0;
+	}
+	visitedMapsCount = 0;
 	
 	m_flTimeStepSound	= 0;
 	m_iStepLeft = 0;
@@ -3612,6 +3620,26 @@ void CBasePlayer::SayRandomSwear()
 	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
 
 	allowedToSwear = gpGlobals->time + 1.5f;
+}
+
+void CBasePlayer::AddVisitedMap( string_t mapName ) 
+{
+	if ( visitedMapsCount == MAX_VISITED_MAPS ) {
+		visitedMapsCount = 0;
+	}
+
+	visitedMaps[visitedMapsCount] = mapName;
+	visitedMapsCount++;
+}
+
+bool CBasePlayer::HasVisitedMap( string_t mapName ) {
+	for ( int i = 0 ; i < MAX_VISITED_MAPS ; i++ ) {
+		if ( FStrEq( STRING( mapName ), STRING( visitedMaps[i] ) ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CBasePlayer::ThinkAboutFinalDesperation()
