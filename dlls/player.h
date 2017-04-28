@@ -454,6 +454,8 @@ public:
 	int activeGameModeConfig;
 	BOOL noSaving;
 
+	BOOL noPills;
+
 	BULLET_PHYSICS_MODE bulletPhysicsMode;
 	BOOL shouldProducePhysicalBullets;
 

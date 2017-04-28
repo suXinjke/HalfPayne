@@ -405,7 +405,9 @@ void CMultiManager :: ManagerThink ( void )
 				pPlayer->infiniteAmmo = true;
 				pPlayer->infiniteSlowMotion = true;
 				pPlayer->GiveNamedItem( "item_suit" );
-				pPlayer->painkillerCount = 6;
+				if ( !pPlayer->noPills ) {
+					pPlayer->painkillerCount = 6;
+				}
 				pPlayer->SetSlowMotion( true );
 			}
 		}

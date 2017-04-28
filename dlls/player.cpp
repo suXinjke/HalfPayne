@@ -163,6 +163,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, activeGameModeConfig, FIELD_STRING ),
 
+	DEFINE_FIELD( CBasePlayer, noPills, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
@@ -455,7 +457,7 @@ int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 
 int CBasePlayer::TakePainkiller()
 {
-	if ( painkillerCount >= MAX_PAINKILLERS ) {
+	if ( noPills || painkillerCount >= MAX_PAINKILLERS ) {
 		return 0;
 	}
 	
@@ -3485,6 +3487,8 @@ void CBasePlayer::Spawn( void )
 	activeGameMode = GAME_MODE_VANILLA;
 	activeGameModeConfig = 0;
 	noSaving = false;
+
+	noPills = false;
 
 	allowedToReactOnPainkillerPickup = 0.0f;
 	allowedToReactOnPainkillerTake = 0.0f;

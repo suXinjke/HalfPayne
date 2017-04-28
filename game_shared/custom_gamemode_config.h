@@ -254,6 +254,7 @@ public:
 	bool slowmotionOnDamage;
 	
 	bool noSaving;
+	bool noPills;
 	
 	bool holdTimer;
 

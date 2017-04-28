@@ -70,6 +70,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
 	pPlayer->noSaving = config.noSaving;
+	pPlayer->noPills = config.noPills;
 	pPlayer->infiniteAmmo = config.infiniteAmmo;
 	pPlayer->instaGib = config.instaGib;
 	pPlayer->swearOnKill = config.swearOnKill;
