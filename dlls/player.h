@@ -489,6 +489,7 @@ public:
 
 	BOOL snarkInception;
 	BOOL snarkNuclear;
+	BOOL snarkStayAlive;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

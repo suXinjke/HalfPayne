@@ -261,6 +261,7 @@ public:
 	bool snarkParanoia;
 	bool snarkInception;
 	bool snarkNuclear;
+	bool snarkStayAlive;
 	
 	bool holdTimer;
 

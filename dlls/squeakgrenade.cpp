@@ -61,6 +61,7 @@ class CSqueakGrenade : public CGrenade
 	static float m_flNextBounceSoundTime;
 
 	// CBaseEntity *m_pTarget;
+	BOOL stayAlive;
 	float m_flDie;
 	Vector m_vecTarget;
 	float m_flNextHunt;
@@ -81,6 +82,7 @@ TYPEDESCRIPTION	CSqueakGrenade::m_SaveData[] =
 	DEFINE_FIELD( CSqueakGrenade, m_flNextHit, FIELD_TIME ),
 	DEFINE_FIELD( CSqueakGrenade, m_posPrev, FIELD_POSITION_VECTOR ),
 	DEFINE_FIELD( CSqueakGrenade, m_hOwner, FIELD_EHANDLE ),
+	DEFINE_FIELD( CSqueakGrenade, stayAlive, FIELD_BOOLEAN ),
 };
 
 IMPLEMENT_SAVERESTORE( CSqueakGrenade, CGrenade );
@@ -144,6 +146,11 @@ void CSqueakGrenade :: Spawn( void )
 
 	pev->sequence = WSQUEAK_RUN;
 	ResetSequenceInfo( );
+
+	stayAlive = false;
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		stayAlive = pPlayer->snarkStayAlive;
+	}
 }
 
 void CSqueakGrenade::Precache( void )
@@ -245,7 +252,7 @@ void CSqueakGrenade::HuntThink( void )
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	// explode when ready
-	if (gpGlobals->time >= m_flDie)
+	if ( !stayAlive && gpGlobals->time >= m_flDie)
 	{
 		g_vecAttackDir = pev->velocity.Normalize( );
 		pev->health = -1;
@@ -292,7 +299,7 @@ void CSqueakGrenade::HuntThink( void )
 	}
 
 	// squeek if it's about time blow up
-	if ((m_flDie - gpGlobals->time <= 0.5) && (m_flDie - gpGlobals->time >= 0.3))
+	if ( !stayAlive && (m_flDie - gpGlobals->time <= 0.5) && (m_flDie - gpGlobals->time >= 0.3))
 	{
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_die1.wav", 1, ATTN_NORM, 0, 100 + RANDOM_LONG(0,0x3F));
 		CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, 256, 0.25 );
@@ -371,7 +378,7 @@ void CSqueakGrenade::SuperBounceTouch( CBaseEntity *pOther )
 		return;
 
 	// higher pitch as squeeker gets closer to detonation time
-	flpitch = 155.0 - 60.0 * ((m_flDie - gpGlobals->time) / SQUEEK_DETONATE_DELAY);
+	flpitch = stayAlive ? RANDOM_LONG( 90, 160 ) : 155.0 - 60.0 * ((m_flDie - gpGlobals->time) / SQUEEK_DETONATE_DELAY);
 
 	if ( pOther->pev->takedamage && m_flNextAttack < gpGlobals->time )
 	{
