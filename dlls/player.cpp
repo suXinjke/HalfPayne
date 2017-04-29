@@ -3646,6 +3646,7 @@ void CBasePlayer::SpawnSnarksAtRandomNode()
 	int snarkCount = RANDOM_LONG( 1, 4 );
 	for ( int i = 0 ; i < snarkCount ; i++ ) {	
 		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + Vector( 0, 0, 4 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+		pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
 	}
 }
 

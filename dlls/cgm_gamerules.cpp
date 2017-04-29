@@ -203,6 +203,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			}
 
 			if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+				if ( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) {
+					continue;
+				}
+
 				if (
 					FStrEq( STRING( entity->pev->classname ), "monster_alien_controller" ) ||
 					FStrEq( STRING( entity->pev->classname ), "monster_alien_grunt" ) ||
