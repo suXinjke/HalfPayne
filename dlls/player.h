@@ -482,6 +482,10 @@ public:
 	BOOL instaGib;
 
 	BOOL usedCheat;
+
+	void SpawnSnarksAtRandomNode();
+	BOOL snarkParanoia;
+	float nextSnarkSpawn;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

@@ -189,6 +189,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, untilNextDesperation, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayer, snarkParanoia, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME )
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3592,6 +3595,9 @@ void CBasePlayer::Spawn( void )
 
 	usedCheat = false;
 
+	snarkParanoia = false;
+	nextSnarkSpawn = 2.0f;
+
 	kills = 0;
 	headshotKills = 0;
 	explosiveKills = 0;
@@ -3607,6 +3613,40 @@ void CBasePlayer::Spawn( void )
 	latestMaxCommentaryIsImportant = false;
 
 	g_pGameRules->PlayerSpawn( this );
+}
+
+void CBasePlayer::SpawnSnarksAtRandomNode()
+{
+	Vector spawnPos;
+	bool decidedOnSpawnPos = false;
+
+	for ( int i = 0 ; i < 4 ; i++ ) {
+		int randomNodeIndex = RANDOM_LONG( 0, WorldGraph.m_cNodes - 1 );
+		CNode node = WorldGraph.m_pNodes[randomNodeIndex];
+
+		CBaseEntity *list[1] = { NULL };
+		UTIL_MonstersInSphere( list, 1, node.m_vecOrigin, 32.0f );
+		
+		if ( list[0] == NULL ) {
+			TraceResult tr;
+			UTIL_TraceLine( pev->origin, node.m_vecOrigin, dont_ignore_monsters, ignore_glass, ENT( pev ), &tr );
+
+			if ( tr.flFraction != 1.0f ) {
+				spawnPos = node.m_vecOrigin;
+				decidedOnSpawnPos = true;
+				break;
+			}
+		}
+	}
+
+	if ( !decidedOnSpawnPos ) {
+		return;
+	}
+
+	int snarkCount = RANDOM_LONG( 1, 4 );
+	for ( int i = 0 ; i < snarkCount ; i++ ) {	
+		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + Vector( 0, 0, 4 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+	}
 }
 
 void CBasePlayer::SayRandomSwear()
@@ -5090,6 +5130,11 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_BEGIN( MSG_ONE, gmsgBattery, NULL, pev );
 			WRITE_SHORT( (int)pev->armorvalue);
 		MESSAGE_END();
+	}
+
+	if ( snarkParanoia && gpGlobals->time > nextSnarkSpawn ) {
+		SpawnSnarksAtRandomNode();
+		nextSnarkSpawn = gpGlobals->time + 1.0f;
 	}
 
 	if (pev->dmg_take || pev->dmg_save || m_bitsHUDDamage != m_bitsDamageType)

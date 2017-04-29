@@ -256,6 +256,9 @@ public:
 	bool noSaving;
 	bool noPills;
 	bool preventMonsterSpawn;
+
+	// Half-Payne - first mod that gives snarks the second chance
+	bool snarkParanoia;
 	
 	bool holdTimer;
 

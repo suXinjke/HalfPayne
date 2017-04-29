@@ -80,6 +80,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->oneHitKO = config.oneHitKO;
 	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
 
+	pPlayer->snarkParanoia = config.snarkParanoia;
+
 	pPlayer->SetEvilImpulse101( true );
 	for ( size_t i = 0; i < config.loadout.size( ); i++ ) {
 		std::string loadoutItem = config.loadout.at( i );
