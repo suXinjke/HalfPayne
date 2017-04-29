@@ -257,6 +257,8 @@ public:
 	bool noPills;
 	bool preventMonsterSpawn;
 
+	bool isBleeding;
+
 	// Half-Payne - first mod that gives snarks the second chance
 	bool snarkParanoia;
 	bool snarkInception;

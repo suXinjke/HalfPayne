@@ -481,6 +481,10 @@ public:
 	BOOL weaponRestricted;
 	BOOL instaGib;
 
+	BOOL isBleeding;
+	float lastHealingTime;
+	float bleedTime;
+
 	BOOL usedCheat;
 
 	void SpawnSnarksAtRandomNode();

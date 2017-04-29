@@ -77,6 +77,7 @@ extern CGraph	WorldGraph;
 
 #define HEALTH_TIME_UNTIL_CHARGE 3
 #define HEALTH_CHARGE_TIME 0.2
+#define BLEED_DRAIN_TIME 1
 #define HEALTH_MAX_CHARGE 20
 
 #define TIMELEFT_UPDATE_TIME 0.001
@@ -187,6 +188,10 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, desperation, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, untilNextDesperation, FIELD_TIME ),
+
+	DEFINE_FIELD( CBasePlayer, isBleeding, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, lastHealingTime, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, bleedTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 
@@ -461,6 +466,7 @@ void CBasePlayer :: DeathSound( void )
 
 int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 {
+	lastHealingTime = gpGlobals->time + 10.0f;
 	return CBaseMonster :: TakeHealth (flHealth, bitsDamageType);
 
 }
@@ -3607,6 +3613,10 @@ void CBasePlayer::Spawn( void )
 	snarkStayAlive = false;
 	snarkInfestation = false;
 
+	isBleeding = false;
+	lastHealingTime = 0.0f;
+	bleedTime = 0.0f;
+
 	kills = 0;
 	headshotKills = 0;
 	explosiveKills = 0;
@@ -5212,7 +5222,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// Charge health if it's less than 20
-	if ( lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time && pev->deadflag == DEAD_NO )
+	if ( !isBleeding && lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time && pev->deadflag == DEAD_NO )
 	{
 		if ( pev->health < 20 ) {
 			healthChargeTime = HEALTH_CHARGE_TIME + gpGlobals->time;
@@ -5235,6 +5245,13 @@ void CBasePlayer :: UpdateClientData( void )
 					allowedToReactOnPainkillerNeed = gpGlobals->time + 30.0f;
 				}
 			}
+		}
+	}
+
+	if ( isBleeding && lastHealingTime <= gpGlobals->time && bleedTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
+		if ( pev->health > 20 ) {
+			bleedTime = BLEED_DRAIN_TIME + gpGlobals->time;
+			pev->health--;
 		}
 	}
 

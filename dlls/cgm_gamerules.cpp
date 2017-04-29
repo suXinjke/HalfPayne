@@ -79,6 +79,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->slowmotionOnDamage = config.slowmotionOnDamage;
 	pPlayer->oneHitKO = config.oneHitKO;
 	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
+	pPlayer->isBleeding = config.isBleeding;
 
 	pPlayer->snarkParanoia = config.snarkParanoia;
 	pPlayer->snarkInception = config.snarkInception;
