@@ -656,6 +656,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				snarkParanoia = true;
 			} else if ( line == "snark_inception" ) {
 				snarkInception = true;
+			} else if ( line == "snark_nuclear" ) {
+				snarkNuclear = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );

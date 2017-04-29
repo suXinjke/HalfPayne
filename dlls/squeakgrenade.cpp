@@ -199,6 +199,27 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 			CBaseEntity *snark2 = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * -16 + gpGlobals->v_up * 8, pev->angles, NULL );
 			snark2->pev->velocity = -gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
 		}
+
+		if ( pPlayer->snarkNuclear ) {
+			float damage = gSkillData.plrDmgHandGrenade;
+			RadiusDamage ( pev, pev, damage, CLASS_NONE, DMG_BLAST );
+
+
+			MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pev->origin );
+				WRITE_BYTE( TE_EXPLOSION );		// This makes a dynamic light and the explosion sprites/sound
+				WRITE_COORD( pev->origin.x );	// Send to PAS because of the sound
+				WRITE_COORD( pev->origin.y );
+				WRITE_COORD( pev->origin.z + 36 );
+				if ( UTIL_PointContents ( pev->origin ) != CONTENTS_WATER) {
+					WRITE_SHORT( g_sModelIndexFireball );
+				} else {
+					WRITE_SHORT( g_sModelIndexWExplosion );
+				}
+				WRITE_BYTE( ( damage - 50 ) * 0.6f  ); // scale * 10
+				WRITE_BYTE( 15  ); // framerate
+				WRITE_BYTE( TE_EXPLFLAG_NONE );
+			MESSAGE_END();
+		}
 	}
 }
 

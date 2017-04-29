@@ -488,6 +488,7 @@ public:
 	float nextSnarkSpawn;
 
 	BOOL snarkInception;
+	BOOL snarkNuclear;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
