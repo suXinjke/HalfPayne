@@ -265,6 +265,7 @@ void CustomGameModeConfig::Reset() {
 	this->preventMonsterSpawn = false;
 
 	this->isBleeding = false;
+	this->divingOnly = false;
 
 	this->snarkParanoia = false;
 	this->snarkInception = false;
@@ -669,6 +670,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				snarkInfestation = true;
 			} else if ( line == "bleeding" ) {
 				isBleeding = true;
+			} else if ( line == "diving_only" ) {
+				divingOnly = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );

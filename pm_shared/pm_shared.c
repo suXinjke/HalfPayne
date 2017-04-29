@@ -2726,7 +2726,11 @@ void PM_Dive(void)
 		return;
 	}
 
-	if ( pmove->flags & FL_DUCKING )
+	int standingUpAfterDiving = pmove->time > timeBeginStandingUp && pmove->time < timeEndStandingUp;
+	if ( 
+		pmove->fuser4 < 1.0f && pmove->flags & FL_DUCKING ||
+		pmove->fuser4 >= 1.0f && standingUpAfterDiving 
+	)
 	{
 		return;
 	}
@@ -3206,10 +3210,14 @@ void PM_PlayerMove ( qboolean server )
 	}
 	
 	// Don't run ladder code if dead or on a train, or when diving
-	if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && !( pmove->flags & FL_DIVING ) )
+	if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && ( pmove->fuser4 >= 1.0f || !( pmove->flags & FL_DIVING ) ) )
 	{
 		if ( pLadder )
 		{
+			if ( pmove->flags & FL_DIVING ) {
+				pmove->flags |= FL_DEACTIVATE_SLOWMOTION_REQUESTED;
+				pmove->flags &= ~FL_DIVING;
+			}
 			PM_LadderMove( pLadder );
 		}
 		// Added prevention of setting MOVETYPE_WALK if you have MOVETYPE_NONE,
@@ -3342,7 +3350,7 @@ void PM_PlayerMove ( qboolean server )
 			// Was jump button pressed?
 			if ( pmove->cmd.buttons & IN_JUMP )
 			{
-				if ( !pLadder )
+				if ( !pLadder && pmove->fuser4 < 1.0f )
 				{
 					PM_Jump ();
 				}
@@ -3378,7 +3386,10 @@ void PM_PlayerMove ( qboolean server )
 			// Are we on ground now
 			if ( pmove->onground != -1 )
 			{
-				PM_WalkMove();
+				int standingUpAfterDiving = pmove->time > timeBeginStandingUp && pmove->time < timeEndStandingUp;
+				if ( pmove->fuser4 < 1.0f || pmove->flags & FL_DIVING || standingUpAfterDiving ) {
+					PM_WalkMove();
+				}
 			}
 			else
 			{

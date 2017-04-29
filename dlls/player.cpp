@@ -201,6 +201,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3303,6 +3305,10 @@ pt_end:
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
 
+	if ( divingOnly ) {
+		pev->fuser4 = 1.0f;
+	}
+
 	if ( desperation != DESPERATION_NO ) {
 		ThinkAboutFinalDesperation();
 	}
@@ -3612,6 +3618,8 @@ void CBasePlayer::Spawn( void )
 	snarkNuclear = false;
 	snarkStayAlive = false;
 	snarkInfestation = false;
+
+	divingOnly = false;
 
 	isBleeding = false;
 	lastHealingTime = 0.0f;

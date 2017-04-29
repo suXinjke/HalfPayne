@@ -485,6 +485,8 @@ public:
 	float lastHealingTime;
 	float bleedTime;
 
+	BOOL divingOnly;
+
 	BOOL usedCheat;
 
 	void SpawnSnarksAtRandomNode();

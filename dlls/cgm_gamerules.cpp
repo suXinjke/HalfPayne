@@ -140,6 +140,11 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->noSlowmotion = true;
 	}
 
+	if ( config.divingOnly ) {
+		pPlayer->divingOnly = true;
+		pPlayer->infiniteSlowMotion = true;
+	}
+
 	if ( config.bulletPhysicsConstant ) {
 		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_CONSTANT;
 	} else if ( config.bulletPhysicsEnemiesAndPlayerOnSlowmotion ) {
