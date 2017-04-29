@@ -195,6 +195,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3604,6 +3605,7 @@ void CBasePlayer::Spawn( void )
 	snarkInception = false;
 	snarkNuclear = false;
 	snarkStayAlive = false;
+	snarkInfestation = false;
 
 	kills = 0;
 	headshotKills = 0;

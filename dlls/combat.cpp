@@ -315,6 +315,14 @@ void CBaseMonster :: GibMonster( void )
 		if ( player->instaGib ) {
 			gibCount *= 4;
 		}
+
+		if ( player->snarkInfestation ) {
+			int snarkCount = RANDOM_LONG( 1, 3 );
+			Vector spawnPos = pev->origin + gpGlobals->v_forward * RANDOM_LONG( -5, 5 ) + gpGlobals->v_right * RANDOM_LONG( -5, 5 );
+			for ( int i = 0 ; i < snarkCount ; i++ ) {
+				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_up * ( 2 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+			}
+		}
 	}
 
 	// only humans throw skulls !!!UNDONE - eventually monsters will have their own sets of gibs
@@ -680,6 +688,15 @@ void CBaseMonster :: Killed( entvars_t *pevAttacker, int iGib )
 	{
 		SetTouch( NULL );
 		BecomeDead();
+	}
+
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		if ( pPlayer->snarkInfestation ) {
+			if ( !FStrEq( STRING( pev->classname ), "monster_snark" ) ) {
+				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", pev->origin + Vector( 0, 0, 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+				pSqueak->pev->velocity = gpGlobals->v_forward * 100 + gpGlobals->v_up * 50;
+			}
+		}
 	}
 	
 	// don't let the status bar glitch for players.with <0 health.

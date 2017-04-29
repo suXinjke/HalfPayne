@@ -262,6 +262,7 @@ public:
 	bool snarkInception;
 	bool snarkNuclear;
 	bool snarkStayAlive;
+	bool snarkInfestation;
 	
 	bool holdTimer;
 

@@ -268,6 +268,7 @@ void CustomGameModeConfig::Reset() {
 	this->snarkInception = false;
 	this->snarkNuclear = false;
 	this->snarkStayAlive = false;
+	this->snarkInfestation = false;
 
 	this->holdTimer = false;
 
@@ -662,6 +663,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				snarkNuclear = true;
 			} else if ( line == "snark_stay_alive" ) {
 				snarkStayAlive = true;
+			} else if ( line == "snark_infestation" ) {
+				snarkInfestation = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );
