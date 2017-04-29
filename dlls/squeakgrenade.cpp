@@ -188,6 +188,18 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 		pev->owner = m_hOwner->edict();
 
 	CBaseMonster :: Killed( pevAttacker, GIB_ALWAYS );
+
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		if ( pPlayer->snarkInception ) {
+			Vector spawnPos = pev->origin;
+			
+			CBaseEntity *snark1 = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * 16 + gpGlobals->v_up * 8, pev->angles, NULL );
+			snark1->pev->velocity = gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
+
+			CBaseEntity *snark2 = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * -16 + gpGlobals->v_up * 8, pev->angles, NULL );
+			snark2->pev->velocity = -gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
+		}
+	}
 }
 
 void CSqueakGrenade :: GibMonster( void )

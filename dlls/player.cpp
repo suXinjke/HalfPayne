@@ -191,7 +191,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, snarkParanoia, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME )
+	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -3598,6 +3599,8 @@ void CBasePlayer::Spawn( void )
 	snarkParanoia = false;
 	nextSnarkSpawn = 2.0f;
 
+	snarkInception = false;
+
 	kills = 0;
 	headshotKills = 0;
 	explosiveKills = 0;
@@ -3643,7 +3646,7 @@ void CBasePlayer::SpawnSnarksAtRandomNode()
 		return;
 	}
 
-	int snarkCount = RANDOM_LONG( 1, 4 );
+	int snarkCount = snarkInception ? 1 : RANDOM_LONG( 1, 4 );
 	for ( int i = 0 ; i < snarkCount ; i++ ) {	
 		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + Vector( 0, 0, 4 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
 		pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;

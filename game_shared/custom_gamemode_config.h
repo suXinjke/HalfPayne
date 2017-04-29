@@ -259,6 +259,7 @@ public:
 
 	// Half-Payne - first mod that gives snarks the second chance
 	bool snarkParanoia;
+	bool snarkInception;
 	
 	bool holdTimer;
 

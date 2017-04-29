@@ -265,6 +265,7 @@ void CustomGameModeConfig::Reset() {
 	this->preventMonsterSpawn = false;
 
 	this->snarkParanoia = false;
+	this->snarkInception = false;
 
 	this->holdTimer = false;
 
@@ -653,6 +654,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				oneHitKOFromPlayer = true;
 			} else if ( line == "snark_paranoia" ) {
 				snarkParanoia = true;
+			} else if ( line == "snark_inception" ) {
+				snarkInception = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );

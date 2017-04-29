@@ -486,6 +486,8 @@ public:
 	void SpawnSnarksAtRandomNode();
 	BOOL snarkParanoia;
 	float nextSnarkSpawn;
+
+	BOOL snarkInception;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025
