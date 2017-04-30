@@ -257,6 +257,7 @@ public:
 	bool noPills;
 	bool preventMonsterSpawn;
 	bool garbageGibs;
+	bool edibleGibs;
 
 	bool isBleeding;
 	bool divingOnly;

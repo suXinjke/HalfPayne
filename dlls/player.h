@@ -481,6 +481,7 @@ public:
 	BOOL weaponRestricted;
 	BOOL instaGib;
 
+	BOOL edibleGibs;
 	BOOL garbageGibs;
 
 	BOOL isBleeding;

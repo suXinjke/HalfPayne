@@ -54,6 +54,26 @@ void CGib :: LimitVelocity( void )
 		pev->velocity = pev->velocity.Normalize() * 1500;		// This should really be sv_maxvelocity * 0.75 or something
 }
 
+void CGib::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	if ( CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( pActivator ) ) {
+		if ( !pPlayer->edibleGibs ) {
+			return;
+		}
+
+		if ( pPlayer->garbageGibs ) {
+			UTIL_ScreenFade( pPlayer, Vector( 255, 255, 255 ), 0.08, 0.08, 80.0, 0 );
+		} else {
+			UTIL_ScreenFade( pPlayer, Vector( 255, 0, 0 ), 0.08, 0.08, 120.0, 0 );
+		}
+		pPlayer->TakeHealth( 5.0f, DMG_GENERIC );
+		pev->flags |= FL_KILLME;
+
+		char fileName[256];
+		sprintf_s( fileName, "barnacle/bcl_chew%d.wav", RANDOM_LONG( 1, 3 ) );
+		EMIT_SOUND( pPlayer->edict(), CHAN_STATIC, fileName, 1.0, ATTN_STATIC, true );
+	}
+}
 
 void CGib :: SpawnStickyGibs( entvars_t *pevVictim, Vector vecOrigin, int cGibs )
 {

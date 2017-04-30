@@ -167,6 +167,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, activeGameModeConfig, FIELD_STRING ),
 
+	DEFINE_FIELD( CBasePlayer, edibleGibs, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, garbageGibs, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, noPills, FIELD_BOOLEAN ),

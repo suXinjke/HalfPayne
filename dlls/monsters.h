@@ -150,8 +150,9 @@ public:
 	void EXPORT WaitTillLand( void );
 	void		SetSolid( void );
 	void		LimitVelocity( void );
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
-	virtual int	ObjectCaps( void ) { return (CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE; }
+	virtual int	ObjectCaps( void ) { return (CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_DONT_SAVE | FCAP_IMPULSE_USE; }
 	static	void SpawnHeadGib( entvars_t *pevVictim );
 	static	void SpawnRandomGibs( entvars_t *pevVictim, int cGibs, int human );
 	static  void SpawnStickyGibs( entvars_t *pevVictim, Vector vecOrigin, int cGibs );

@@ -1101,6 +1101,10 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_20.wav" );
 	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_21.wav" );
 
+	PRECACHE_SOUND( "barnacle/bcl_chew1.wav" );
+	PRECACHE_SOUND( "barnacle/bcl_chew2.wav" );
+	PRECACHE_SOUND( "barnacle/bcl_chew3.wav" );
+
 	if ( strcmp( STRING( gpGlobals->mapname ), "c4a3" ) == 0 ) {
 
 		PRECACHE_SOUND( "comment/onedowntwotogo.wav" );
