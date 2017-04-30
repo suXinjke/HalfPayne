@@ -263,6 +263,7 @@ void CustomGameModeConfig::Reset() {
 	this->noSaving = false;
 	this->noPills = false;
 	this->preventMonsterSpawn = false;
+	this->garbageGibs = false;
 
 	this->isBleeding = false;
 	this->divingOnly = false;
@@ -673,6 +674,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				isBleeding = true;
 			} else if ( line == "diving_only" ) {
 				divingOnly = true;
+			} else if ( line == "garbage_gibs" ) {
+				garbageGibs = true;
 			} else if ( line == "totally_spies" ) {
 				// TODO: embed into the save file while being able to extract the flag during hgrunt spawn
 				// flag was usually fetched from CBasePlayer, but it's not available during spawn most of the times

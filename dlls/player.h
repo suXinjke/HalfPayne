@@ -481,6 +481,8 @@ public:
 	BOOL weaponRestricted;
 	BOOL instaGib;
 
+	BOOL garbageGibs;
+
 	BOOL isBleeding;
 	float lastHealingTime;
 	float bleedTime;

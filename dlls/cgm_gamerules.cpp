@@ -80,6 +80,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->oneHitKO = config.oneHitKO;
 	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
 	pPlayer->isBleeding = config.isBleeding;
+	pPlayer->garbageGibs = config.garbageGibs;
 
 	pPlayer->snarkParanoia = config.snarkParanoia;
 	pPlayer->snarkInception = config.snarkInception;

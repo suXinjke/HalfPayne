@@ -128,6 +128,11 @@ void CGib :: SpawnHeadGib( entvars_t *pevVictim )
 {
 	CGib *pGib = GetClassPtr( (CGib *)NULL );
 
+	bool garbageGibs = false;
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		garbageGibs = pPlayer->garbageGibs;
+	}
+
 	if ( g_Language == LANGUAGE_GERMAN )
 	{
 		pGib->Spawn( "models/germangibs.mdl" );// throw one head
@@ -135,8 +140,15 @@ void CGib :: SpawnHeadGib( entvars_t *pevVictim )
 	}
 	else
 	{
-		pGib->Spawn( "models/hgibs.mdl" );// throw one head
-		pGib->pev->body = 0;
+		if ( !garbageGibs ) {
+			pGib->Spawn( "models/hgibs.mdl" );// throw one head
+			pGib->pev->body = 0;
+		} else {
+			pGib->Spawn( "models/garbagegibs.mdl" );
+			do {
+				pGib->pev->body = RANDOM_LONG( 0, 11 );
+			} while ( pGib->pev->body == 2 || pGib->pev->body == 3 || pGib->pev->body == 10 );
+		}
 	}
 
 	if ( pevVictim )
@@ -197,17 +209,29 @@ void CGib :: SpawnRandomGibs( entvars_t *pevVictim, int cGibs, int human )
 		}
 		else
 		{
-			if ( human )
-			{
-				// human pieces
-				pGib->Spawn( "models/hgibs.mdl" );
-				pGib->pev->body = RANDOM_LONG(1,HUMAN_GIB_COUNT-1);// start at one to avoid throwing random amounts of skulls (0th gib)
+			bool garbageGibs = false;
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				garbageGibs = pPlayer->garbageGibs;
 			}
-			else
-			{
-				// aliens
-				pGib->Spawn( "models/agibs.mdl" );
-				pGib->pev->body = RANDOM_LONG(0,ALIEN_GIB_COUNT-1);
+
+			if ( !garbageGibs ) {
+				if ( human )
+				{
+					// human pieces
+					pGib->Spawn( "models/hgibs.mdl" );
+					pGib->pev->body = RANDOM_LONG(1,HUMAN_GIB_COUNT-1);// start at one to avoid throwing random amounts of skulls (0th gib)
+				}
+				else
+				{
+					// aliens
+					pGib->Spawn( "models/agibs.mdl" );
+					pGib->pev->body = RANDOM_LONG(0,ALIEN_GIB_COUNT-1);
+				}
+			} else {
+				pGib->Spawn( "models/garbagegibs.mdl" );
+				do {
+					pGib->pev->body = RANDOM_LONG( 0, 11 );
+				} while ( pGib->pev->body == 2 || pGib->pev->body == 3 || pGib->pev->body == 10 );
 			}
 		}
 

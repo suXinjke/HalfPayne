@@ -22,6 +22,7 @@
 #include "decals.h"
 #include "func_break.h"
 #include "shake.h"
+#include "player.h"
 
 #define	SF_GIBSHOOTER_REPEATABLE	1 // allows a gibshooter to be refired
 
@@ -1457,16 +1458,30 @@ CGib *CGibShooter :: CreateGib ( void )
 	if ( CVAR_GET_FLOAT("violence_hgibs") == 0 )
 		return NULL;
 
-	CGib *pGib = GetClassPtr( (CGib *)NULL );
-	pGib->Spawn( "models/hgibs.mdl" );
-	pGib->m_bloodColor = BLOOD_COLOR_RED;
-
-	if ( pev->body <= 1 )
-	{
-		ALERT ( at_aiconsole, "GibShooter Body is <= 1!\n" );
+	bool garbageGibs = false;
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		garbageGibs = pPlayer->garbageGibs;
 	}
 
-	pGib->pev->body = RANDOM_LONG ( 1, pev->body - 1 );// avoid throwing random amounts of the 0th gib. (skull).
+	CGib *pGib = GetClassPtr( (CGib *)NULL );
+
+	if ( !garbageGibs ) {
+		pGib->Spawn( "models/hgibs.mdl" );
+		pGib->m_bloodColor = BLOOD_COLOR_RED;
+
+		if ( pev->body <= 1 )
+		{
+			ALERT ( at_aiconsole, "GibShooter Body is <= 1!\n" );
+		}
+
+		pGib->pev->body = RANDOM_LONG ( 1, pev->body - 1 );// avoid throwing random amounts of the 0th gib. (skull).
+
+	} else {
+		pGib->Spawn( "models/garbagegibs.mdl" );// throw one head
+		do {
+			pGib->pev->body = RANDOM_LONG( 0, 11 );
+		} while ( pGib->pev->body == 2 || pGib->pev->body == 3 || pGib->pev->body == 10 );
+	}
 
 	return pGib;
 }

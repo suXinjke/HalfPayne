@@ -553,6 +553,7 @@ void CWorld :: Precache( void )
 	}
 	else
 	{
+		PRECACHE_MODEL( "models/garbagegibs.mdl" );
 		PRECACHE_MODEL( "models/hgibs.mdl" );
 		PRECACHE_MODEL( "models/agibs.mdl" );
 	}
