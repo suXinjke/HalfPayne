@@ -42,6 +42,7 @@
 #include	"effects.h"
 #include	"player.h"
 #include	"customentity.h"
+#include	"cgm_gamerules.h"
 
 int g_fGruntQuestion;				// true if an idle grunt asked a question. Cleared when someone answers.
 
@@ -1000,6 +1001,15 @@ void CHGrunt :: HandleAnimEvent( MonsterEvent_t *pEvent )
 //=========================================================
 void CHGrunt :: Spawn()
 {
+	if ( CCustomGameModeRules *rules = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
+		if ( rules->config.totallySpies ) {
+			CBaseEntity *spy = CBaseEntity::Create( "monster_human_assassin", pev->origin, pev->angles, NULL );
+			spy->pev->target = pev->target;
+			spy->pev->targetname = pev->targetname;
+			return;
+		}
+	}
+
 	Precache( );
 
 	SET_MODEL(ENT(pev), "models/hgrunt.mdl");

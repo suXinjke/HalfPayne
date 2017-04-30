@@ -259,6 +259,7 @@ public:
 
 	bool isBleeding;
 	bool divingOnly;
+	bool totallySpies;
 
 	// Half-Payne - first mod that gives snarks the second chance
 	bool snarkParanoia;
