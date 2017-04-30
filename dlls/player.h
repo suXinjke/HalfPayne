@@ -142,6 +142,10 @@ public:
 
 	BOOL				slowmotionOnDamage;
 
+	BOOL				superHot;
+	float				superHotMultiplier;
+	float				nextSuperHotMultiplierUpdate;
+
 	BOOL				oneHitKO;
 	BOOL				oneHitKOFromPlayer;
 

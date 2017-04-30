@@ -150,6 +150,10 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 
+	DEFINE_FIELD( CBasePlayer, superHot, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, superHotMultiplier, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, nextSuperHotMultiplierUpdate, FIELD_TIME ),
+
 	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
 
@@ -3539,6 +3543,10 @@ void CBasePlayer::Spawn( void )
 	swearOnKill = FALSE;
 	allowedToSwear = 0.0f;
 
+	superHot = FALSE;
+	superHotMultiplier = 0.0005f;
+	nextSuperHotMultiplierUpdate = 0.0f;
+
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
 
@@ -4408,6 +4416,10 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
+	if ( superHot ) {
+		return;
+	}
+
 	if ( slowMotionEnabled ) {
 		DeactivateSlowMotion();
 	} else {
@@ -5266,6 +5278,37 @@ void CBasePlayer :: UpdateClientData( void )
 			bleedTime = BLEED_DRAIN_TIME + gpGlobals->time;
 			pev->health--;
 		}
+	}
+
+	if ( superHot ) {
+		if ( pev->deadflag == DEAD_NO ) {
+			bool afterMP5Fire = false;
+			if ( CBasePlayerWeapon *weapon = dynamic_cast<CBasePlayerWeapon*>( m_pActiveItem ) ) {
+				if ( weapon->m_iId == WEAPON_MP5 && gpGlobals->time - weapon->m_flLastFireTime < 0.1 ) {
+					afterMP5Fire = true;
+				}
+			}
+
+			nextSuperHotMultiplierUpdate = superHotMultiplier + gpGlobals->time;
+
+			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT | IN_JUMP ) || afterMP5Fire ) {
+				superHotMultiplier += 0.00025;
+				if ( superHotMultiplier > 0.01f ) {
+					superHotMultiplier = 0.01f;
+				}
+			} else {
+				superHotMultiplier -= 0.005;
+				if ( superHotMultiplier < 0.0005f ) {
+					superHotMultiplier = 0.0005f;
+				}
+			}
+		} else {
+			superHotMultiplier = 0.0025f;
+		}
+
+		char com[256];
+		sprintf_s( com, "host_framerate %f\n", superHotMultiplier );
+		SERVER_COMMAND( com );
 	}
 
 	// Update slowmotion meter

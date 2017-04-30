@@ -272,6 +272,8 @@ public:
 	
 	bool holdTimer;
 
+	bool superHot;
+
 	bool powerfulHeadshots;
 	bool infiniteAmmo;
 	bool weaponRestricted;

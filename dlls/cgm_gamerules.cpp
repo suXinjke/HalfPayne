@@ -82,6 +82,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->isBleeding = config.isBleeding;
 	pPlayer->garbageGibs = config.garbageGibs;
 	pPlayer->edibleGibs = config.edibleGibs;
+	pPlayer->superHot = config.superHot;
 
 	pPlayer->snarkParanoia = config.snarkParanoia;
 	pPlayer->snarkInception = config.snarkInception;
