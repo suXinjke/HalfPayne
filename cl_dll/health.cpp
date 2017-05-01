@@ -30,6 +30,7 @@
 
 DECLARE_MESSAGE(m_Health, Health )
 DECLARE_MESSAGE(m_Health, Damage )
+DECLARE_MESSAGE(m_Health, FadeOut )
 
 #define PAIN_NAME "sprites/%d_pain.spr"
 #define DAMAGE_NAME "sprites/%d_dmg.spr"
@@ -56,6 +57,7 @@ int CHudHealth::Init(void)
 {
 	HOOK_MESSAGE(Health);
 	HOOK_MESSAGE(Damage);
+	HOOK_MESSAGE(FadeOut);
 	m_iHealth = 100;
 	m_fFade = 0;
 	m_iFlags = 0;
@@ -63,6 +65,7 @@ int CHudHealth::Init(void)
 	m_fAttackFront = m_fAttackRear = m_fAttackRight = m_fAttackLeft = 0;
 	giDmgHeight = 0;
 	giDmgWidth = 0;
+	fadeOut = 0;
 
 	memset(m_dmg, 0, sizeof(DAMAGE_IMAGE) * NUM_DMG_TYPES);
 
@@ -138,6 +141,16 @@ int CHudHealth:: MsgFunc_Damage(const char *pszName,  int iSize, void *pbuf )
 	return 1;
 }
 
+int CHudHealth:: MsgFunc_FadeOut(const char *pszName,  int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	int receivedFade = READ_BYTE();
+
+	fadeOut = 255 - receivedFade;
+	
+	return 1;
+}
+
 
 // Returns back a color from the
 // Green <-> Yellow <-> Red ramp
@@ -169,6 +182,8 @@ void CHudHealth::GetPainColor( int &r, int &g, int &b )
 
 int CHudHealth::Draw(float flTime)
 {
+	gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, 0, 0, 0, fadeOut );
+
 	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
 		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )
 		|| gEngfuncs.IsSpectateOnly() ) {

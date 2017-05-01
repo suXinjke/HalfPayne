@@ -78,6 +78,7 @@ extern CGraph	WorldGraph;
 #define HEALTH_TIME_UNTIL_CHARGE 3
 #define HEALTH_CHARGE_TIME 0.2
 #define BLEED_DRAIN_TIME 1
+#define FADE_OUT_TIME 0.5
 #define HEALTH_MAX_CHARGE 20
 
 #define TIMELEFT_UPDATE_TIME 0.001
@@ -200,6 +201,10 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, lastHealingTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, bleedTime, FIELD_TIME ),
 
+	DEFINE_FIELD( CBasePlayer, fade, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, isFadingOut, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, fadeOutTime, FIELD_TIME ),
+
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, snarkParanoia, FIELD_BOOLEAN ),
@@ -286,6 +291,7 @@ int gmsgShowMenu = 0;
 int gmsgGeigerRange = 0;
 int gmsgTeamNames = 0;
 int gmsgConcuss = 0;
+int gmsgFadeOut = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -345,6 +351,7 @@ void LinkUserMessages( void )
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
 	gmsgAimCoords = REG_USER_MSG( "AimCoords", 8 );
 	gmsgConcuss = REG_USER_MSG( "Concuss", 1 );
+	gmsgFadeOut = REG_USER_MSG( "FadeOut", 1 );
 
 }
 
@@ -484,7 +491,6 @@ void CBasePlayer :: DeathSound( void )
 
 int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 {
-	lastHealingTime = gpGlobals->time + 10.0f;
 	return CBaseMonster :: TakeHealth (flHealth, bitsDamageType);
 
 }
@@ -523,8 +529,13 @@ void CBasePlayer::UsePainkiller()
 		return;
 	}
 
-	if ( TakeHealth( 20, DMG_GENERIC ) ) {
+	if ( TakeHealth( 20, DMG_GENERIC ) || ( isFadingOut && fade <= 180 ) ) {
 		painkillerCount--;
+		lastHealingTime = gpGlobals->time + 10.0f;
+
+		if ( isFadingOut ) {
+			fade = 255;
+		}
 
 		// white screen flash
 		UTIL_ScreenFade( this, Vector( 255, 255, 255 ), 0.08, 0.08, 120.0, FFADE_IN );
@@ -3681,6 +3692,10 @@ void CBasePlayer::Spawn( void )
 	lastHealingTime = 0.0f;
 	bleedTime = 0.0f;
 
+	isFadingOut = false;
+	fadeOutTime = 0.0f;
+	fade = 255;
+
 	kills = 0;
 	headshotKills = 0;
 	explosiveKills = 0;
@@ -5323,6 +5338,20 @@ void CBasePlayer :: UpdateClientData( void )
 		if ( pev->health > 20 ) {
 			bleedTime = BLEED_DRAIN_TIME + gpGlobals->time;
 			pev->health--;
+		}
+	}
+
+	if ( isFadingOut ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgFadeOut, NULL, pev );
+			WRITE_BYTE( fade );
+		MESSAGE_END();
+	}
+
+	if ( isFadingOut && lastHealingTime <= gpGlobals->time && fadeOutTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
+		fadeOutTime = FADE_OUT_TIME + gpGlobals->time;
+		fade--;
+		if ( fade < 25 ) {
+			fade = 25;
 		}
 	}
 

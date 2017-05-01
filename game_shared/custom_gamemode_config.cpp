@@ -281,6 +281,7 @@ void CustomGameModeConfig::Reset() {
 	this->superHot = false;
 	this->upsideDown = false;
 	this->drunk = false;
+	this->fadingOut = false;
 	this->vvvvvv = false;
 
 	this->powerfulHeadshots = false;
@@ -690,6 +691,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				edibleGibs = true;
 			} else if ( line == "drunk" ) {
 				drunk = true;
+			} else if ( line == "fading_out" ) {
+				fadingOut = true;
 			} else if ( line == "vvvvvv" ) {
 				vvvvvv = true;
 			} else if ( line == "totally_spies" ) {

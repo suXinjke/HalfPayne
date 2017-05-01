@@ -501,6 +501,10 @@ public:
 	float lastHealingTime;
 	float bleedTime;
 
+	int fade;
+	BOOL isFadingOut;
+	float fadeOutTime;
+
 	BOOL divingOnly;
 
 	BOOL usedCheat;
