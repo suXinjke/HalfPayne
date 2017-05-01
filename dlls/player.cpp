@@ -212,6 +212,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, drunk, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, vvvvvv, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -854,6 +857,10 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 
 	flBonus = ARMOR_BONUS;
 	flRatio = ARMOR_RATIO;
+
+	if ( vvvvvv && ( bitsDamageType & DMG_FALL ) ) {
+		return 0;
+	}
 
 	if ( ( bitsDamageType & DMG_BLAST ) && g_pGameRules->IsMultiplayer() )
 	{
@@ -2108,6 +2115,15 @@ void CBasePlayer::Jump()
 		return;
 	}
 
+	if ( vvvvvv ) {
+		reverseGravity = !reverseGravity;
+		upsideDown = !upsideDown;
+		upsideDownMessageSent = false;
+		pev->gravity *= -1.0f;
+
+		return;
+	}
+
 // many features in this function use v_forward, so makevectors now.
 	UTIL_MakeVectors (pev->angles);
 
@@ -2456,7 +2472,11 @@ void CBasePlayer::PreThink(void)
 
 	if ( !FBitSet ( pev->flags, FL_ONGROUND ) )
 	{
-		m_flFallVelocity = -pev->velocity.z;
+		if ( !reverseGravity ) {
+			m_flFallVelocity = -pev->velocity.z;
+		} else {
+			m_flFallVelocity = pev->velocity.z;
+		}
 	}
 
 	// StudioFrameAdvance( );//!!!HACKHACK!!! Can't be hit by traceline when not animating?
@@ -3188,7 +3208,7 @@ void CBasePlayer::PostThink()
 // of maximum safe distance will make no sound. Falling farther than max safe distance will play a 
 // fallpain sound, and damage will be inflicted based on how far the player fell
 
-	if ( (FBitSet(pev->flags, FL_ONGROUND)) && (pev->health > 0) && m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD )
+	if ( !vvvvvv && (FBitSet(pev->flags, FL_ONGROUND)) && (pev->health > 0) && m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD )
 	{
 		// ALERT ( at_console, "%f\n", m_flFallVelocity );
 
@@ -3320,6 +3340,14 @@ pt_end:
 
 	if ( divingOnly ) {
 		pev->fuser4 = 1.0f;
+	}
+
+	if ( reverseGravity ) {
+		pev->vuser3[1] = 1.0f;
+		pev->angles[2] = 180;
+	} else {
+		pev->vuser3[1] = 0.0f;
+		pev->angles[2] = 0;
 	}
 
 	if ( desperation != DESPERATION_NO ) {
@@ -3557,6 +3585,9 @@ void CBasePlayer::Spawn( void )
 	shouldProducePhysicalBullets = false;
 
 	desperation = DESPERATION_NO;
+
+	vvvvvv = false;
+	reverseGravity = false;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );

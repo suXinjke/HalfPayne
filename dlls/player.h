@@ -155,6 +155,9 @@ public:
 	BOOL				drunk;
 	bool				drunkMessageSent;
 
+	BOOL				vvvvvv;
+	BOOL				reverseGravity;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;

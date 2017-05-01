@@ -281,6 +281,7 @@ void CustomGameModeConfig::Reset() {
 	this->superHot = false;
 	this->upsideDown = false;
 	this->drunk = false;
+	this->vvvvvv = false;
 
 	this->powerfulHeadshots = false;
 	this->infiniteAmmo = false;
@@ -689,6 +690,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				edibleGibs = true;
 			} else if ( line == "drunk" ) {
 				drunk = true;
+			} else if ( line == "vvvvvv" ) {
+				vvvvvv = true;
 			} else if ( line == "totally_spies" ) {
 				// TODO: embed into the save file while being able to extract the flag during hgrunt spawn
 				// flag was usually fetched from CBasePlayer, but it's not available during spawn most of the times

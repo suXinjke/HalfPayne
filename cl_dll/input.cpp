@@ -606,6 +606,8 @@ float CL_KeyState (kbutton_t *key)
 }
 
 int upsideDown = FALSE;
+int lastUpsideDown = FALSE;
+float lastUpsideDownTime = 0.0f;
 
 extern float v_idlescale;
 
@@ -658,13 +660,25 @@ void CL_AdjustAngles ( float frametime, float *viewangles )
 	if (viewangles[PITCH] < -cl_pitchup->value)
 		viewangles[PITCH] = -cl_pitchup->value;
 
-	if ( !upsideDown ) {
-		if (viewangles[ROLL] > 50)
-			viewangles[ROLL] = 50;
-		if (viewangles[ROLL] < -50)
-			viewangles[ROLL] = -50;
+	float absTime = gEngfuncs.GetAbsoluteTime();
+	if ( upsideDown != lastUpsideDown ) {
+		lastUpsideDownTime = absTime;
+	}
+	lastUpsideDown = upsideDown;
+
+	float diff = absTime - lastUpsideDownTime;
+	if ( diff > 0.33 ) {
+		if ( !upsideDown ) {
+			viewangles[ROLL] = 0;
+		} else {
+			viewangles[ROLL] = 180;
+		}
 	} else {
-		viewangles[ROLL] = 180;
+		if ( upsideDown ) {
+			viewangles[ROLL] = 180 * sin( diff * 4.5 );
+		} else {
+			viewangles[ROLL] = 180 * cos( diff * 4.5 );
+		}
 	}
 
 	if ( v_idlescale ) {

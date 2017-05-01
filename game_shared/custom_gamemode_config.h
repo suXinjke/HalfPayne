@@ -275,6 +275,7 @@ public:
 	bool superHot;
 	bool upsideDown;
 	bool drunk;
+	bool vvvvvv;
 
 	bool powerfulHeadshots;
 	bool infiniteAmmo;
