@@ -517,6 +517,7 @@ public:
 	BOOL snarkNuclear;
 	BOOL snarkStayAlive;
 	BOOL snarkInfestation;
+	BOOL snarkFromExplosion;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

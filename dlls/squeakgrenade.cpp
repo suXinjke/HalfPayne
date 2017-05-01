@@ -186,9 +186,9 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 	UTIL_BloodDrips( pev->origin, g_vecZero, BloodColor(), 80 );
 
 	if (m_hOwner != NULL)
-		RadiusDamage ( pev, m_hOwner->pev, pev->dmg, CLASS_NONE, DMG_BLAST );
+		RadiusDamage ( pev, m_hOwner->pev, pev->dmg, CLASS_NONE, DMG_BLAST, false );
 	else
-		RadiusDamage ( pev, pev, pev->dmg, CLASS_NONE, DMG_BLAST );
+		RadiusDamage ( pev, pev, pev->dmg, CLASS_NONE, DMG_BLAST, false );
 
 	// reset owner so death message happens
 	if (m_hOwner != NULL)
@@ -209,7 +209,7 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 
 		if ( pPlayer->snarkNuclear ) {
 			float damage = gSkillData.plrDmgHandGrenade;
-			RadiusDamage ( pev, pev, damage, CLASS_NONE, DMG_BLAST );
+			RadiusDamage ( pev, pev, damage, CLASS_NONE, DMG_BLAST, false );
 
 
 			MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pev->origin );

@@ -1175,7 +1175,7 @@ float CBaseMonster :: DamageForce( float damage )
 // only damage ents that can clearly be seen by the explosion!
 
 	
-void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, float flRadius, int iClassIgnore, int bitsDamageType )
+void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, float flRadius, int iClassIgnore, int bitsDamageType, bool explicitExplosion )
 {
 	CBaseEntity *pEntity = NULL;
 	TraceResult	tr;
@@ -1247,18 +1247,43 @@ void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacke
 			}
 		}
 	}
+	
+	if ( explicitExplosion ) {
+		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+			if ( pPlayer->snarkFromExplosion ) {
+				for ( int i = 0 ; i < 3 ; i++ ) {	
+					bool ok = false;
+					Vector coords( 0, 0, 0 );
+
+					while ( !ok ) {
+						CBaseEntity *list[1] = { NULL };
+						UTIL_MonstersInSphere( list, 1, vecSrc + coords, 16.0f );
+
+						if ( list[0] != NULL ) {
+							coords = coords + Vector( RANDOM_LONG( 1, 4 ), RANDOM_LONG( 1, 4 ), 0 );
+						} else {
+							ok = true;
+						}
+					}
+
+					CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", vecSrc + coords, Vector( 0, 120 * i, 0 ), NULL );
+					pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
+				}
+			}
+		}
+	} 
 }
 
 
-void CBaseMonster :: RadiusDamage(entvars_t* pevInflictor, entvars_t*	pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType )
+void CBaseMonster :: RadiusDamage(entvars_t* pevInflictor, entvars_t*	pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType, bool explicitExplosion )
 {
-	::RadiusDamage( pev->origin, pevInflictor, pevAttacker, flDamage, flDamage * 2.5, iClassIgnore, bitsDamageType );
+	::RadiusDamage( pev->origin, pevInflictor, pevAttacker, flDamage, flDamage * 2.5, iClassIgnore, bitsDamageType, explicitExplosion );
 }
 
 
-void CBaseMonster :: RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType )
+void CBaseMonster :: RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType, bool explicitExplosion )
 {
-	::RadiusDamage( vecSrc, pevInflictor, pevAttacker, flDamage, flDamage * 2.5, iClassIgnore, bitsDamageType );
+	::RadiusDamage( vecSrc, pevInflictor, pevAttacker, flDamage, flDamage * 2.5, iClassIgnore, bitsDamageType, explicitExplosion );
 }
 
 

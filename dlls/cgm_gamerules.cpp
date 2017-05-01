@@ -93,6 +93,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->snarkNuclear = config.snarkNuclear;
 	pPlayer->snarkStayAlive = config.snarkStayAlive;
 	pPlayer->snarkInfestation = config.snarkInfestation;
+	pPlayer->snarkFromExplosion = config.snarkFromExplosion;
 
 	pPlayer->SetEvilImpulse101( true );
 	for ( size_t i = 0; i < config.loadout.size( ); i++ ) {

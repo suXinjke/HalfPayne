@@ -275,6 +275,7 @@ void CustomGameModeConfig::Reset() {
 	this->snarkNuclear = false;
 	this->snarkStayAlive = false;
 	this->snarkInfestation = false;
+	this->snarkFromExplosion = false;
 
 	this->holdTimer = false;
 
@@ -677,6 +678,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				snarkStayAlive = true;
 			} else if ( line == "snark_infestation" ) {
 				snarkInfestation = true;
+			} else if ( line == "snark_from_explosion" ) {
+				snarkFromExplosion = true;
 			} else if ( line == "bleeding" ) {
 				isBleeding = true;
 			} else if ( line == "superhot" ) {

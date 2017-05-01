@@ -213,6 +213,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, snarkFromExplosion, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
@@ -3677,6 +3678,7 @@ void CBasePlayer::Spawn( void )
 	snarkNuclear = false;
 	snarkStayAlive = false;
 	snarkInfestation = false;
+	snarkFromExplosion = false;
 
 	garbageGibs = false;
 
