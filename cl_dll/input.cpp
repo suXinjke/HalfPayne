@@ -605,6 +605,8 @@ float CL_KeyState (kbutton_t *key)
 	return val;
 }
 
+int upsideDown = FALSE;
+
 /*
 ================
 CL_AdjustAngles
@@ -647,16 +649,20 @@ void CL_AdjustAngles ( float frametime, float *viewangles )
 
 	if (up || down)
 		V_StopPitchDrift ();
-		
+
 	if (viewangles[PITCH] > cl_pitchdown->value)
 		viewangles[PITCH] = cl_pitchdown->value;
 	if (viewangles[PITCH] < -cl_pitchup->value)
 		viewangles[PITCH] = -cl_pitchup->value;
 
-	if (viewangles[ROLL] > 50)
-		viewangles[ROLL] = 50;
-	if (viewangles[ROLL] < -50)
-		viewangles[ROLL] = -50;
+	if ( !upsideDown ) {
+		if (viewangles[ROLL] > 50)
+			viewangles[ROLL] = 50;
+		if (viewangles[ROLL] < -50)
+			viewangles[ROLL] = -50;
+	} else {
+		viewangles[ROLL] = 180;
+	}
 }
 
 /*
@@ -688,14 +694,25 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 		
 		gEngfuncs.SetViewAngles( (float *)viewangles );
 
-		if ( in_strafe.state & 1 )
-		{
-			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right);
-			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_left);
-		}
+		if ( !upsideDown ) {
+			if ( in_strafe.state & 1 )
+			{
+				cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right);
+				cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_left);
+			}
 
-		cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveright);
-		cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveleft);
+			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveright);
+			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveleft);
+		} else {
+			if ( in_strafe.state & 1 )
+			{
+				cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_right);
+				cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_left);
+			}
+
+			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveright);
+			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveleft);
+		}
 
 		cmd->upmove += cl_upspeed->value * CL_KeyState (&in_up);
 		cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down);

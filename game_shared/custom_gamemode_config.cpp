@@ -279,6 +279,7 @@ void CustomGameModeConfig::Reset() {
 	this->holdTimer = false;
 
 	this->superHot = false;
+	this->upsideDown = false;
 
 	this->powerfulHeadshots = false;
 	this->infiniteAmmo = false;
@@ -677,6 +678,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				isBleeding = true;
 			} else if ( line == "superhot" ) {
 				superHot = true;
+			} else if ( line == "upside_down" ) {
+				upsideDown = true;
 			} else if ( line == "diving_only" ) {
 				divingOnly = true;
 			} else if ( line == "garbage_gibs" ) {

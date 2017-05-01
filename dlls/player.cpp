@@ -210,6 +210,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -247,6 +248,7 @@ int gmsgFade = 0;
 int gmsgSelAmmo = 0;
 int gmsgFlashlight = 0;
 int gmsgFlashBattery = 0;
+int gmsgUpsideDown = 0;
 int gmsgResetHUD = 0;
 int gmsgInitHUD = 0;
 int gmsgShowGameTitle = 0;
@@ -301,6 +303,7 @@ void LinkUserMessages( void )
 	gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
+	gmsgUpsideDown = REG_USER_MSG("UpsideDown", 1);
 	gmsgHealth = REG_USER_MSG( "Health", 2 );
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
@@ -3634,6 +3637,9 @@ void CBasePlayer::Spawn( void )
 
 	divingOnly = false;
 
+	upsideDown = false;
+	upsideDownMessageSent = false;
+
 	isBleeding = false;
 	lastHealingTime = 0.0f;
 	bleedTime = 0.0f;
@@ -4041,6 +4047,8 @@ int CBasePlayer::Restore( CRestore &restore )
 
 	latestMaxCommentaryTime = 0.0f;
 	latestMaxCommentaryIsImportant = false;
+
+	upsideDownMessageSent = false;
 
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -5330,6 +5338,14 @@ void CBasePlayer :: UpdateClientData( void )
 				}
 			}
 		}	
+	}
+
+	if ( !upsideDownMessageSent ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgUpsideDown, NULL, pev );
+			WRITE_BYTE( upsideDown );
+		MESSAGE_END();
+
+		upsideDownMessageSent = true;
 	}
 
 	// Show aim coordinates

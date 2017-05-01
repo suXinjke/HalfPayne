@@ -273,6 +273,7 @@ public:
 	bool holdTimer;
 
 	bool superHot;
+	bool upsideDown;
 
 	bool powerfulHeadshots;
 	bool infiniteAmmo;

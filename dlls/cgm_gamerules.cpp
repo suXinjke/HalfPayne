@@ -83,6 +83,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->garbageGibs = config.garbageGibs;
 	pPlayer->edibleGibs = config.edibleGibs;
 	pPlayer->superHot = config.superHot;
+	pPlayer->upsideDown = config.upsideDown;
 
 	pPlayer->snarkParanoia = config.snarkParanoia;
 	pPlayer->snarkInception = config.snarkInception;

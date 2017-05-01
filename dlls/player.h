@@ -149,6 +149,9 @@ public:
 	BOOL				oneHitKO;
 	BOOL				oneHitKOFromPlayer;
 
+	BOOL				upsideDown;
+	bool				upsideDownMessageSent;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;

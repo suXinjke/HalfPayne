@@ -402,6 +402,8 @@ void CL_DLLEXPORT IN_MouseEvent (int mstate)
 	mouse_oldbuttonstate = mstate;
 }
 
+extern int upsideDown;
+
 //-----------------------------------------------------------------------------
 // Purpose: Allows modulation of mouse scaling/senstivity value and application
 //  of custom algorithms.
@@ -439,8 +441,13 @@ void IN_ScaleMouse( float *x, float *y )
 		//  to 0.022
 		if ( m_customaccel->value == 2 )
 		{ 
-			*x *= m_yaw->value; 
-			*y *= m_pitch->value; 
+			if ( !upsideDown ) {
+				*x *= m_yaw->value; 
+				*y *= m_pitch->value; 
+			} else {
+				*x *= -m_yaw->value; 
+				*y *= -m_pitch->value; 
+			}
 		} 
 	}
 	else
@@ -540,12 +547,21 @@ void IN_MouseMove ( float frametime, usercmd_t *cmd)
 		// add mouse X/Y movement to cmd
 		if ( (in_strafe.state & 1) || (lookstrafe->value && (in_mlook.state & 1) ))
 			cmd->sidemove += m_side->value * mouse_x;
-		else
-			viewangles[YAW] -= m_yaw->value * mouse_x;
+		else {
+			if ( !upsideDown ) {
+				viewangles[YAW] -= m_yaw->value * mouse_x;
+			} else {
+				viewangles[YAW] -= -m_yaw->value * mouse_x;
+			}
+		}
 
 		if ( (in_mlook.state & 1) && !(in_strafe.state & 1))
 		{
-			viewangles[PITCH] += m_pitch->value * mouse_y;
+			if ( !upsideDown ) {
+				viewangles[PITCH] += m_pitch->value * mouse_y;
+			} else {
+				viewangles[PITCH] += -m_pitch->value * mouse_y;
+			}
 			if (viewangles[PITCH] > cl_pitchdown->value)
 				viewangles[PITCH] = cl_pitchdown->value;
 			if (viewangles[PITCH] < -cl_pitchup->value)
