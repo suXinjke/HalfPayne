@@ -607,6 +607,9 @@ float CL_KeyState (kbutton_t *key)
 
 int upsideDown = FALSE;
 
+extern float v_idlescale;
+
+
 /*
 ================
 CL_AdjustAngles
@@ -662,6 +665,13 @@ void CL_AdjustAngles ( float frametime, float *viewangles )
 			viewangles[ROLL] = -50;
 	} else {
 		viewangles[ROLL] = 180;
+	}
+
+	if ( v_idlescale ) {
+		float time = gEngfuncs.GetAbsoluteTime(); 
+		viewangles[ROLL] += v_idlescale * sin( time * 0.5 ) * 0.0016;
+		viewangles[PITCH] += v_idlescale * sin( time * 1 ) * 0.002;
+		viewangles[YAW] += v_idlescale * sin( time * 2 ) * 0.005;
 	}
 }
 

@@ -152,6 +152,9 @@ public:
 	BOOL				upsideDown;
 	bool				upsideDownMessageSent;
 
+	BOOL				drunk;
+	bool				drunkMessageSent;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;

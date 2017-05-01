@@ -211,6 +211,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, drunk, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -281,6 +282,7 @@ int gmsgSetFOV = 0;
 int gmsgShowMenu = 0;
 int gmsgGeigerRange = 0;
 int gmsgTeamNames = 0;
+int gmsgConcuss = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -339,6 +341,7 @@ void LinkUserMessages( void )
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
 	gmsgAimCoords = REG_USER_MSG( "AimCoords", 8 );
+	gmsgConcuss = REG_USER_MSG( "Concuss", 1 );
 
 }
 
@@ -3639,6 +3642,9 @@ void CBasePlayer::Spawn( void )
 
 	upsideDown = false;
 	upsideDownMessageSent = false;
+	
+	drunk = false;
+	drunkMessageSent = false;
 
 	isBleeding = false;
 	lastHealingTime = 0.0f;
@@ -4049,6 +4055,7 @@ int CBasePlayer::Restore( CRestore &restore )
 	latestMaxCommentaryIsImportant = false;
 
 	upsideDownMessageSent = false;
+	drunkMessageSent = false;
 
 	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -5346,6 +5353,13 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_END();
 
 		upsideDownMessageSent = true;
+	}
+
+	if ( !drunkMessageSent ) {
+		int drunkiness = drunk ? 64 : 0;
+		MESSAGE_BEGIN( MSG_ONE, gmsgConcuss, NULL, pev );
+			WRITE_BYTE( drunkiness );
+		MESSAGE_END();
 	}
 
 	// Show aim coordinates
