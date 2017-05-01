@@ -104,6 +104,10 @@ void CHalfLifeRules::OnChangeLevel()
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
 	}
 
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		pPlayer->ClearSoundQueue();
+	}
+
 	playerProcessed = false;
 }
 
@@ -284,8 +288,6 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 {
 	if ( !playerProcessed ) {
 		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-			pPlayer->ClearSoundQueue();
-
 			if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
 				pPlayer->AddVisitedMap( gpGlobals->mapname );
 				OnNewlyVisitedMap();
