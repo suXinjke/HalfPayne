@@ -125,6 +125,10 @@ void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity
 			timeToAdd = 10;
 			break;
 
+		case KILLED_ENTITY_SCIENTIST:
+		case KILLED_ENTITY_BARNEY:
+			timeToAdd = 0;
+
 		default:
 			break;
 	}
@@ -134,7 +138,7 @@ void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message )
 {
-	if ( timerPaused ) {
+	if ( timerPaused || timeToAdd <= 0 ) {
 		return;
 	}
 
