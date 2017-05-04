@@ -39,10 +39,6 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->activeGameMode = GAME_MODE_BMM;
 	pPlayer->noSaving = true;
 
-	if ( config.holdTimer ) {
-		PauseTimer( pPlayer );
-	}
-
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )

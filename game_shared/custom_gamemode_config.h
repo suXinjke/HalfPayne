@@ -270,8 +270,6 @@ public:
 	bool snarkStayAlive;
 	bool snarkInfestation;
 	bool snarkFromExplosion;
-	
-	bool holdTimer;
 
 	bool superHot;
 	bool upsideDown;

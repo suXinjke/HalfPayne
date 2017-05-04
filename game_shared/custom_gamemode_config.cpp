@@ -277,8 +277,6 @@ void CustomGameModeConfig::Reset() {
 	this->snarkInfestation = false;
 	this->snarkFromExplosion = false;
 
-	this->holdTimer = false;
-
 	this->superHot = false;
 	this->upsideDown = false;
 	this->drunk = false;
