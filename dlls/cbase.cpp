@@ -416,10 +416,10 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 
 		// Gotta initialize custom game mode if you're loading the game but didn't set it up
 		if ( player->activeGameMode == GAME_MODE_CUSTOM &&
-			( strcmp( CVAR_GET_STRING( "gamemode" ), "custom" ) != 0 ||
+			( strcmp( CVAR_GET_STRING( "gamemode" ), "cgm" ) != 0 ||
 				strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 ) ) {
 
-			CVAR_SET_STRING( "gamemode", "custom" );
+			CVAR_SET_STRING( "gamemode", "cgm" );
 			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
 
 			// Blatant replacement of gamerules here causes
