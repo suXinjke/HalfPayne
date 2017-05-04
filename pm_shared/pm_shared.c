@@ -3369,7 +3369,7 @@ void PM_PlayerMove ( qboolean server )
 
 			// If we are falling again, then we must not trying to jump out of water any more.
 			int fallingAgain;
-			if ( IsReverseGravity() ) {
+			if ( !IsReverseGravity() ) {
 				fallingAgain = pmove->velocity[2] < 0 && pmove->waterjumptime;
 			} else {
 				fallingAgain = pmove->velocity[2] > 0 && pmove->waterjumptime;
