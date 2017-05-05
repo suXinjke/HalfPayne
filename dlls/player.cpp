@@ -722,11 +722,11 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		crystalsDestroyed++;
 		switch ( crystalsDestroyed ) {
 			case 1:
-				AddToSoundQueue( MAKE_STRING( "comment/onedowntwotogo.wav" ), 0.6f, true );
+				AddToSoundQueue( MAKE_STRING( "comment/onedowntwotogo.wav" ), 0.6f, true, true );
 				break;
 
 			case 2:
-				AddToSoundQueue( MAKE_STRING( "comment/twodownonetogo.wav" ), 0.6f, true );
+				AddToSoundQueue( MAKE_STRING( "comment/twodownonetogo.wav" ), 0.6f, true, true );
 				break;
 		}
 	}
