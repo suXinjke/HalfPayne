@@ -1118,7 +1118,6 @@ void ClientPrecache( void )
 		PRECACHE_SOUND( "comment/finalewon.wav" );
 		PRECACHE_SOUND( "comment/execute.wav" );
 		PRECACHE_SOUND( "comment/finalespeech.wav" );
-		PRECACHE_SOUND( "comment/credits.wav" );
 	}
 
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
