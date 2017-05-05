@@ -408,6 +408,7 @@ void CMultiManager :: ManagerThink ( void )
 				if ( !pPlayer->noPills ) {
 					pPlayer->painkillerCount = 6;
 				}
+				pPlayer->TakeHealth( pPlayer->pev->max_health, DMG_GENERIC );
 				pPlayer->SetSlowMotion( true );
 			}
 		}
