@@ -427,6 +427,16 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 			delete g_pGameRules;
 			CCustomGameModeRules *newRules = new CCustomGameModeRules;
 			g_pGameRules = newRules;
+		} else if (
+			player->activeGameMode == GAME_MODE_VANILLA &&
+			( strcmp( CVAR_GET_STRING( "gamemode" ), "vanilla" ) != 0 )
+		) {
+			CVAR_SET_STRING( "gamemode", "vanilla" );
+			CVAR_SET_STRING( "gamemode_config", "" );
+
+			delete g_pGameRules;
+			CHalfLifeRules *newRules = new CHalfLifeRules;
+			g_pGameRules = newRules;
 		}
 	}
 
