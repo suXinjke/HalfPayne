@@ -33,8 +33,6 @@ int grgLogoFrame[MAX_LOGO_FRAMES] =
 };
 
 
-extern int g_iVisibleMouse;
-
 float HUD_GetFOV( void );
 
 extern cvar_t *sensitivity;
