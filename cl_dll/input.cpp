@@ -52,6 +52,8 @@ cvar_t	*m_yaw;
 cvar_t	*m_forward;
 cvar_t	*m_side;
 
+cvar_t	*g_fps_max;
+
 cvar_t	*lookstrafe;
 cvar_t	*lookspring;
 cvar_t	*cl_pitchup;
@@ -1129,6 +1131,8 @@ void InitInput (void)
 	m_yaw				= gEngfuncs.pfnRegisterVariable ( "m_yaw","0.022", FCVAR_ARCHIVE );
 	m_forward			= gEngfuncs.pfnRegisterVariable ( "m_forward","1", FCVAR_ARCHIVE );
 	m_side				= gEngfuncs.pfnRegisterVariable ( "m_side","0.8", FCVAR_ARCHIVE );
+
+	g_fps_max			= gEngfuncs.pfnGetCvarPointer( "fps_max" );
 
 	gamemode			= gEngfuncs.pfnRegisterVariable( "gamemode", "vanilla", 0 );
 	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );

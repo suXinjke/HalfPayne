@@ -585,3 +585,12 @@ float UTIL_SharedRandomFloat( unsigned int seed, float low, float high );
 float UTIL_WeaponTimeBase( void );
 
 bool UTIL_CheatsAllowed();
+
+extern cvar_t *g_fps_max;
+inline float GET_TICK_INTERVAL() {
+	return 1000.0f / g_fps_max->value;
+}
+
+inline float GET_FRAMERATE_BASE() {
+	return GET_TICK_INTERVAL() / 1000.0f;
+}

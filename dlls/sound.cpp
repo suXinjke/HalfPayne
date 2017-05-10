@@ -1424,14 +1424,15 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum)
 	return -1;
 }
 
+extern cvar_t *g_host_framerate;
+extern cvar_t *g_fps_max;
+
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
 						   int flags, int pitch, BOOL ignoreSlowmotion)
 {
-	// dumb, should check player's slowmotionEnabled?
 	if ( !ignoreSlowmotion ) {
-		float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
-	
-		if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+		float base = GET_FRAMERATE_BASE();
+		if ( g_host_framerate->value > 0.0f && g_host_framerate->value < base ) {
 			pitch *= 0.55;
 		}
 	}

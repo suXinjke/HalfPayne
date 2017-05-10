@@ -20,16 +20,21 @@
 
 #define EVENT_API_VERSION 1
 
+extern cvar_t *g_fps_max;
+inline bool isSlowmotionEnabled() {
+	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+	float base = ( 1000.0f / g_fps_max->value ) / 1000.0f;
+
+	return host_framerate > 0.0f && host_framerate < base;
+}
+
 typedef struct event_api_s
 {
 	int		version;
 	void	( *EV_PlaySoundCustom ) ( int ent, float *origin, int channel, const char *sample, float volume, float attenuation, int fFlags, int pitch );
 	void	EV_PlaySound ( int ent, float *origin, int channel, const char *sample, float volume, float attenuation, int fFlags, int pitch, bool ignoreSlowmotion = false ) {
 		if ( !ignoreSlowmotion ) {
-			// dumb
-			float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
-	
-			if ( host_framerate > 0.0f && host_framerate < 0.009 ) {
+			if ( isSlowmotionEnabled() ) {
 				pitch *= 0.55;
 			}
 		}

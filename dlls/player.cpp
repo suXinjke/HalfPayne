@@ -41,6 +41,10 @@
 #include "client.h"
 #include "func_break.h"
 
+extern cvar_t *g_gl_vsync;
+
+float last_fps_max = 0.0f;
+
 // #define DUCKFIX
 
 extern DLL_GLOBAL ULONG		g_ulModelIndexPlayer;
@@ -3651,7 +3655,7 @@ void CBasePlayer::Spawn( void )
 	
 	m_flNextChatTime = gpGlobals->time;
 
-	nextTime = SDL_GetTicks() + TICK_INTERVAL;
+	nextTime = SDL_GetTicks() + GET_TICK_INTERVAL();
 
 	showCredits = FALSE;
 	
@@ -4071,7 +4075,7 @@ int CBasePlayer::Restore( CRestore &restore )
 
 	SetSlowMotion( slowMotionEnabled );
 
-	nextTime = SDL_GetTicks() + TICK_INTERVAL;
+	nextTime = SDL_GetTicks() + GET_TICK_INTERVAL();
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -4539,15 +4543,21 @@ bool CBasePlayer::DeactivateSlowMotion()
 }
 
 void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
+
+	float base;
 	if ( slowMotionEnabled ) {
-		SERVER_COMMAND( "host_framerate 0.0025\n" );
+		base = GET_FRAMERATE_BASE() / 4.0f;
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 		this->slowMotionEnabled = true;
 	}
 	else {
-		SERVER_COMMAND( "host_framerate 0.01\n" );
+		base = GET_FRAMERATE_BASE();
 		this->slowMotionEnabled = false;
 	}
+
+	char com[256];
+	sprintf_s( com, "host_framerate %f\n", base );
+	SERVER_COMMAND( com );
 }
 
 // Done using SDL
@@ -4561,7 +4571,7 @@ void CBasePlayer::ApplyFPSCap() {
 		timeLeft = nextTime - now;
 	}
 	SDL_Delay(timeLeft);
-	nextTime += TICK_INTERVAL;
+	nextTime += GET_TICK_INTERVAL();
 }
 
 BOOL CBasePlayer :: FlashlightIsOn( void )
@@ -5357,7 +5367,19 @@ void CBasePlayer :: UpdateClientData( void )
 		}
 	}
 
+	if ( last_fps_max != g_fps_max->value ) {
+		last_fps_max = g_fps_max->value;
+		SetSlowMotion( slowMotionEnabled );
+	}
+
+	if ( g_gl_vsync->value != 0.0f ) {
+		g_engfuncs.pfnServerPrint( "gl_vsync has been automatically disabled - this is required for slowmotion to work correctly\n" );
+		CVAR_SET_FLOAT( "gl_vsync", 0.0f );
+	}
+
 	if ( superHot ) {
+		float base = GET_FRAMERATE_BASE();
+
 		if ( pev->deadflag == DEAD_NO ) {
 			bool afterMP5Fire = false;
 			if ( CBasePlayerWeapon *weapon = dynamic_cast<CBasePlayerWeapon*>( m_pActiveItem ) ) {
@@ -5369,18 +5391,18 @@ void CBasePlayer :: UpdateClientData( void )
 			nextSuperHotMultiplierUpdate = superHotMultiplier + gpGlobals->time;
 
 			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT | IN_JUMP ) || afterMP5Fire ) {
-				superHotMultiplier += 0.00025;
-				if ( superHotMultiplier > 0.01f ) {
-					superHotMultiplier = 0.01f;
+				superHotMultiplier += ( base / 40.0f );
+				if ( superHotMultiplier > base ) {
+					superHotMultiplier = base;
 				}
 			} else {
-				superHotMultiplier -= 0.005;
-				if ( superHotMultiplier < 0.0005f ) {
-					superHotMultiplier = 0.0005f;
+				superHotMultiplier -= base / 2.0f;
+				if ( superHotMultiplier < ( base / 20.0f ) ) {
+					superHotMultiplier = ( base / 20.0f );
 				}
 			}
 		} else {
-			superHotMultiplier = 0.0025f;
+			superHotMultiplier = base / 4.0f;
 		}
 
 		char com[256];
