@@ -53,6 +53,7 @@ cvar_t	*m_forward;
 cvar_t	*m_side;
 
 cvar_t	*g_fps_max;
+cvar_t	*g_sys_timescale;
 
 cvar_t	*lookstrafe;
 cvar_t	*lookspring;
@@ -1133,6 +1134,7 @@ void InitInput (void)
 	m_side				= gEngfuncs.pfnRegisterVariable ( "m_side","0.8", FCVAR_ARCHIVE );
 
 	g_fps_max			= gEngfuncs.pfnGetCvarPointer( "fps_max" );
+	g_sys_timescale		= gEngfuncs.pfnGetCvarPointer( "sys_timescale" );
 
 	gamemode			= gEngfuncs.pfnRegisterVariable( "gamemode", "vanilla", 0 );
 	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );

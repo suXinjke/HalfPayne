@@ -21,11 +21,19 @@
 #define EVENT_API_VERSION 1
 
 extern cvar_t *g_fps_max;
+extern cvar_t *g_sys_timescale;
 inline bool isSlowmotionEnabled() {
-	float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
-	float base = ( 1000.0f / g_fps_max->value ) / 1000.0f;
+	float sys_timescale = CVAR_GET_FLOAT( "sys_timescale" );
+	bool using_sys_timescale = sys_timescale != 0.0f; // dirty way
+	
+	if ( using_sys_timescale ) {
+		return sys_timescale < 1.0f;
+	} else {
+		float host_framerate = CVAR_GET_FLOAT( "host_framerate" );
+		float base = ( 1000.0f / g_fps_max->value ) / 1000.0f;
 
-	return host_framerate > 0.0f && host_framerate < base;
+		return host_framerate > 0.0f && host_framerate < base;
+	}	
 }
 
 typedef struct event_api_s

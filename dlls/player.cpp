@@ -42,6 +42,7 @@
 #include "func_break.h"
 
 extern cvar_t *g_gl_vsync;
+extern bool using_sys_timescale;
 
 float last_fps_max = 0.0f;
 
@@ -4544,19 +4545,23 @@ bool CBasePlayer::DeactivateSlowMotion()
 
 void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 
-	float base;
+	float newValue;
 	if ( slowMotionEnabled ) {
-		base = GET_FRAMERATE_BASE() / 4.0f;
+		newValue = using_sys_timescale ? 0.25f : GET_FRAMERATE_BASE() / 4.0f;
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 		this->slowMotionEnabled = true;
 	}
 	else {
-		base = GET_FRAMERATE_BASE();
+		newValue = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 		this->slowMotionEnabled = false;
 	}
 
 	char com[256];
-	sprintf_s( com, "host_framerate %f\n", base );
+	if ( using_sys_timescale ) {
+		sprintf_s( com, "sys_timescale %f\n", newValue );
+	} else {
+		sprintf_s( com, "host_framerate %f\n", newValue );
+	}
 	SERVER_COMMAND( com );
 }
 
@@ -5157,7 +5162,9 @@ reflecting all of the HUD state info.
 */
 void CBasePlayer :: UpdateClientData( void )
 {
-	ApplyFPSCap( );
+	if ( !using_sys_timescale ) {
+		ApplyFPSCap( );
+	}
 
 	if (m_fInitHUD)
 	{
@@ -5372,13 +5379,13 @@ void CBasePlayer :: UpdateClientData( void )
 		SetSlowMotion( slowMotionEnabled );
 	}
 
-	if ( g_gl_vsync->value != 0.0f ) {
+	if ( !using_sys_timescale && g_gl_vsync->value != 0.0f ) {
 		g_engfuncs.pfnServerPrint( "gl_vsync has been automatically disabled - this is required for slowmotion to work correctly\n" );
 		CVAR_SET_FLOAT( "gl_vsync", 0.0f );
 	}
 
 	if ( superHot ) {
-		float base = GET_FRAMERATE_BASE();
+		float base = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 
 		if ( pev->deadflag == DEAD_NO ) {
 			bool afterMP5Fire = false;
@@ -5388,25 +5395,29 @@ void CBasePlayer :: UpdateClientData( void )
 				}
 			}
 
-			nextSuperHotMultiplierUpdate = superHotMultiplier + gpGlobals->time;
+			nextSuperHotMultiplierUpdate = using_sys_timescale ? 0.01 : superHotMultiplier + gpGlobals->time;
 
 			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT | IN_JUMP ) || afterMP5Fire ) {
-				superHotMultiplier += ( base / 40.0f );
+				superHotMultiplier += using_sys_timescale ? 0.05 : ( base / 40.0f );
 				if ( superHotMultiplier > base ) {
 					superHotMultiplier = base;
 				}
 			} else {
-				superHotMultiplier -= base / 2.0f;
-				if ( superHotMultiplier < ( base / 20.0f ) ) {
-					superHotMultiplier = ( base / 20.0f );
+				superHotMultiplier -= using_sys_timescale ? 0.1 : base / 2.0f;
+				if ( superHotMultiplier < using_sys_timescale ? 0.1 : ( base / 20.0f ) ) {
+					superHotMultiplier = using_sys_timescale ? 0.1 : ( base / 20.0f );
 				}
 			}
 		} else {
-			superHotMultiplier = base / 4.0f;
+			superHotMultiplier = using_sys_timescale ? 0.25 : base / 4.0f;
 		}
 
 		char com[256];
-		sprintf_s( com, "host_framerate %f\n", superHotMultiplier );
+		if ( using_sys_timescale ) {
+			sprintf_s( com, "sys_timescale %f\n", superHotMultiplier );
+		} else {
+			sprintf_s( com, "host_framerate %f\n", superHotMultiplier );
+		}
 		SERVER_COMMAND( com );
 	}
 

@@ -50,6 +50,8 @@ cvar_t	*g_footsteps = NULL;
 cvar_t  *g_fps_max = NULL;
 cvar_t  *g_host_framerate = NULL;
 cvar_t  *g_gl_vsync = NULL;
+cvar_t  *g_sys_timescale = NULL;
+bool using_sys_timescale = false;
 
 //CVARS FOR SKILL LEVEL SETTINGS
 // Agrunt
@@ -465,6 +467,23 @@ void GameDLLInit( void )
 	g_fps_max = CVAR_GET_POINTER( "fps_max" );
 	g_host_framerate = CVAR_GET_POINTER( "host_framerate" );
 	g_gl_vsync = CVAR_GET_POINTER( "gl_vsync" );
+
+	// sys_timescale was always here, just 36 bytes back
+	// Thanks a lot to SoloKiller for hinting towards sys_timescale existence and locating it in memory
+	// https://github.com/ValveSoftware/halflife/issues/1749
+
+	g_sys_timescale = ( cvar_t * ) ( ( char * ) CVAR_GET_POINTER( "fps_max" ) - 36 );
+
+	bool pointingToGarbage = abs( g_sys_timescale->name - g_fps_max->name ) > 1024; // heuristic
+	if ( !pointingToGarbage ) {
+		using_sys_timescale = memcmp( g_sys_timescale->name, "sys_timescale", 14 ) == 0;
+	}
+
+	if ( using_sys_timescale ) {
+		CVAR_REGISTER( g_sys_timescale );
+	} else {
+		g_engfuncs.pfnServerPrint( "Failed to register sys_timescale cvar, falling back to old slowmotion implementation\n" );
+	}
 
 	CVAR_REGISTER (&displaysoundlist);
 	CVAR_REGISTER( &allow_spectators );

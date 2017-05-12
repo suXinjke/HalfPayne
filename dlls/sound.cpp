@@ -1425,15 +1425,24 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum)
 }
 
 extern cvar_t *g_host_framerate;
-extern cvar_t *g_fps_max;
+extern cvar_t *g_sys_timescale;
+extern bool using_sys_timescale;
 
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
 						   int flags, int pitch, BOOL ignoreSlowmotion)
 {
 	if ( !ignoreSlowmotion ) {
-		float base = GET_FRAMERATE_BASE();
-		if ( g_host_framerate->value > 0.0f && g_host_framerate->value < base ) {
-			pitch *= 0.55;
+		// sys_timescale seem to take care of pitch automatically
+		if ( !using_sys_timescale ) {
+			float base = GET_FRAMERATE_BASE();
+			if ( g_host_framerate->value > 0.0f && g_host_framerate->value < base ) {
+				pitch *= 0.55;
+			}
+		}
+	} else {
+		// prevent sys_timescale affecting the pitch when in slowmotion
+		if ( using_sys_timescale && g_sys_timescale->value < 1.0f ) {
+			pitch *= 1.6f; // heuristic, may do weird results?
 		}
 	}
 
