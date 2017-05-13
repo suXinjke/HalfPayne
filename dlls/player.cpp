@@ -300,6 +300,7 @@ int gmsgGeigerRange = 0;
 int gmsgTeamNames = 0;
 int gmsgConcuss = 0;
 int gmsgFadeOut = 0;
+int gmsgFlash = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -360,6 +361,7 @@ void LinkUserMessages( void )
 	gmsgAimCoords = REG_USER_MSG( "AimCoords", 8 );
 	gmsgConcuss = REG_USER_MSG( "Concuss", 1 );
 	gmsgFadeOut = REG_USER_MSG( "FadeOut", 1 );
+	gmsgFlash = REG_USER_MSG( "Flash", 8 );
 
 }
 
@@ -546,7 +548,13 @@ void CBasePlayer::UsePainkiller()
 		}
 
 		// white screen flash
-		UTIL_ScreenFade( this, Vector( 255, 255, 255 ), 0.08, 0.08, 120.0, FFADE_IN );
+		MESSAGE_BEGIN( MSG_ONE, gmsgFlash, NULL, pev );
+			WRITE_BYTE( 255 );
+			WRITE_BYTE( 255 );
+			WRITE_BYTE( 255 );
+			WRITE_BYTE( 120 );
+			WRITE_FLOAT( 0.12 );
+		MESSAGE_END();
 		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM, true );
 
 		if (
@@ -4498,7 +4506,13 @@ void CBasePlayer::ToggleSlowMotion() {
 	} else {
 		if ( ActivateSlowMotion() ) {
 			if ( slowMotionEnabled ) {
-				UTIL_ScreenFade( this, Vector( 0, 0, 0 ), 0.02, 0.02, 120.0, FFADE_IN );
+				MESSAGE_BEGIN( MSG_ONE, gmsgFlash, NULL, pev );
+					WRITE_BYTE( 0 );
+					WRITE_BYTE( 0 );
+					WRITE_BYTE( 0 );
+					WRITE_BYTE( 120 );
+					WRITE_FLOAT( 0.1 );
+				MESSAGE_END();
 				EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_start.wav", 1, ATTN_NORM, true );
 			}
 		}
