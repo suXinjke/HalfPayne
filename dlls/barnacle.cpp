@@ -272,6 +272,9 @@ void CBarnacle :: BarnacleThink ( void )
 			// tongue is fully extended, and is touching someone.
 			if ( pTouchEnt->FBecomeProne() )
 			{
+				if ( FClassnameIs( pTouchEnt->pev, "player" ) ) {
+					pTouchEnt->pev->flags &= ~FL_DIVING;
+				}
 				EMIT_SOUND( ENT(pev), CHAN_WEAPON, "barnacle/bcl_alert2.wav", 1, ATTN_NORM );	
 
 				SetSequenceByName ( "attack1" );
