@@ -50,6 +50,8 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CustomGameModeConfig::GAME_M
 	}
 
 	RefreshSkillData();
+
+	lastSkill = CVAR_GET_FLOAT( "skill" );
 }
 
 bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
@@ -102,10 +104,6 @@ void CHalfLifeRules::OnChangeLevel()
 {
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
-	}
-
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		pPlayer->ClearSoundQueue();
 	}
 
 	playerProcessed = false;
@@ -288,8 +286,18 @@ BOOL CHalfLifeRules :: AllowAutoTargetCrosshair( void )
 //=========================================================
 void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 {
+	if ( pPlayer->activeGameMode == GAME_MODE_VANILLA ) {
+		int currentSkill = CVAR_GET_FLOAT( "skill" );
+		if ( currentSkill != lastSkill ) {
+			RefreshSkillData();
+			lastSkill = currentSkill;
+		}
+	}
+
 	if ( !playerProcessed ) {
 		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+			pPlayer->ClearSoundQueue();
+
 			if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
 				pPlayer->AddVisitedMap( gpGlobals->mapname );
 				OnNewlyVisitedMap();

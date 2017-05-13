@@ -179,6 +179,7 @@ public:
 	CustomGameModeConfig mapConfig;
 	bool				 playerProcessed;
 	bool				 entitiesUsed;
+	int				     lastSkill;
 
 	bool EntityShouldBePrevented( edict_t *entity );
 
