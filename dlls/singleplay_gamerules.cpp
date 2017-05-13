@@ -160,12 +160,14 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 			pPlayer->AddToSoundQueue( soundPathAllocated, soundIndex->delay, soundIndex->isMaxCommentary, true );
 			if ( !soundIndex->constant ) {
 				pPlayer->RememberHookedModelIndex( ALLOC_STRING( soundIndex->key.c_str() ) ); // memory leak
-				mapConfig.sounds.erase( soundIndex );
+				soundIndex = mapConfig.sounds.erase( soundIndex );
+			} else {
+				soundIndex++;
 			}
 
+		} else {
+			soundIndex++;
 		}
-
-		soundIndex++;
 	}
 }
 void CHalfLifeRules::Precache()
