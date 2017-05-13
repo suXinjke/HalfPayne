@@ -248,6 +248,7 @@ public:
 	BOOL constantSlowmotion;
 	BOOL slowMotionEnabled;
 	float slowMotionNextHeartbeatSound;
+	float desiredTimeScale;
 
 	virtual void Spawn( void );
 	void Pain( void );

@@ -155,6 +155,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, desiredTimeScale, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, superHot, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, superHotMultiplier, FIELD_FLOAT ),
@@ -3666,6 +3667,7 @@ void CBasePlayer::Spawn( void )
 	constantSlowmotion = false;
 	slowMotionEnabled = false;
 	slowMotionNextHeartbeatSound = 0;
+	desiredTimeScale = 1.0f;
 	SetSlowMotion( false );
 
 	lastDamageTime = 0.0f;
@@ -4548,24 +4550,15 @@ bool CBasePlayer::DeactivateSlowMotion()
 
 void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 
-	float newValue;
 	if ( slowMotionEnabled ) {
-		newValue = using_sys_timescale ? 0.25f : GET_FRAMERATE_BASE() / 4.0f;
+		desiredTimeScale = using_sys_timescale ? 0.25f : GET_FRAMERATE_BASE() / 4.0f;
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 		this->slowMotionEnabled = true;
 	}
 	else {
-		newValue = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+		desiredTimeScale = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 		this->slowMotionEnabled = false;
 	}
-
-	char com[256];
-	if ( using_sys_timescale ) {
-		sprintf_s( com, "sys_timescale %f\n", newValue );
-	} else {
-		sprintf_s( com, "host_framerate %f\n", newValue );
-	}
-	SERVER_COMMAND( com );
 }
 
 // Done using SDL
@@ -5169,6 +5162,17 @@ void CBasePlayer :: UpdateClientData( void )
 		ApplyFPSCap( );
 	}
 
+	char com[256];
+	if ( using_sys_timescale ) {
+		sprintf_s( com, "sys_timescale %f\n", desiredTimeScale );
+		SERVER_COMMAND( com );
+		sprintf_s( com, "host_framerate 0\n" );
+		SERVER_COMMAND( com );
+	} else {
+		sprintf_s( com, "host_framerate %f\n", desiredTimeScale );
+		SERVER_COMMAND( com );
+	}
+
 	if (m_fInitHUD)
 	{
 		m_fInitHUD = FALSE;
@@ -5415,13 +5419,7 @@ void CBasePlayer :: UpdateClientData( void )
 			superHotMultiplier = using_sys_timescale ? 0.25 : base / 4.0f;
 		}
 
-		char com[256];
-		if ( using_sys_timescale ) {
-			sprintf_s( com, "sys_timescale %f\n", superHotMultiplier );
-		} else {
-			sprintf_s( com, "host_framerate %f\n", superHotMultiplier );
-		}
-		SERVER_COMMAND( com );
+		desiredTimeScale = superHotMultiplier;
 	}
 
 	// Update slowmotion meter
