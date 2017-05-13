@@ -51,8 +51,6 @@ class CSatchelCharge : public CGrenade
 
 public:
 	void Deactivate( void );
-
-	float initialThrowingTime;
 };
 LINK_ENTITY_TO_CLASS( monster_satchel, CSatchelCharge );
 
@@ -134,11 +132,19 @@ void CSatchelCharge :: SatchelThink( void )
 		return;
 	}
 
-	// After some time have passed since you threw the satchel,
-	// it has to lose the owner so it can be damaged by owner's bullets.
-	// Not doing this will cause the satchel to stuck inside the owner.
-	if ( gpGlobals->time - initialThrowingTime >= 0.3 ) {
-		pev->owner = NULL;
+	// After satchel stops touching it's owner, it must lose it 
+	// so it can be damaged by owner's bullets.
+	if ( pev->owner != NULL ) {
+		CBaseEntity *potentialOwner = NULL;
+		while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
+
+			if ( pev->owner == potentialOwner->edict() ) {
+				break;
+			}
+		}
+		if ( !potentialOwner ) {
+			pev->owner = NULL;
+		}
 	}
 
 	if (pev->waterlevel == 3)
@@ -437,9 +443,6 @@ void CSatchel::Throw( void )
 
 		// Setting up an actual correct size is essential for damage detection
 		UTIL_SetSize( pSatchel->pev, Vector( -8, -4, -4 ), Vector( 8, 4, 4 ) );
-
-		// Store the moment when you throw the grenade for purpose in TumbleThink
-		pSatchel->initialThrowingTime = gpGlobals->time;
 
 		// Satchels are always player owned, but we'll lose the owner soon,
 		// so we store the player in auxOwner that will be used for player kill counting

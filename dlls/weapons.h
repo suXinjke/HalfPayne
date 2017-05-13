@@ -55,8 +55,6 @@ public:
 	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType );
 
 	BOOL m_fRegisteredSound;// whether or not this grenade has issued its DANGER sound to the world sound list yet.
-	
-	float initialThrowingTime;
 };
 
 // constant items

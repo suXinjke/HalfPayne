@@ -241,11 +241,19 @@ void CGrenade::DangerSoundThink( void )
 		}
 	}
 
-	// After some time have passed since you shot the grenade,
-	// it has to lose the owner so it can be damaged by owner's bullets.
-	// Not doing this will cause the grenade to stuck inside the owner.
-	if (gpGlobals->time - initialThrowingTime >= 0.3) {
-		pev->owner = NULL;
+	// After grenade stops touching it's owner, it must lose it 
+	// so it can be damaged by owner's bullets.
+	if ( pev->owner != NULL ) {
+		CBaseEntity *potentialOwner = NULL;
+		while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
+
+			if ( pev->owner == potentialOwner->edict() ) {
+				break;
+			}
+		}
+		if ( !potentialOwner ) {
+			pev->owner = NULL;
+		}
 	}
 
 	CSoundEnt::InsertSound ( bits_SOUND_DANGER, pev->origin + pev->velocity * 0.5, pev->velocity.Length( ), 0.2 );
@@ -366,11 +374,19 @@ void CGrenade :: TumbleThink( void )
 	StudioFrameAdvance( );
 	pev->nextthink = gpGlobals->time + 0.1;
 
-	// After some time have passed since you threw the grenade,
-	// it has to lose the owner so it can be damaged by owner's bullets.
-	// Not doing this will cause the grenade to stuck inside the owner.
-	if (gpGlobals->time - initialThrowingTime >= 0.3 ) {
-		pev->owner = NULL;
+	// After grenade stops touching it's owner, it must lose it 
+	// so it can be damaged by owner's bullets.
+	if ( pev->owner != NULL ) {
+		CBaseEntity *potentialOwner = NULL;
+		while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
+
+			if ( pev->owner == potentialOwner->edict() ) {
+				break;
+			}
+		}
+		if ( !potentialOwner ) {
+			pev->owner = NULL;
+		}
 	}
 
 	if (pev->dmgtime - 1 < gpGlobals->time)
@@ -438,9 +454,6 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	// because doing this in Spawn function doesn't work
 	UTIL_SetSize(pGrenade->pev, Vector(-2, -2, -4), Vector(2, 2, 4));
 
-	// Store the moment when you shoot the grenade for purpose in DangerSoundThink
-	pGrenade->initialThrowingTime = gpGlobals->time;
-
 	return pGrenade;
 }
 
@@ -490,9 +503,6 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 	// No idea why it has to get proper size again though,
 	// because doing this in Spawn function doesn't work
 	UTIL_SetSize(pGrenade->pev, Vector(-4, -4, -8), Vector(4, 4, 8));
-
-	// Store the moment when you throw the grenade for purpose in TumbleThink
-	pGrenade->initialThrowingTime = gpGlobals->time;
 	
 	return pGrenade;
 }
