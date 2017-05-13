@@ -269,6 +269,7 @@ void CustomGameModeConfig::Reset() {
 	this->isBleeding = false;
 	this->divingOnly = false;
 	this->totallySpies = false;
+	this->noSmgGrenadePickup = false;
 
 	this->snarkParanoia = false;
 	this->snarkInception = false;
@@ -700,6 +701,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				// TODO: embed into the save file while being able to extract the flag during hgrunt spawn
 				// flag was usually fetched from CBasePlayer, but it's not available during spawn most of the times
 				totallySpies = true;
+			} else if ( line == "no_smg_grenade_pickup" ) { 
+				noSmgGrenadePickup = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );

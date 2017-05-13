@@ -839,7 +839,7 @@ int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 		if ( itemInfo.iMaxAmmo1 != -1 ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = itemInfo.iMaxAmmo1;
 		}
-		if ( itemInfo.iMaxAmmo2 != -1 ) {
+		if ( itemInfo.iMaxAmmo2 != -1 && !m_pPlayer->noSmgGrenadePickup ) {
 			m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = itemInfo.iMaxAmmo2;
 		}
 	}

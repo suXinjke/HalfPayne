@@ -87,6 +87,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->drunk = config.drunk;
 	pPlayer->isFadingOut = config.fadingOut;
 	pPlayer->vvvvvv = config.vvvvvv;
+	pPlayer->noSmgGrenadePickup = config.noSmgGrenadePickup;
 
 	pPlayer->snarkParanoia = config.snarkParanoia;
 	pPlayer->snarkInception = config.snarkInception;

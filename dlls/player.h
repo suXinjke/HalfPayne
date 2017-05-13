@@ -490,6 +490,7 @@ public:
 
 	BOOL infiniteAmmo;
 	BOOL weaponRestricted;
+	BOOL noSmgGrenadePickup;
 	BOOL instaGib;
 
 	BOOL edibleGibs;

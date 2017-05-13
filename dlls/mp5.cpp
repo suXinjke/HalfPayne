@@ -397,6 +397,12 @@ class CMP5AmmoGrenade : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo( CBaseEntity *pOther ) 
 	{ 
+		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( pOther ) ) {
+			if ( pPlayer->noSmgGrenadePickup ) {
+				return FALSE;
+			}
+		}
+
 		int bResult = (pOther->GiveAmmo( AMMO_M203BOX_GIVE, "ARgrenades", M203_GRENADE_MAX_CARRY ) != -1);
 
 		if (bResult)

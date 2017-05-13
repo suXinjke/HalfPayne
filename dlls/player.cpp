@@ -186,6 +186,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, noSmgGrenadePickup, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, swearOnKill, FIELD_BOOLEAN ),
@@ -3671,6 +3672,7 @@ void CBasePlayer::Spawn( void )
 
 	infiniteAmmo = false;
 	weaponRestricted = false;
+	noSmgGrenadePickup = false;
 	instaGib = false;
 	swearOnKill = false;
 
