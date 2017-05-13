@@ -1441,6 +1441,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	pev->skin = 1; // DEATH FACE - embedded in model
 
 	pev->flags &= ~FL_DIVING;
+	FlashlightTurnOff();
 
 	SetSlowMotion( true );
 	SetThink(&CBasePlayer::PlayerDeathThink);
