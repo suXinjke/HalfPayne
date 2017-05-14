@@ -717,6 +717,11 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	} else if ( strcmp( victimName, "monster_gman" ) == 0 ) {
 		killedEntity = KILLED_ENTITY_GMAN;
 
+		if ( desperation == DESPERATION_NO && FStrEq( STRING( gpGlobals->mapname ), "c5a1" ) ) {
+			desperation = DESPERATION_REVENGE;
+			STOP_SOUND( victim->edict(), CHAN_VOICE, "!GM_FINAL" );
+		}
+
 		if ( desperation == DESPERATION_REVENGE ) {
 			untilNextDesperation = gpGlobals->time + 0.5f;
 		}
@@ -2628,7 +2633,9 @@ void CBasePlayer::HandleSlowmotionFlags()
 
 		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;
 	} else if ( pev->flags & FL_DEACTIVATE_SLOWMOTION_REQUESTED ) {
-		DeactivateSlowMotion();
+		if ( desperation != DESPERATION_IMMINENT && desperation != DESPERATION_FIGHTING ) {
+			DeactivateSlowMotion();
+		}
 		pev->flags &= ~FL_DEACTIVATE_SLOWMOTION_REQUESTED;
 	}
 

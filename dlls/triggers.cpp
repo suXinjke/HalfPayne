@@ -392,25 +392,36 @@ void CMultiManager :: ManagerThink ( void )
 	time = gpGlobals->time - m_startTime;
 	while ( m_index < m_cTargets && m_flTargetDelay[ m_index ] <= time )
 	{
-		FireTargets( STRING( m_iTargetName[ m_index ] ), m_hActivator, this, USE_TOGGLE, 0 );
-
+		bool dontFire = false;
 		// dumb c5a1 exception
 		if (
 			strcmp( STRING( gpGlobals->mapname ), "c5a1" ) == 0 &&
 			strcmp( STRING( m_iTargetName[ m_index ] ), "start_loser_mm" ) == 0
-		) {
+			) {
 			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_PRE_IMMINENT;
-				pPlayer->untilNextDesperation = gpGlobals->time + 1.4f;
-				pPlayer->infiniteAmmo = true;
-				pPlayer->infiniteSlowMotion = true;
-				pPlayer->GiveNamedItem( "item_suit" );
-				if ( !pPlayer->noPills ) {
-					pPlayer->painkillerCount = 6;
+				if ( pPlayer->desperation >= CBasePlayer::DESPERATION_TYPE::DESPERATION_REVENGE ) {
+					dontFire = true;
+				} else {
+					pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_PRE_IMMINENT;
+					pPlayer->untilNextDesperation = gpGlobals->time + 1.4f;
+					pPlayer->infiniteAmmo = true;
+					pPlayer->infiniteSlowMotion = true;
+					pPlayer->GiveNamedItem( "item_suit" );
+					if ( !pPlayer->noPills ) {
+						pPlayer->painkillerCount = 9;
+					}
+					pPlayer->TakeHealth( pPlayer->pev->max_health, DMG_GENERIC );
+					pPlayer->SetSlowMotion( true );
+					pPlayer->pev->gravity = 0.6;
+					SERVER_COMMAND( "autosave\n" );
 				}
-				pPlayer->TakeHealth( pPlayer->pev->max_health, DMG_GENERIC );
-				pPlayer->SetSlowMotion( true );
 			}
+
+
+		}
+
+		if ( !dontFire ) {
+			FireTargets( STRING( m_iTargetName[ m_index ] ), m_hActivator, this, USE_TOGGLE, 0 );
 		}
 
 		m_index++;
@@ -1949,6 +1960,7 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 		player->constantSlowmotion = true;
 		player->SetSlowMotion( true );
 		player->untilNextDesperation = gpGlobals->time + 1.6f;
+		player->pev->gravity = 1.0;
 
 		edict_t *edicts[] = {
 			FIND_ENTITY_BY_TARGETNAME( NULL, "zap_sound_1" ),
