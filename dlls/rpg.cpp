@@ -446,7 +446,13 @@ void CRpg::PrimaryAttack()
 		m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
-		Vector vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * 8 + gpGlobals->v_up * -8;
+		int rightOffset = 8;
+		int upOffset = -8;
+		if ( m_pPlayer->upsideDown ) {
+			rightOffset *= -1;
+			upOffset = 0;
+		}
+		Vector vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset;
 		
 		CRpgRocket *pRocket = CRpgRocket::CreateRpgRocket( vecSrc, m_pPlayer->pev->v_angle, m_pPlayer, this );
 		// RPG rockets are always player owned
@@ -467,7 +473,7 @@ void CRpg::PrimaryAttack()
 	flags = 0;
 #endif
 
-		m_pPlayer->pev->punchangle[0] -= 2.5f;
+		m_pPlayer->pev->punchangle[0] -= 2.5f * ( m_pPlayer->upsideDown ? -1 : 1 );
 		PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usRpg );
 
 		m_iClip--; 

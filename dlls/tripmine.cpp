@@ -462,6 +462,10 @@ void CTripmine::PrimaryAttack( void )
 			CBaseEntity *pEnt = CBaseEntity::Create( "monster_tripmine", tr.vecEndPos + tr.vecPlaneNormal * 8, angles, m_pPlayer->edict() );
 			pEnt->auxOwner = m_pPlayer->edict();
 
+			if ( m_pPlayer->upsideDown ) {
+				pEnt->pev->angles[2] = 180;
+			}
+
 			if ( !m_pPlayer->infiniteAmmo ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 			}

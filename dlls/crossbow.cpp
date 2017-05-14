@@ -424,6 +424,10 @@ void CCrossbow::FireBolt()
 	Vector vecDir	 = gpGlobals->v_forward;
 
 	float rightOffset = 4;
+	if ( m_pPlayer->upsideDown ) {
+		rightOffset *= -1;
+		vecSrc = vecSrc + Vector( 0, 0, 12 );
+	}
 	vecDir = UTIL_VecSkew( vecSrc, vecDir, rightOffset, ENT( pev ) );
 	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 

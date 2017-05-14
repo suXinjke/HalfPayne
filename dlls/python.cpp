@@ -216,6 +216,11 @@ void CPython::PrimaryAttack()
 	if ( m_pPlayer->shouldProducePhysicalBullets ) {
 		float rightOffset = 3;
 
+		if ( m_pPlayer->upsideDown ) {
+			rightOffset *= -1;
+			vecSrc = vecSrc + Vector( 0, 0, 6 );
+		}
+
 		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
@@ -234,7 +239,7 @@ void CPython::PrimaryAttack()
 
 	int empty = m_iClip == 0;
 
-	m_pPlayer->pev->punchangle[0] -= 5.0f;
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( m_pPlayer->upsideDown ? -1 : 1 );
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, m_pPlayer->shouldProducePhysicalBullets );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)

@@ -179,6 +179,11 @@ void CShotgun::PrimaryAttack()
 
 		float rightOffset = 2;
 
+		if ( m_pPlayer->upsideDown ) {
+			rightOffset *= -1;
+			vecSrc = vecSrc + Vector( 0, 0, 6 );
+		}
+
 		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
@@ -199,7 +204,7 @@ void CShotgun::PrimaryAttack()
 		vecDir = m_pPlayer->FireBulletsPlayer( 6, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 
-	m_pPlayer->pev->punchangle[0] -= 2.5f;
+	m_pPlayer->pev->punchangle[0] -= 2.5f * ( m_pPlayer->upsideDown ? -1 : 1 );
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
 
 
@@ -277,6 +282,11 @@ void CShotgun::SecondaryAttack( void )
 		
 		float rightOffset = 2;
 
+		if ( m_pPlayer->upsideDown ) {
+			rightOffset *= -1;
+			vecSrc = vecSrc + Vector( 0, 0, 6 );
+		}
+
 		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
@@ -299,7 +309,7 @@ void CShotgun::SecondaryAttack( void )
 		vecDir = m_pPlayer->FireBulletsPlayer( 12, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 		
-	m_pPlayer->pev->punchangle[0] -= 5.0f;
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( m_pPlayer->upsideDown ? -1 : 1 );
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)

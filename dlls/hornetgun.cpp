@@ -139,7 +139,14 @@ void CHgun::PrimaryAttack()
 #ifndef CLIENT_DLL
 	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 
-	CBaseEntity *pHornet = CBaseEntity::Create( "hornet", m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * 8 + gpGlobals->v_up * -12, m_pPlayer->pev->v_angle, m_pPlayer->edict() );
+	int rightOffset = 8;
+	int upOffset = -12;
+	if ( m_pPlayer->upsideDown ) {
+		rightOffset *= -1;
+		upOffset = 16;
+	}
+
+	CBaseEntity *pHornet = CBaseEntity::Create( "hornet", m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset, m_pPlayer->pev->v_angle, m_pPlayer->edict() );
 	pHornet->pev->velocity = gpGlobals->v_forward * 300;
 
 	m_flRechargeTime = gpGlobals->time + 0.5;
@@ -193,7 +200,14 @@ void CHgun::SecondaryAttack( void )
 
 	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 
-	vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * 8 + gpGlobals->v_up * -12;
+	int rightOffset = 8;
+	int upOffset = -12;
+	if ( m_pPlayer->upsideDown ) {
+		rightOffset *= -1;
+		upOffset = 16;
+	}
+
+	vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset;
 
 	m_iFirePhase++;
 	switch ( m_iFirePhase )

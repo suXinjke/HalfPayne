@@ -180,6 +180,10 @@ void CMP5::PrimaryAttack()
 	if ( m_pPlayer->shouldProducePhysicalBullets ) {
 
 		float rightOffset = 2;
+		if ( m_pPlayer->upsideDown ) {
+			rightOffset *= -1;
+			vecSrc = vecSrc + Vector( 0, 0, 6 );
+		}
 
 		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
 
@@ -275,7 +279,7 @@ void CMP5::SecondaryAttack( void )
 	flags = 0;
 #endif
 
-	m_pPlayer->pev->punchangle[0] -= 5.0f;
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( m_pPlayer->upsideDown ? -1 : 1 );
 	PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usMP52 );
 	
 	m_flNextPrimaryAttack = GetNextAttackDelay(1);

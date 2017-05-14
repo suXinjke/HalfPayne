@@ -262,6 +262,10 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		float rightOffset = 8;
 
 		vecSrc = vecSrc + gpGlobals->v_forward * 5;
+		if ( m_pPlayer->upsideDown ) {
+			rightOffset *= -1;
+			vecSrc = vecSrc + Vector( 0, 0, 6 );
+		}
 		vecAiming = UTIL_VecSkew( vecSrc, vecAiming, rightOffset, ENT( pev ) );
 
 		vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
