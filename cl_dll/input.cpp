@@ -73,7 +73,14 @@ cvar_t	*gamemode;
 cvar_t  *gamemode_config;
 
 cvar_t  *max_commentary;
+cvar_t  *max_commentary_painkiller_use;
+cvar_t  *max_commentary_painkiller_pickup;
 cvar_t  *max_commentary_pain;
+cvar_t  *max_commentary_pain_self;
+cvar_t  *max_commentary_kill_innocent;
+cvar_t  *max_commentary_no_ammo;
+cvar_t  *max_commentary_wasted_shots;
+cvar_t  *max_commentary_near_death;
 
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
@@ -1139,8 +1146,15 @@ void InitInput (void)
 	gamemode			= gEngfuncs.pfnRegisterVariable( "gamemode", "vanilla", 0 );
 	gamemode_config		= gEngfuncs.pfnRegisterVariable( "gamemode_config", "", 0 );
 
-	max_commentary		= gEngfuncs.pfnRegisterVariable( "max_commentary", "1", FCVAR_ARCHIVE );
-	max_commentary_pain		= gEngfuncs.pfnRegisterVariable( "max_commentary_pain", "1", FCVAR_ARCHIVE );
+	max_commentary							= gEngfuncs.pfnRegisterVariable( "max_commentary", "1", FCVAR_ARCHIVE );
+	max_commentary_painkiller_use			= gEngfuncs.pfnRegisterVariable( "max_commentary_painkiller_use", "1", FCVAR_ARCHIVE );
+	max_commentary_painkiller_pickup		= gEngfuncs.pfnRegisterVariable( "max_commentary_painkiller_pickup", "1", FCVAR_ARCHIVE );
+	max_commentary_pain						= gEngfuncs.pfnRegisterVariable( "max_commentary_pain", "1", FCVAR_ARCHIVE );
+	max_commentary_pain_self				= gEngfuncs.pfnRegisterVariable( "max_commentary_pain_self", "1", FCVAR_ARCHIVE );
+	max_commentary_kill_innocent			= gEngfuncs.pfnRegisterVariable( "max_commentary_kill_innocent", "1", FCVAR_ARCHIVE );
+	max_commentary_no_ammo					= gEngfuncs.pfnRegisterVariable( "max_commentary_no_ammo", "1", FCVAR_ARCHIVE );
+	max_commentary_wasted_shots				= gEngfuncs.pfnRegisterVariable( "max_commentary_wasted_shots", "1", FCVAR_ARCHIVE );
+	max_commentary_near_death				= gEngfuncs.pfnRegisterVariable( "max_commentary_near_death", "1", FCVAR_ARCHIVE );
 
 	gEngfuncs.pfnAddCommand( "cgm_list", ShowCustomGameModesList );
 	gEngfuncs.pfnAddCommand( "bmm_list", ShowBlackMesaMinuteList );

@@ -1962,7 +1962,7 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 			}
 		}
 
-		player->AddToSoundQueue( MAKE_STRING( "comment/execute.wav" ), 0.6f, true, true );
+		player->AddToSoundQueue( MAKE_STRING( "comment/execute.wav" ), 0.6f, false, true );
 	}
 	
 	pentTarget = FIND_ENTITY_BY_TARGETNAME( pentTarget, STRING(pev->target) );

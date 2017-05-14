@@ -519,7 +519,7 @@ int CBasePlayer::TakePainkiller()
 	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills.wav", 1, ATTN_NORM, true );
 
 	if (
-		CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+		CVAR_GET_FLOAT( "max_commentary_painkiller_pickup" ) > 0.0f &&
 		RANDOM_LONG( 0, 100 ) < 33 &&
 		gpGlobals->time > allowedToReactOnPainkillerPickup
 	) {
@@ -558,7 +558,7 @@ void CBasePlayer::UsePainkiller()
 		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM, true );
 
 		if (
-			CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+			CVAR_GET_FLOAT( "max_commentary_painkiller_use" ) > 0.0f &&
 			RANDOM_LONG( 0, 100 ) < 33 &&
 			gpGlobals->time > allowedToReactOnPainkillerTake
 		) {
@@ -735,6 +735,7 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		killedEntity = KILLED_ENTITY_NIHILANTH_CRYSTAL;
 
 		crystalsDestroyed++;
+
 		switch ( crystalsDestroyed ) {
 			case 1:
 				AddToSoundQueue( MAKE_STRING( "comment/onedowntwotogo.wav" ), 0.6f, true, true );
@@ -940,8 +941,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 
 					// if you've fallen down or made such an injury with explosive yourself - leave a remark
 					if (
-						CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
-						CVAR_GET_FLOAT( "max_commentary_pain" ) > 0.0f && (
+						CVAR_GET_FLOAT( "max_commentary_pain_self" ) > 0.0f && (
 							bitsDamageType & DMG_FALL ||
 							strcmp( STRING( pAttacker->pev->classname ), "player" ) == 0 ||
 							( pAttacker && pAttacker->auxOwner && ( strcmp( STRING( pAttacker->auxOwner->v.classname ), "player" ) == 0 ) )
@@ -3166,7 +3166,7 @@ void CBasePlayer::CheckSoundQueue()
 
 			if ( !isMaxCommentary ) {
 				EMIT_SOUND( edict(), CHAN_AUTO, STRING( soundQueueSoundNames[i] ), 1.0, ATTN_STATIC, soundQueueIsMaxPayneCommentarySound[i] );
-			} else if ( isMaxCommentary && strcmp( CVAR_GET_STRING( "max_commentary" ), "1" ) == 0 ) {
+			} else if ( isMaxCommentary ) {
 				TryToPlayMaxCommentary( soundQueueSoundNames[i], soundQueueIsMaxPayneCommentaryImportant[i] );
 			}
 			soundQueueSoundNames[i] = 0;
@@ -3179,6 +3179,10 @@ void CBasePlayer::CheckSoundQueue()
 
 void CBasePlayer::AddToSoundQueue( string_t string, float delay, bool isMaxCommentary, bool isImportant )
 {
+	if ( isMaxCommentary && isImportant && CVAR_GET_FLOAT( "max_commentary" ) < 1.0f ) {
+		return;
+	}
+
 	if ( soundQueueCounter == MAX_SOUND_QUEUE ) {
 		soundQueueCounter = 0;
 	}
@@ -3938,7 +3942,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 
 		STOP_SOUND( edict(), CHAN_STATIC, "music/finale.wav" );
 		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale2.wav", 1.0, ATTN_NORM, true );
-		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, true, true );
+		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, false, true );
 	}
 }
 
@@ -4135,7 +4139,7 @@ int CBasePlayer::Restore( CRestore &restore )
 
 void CBasePlayer::ComplainAboutKillingInnocent()
 {
-	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutKillingInnocent || RANDOM_LONG( 0, 100 ) > 33 ) {
+	if ( CVAR_GET_FLOAT( "max_commentary_kill_innocent" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutKillingInnocent || RANDOM_LONG( 0, 100 ) > 33 ) {
 		return;
 	}
 
@@ -4148,7 +4152,7 @@ void CBasePlayer::ComplainAboutKillingInnocent()
 
 void CBasePlayer::ComplainAboutNoAmmo( bool weaponIsBulletBased )
 {
-	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutNoAmmo || RANDOM_LONG( 0, 100 ) > 50 ) {
+	if ( CVAR_GET_FLOAT( "max_commentary_no_ammo" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutNoAmmo || RANDOM_LONG( 0, 100 ) > 50 ) {
 		return;
 	}
 
@@ -4168,7 +4172,7 @@ void CBasePlayer::AnswerAboutRhetoricalQuestion()
 	CBaseEntity *pEntity = NULL;
 	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 256.0f ) ) != NULL ) {
 		if ( pEntity->edict() == rhetoricalQuestionHolder ) {
-			AddToSoundQueue( MAKE_STRING( "max/rhetorical_question.wav" ), 0.1f, true );
+			AddToSoundQueue( MAKE_STRING( "max/rhetorical_question.wav" ), 0.1f, true, true );
 		}
 	}
 
@@ -4178,7 +4182,7 @@ void CBasePlayer::AnswerAboutRhetoricalQuestion()
 
 void CBasePlayer::OnBulletHit( CBaseEntity *hitEntity )
 {
-	if ( CVAR_GET_FLOAT( "max_commentary" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutDumbShots ) {
+	if ( CVAR_GET_FLOAT( "max_commentary_wasted_shots" ) <= 0.0f || gpGlobals->time < allowedToComplainAboutDumbShots ) {
 		return;
 	}
 
@@ -5356,7 +5360,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 			if ( pev->health >= 20 ) {
 				if (
-					CVAR_GET_FLOAT( "max_commentary" ) > 0.0f &&
+					CVAR_GET_FLOAT( "max_commentary_near_death" ) > 0.0f &&
 					RANDOM_LONG( 0, 100 ) < 50 &&
 					gpGlobals->time > allowedToReactOnPainkillerNeed
 					) {
