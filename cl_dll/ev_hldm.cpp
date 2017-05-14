@@ -107,6 +107,9 @@ void VectorSkew( vec3_t vecSrc, vec3_t angles, vec3_t forward, float *vecAiming,
 	gEngfuncs.pEventAPI->EV_PlayerTrace( vecSrc, vecEnd, PM_STUDIO_BOX, -1, &tr );
 	float hitDistance = ( tr.endpos - vecSrc ).Length();
 	double yawRotation = ( atan( rightOffset / hitDistance ) * 180 ) / M_PI;
+	if ( upsideDown ) {
+		yawRotation *= -1.0f;
+	}
 
 	AngleVectors( angles + Vector( 0.0, yawRotation, 0.0 ), forward, Vector(), Vector() );
 	VectorCopy( forward, vecAiming );
@@ -516,8 +519,9 @@ void EV_FireGlock1( event_args_t *args )
 	vecSrc = vecSrc + forward * 5;
 
 	float rightOffset = 8;
+	float upOffset = upsideDown ? -10 : 0;
 	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset + up * upOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 
 void EV_FireGlock2( event_args_t *args )
@@ -647,8 +651,9 @@ void EV_FireGlockTwin( event_args_t *args ) {
 	vecSrc = vecSrc + forward * 5;
 
 	float rightOffset = shootingRight ? 8 : -8;
+	float upOffset = upsideDown ? -10 : 0;
 	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset + up * upOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 //======================
 //	  GLOCK TWIN END
@@ -866,13 +871,15 @@ void EV_FireMP5( event_args_t *args )
 	EV_GetGunPosition( args, vecSrc, origin );
 	VectorCopy( forward, vecAiming );
 
+	float upOffset = upsideDown ? -10 : 0;
+
 	if ( gEngfuncs.GetMaxClients() > 1 )
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + up * upOffset, vecAiming, 8192, BULLET_PLAYER_MP5, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 	}
 	else
 	{
-		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + up * upOffset, vecAiming, 8192, BULLET_PLAYER_MP5, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 	}
 }
 
@@ -967,8 +974,9 @@ void EV_FirePython( event_args_t *args )
 	EV_GetGunPosition( args, vecSrc, origin );
 	
 	float rightOffset = 5;
+	float upOffset = upsideDown ? -10 : 0;
 	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
-	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset, vecAiming, 8192, BULLET_PLAYER_357, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset + up * upOffset, vecAiming, 8192, BULLET_PLAYER_357, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
 }
 //======================
 //	    PHYTON END 
