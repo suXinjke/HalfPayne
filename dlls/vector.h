@@ -14,6 +14,7 @@
 ****/
 #ifndef VECTOR_H
 #define VECTOR_H
+#include <string>
 
 //=========================================================
 // 2DVector - used for many pathfinding and many other 
@@ -99,6 +100,11 @@ public:
 		return Vec2;
 	}
 	inline float Length2D(void) const					{ return sqrt(x*x + y*y); }
+	std::string ToString() {
+		char result[256];
+		sprintf_s( result, "x: %f y: %f z: %f", x, y, z );
+		return result;
+	}
 
 	// Members
 	vec_t x, y, z;
