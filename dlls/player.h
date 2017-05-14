@@ -434,6 +434,7 @@ public:
 	BOOL swearOnKill;
 	float allowedToSwear;
 	void SayRandomSwear();
+	std::string lastSwearingLine;
 
 	// Painkillers
 #define MAX_PAINKILLERS 9

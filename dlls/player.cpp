@@ -3779,7 +3779,11 @@ void CBasePlayer::SayRandomSwear()
 	}
 	
 	char fileName[256];
-	sprintf_s( fileName, "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_%d.wav", RANDOM_LONG( 1, 21 ) );
+	do {
+		sprintf_s( fileName, "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_%d.wav", RANDOM_LONG( 1, 21 ) );
+	} while ( lastSwearingLine == fileName );
+	lastSwearingLine = fileName;
+
 	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
 
 	allowedToSwear = gpGlobals->time + 1.5f;
