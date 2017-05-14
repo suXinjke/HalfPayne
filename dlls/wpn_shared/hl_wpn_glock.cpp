@@ -195,7 +195,11 @@ void CGlock::SecondaryAttack( void )
 
 void CGlock::PrimaryAttack( void )
 {
-	GlockFire( 0.01, 0.215f, TRUE );
+	float delay = 0.215f;
+	if ( m_pPlayer->slowMotionEnabled ) {
+		delay *= 0.75f;
+	}
+	GlockFire( 0.01, delay, TRUE );
 }
 
 void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )

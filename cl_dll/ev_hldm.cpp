@@ -627,6 +627,10 @@ void EV_FireGlockTwin( event_args_t *args ) {
 				}
 			}		
 		}
+		if ( isSlowmotionEnabled() ) {
+			anim++;
+		}
+
 		gEngfuncs.pEventAPI->EV_WeaponAnimation( anim, 2 );
 
 		V_PunchAxis( 0, -2.0 * ( upsideDown ? -1 : 1 ) );
