@@ -166,6 +166,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, noFallDamage, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 
@@ -891,7 +892,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	flBonus = ARMOR_BONUS;
 	flRatio = ARMOR_RATIO;
 
-	if ( vvvvvv && ( bitsDamageType & DMG_FALL ) ) {
+	if ( noFallDamage && ( bitsDamageType & DMG_FALL ) ) {
 		return 0;
 	}
 
@@ -3247,7 +3248,7 @@ void CBasePlayer::PostThink()
 // of maximum safe distance will make no sound. Falling farther than max safe distance will play a 
 // fallpain sound, and damage will be inflicted based on how far the player fell
 
-	if ( !vvvvvv && (FBitSet(pev->flags, FL_ONGROUND)) && (pev->health > 0) && m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD )
+	if ( !noFallDamage && (FBitSet(pev->flags, FL_ONGROUND)) && (pev->health > 0) && m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD )
 	{
 		// ALERT ( at_console, "%f\n", m_flFallVelocity );
 
@@ -3588,6 +3589,7 @@ void CBasePlayer::Spawn( void )
 
 	oneHitKO = 0;
 	oneHitKOFromPlayer = 0;
+	noFallDamage = 0;
 
 	painkillerCount = 0;
 	

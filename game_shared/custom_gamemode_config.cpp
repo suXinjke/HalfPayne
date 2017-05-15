@@ -291,6 +291,7 @@ void CustomGameModeConfig::Reset() {
 	this->swearOnKill = false;
 	this->oneHitKO = false;
 	this->oneHitKOFromPlayer = false;
+	this->noFallDamage = false;
 
 	this->bulletPhysicsDisabled = false;
 	this->bulletPhysicsEnemiesAndPlayerOnSlowmotion = false;
@@ -718,6 +719,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				totallySpies = true;
 			} else if ( line == "no_smg_grenade_pickup" ) { 
 				noSmgGrenadePickup = true;
+			} else if ( line == "no_fall_damage" ) { 
+				noFallDamage = true;
 			} else {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );

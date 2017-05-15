@@ -79,6 +79,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->slowmotionOnDamage = config.slowmotionOnDamage;
 	pPlayer->oneHitKO = config.oneHitKO;
 	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
+	pPlayer->noFallDamage = config.noFallDamage;
 	pPlayer->isBleeding = config.isBleeding;
 	pPlayer->garbageGibs = config.garbageGibs;
 	pPlayer->edibleGibs = config.edibleGibs;

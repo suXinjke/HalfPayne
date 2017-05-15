@@ -146,6 +146,7 @@ public:
 
 	BOOL				oneHitKO;
 	BOOL				oneHitKOFromPlayer;
+	BOOL				noFallDamage;
 
 	BOOL				upsideDown;
 	bool				upsideDownMessageSent;
