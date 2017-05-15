@@ -421,6 +421,21 @@ void CMultiManager :: ManagerThink ( void )
 		}
 
 		if ( !dontFire ) {
+			if ( auxOwner ) {
+				edict_t *pentTarget = NULL;
+				
+				for (;;)
+				{
+					pentTarget = FIND_ENTITY_BY_TARGETNAME( pentTarget, STRING( m_iTargetName[ m_index ] ) );
+					if ( FNullEnt( pentTarget ) ) {
+						break;
+					}
+
+					CBaseEntity *pTarget = CBaseEntity::Instance( pentTarget );
+					pTarget->auxOwner = this->auxOwner;
+					pTarget->killedOrCausedByPlayer = true;
+				}
+			}
 			FireTargets( STRING( m_iTargetName[ m_index ] ), m_hActivator, this, USE_TOGGLE, 0 );
 		}
 
