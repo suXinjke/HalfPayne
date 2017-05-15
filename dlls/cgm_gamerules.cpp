@@ -180,6 +180,10 @@ void CCustomGameModeRules::OnNewlyVisitedMap() {
 	monsterSpawnPrevented = false;
 }
 
+bool CCustomGameModeRules::ChangeLevelShouldBePrevented( const char *nextMap ) {
+	return config.changeLevelsToPrevent.find( nextMap ) != config.changeLevelsToPrevent.end();
+}
+
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
 	if ( !pPlayer->weaponRestricted ) {

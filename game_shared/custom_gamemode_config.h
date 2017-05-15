@@ -173,6 +173,7 @@ public:
 		FILE_SECTION_START_POSITION,
 		FILE_SECTION_END_MAP,
 		FILE_SECTION_END_TRIGGER,
+		FILE_SECTION_CHANGE_LEVEL_PREVENT,
 		FILE_SECTION_LOADOUT,
 		FILE_SECTION_ENTITY_SPAWN,
 		FILE_SECTION_ENTITY_REMOVE,
@@ -238,6 +239,7 @@ public:
 	std::set<std::string>		 entitiesToPrecache;
 	std::set<std::string>		 soundsToPrecache;
 	std::set<ModelIndex>		 entitiesToPrevent;
+	std::set<std::string>		 changeLevelsToPrevent;
 
 	bool startPositionSpecified;
 	float startPosition[3];

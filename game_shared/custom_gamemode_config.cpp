@@ -312,6 +312,8 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = FILE_SECTION_NAME;
 	} else if ( sectionName == "end_trigger" ) {
 		currentFileSection = FILE_SECTION_END_TRIGGER;
+	} else if ( sectionName == "change_level_prevent" ) {
+		currentFileSection = FILE_SECTION_CHANGE_LEVEL_PREVENT;
 	} else if ( sectionName == "entity_spawn" ) {
 		currentFileSection = FILE_SECTION_ENTITY_SPAWN;
 	} else if ( sectionName == "entity_use" ) {
@@ -524,6 +526,19 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 
 			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
 			entitiesToPrevent.insert( modelIndex );
+
+			break;
+		}
+
+		case FILE_SECTION_CHANGE_LEVEL_PREVENT: {
+			if ( configType == GAME_MODE_CONFIG_MAP ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [change_level_prevent] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
+				OnError( errorCString );
+				return;
+			}
+
+			changeLevelsToPrevent.insert( line );
 
 			break;
 		}

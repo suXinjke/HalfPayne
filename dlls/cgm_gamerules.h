@@ -21,6 +21,7 @@ public:
 	virtual void SpawnEnemiesByConfig( const char *mapName );
 
 	virtual BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
+	bool ChangeLevelShouldBePrevented( const char *nextMap );
 
 	virtual void CheckForCheats( CBasePlayer *pPlayer );
 	virtual void OnCheated( CBasePlayer *pPlayer );

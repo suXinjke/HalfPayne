@@ -1572,6 +1572,8 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 		if ( player ) {
 			cgm->End( player );
 		}
+	} else if ( cgm && cgm->ChangeLevelShouldBePrevented( st_szNextMap ) ) {
+		return;
 	} else {
 		if ( player ) {
 			player->ClearSoundQueue();
