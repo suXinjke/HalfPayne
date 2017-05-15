@@ -1564,13 +1564,18 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 		singlePlayerRules->HookModelIndex( this->edict() );
 	}
 
+	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
 	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
 
 	// Are we changing to the map that should end Custom Game Mode session?
 	if ( cgm && strcmp( st_szNextMap, cgm->config.endMap.c_str() ) == 0 ) {
-		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-		cgm->End( player );
+		if ( player ) {
+			cgm->End( player );
+		}
 	} else {
+		if ( player ) {
+			player->ClearSoundQueue();
+		}
 		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
 		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 	}

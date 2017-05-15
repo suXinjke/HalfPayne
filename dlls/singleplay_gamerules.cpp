@@ -295,13 +295,9 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 	}
 
 	if ( !playerProcessed ) {
-		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-			pPlayer->ClearSoundQueue();
-
-			if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
-				pPlayer->AddVisitedMap( gpGlobals->mapname );
-				OnNewlyVisitedMap();
-			}
+		if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
+			pPlayer->AddVisitedMap( gpGlobals->mapname );
+			OnNewlyVisitedMap();
 		}
 
 		playerProcessed = true;
