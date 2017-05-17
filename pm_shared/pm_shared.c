@@ -3261,7 +3261,7 @@ void PM_PlayerMove ( qboolean server )
 	}
 	
 	// Don't run ladder code if dead or on a train, or when diving
-	if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && ( pmove->fuser4 >= 1.0f || !( pmove->flags & FL_DIVING ) ) )
+	if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) )
 	{
 		if ( pLadder )
 		{
