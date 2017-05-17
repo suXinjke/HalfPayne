@@ -156,6 +156,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, desiredTimeScale, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, nextSmoothTimeScaleChange, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, superHot, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, superHotMultiplier, FIELD_FLOAT ),
@@ -2636,7 +2637,7 @@ void CBasePlayer::HandleSlowmotionFlags()
 		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;
 	} else if ( pev->flags & FL_DEACTIVATE_SLOWMOTION_REQUESTED ) {
 		if ( desperation != DESPERATION_IMMINENT && desperation != DESPERATION_FIGHTING ) {
-			DeactivateSlowMotion();
+			DeactivateSlowMotion( true );
 		}
 		pev->flags &= ~FL_DEACTIVATE_SLOWMOTION_REQUESTED;
 	}
@@ -3585,6 +3586,7 @@ void CBasePlayer::Spawn( void )
 	slowMotionCharge = 0;
 	slowMotionUpdateTime = 1;
 	infiniteSlowMotion = 0;
+	nextSmoothTimeScaleChange = 0.0f;
 
 	slowmotionOnDamage = 0;
 
@@ -3898,7 +3900,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 				AddToSoundQueue( MAKE_STRING( "comment/finalespeech.wav" ), 3, false, true );
 				constantSlowmotion = 0;
 				infiniteSlowMotion = 0;
-				DeactivateSlowMotion();
+				DeactivateSlowMotion( true );
 				slowMotionCharge = 0;
 				desperation = DESPERATION_ALMOST_OVER;
 				untilNextDesperation = gpGlobals->time + 8.0f;
@@ -4557,7 +4559,7 @@ bool CBasePlayer::ActivateSlowMotion()
 	return true;
 }
 
-bool CBasePlayer::DeactivateSlowMotion()
+bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 {
 	if ( !slowMotionEnabled || constantSlowmotion ) {
 		return false;
@@ -4571,6 +4573,10 @@ bool CBasePlayer::DeactivateSlowMotion()
 
 	m_flNextAttack += nextAttackSlowmotionOffset;
 	nextAttackSlowmotionOffset = 0.0f;
+
+	if ( smooth ) {
+		nextSmoothTimeScaleChange = gpGlobals->time + 0.01f;
+	}
 
 	SetSlowMotion( false );
 
@@ -4587,7 +4593,9 @@ void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 		this->slowMotionEnabled = true;
 	}
 	else {
-		desiredTimeScale = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+		if ( !nextSmoothTimeScaleChange ) {
+			desiredTimeScale = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+		}
 		this->slowMotionEnabled = false;
 	}
 }
@@ -5453,6 +5461,18 @@ void CBasePlayer :: UpdateClientData( void )
 		desiredTimeScale = superHotMultiplier;
 	}
 
+	if ( nextSmoothTimeScaleChange && nextSmoothTimeScaleChange <= gpGlobals->time ) {
+		float cap = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+		
+		desiredTimeScale *= 1.08f;
+		if ( desiredTimeScale >= cap ) {
+			desiredTimeScale = cap;
+			nextSmoothTimeScaleChange = 0.0f;
+		} else {
+			nextSmoothTimeScaleChange = gpGlobals->time + 0.01f;
+		}
+	}
+
 	// Update slowmotion meter
 	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !( pev->flags & FL_DIVING ) && pev->deadflag == DEAD_NO)
 	{
@@ -5466,9 +5486,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 				if (!slowMotionCharge) 
 				{
-					SetSlowMotion(false);
-					slowMotionEnabled = false;
-					EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
+					DeactivateSlowMotion( true );
 				}
 			}
 		}	

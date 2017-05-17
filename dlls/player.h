@@ -256,6 +256,7 @@ public:
 	BOOL slowMotionEnabled;
 	float slowMotionNextHeartbeatSound;
 	float desiredTimeScale;
+	float nextSmoothTimeScaleChange;
 
 	virtual void Spawn( void );
 	void Pain( void );
@@ -304,7 +305,7 @@ public:
 	void			ApplyFPSCap();
 	void			ToggleSlowMotion();
 	bool			ActivateSlowMotion();
-	bool			DeactivateSlowMotion();
+	bool			DeactivateSlowMotion( bool smooth = false );
 	void			SetSlowMotion( BOOL slowMotionEnabled );
 	BOOL			FlashlightIsOn( void );
 	void			FlashlightTurnOn( void );
