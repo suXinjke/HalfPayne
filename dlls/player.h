@@ -516,6 +516,7 @@ public:
 	float fadeOutTime;
 
 	BOOL divingOnly;
+	BOOL divingAllowedWithoutSlowmotion;
 
 	BOOL usedCheat;
 

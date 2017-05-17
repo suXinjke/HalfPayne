@@ -55,6 +55,7 @@ int gEvilImpulse101;
 extern DLL_GLOBAL int		g_iSkillLevel, gDisplayTitle;
 
 extern "C" int				g_slowMotionCharge;
+extern "C" int				g_divingAllowedWithoutSlowmotion;
 
 BOOL gInitHUD = TRUE;
 
@@ -226,6 +227,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkFromExplosion, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, divingAllowedWithoutSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, drunk, FIELD_BOOLEAN ),
 
@@ -2526,6 +2528,7 @@ void CBasePlayer::PreThink(void)
 	}
 
 	g_slowMotionCharge = slowMotionCharge;
+	g_divingAllowedWithoutSlowmotion = divingAllowedWithoutSlowmotion;
 
 	CBaseEntity *pEntity = NULL;
 	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, pev->origin, 48.0f ) ) != NULL ) {
@@ -2630,9 +2633,12 @@ void CBasePlayer::HandleSlowmotionFlags()
 {
 	if ( ( pev->flags & FL_ACTIVATE_SLOWMOTION_REQUESTED ) && 
 		 ( pev->flags & FL_DIVING ) ) {
-		SetSlowMotion( true );
-		slowMotionCharge -= DIVING_SLOWMOTION_CHARGE_COST;
-		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
+
+		if ( slowMotionCharge > 0 ) {
+			SetSlowMotion( true );
+			slowMotionCharge -= min( slowMotionCharge, DIVING_SLOWMOTION_CHARGE_COST );
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "slowmo/shootdodge.wav", 1, ATTN_NORM, true );
+		}		
 
 		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;
 	} else if ( pev->flags & FL_DEACTIVATE_SLOWMOTION_REQUESTED ) {
@@ -3718,6 +3724,7 @@ void CBasePlayer::Spawn( void )
 	garbageGibs = false;
 
 	divingOnly = false;
+	divingAllowedWithoutSlowmotion = false;
 
 	upsideDown = false;
 	upsideDownMessageSent = false;

@@ -263,6 +263,7 @@ public:
 
 	bool isBleeding;
 	bool divingOnly;
+	bool divingAllowedWithoutSlowmotion;
 	bool totallySpies;
 	bool noSmgGrenadePickup;
 

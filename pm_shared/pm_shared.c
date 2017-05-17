@@ -156,6 +156,7 @@ static char grgchTextureType[CTEXTURESMAX];
 
 int g_onladder = 0;
 int g_slowMotionCharge = 0;
+int g_divingAllowedWithoutSlowmotion = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
@@ -2747,7 +2748,7 @@ void PM_Jump (void)
 // Dive is simillar to long jump, but can be done in any direction
 void PM_Dive(void)
 {
-	if ( g_slowMotionCharge < DIVING_SLOWMOTION_CHARGE_COST ) {
+	if ( g_slowMotionCharge <= 0 && !g_divingAllowedWithoutSlowmotion ) {
 		return;
 	}
 

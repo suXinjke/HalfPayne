@@ -268,6 +268,7 @@ void CustomGameModeConfig::Reset() {
 
 	this->isBleeding = false;
 	this->divingOnly = false;
+	this->divingAllowedWithoutSlowmotion = false;
 	this->totallySpies = false;
 	this->noSmgGrenadePickup = false;
 
@@ -704,6 +705,8 @@ void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
 				upsideDown = true;
 			} else if ( line == "diving_only" ) {
 				divingOnly = true;
+			} else if ( line == "diving_allowed_without_slowmotion" ) {
+				divingAllowedWithoutSlowmotion = true;
 			} else if ( line == "garbage_gibs" ) {
 				garbageGibs = true;
 			} else if ( line == "edible_gibs" ) {
