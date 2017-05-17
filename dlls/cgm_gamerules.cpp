@@ -80,6 +80,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->oneHitKO = config.oneHitKO;
 	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
 	pPlayer->noFallDamage = config.noFallDamage;
+	pPlayer->noSecondaryAttack = config.noSecondaryAttack;
 	pPlayer->isBleeding = config.isBleeding;
 	pPlayer->garbageGibs = config.garbageGibs;
 	pPlayer->edibleGibs = config.edibleGibs;

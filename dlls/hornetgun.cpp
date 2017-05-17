@@ -186,6 +186,10 @@ void CHgun::PrimaryAttack()
 
 void CHgun::SecondaryAttack( void )
 {
+	if ( m_pPlayer->noSecondaryAttack ) {
+		return;
+	}
+
 	Reload();
 
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)

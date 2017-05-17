@@ -183,6 +183,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, garbageGibs, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, noPills, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, noSecondaryAttack, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
 
@@ -3598,6 +3599,7 @@ void CBasePlayer::Spawn( void )
 	noSaving = false;
 
 	noPills = false;
+	noSecondaryAttack = false;
 
 	allowedToReactOnPainkillerPickup = 0.0f;
 	allowedToReactOnPainkillerTake = 0.0f;

@@ -236,7 +236,7 @@ void CShotgun::PrimaryAttack()
 
 void CShotgun::SecondaryAttack( void )
 {
-	if (shotSecondaryOnce) {
+	if ( shotSecondaryOnce || m_pPlayer->noSecondaryAttack ) {
 		return;
 	}
 	// don't fire underwater

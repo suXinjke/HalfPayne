@@ -104,6 +104,12 @@ enum sbar_data
 	SBAR_END,
 };
 
+enum GAMEPLAY_MOD {
+	GAMEPLAY_MOD_INSTAGIB							= 1 << 0,
+	GAMEPLAY_MOD_SHOULD_PRODUCE_PHYSICAL_BULLETS	= 1 << 1,
+	GAMEPLAY_MOD_NO_SECONDARY_ATTACK				= 1 << 2
+};
+
 #define CHAT_INTERVAL 1.0f
 
 class CBasePlayer : public CBaseMonster
@@ -476,6 +482,7 @@ public:
 	BOOL noSaving;
 
 	BOOL noPills;
+	BOOL noSecondaryAttack;
 
 	BULLET_PHYSICS_MODE bulletPhysicsMode;
 	BOOL shouldProducePhysicalBullets;
@@ -520,6 +527,20 @@ public:
 	BOOL snarkStayAlive;
 	BOOL snarkInfestation;
 	BOOL snarkFromExplosion;
+
+	int PackGameplayMods() {
+		int bitmask = 0;
+		if ( instaGib ) {
+			bitmask |= GAMEPLAY_MOD_INSTAGIB;
+		}
+		if ( shouldProducePhysicalBullets ) {
+			bitmask |= GAMEPLAY_MOD_SHOULD_PRODUCE_PHYSICAL_BULLETS;
+		}
+		if ( noSecondaryAttack ) {
+			bitmask |= GAMEPLAY_MOD_NO_SECONDARY_ATTACK;
+		}
+		return bitmask;
+	}
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

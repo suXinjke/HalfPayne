@@ -242,6 +242,9 @@ void CMP5::PrimaryAttack()
 
 void CMP5::SecondaryAttack( void )
 {
+	if ( m_pPlayer->noSecondaryAttack ) {
+		return;
+	}
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{

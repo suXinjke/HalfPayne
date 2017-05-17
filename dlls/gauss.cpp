@@ -167,6 +167,10 @@ void CGauss::PrimaryAttack()
 
 void CGauss::SecondaryAttack()
 {
+	if ( m_pPlayer->noSecondaryAttack ) {
+		return;
+	}
+
 	// don't fire underwater
 	if ( m_pPlayer->pev->waterlevel == 3 )
 	{

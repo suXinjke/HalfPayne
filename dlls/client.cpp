@@ -1914,7 +1914,7 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 	cd->weaponanim		= pev->weaponanim;
 
 	cd->pushmsec		= pev->pushmsec;
-	cd->vuser3.y		= pl->shouldProducePhysicalBullets;
+	cd->iuser4			= pl->PackGameplayMods();
 
 	//Spectator mode
 	if ( pevOrg != NULL )
@@ -1946,8 +1946,6 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 			cd->ammo_rockets	= pl->ammo_rockets;
 			cd->ammo_cells		= pl->ammo_uranium;
 			cd->vuser2.x		= pl->ammo_hornets;
-
-			cd->vuser3.x		= pl->instaGib;
 			
 
 			if ( pl->m_pActiveItem )

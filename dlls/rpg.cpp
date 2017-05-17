@@ -491,6 +491,10 @@ void CRpg::PrimaryAttack()
 
 void CRpg::SecondaryAttack()
 {
+	if ( m_pPlayer->noSecondaryAttack ) {
+		return;
+	}
+
 	m_fSpotActive = ! m_fSpotActive;
 
 #ifndef CLIENT_DLL

@@ -467,6 +467,10 @@ void CCrossbow::FireBolt()
 
 void CCrossbow::SecondaryAttack()
 {
+	if ( m_pPlayer->noSecondaryAttack ) {
+		return;
+	}
+
 	if ( m_pPlayer->pev->fov != 0 )
 	{
 		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = 0; // 0 means reset to default fov
