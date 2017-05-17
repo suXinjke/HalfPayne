@@ -4598,6 +4598,7 @@ void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 		desiredTimeScale = using_sys_timescale ? 0.25f : GET_FRAMERATE_BASE() / 4.0f;
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 		this->slowMotionEnabled = true;
+		nextSmoothTimeScaleChange = 0.0f;
 	}
 	else {
 		if ( !nextSmoothTimeScaleChange ) {
