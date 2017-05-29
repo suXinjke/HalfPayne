@@ -3974,6 +3974,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 		desperation = DESPERATION_RELIEF;
 		untilNextDesperation = gpGlobals->time + 14.1f;
 		RemoveAllItems( FALSE );
+		DeactivateSlowMotion( true );
 
 		STOP_SOUND( edict(), CHAN_STATIC, "music/finale.wav" );
 		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale2.wav", 1.0, ATTN_NORM, true );
