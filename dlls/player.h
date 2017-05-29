@@ -530,6 +530,8 @@ public:
 	BOOL snarkInfestation;
 	BOOL snarkFromExplosion;
 
+	float postRestoreDelay;
+
 	int PackGameplayMods() {
 		int bitmask = 0;
 		if ( instaGib ) {

@@ -233,6 +233,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, vvvvvv, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, postRestoreDelay, FIELD_TIME ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -2551,6 +2553,13 @@ void CBasePlayer::PreThink(void)
 			}
 		}
 	}
+
+	if ( postRestoreDelay && gpGlobals->time >= postRestoreDelay ) {
+		if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+			singlePlayerRules->OnHookedModelIndex( this, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
+		}
+		postRestoreDelay = 0.0f;
+	}
 }
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:
@@ -3640,6 +3649,8 @@ void CBasePlayer::Spawn( void )
 	vvvvvv = false;
 	reverseGravity = false;
 
+	postRestoreDelay = 0.0f;
+
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
 	CVAR_SET_FLOAT( "cam_idealpitch", 0.0f );
@@ -4151,10 +4162,7 @@ int CBasePlayer::Restore( CRestore &restore )
 	upsideDownMessageSent = false;
 	drunkMessageSent = false;
 
-	// MIGHT BE VERY DUMB to put it here - used mostly to play sounds after CHANGE_LEVEL call
-	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->OnHookedModelIndex( this, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
-	}
+	postRestoreDelay = gpGlobals->time + 0.01f;
 
 	return status;
 }
