@@ -1,9 +1,14 @@
 #ifndef CUSTOM_GAMEMODE_CONFIG_H
 #define CUSTOM_GAMEMODE_CONFIG_H
 
+#include "extdll.h"
+#include "util.h"
+#include "cbase.h"
+#include "player.h"
 #include <string>
 #include <vector>
 #include <set>
+#include <functional>
 
 #define CHANGE_LEVEL_MODEL_INDEX -1
 
@@ -155,6 +160,69 @@ struct EntitySpawn
 	float		angle;
 };
 
+enum GAMEPLAY_MOD {
+	GAMEPLAY_MOD_UNKNOWN,
+	GAMEPLAY_MOD_BLEEDING,
+	GAMEPLAY_MOD_BULLET_PHYSICS_CONSTANT,
+	GAMEPLAY_MOD_BULLET_PHYSICS_DISABLED,
+	GAMEPLAY_MOD_BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION,
+	GAMEPLAY_MOD_CONSTANT_SLOWMOTION,
+	GAMEPLAY_MOD_DIVING_ALLOWED_WITHOUT_SLOWMOTION,
+	GAMEPLAY_MOD_DIVING_ONLY,
+	GAMEPLAY_MOD_DRUNK,
+	GAMEPLAY_MOD_EASY,
+	GAMEPLAY_MOD_EDIBLE_GIBS,
+	GAMEPLAY_MOD_EMPTY_SLOWMOTION,
+	GAMEPLAY_MOD_FADING_OUT,
+	GAMEPLAY_MOD_HARD,
+	GAMEPLAY_MOD_HEADSHOTS,
+	GAMEPLAY_MOD_GARBAGE_GIBS,
+	GAMEPLAY_MOD_INFINITE_AMMO,
+	GAMEPLAY_MOD_INFINITE_SLOWMOTION,
+	GAMEPLAY_MOD_INSTAGIB,
+	GAMEPLAY_MOD_NO_FALL_DAMAGE,
+	GAMEPLAY_MOD_NO_PILLS,
+	GAMEPLAY_MOD_NO_SAVING,
+	GAMEPLAY_MOD_NO_SECONDARY_ATTACK,
+	GAMEPLAY_MOD_NO_SLOWMOTION,
+	GAMEPLAY_MOD_NO_SMG_GRENADE_PICKUP,
+	GAMEPLAY_MOD_ONE_HIT_KO,
+	GAMEPLAY_MOD_ONE_HIT_KO_FROM_PLAYER,
+	GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN,
+	GAMEPLAY_MOD_SLOWMOTION_ON_DAMAGE,
+	GAMEPLAY_MOD_SNARK_FROM_EXPLOSION,
+	GAMEPLAY_MOD_SNARK_INCEPTION,
+	GAMEPLAY_MOD_SNARK_INFESTATION,
+	GAMEPLAY_MOD_SNARK_NUCLEAR,
+	GAMEPLAY_MOD_SNARK_PARANOIA,
+	GAMEPLAY_MOD_SNARK_STAY_ALIVE,
+	GAMEPLAY_MOD_SUPERHOT,
+	GAMEPLAY_MOD_SWEAR_ON_KILL,
+	GAMEPLAY_MOD_UPSIDE_DOWN,
+	GAMEPLAY_MOD_TOTALLY_SPIES,
+	GAMEPLAY_MOD_VVVVVV,
+	GAMEPLAY_MOD_WEAPON_RESTRICTED
+};
+
+struct GameplayMod
+{
+	GAMEPLAY_MOD id;
+	std::string name;
+	std::string description;
+	std::function<void(CBasePlayer*)> init;
+
+	GameplayMod() {
+		this->id = GAMEPLAY_MOD_UNKNOWN;
+		this->name = "UNKNOWN";
+		this->description = "This mod has not been accounted and you should never see this message";
+		this->init = []( CBasePlayer * ){};
+	}
+
+	GameplayMod( GAMEPLAY_MOD id, const std::string &name, const std::string description, std::function<void(CBasePlayer*)> initFunction ) :
+		id( id ), name( name ), description( description ), init( initFunction )
+	{}
+};
+
 class CustomGameModeConfig {
 
 public:
@@ -247,54 +315,9 @@ public:
 	bool startYawSpecified;
 	float startYaw;
 
-	GAME_DIFFICULTY difficulty;
-
-	bool constantSlowmotion;
-	bool infiniteSlowmotion;
-	bool emptySlowmotion;
-	bool noSlowmotion;
-	bool slowmotionOnDamage;
-	
-	bool noSaving;
-	bool noPills;
-	bool preventMonsterSpawn;
-	bool garbageGibs;
-	bool edibleGibs;
-
-	bool isBleeding;
-	bool divingOnly;
-	bool divingAllowedWithoutSlowmotion;
-	bool totallySpies;
-	bool noSmgGrenadePickup;
-
-	// Half-Payne - first mod that gives snarks the second chance
-	bool snarkParanoia;
-	bool snarkInception;
-	bool snarkNuclear;
-	bool snarkStayAlive;
-	bool snarkInfestation;
-	bool snarkFromExplosion;
-
-	bool superHot;
-	bool upsideDown;
-	bool drunk;
-	bool fadingOut;
-	bool vvvvvv;
-
-	bool powerfulHeadshots;
-	bool infiniteAmmo;
-	bool weaponRestricted;
-	bool instaGib;
-	bool swearOnKill;
-	bool oneHitKOFromPlayer;
-	bool oneHitKO;
-	bool noFallDamage;
-	bool noSecondaryAttack;
-
-	// dumb, but I'd like to avoid including player.h where BULLET_PHYSICS_MODE enum is defined
-	bool bulletPhysicsDisabled;
-	bool bulletPhysicsEnemiesAndPlayerOnSlowmotion;
-	bool bulletPhysicsConstant;
+	std::vector<GameplayMod> mods;
+	bool IsGameplayModActive( GAMEPLAY_MOD mod );
+	bool AddGameplayMod( const std::string &modName );
 
 protected:
 	std::string folderPath;

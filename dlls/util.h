@@ -12,6 +12,11 @@
 *   without written permission from Valve LLC.
 *
 ****/
+#ifndef UTIL_H
+#define UTIL_H
+
+
+
 #include "archtypes.h"     // DAL
 
 //
@@ -594,3 +599,5 @@ inline float GET_TICK_INTERVAL() {
 inline float GET_FRAMERATE_BASE() {
 	return GET_TICK_INTERVAL() / 1000.0f;
 }
+
+#endif // UTIL_H

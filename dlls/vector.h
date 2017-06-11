@@ -113,6 +113,9 @@ inline Vector operator*(float fl, const Vector& v)	{ return v * fl; }
 inline float DotProduct(const Vector& a, const Vector& b) { return(a.x*b.x+a.y*b.y+a.z*b.z); }
 inline Vector CrossProduct(const Vector& a, const Vector& b) { return Vector( a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x ); }
 
-
+#ifndef DID_VEC3_T_DEFINE
+#define DID_VEC3_T_DEFINE
+#define vec3_t Vector
+#endif
 
 #endif

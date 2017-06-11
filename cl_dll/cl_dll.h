@@ -30,7 +30,7 @@ typedef unsigned short word;
 typedef float vec_t;
 typedef int (*pfnUserMsgHook)(const char *pszName, int iSize, void *pbuf);
 
-#include "util_vector.h"
+#include "vector.h"
 #ifdef _WIN32
 #define EXPORT	_declspec( dllexport )
 #else

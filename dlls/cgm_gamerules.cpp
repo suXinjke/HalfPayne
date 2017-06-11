@@ -71,34 +71,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
-	pPlayer->noSaving = config.noSaving;
-	pPlayer->noPills = config.noPills;
-	pPlayer->infiniteAmmo = config.infiniteAmmo;
-	pPlayer->instaGib = config.instaGib;
-	pPlayer->swearOnKill = config.swearOnKill;
-	pPlayer->slowmotionOnDamage = config.slowmotionOnDamage;
-	pPlayer->oneHitKO = config.oneHitKO;
-	pPlayer->oneHitKOFromPlayer = config.oneHitKOFromPlayer;
-	pPlayer->noFallDamage = config.noFallDamage;
-	pPlayer->noSecondaryAttack = config.noSecondaryAttack;
-	pPlayer->isBleeding = config.isBleeding;
-	pPlayer->garbageGibs = config.garbageGibs;
-	pPlayer->edibleGibs = config.edibleGibs;
-	pPlayer->superHot = config.superHot;
-	pPlayer->upsideDown = config.upsideDown;
-	pPlayer->drunk = config.drunk;
-	pPlayer->isFadingOut = config.fadingOut;
-	pPlayer->vvvvvv = config.vvvvvv;
-	pPlayer->noSmgGrenadePickup = config.noSmgGrenadePickup;
-	pPlayer->divingAllowedWithoutSlowmotion = config.divingAllowedWithoutSlowmotion;
-
-	pPlayer->snarkParanoia = config.snarkParanoia;
-	pPlayer->snarkInception = config.snarkInception;
-	pPlayer->snarkNuclear = config.snarkNuclear;
-	pPlayer->snarkStayAlive = config.snarkStayAlive;
-	pPlayer->snarkInfestation = config.snarkInfestation;
-	pPlayer->snarkFromExplosion = config.snarkFromExplosion;
-
 	pPlayer->SetEvilImpulse101( true );
 	for ( size_t i = 0; i < config.loadout.size( ); i++ ) {
 		std::string loadoutItem = config.loadout.at( i );
@@ -123,7 +95,11 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 	pPlayer->SetEvilImpulse101( false );
 
-	if ( !config.emptySlowmotion ) {
+	for ( const GameplayMod &mod : config.mods ) {
+		mod.init( pPlayer );
+	}
+
+	if ( !config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ) {
 		pPlayer->TakeSlowmotionCharge( 100 );
 	}
 
@@ -133,39 +109,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	if ( config.startYawSpecified ) {
 		pPlayer->pev->angles[1] = config.startYaw;
 	}
-
-	if ( !config.noSlowmotion ) {
-
-		if ( config.constantSlowmotion ) {
-			pPlayer->TakeSlowmotionCharge( 100 );
-			pPlayer->SetSlowMotion( true );
-			pPlayer->infiniteSlowMotion = true;
-			pPlayer->constantSlowmotion = true;
-		}
-
-		if ( config.infiniteSlowmotion ) {
-			pPlayer->TakeSlowmotionCharge( 100 );
-			pPlayer->infiniteSlowMotion = true;
-		}
-
-	} else {
-		pPlayer->noSlowmotion = true;
-	}
-
-	if ( config.divingOnly ) {
-		pPlayer->divingOnly = true;
-		pPlayer->infiniteSlowMotion = true;
-	}
-
-	if ( config.bulletPhysicsConstant ) {
-		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_CONSTANT;
-	} else if ( config.bulletPhysicsEnemiesAndPlayerOnSlowmotion ) {
-		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION;
-	} else if ( config.bulletPhysicsDisabled ) {
-		pPlayer->bulletPhysicsMode = BULLET_PHYSICS_DISABLED;
-	}
-
-	pPlayer->weaponRestricted = config.weaponRestricted; // must be set after player has received his weapons
 
 	// Do not let player cheat by not starting at the [startmap]
 	const char *startMap = config.startMap.c_str();
@@ -221,7 +164,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		CheckForCheats( pPlayer );
 	}
 
-	if ( config.preventMonsterSpawn && !monsterSpawnPrevented ) {
+	if ( config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) && !monsterSpawnPrevented ) {
 		for ( int i = 0 ; i < 1024 ; i++ ) {
 			edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
 			if ( !edict ) {
@@ -398,7 +341,7 @@ void CCustomGameModeRules::RefreshSkillData()
 	gSkillData.healthkitCapacity = 15.0f; // doesn't matter - it's painkiller
 	gSkillData.scientistHeal = 25.0f;
 
-	if ( config.powerfulHeadshots ) {
+	if ( config.IsGameplayModActive( GAMEPLAY_MOD_HEADSHOTS ) ) {
 		gSkillData.monHead = 10.0f;
 	} else {
 		gSkillData.monHead = 3.0f;
@@ -414,7 +357,7 @@ void CCustomGameModeRules::RefreshSkillData()
 	gSkillData.plrLeg = 1.0f;
 	gSkillData.plrArm = 1.0f;
 
-	if ( config.difficulty == CustomGameModeConfig::GAME_DIFFICULTY_EASY ) {
+	if ( config.IsGameplayModActive( GAMEPLAY_MOD_EASY ) ) {
 		
 		gSkillData.iSkillLevel = 1;
 
@@ -484,75 +427,7 @@ void CCustomGameModeRules::RefreshSkillData()
 		gSkillData.batteryCapacity = 15.0f;
 		gSkillData.healthchargerCapacity = 50.0f;
 		
-	} else if ( config.difficulty == CustomGameModeConfig::GAME_DIFFICULTY_MEDIUM ) {
-		gSkillData.iSkillLevel = 2;
-
-		gSkillData.agruntHealth = 90.0f;
-		gSkillData.agruntDmgPunch = 20.0f;
-
-		gSkillData.apacheHealth = 250.0f;
-	
-		gSkillData.bigmommaHealthFactor = 1.5f;
-		gSkillData.bigmommaDmgSlash = 60.0f;
-		gSkillData.bigmommaDmgBlast = 120.0f;
-		gSkillData.bigmommaRadiusBlast = 250.0f;
-
-		gSkillData.bullsquidHealth = 40.0f;
-		gSkillData.bullsquidDmgBite = 25.0f;
-		gSkillData.bullsquidDmgWhip = 35.0f;
-		gSkillData.bullsquidDmgSpit = 10.0f;
-
-		gSkillData.gargantuaHealth = 800.0f;
-		gSkillData.gargantuaDmgSlash = 30.0f;
-		gSkillData.gargantuaDmgFire = 5.0f;
-		gSkillData.gargantuaDmgStomp = 100.0f;
-
-		gSkillData.hassassinHealth = 50.0f;
-
-		gSkillData.headcrabHealth = 10.0f;
-		gSkillData.headcrabDmgBite = 10.0f;
-
-		gSkillData.hgruntHealth = 50.0f;
-		gSkillData.hgruntDmgKick = 10.0f;
-		gSkillData.hgruntShotgunPellets = 5.0f;
-		gSkillData.hgruntGrenadeSpeed = 600.0f;
-
-		gSkillData.houndeyeHealth = 20.0f;
-		gSkillData.houndeyeDmgBlast = 15.0f;
-
-		gSkillData.slaveHealth = 30.0f;
-		gSkillData.slaveDmgClaw = 10.0f;
-		gSkillData.slaveDmgZap = 10.0f;
-
-		gSkillData.ichthyosaurHealth = 200.0f;
-		gSkillData.ichthyosaurDmgShake = 35.0f;
-
-		gSkillData.controllerHealth = 60.0f;
-		gSkillData.controllerDmgZap = 25.0f;
-		gSkillData.controllerSpeedBall = 800.0f;
-		gSkillData.controllerDmgBall = 4.0f;
-
-		gSkillData.nihilanthHealth = 800.0f;
-		gSkillData.nihilanthZap = 30.0f;
-	
-		gSkillData.zombieHealth = 50.0f;
-		gSkillData.zombieDmgOneSlash = 20.0f;
-		gSkillData.zombieDmgBothSlash = 40.0f;
-
-		gSkillData.turretHealth = 50.0f;
-		gSkillData.miniturretHealth = 40.0f;
-		gSkillData.sentryHealth = 40.0f;
-
-		gSkillData.monDmg12MM = 10.0f;
-		gSkillData.monDmgMP5 = 4.0f;
-		gSkillData.monDmg9MM = 5.0f;
-		
-		gSkillData.monDmgHornet = 5.0f;
-
-		gSkillData.suitchargerCapacity = 50.0f;
-		gSkillData.batteryCapacity = 15.0f;
-		gSkillData.healthchargerCapacity = 40.0f;
-	} else if ( config.difficulty == CustomGameModeConfig::GAME_DIFFICULTY_HARD ) {
+	} else if ( config.IsGameplayModActive( GAMEPLAY_MOD_HARD ) ) {
 		gSkillData.iSkillLevel = 3;
 
 		gSkillData.agruntHealth = 120.0f;
@@ -620,5 +495,73 @@ void CCustomGameModeRules::RefreshSkillData()
 		gSkillData.suitchargerCapacity = 35.0f;
 		gSkillData.batteryCapacity = 10.0f;
 		gSkillData.healthchargerCapacity = 25.0f;
+	} else {
+		gSkillData.iSkillLevel = 2;
+
+		gSkillData.agruntHealth = 90.0f;
+		gSkillData.agruntDmgPunch = 20.0f;
+
+		gSkillData.apacheHealth = 250.0f;
+
+		gSkillData.bigmommaHealthFactor = 1.5f;
+		gSkillData.bigmommaDmgSlash = 60.0f;
+		gSkillData.bigmommaDmgBlast = 120.0f;
+		gSkillData.bigmommaRadiusBlast = 250.0f;
+
+		gSkillData.bullsquidHealth = 40.0f;
+		gSkillData.bullsquidDmgBite = 25.0f;
+		gSkillData.bullsquidDmgWhip = 35.0f;
+		gSkillData.bullsquidDmgSpit = 10.0f;
+
+		gSkillData.gargantuaHealth = 800.0f;
+		gSkillData.gargantuaDmgSlash = 30.0f;
+		gSkillData.gargantuaDmgFire = 5.0f;
+		gSkillData.gargantuaDmgStomp = 100.0f;
+
+		gSkillData.hassassinHealth = 50.0f;
+
+		gSkillData.headcrabHealth = 10.0f;
+		gSkillData.headcrabDmgBite = 10.0f;
+
+		gSkillData.hgruntHealth = 50.0f;
+		gSkillData.hgruntDmgKick = 10.0f;
+		gSkillData.hgruntShotgunPellets = 5.0f;
+		gSkillData.hgruntGrenadeSpeed = 600.0f;
+
+		gSkillData.houndeyeHealth = 20.0f;
+		gSkillData.houndeyeDmgBlast = 15.0f;
+
+		gSkillData.slaveHealth = 30.0f;
+		gSkillData.slaveDmgClaw = 10.0f;
+		gSkillData.slaveDmgZap = 10.0f;
+
+		gSkillData.ichthyosaurHealth = 200.0f;
+		gSkillData.ichthyosaurDmgShake = 35.0f;
+
+		gSkillData.controllerHealth = 60.0f;
+		gSkillData.controllerDmgZap = 25.0f;
+		gSkillData.controllerSpeedBall = 800.0f;
+		gSkillData.controllerDmgBall = 4.0f;
+
+		gSkillData.nihilanthHealth = 800.0f;
+		gSkillData.nihilanthZap = 30.0f;
+
+		gSkillData.zombieHealth = 50.0f;
+		gSkillData.zombieDmgOneSlash = 20.0f;
+		gSkillData.zombieDmgBothSlash = 40.0f;
+
+		gSkillData.turretHealth = 50.0f;
+		gSkillData.miniturretHealth = 40.0f;
+		gSkillData.sentryHealth = 40.0f;
+
+		gSkillData.monDmg12MM = 10.0f;
+		gSkillData.monDmgMP5 = 4.0f;
+		gSkillData.monDmg9MM = 5.0f;
+
+		gSkillData.monDmgHornet = 5.0f;
+
+		gSkillData.suitchargerCapacity = 50.0f;
+		gSkillData.batteryCapacity = 15.0f;
+		gSkillData.healthchargerCapacity = 40.0f;
 	}
 }
