@@ -46,10 +46,11 @@ extern "C"
 #include "vgui_TeamFortressViewport.h"
 #include "../public/interface.h"
 
+#include "gamemode_gui.h"
+
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
 TeamFortressViewport *gViewPort = NULL;
-
 
 #include "particleman.h"
 CSysModule *g_hParticleManModule = NULL;
@@ -155,6 +156,8 @@ int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
 
 	EV_HookEvents();
 	CL_LoadParticleMan();
+
+	GameModeGUI_Init();
 
 	// get tracker interface, if any
 	return 1;

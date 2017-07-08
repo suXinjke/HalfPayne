@@ -1643,7 +1643,7 @@ void V_CalcSpectatorRefdef ( struct ref_params_s * pparams )
 
 }
 
-
+int isPaused = true;
 
 void CL_DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 {
@@ -1662,6 +1662,8 @@ void CL_DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 	{
 		V_CalcNormalRefdef ( pparams );
 	}
+
+	isPaused = pparams->paused;
 
 /*
 // Example of how to overlay the whole screen with red at 50 % alpha

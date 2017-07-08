@@ -1241,8 +1241,6 @@ bool UTIL_CheatsAllowed()
 		sv_cheats = CVAR_GET_POINTER( "sv_cheats" );
 	}
 	
-	ASSERT( sv_cheats );
-	
 	return sv_cheats->value != 0;
 }
 
