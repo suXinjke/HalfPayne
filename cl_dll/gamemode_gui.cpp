@@ -5,6 +5,7 @@
 
 extern cl_enginefunc_t gEngfuncs;
 extern int isPaused;
+extern bool inMainMenu;
 SDL_Window *window = NULL;
 
 std::vector< CustomGameModeConfig > cgmConfigs;
@@ -93,7 +94,7 @@ void GameModeGUI_RunCustomGameMode( const CustomGameModeConfig &config  ) {
 
 void GameModeGUI_Draw() {
 
-	if ( isPaused ) {
+	if ( isPaused || inMainMenu ) {
 		ImGui_ImplSdl_NewFrame( window );
 
 		GameModeGUI_DrawMainWindow();

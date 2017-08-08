@@ -267,13 +267,16 @@ Called by engine every frame that client .dll is loaded
 ==========================
 */
 
+
+bool inMainMenu = true;
+extern float isPausedLastUpdate;
 void CL_DLLEXPORT HUD_Frame( double time )
 {
 //	RecClHudFrame(time);
-
 	ServersThink( time );
 
 	GetClientVoiceMgr()->Frame(time);
+	inMainMenu = gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 1.0f;
 }
 
 
