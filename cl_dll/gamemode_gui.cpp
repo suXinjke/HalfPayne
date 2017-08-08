@@ -1,5 +1,7 @@
 #include "wrect.h"
 #include "cl_dll.h"
+#include <Windows.h>
+#include <Psapi.h>
 
 #include "gamemode_gui.h"
 
@@ -16,16 +18,34 @@ int selectedGamemodeTab = CustomGameModeConfig::GAME_MODE_CONFIG_CGM;
 
 // To draw imgui on top of Half-Life, we take a detour from certain engine's function into GameModeGUI_Draw function
 void GameModeGUI_Init() {
-	window = SDL_GetWindowFromID( 1 );
-	ImGui_ImplSdl_Init( window );
 
 	// One of the final steps before drawing a frame is calling SDL_GL_SwapWindow function
 	// It must be prevented, so imgui could be drawn before calling SDL_GL_SwapWindow
 
-	// This is the constant address of x86 CALL command, which looks like this
+	// This will hold the constant address of x86 CALL command, which looks like this
 	// E8 FF FF FF FF
 	// Last 4 bytes specify an offset from this address + 5 bytes of command itself
-	unsigned int origin = 0x049C976C;
+	unsigned int origin = NULL;
+
+	// Offsets were found out by using Cheat Engine, let's hope Valve doesn't change the engine much
+	// But investing into figuring the exact command location would be great
+	MODULEINFO module_info;
+	if ( GetModuleInformation( GetCurrentProcess(), GetModuleHandle( "hw.dll" ), &module_info, sizeof( module_info ) ) ) {
+		origin = ( unsigned int ) module_info.lpBaseOfDll + 0xA9C40 + 0x2C;
+
+		char opCode[1];
+		ReadProcessMemory( GetCurrentProcess(), ( const void * ) origin, opCode, 1, NULL );
+		if ( opCode[0] != 0xFFFFFFE8 ) {
+			gEngfuncs.Con_DPrintf( "Failed to embed ImGUI: expected CALL OP CODE, but it wasn't there\n" );
+			return;
+		}
+	} else {
+		gEngfuncs.Con_DPrintf( "Failed to embed ImGUI: failed to get hw.dll memory base address\n" );
+		return;
+	}
+
+	window = SDL_GetWindowFromID( 1 );
+	ImGui_ImplSdl_Init( window );
 
 	// To make a detour, an offset to dedicated function must be calculated and then correctly replaced
 	unsigned int detourFunctionAddress = ( unsigned int ) &GameModeGUI_Draw;
