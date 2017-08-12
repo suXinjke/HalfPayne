@@ -272,6 +272,10 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 				for ( const GameplayMod &mod : config.mods ) {
 					ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
 					ImGui::Text( mod.description.c_str() );
+					for ( auto argDescription : mod.argDescriptions ) {
+						ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   OPTION" ); ImGui::SameLine();
+						ImGui::Text( argDescription.c_str() );
+					}
 				}
 
 				ImGui::EndTooltip();

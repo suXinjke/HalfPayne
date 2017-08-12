@@ -194,7 +194,7 @@ void CustomGameModeConfig::InitConfigSections() {
 	configSections[CONFIG_FILE_SECTION_MODS] = ConfigSection(
 		"max_commentary", false,
 		[this]( ConfigSectionData &data ) { 
-			if ( !AddGameplayMod( data.line ) ) {
+			if ( !AddGameplayMod( data ) ) {
 				char errorCString[1024];
 				sprintf_s( errorCString, "incorrect mod specified: %s\n", data.line.c_str() );
 				return std::string( errorCString );
@@ -433,7 +433,9 @@ bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
 	return result != std::end( mods );
 }
 
-bool CustomGameModeConfig::AddGameplayMod( const std::string &modName ) {
+bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
+	std::string modName = data.argsString.at( 0 );
+
 	if ( modName == "bleeding" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_BLEEDING,
@@ -519,12 +521,20 @@ bool CustomGameModeConfig::AddGameplayMod( const std::string &modName ) {
 	}
 
 	if ( modName == "drunk" ) {
+		int drunkiness = 64;
+		if ( data.argsFloat.size() >= 2 && !std::isnan( data.argsFloat.at( 1 ) ) ) {
+			drunkiness = min( max( 0, data.argsFloat.at( 1 ) ), 255 );
+		}
+
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_DRUNK,
 			"Drunk",
 			"Self explanatory. The camera view becomes wobbly and makes aim harder.\n"
 			"Wobble doesn't get slower when slowmotion is present.",
-			[]( CBasePlayer *player ) { player->drunk = true; }
+			[drunkiness]( CBasePlayer *player ) { 
+				player->drunkiness = drunkiness;
+			},
+			{ "Drunkiness: " + std::to_string( drunkiness ) + "\n" }
 		) );
 		return true;
 	}

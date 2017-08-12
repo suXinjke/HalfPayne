@@ -229,7 +229,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, divingAllowedWithoutSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, drunk, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, drunkiness, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, vvvvvv, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
@@ -3740,8 +3740,8 @@ void CBasePlayer::Spawn( void )
 	upsideDown = false;
 	upsideDownMessageSent = false;
 	
-	drunk = false;
 	drunkMessageSent = false;
+	drunkiness = 0;
 
 	isBleeding = false;
 	lastHealingTime = 0.0f;
@@ -5518,7 +5518,6 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	if ( !drunkMessageSent ) {
-		int drunkiness = drunk ? 64 : 0;
 		MESSAGE_BEGIN( MSG_ONE, gmsgConcuss, NULL, pev );
 			WRITE_BYTE( drunkiness );
 		MESSAGE_END();

@@ -197,6 +197,7 @@ struct GameplayMod
 	GAMEPLAY_MOD id;
 	std::string name;
 	std::string description;
+	std::vector<std::string> argDescriptions;
 	std::function<void(CBasePlayer*)> init;
 
 	GameplayMod() {
@@ -206,8 +207,14 @@ struct GameplayMod
 		this->init = []( CBasePlayer * ){};
 	}
 
-	GameplayMod( GAMEPLAY_MOD id, const std::string &name, const std::string description, std::function<void(CBasePlayer*)> initFunction ) :
-		id( id ), name( name ), description( description ), init( initFunction )
+	GameplayMod(
+		GAMEPLAY_MOD id,
+		const std::string &name,
+		const std::string description,
+		std::function<void(CBasePlayer*)> initFunction,
+		std::vector<std::string> argDescriptions = {}
+	) :
+		id( id ), name( name ), description( description ), init( initFunction ), argDescriptions( argDescriptions )
 	{}
 };
 
@@ -288,7 +295,7 @@ public:
 
 	std::vector<GameplayMod> mods;
 	bool IsGameplayModActive( GAMEPLAY_MOD mod );
-	bool AddGameplayMod( const std::string &modName );
+	bool AddGameplayMod( ConfigSectionData &modName );
 
 protected:
 	std::string folderPath;

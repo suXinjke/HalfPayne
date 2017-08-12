@@ -157,8 +157,8 @@ public:
 	BOOL				upsideDown;
 	bool				upsideDownMessageSent;
 
-	BOOL				drunk;
 	bool				drunkMessageSent;
+	int					drunkiness;
 
 	BOOL				vvvvvv;
 	BOOL				reverseGravity;
