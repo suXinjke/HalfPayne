@@ -319,11 +319,11 @@ CGameRules *InstallGameRules( void )
 	{
 		// generic half-life
 		g_teamplay = 0;
-		if ( strcmp( CVAR_GET_STRING( "gamemode" ), CustomGameModeConfig::ConfigTypeToGameModeCommand( CustomGameModeConfig::GAME_MODE_CONFIG_CGM ).c_str() ) == 0 ) {
+		if ( strcmp( CVAR_GET_STRING( "gamemode" ), CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE_CGM ).c_str() ) == 0 ) {
 			return new CCustomGameModeRules;
-		} else if ( strcmp( CVAR_GET_STRING( "gamemode" ), CustomGameModeConfig::ConfigTypeToGameModeCommand( CustomGameModeConfig::GAME_MODE_CONFIG_BMM ).c_str() ) == 0 ) {
+		} else if ( strcmp( CVAR_GET_STRING( "gamemode" ), CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE_BMM ).c_str() ) == 0 ) {
 			return new CBlackMesaMinute;
-		}  else if ( strcmp( CVAR_GET_STRING( "gamemode" ), CustomGameModeConfig::ConfigTypeToGameModeCommand( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM ).c_str() ) == 0 ) {
+		}  else if ( strcmp( CVAR_GET_STRING( "gamemode" ), CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE_SAGM ).c_str() ) == 0 ) {
 			return new CScoreAttack;
 		} else {
 			return new CHalfLifeRules;

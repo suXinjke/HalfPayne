@@ -1580,22 +1580,25 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
-	CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
 
 	// Are we changing to the map that should end Custom Game Mode session?
-	if ( cgm && strcmp( st_szNextMap, cgm->config.endMap.c_str() ) == 0 ) {
-		if ( player ) {
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		if ( cgm && cgm->ChangeLevelShouldBePrevented( st_szNextMap ) ) {
+			return;
+		}
+
+		const std::string endMap = cgm->config.GetEndMap();
+		if ( player && endMap == st_szNextMap ) {
 			cgm->End( player );
+			return;
 		}
-	} else if ( cgm && cgm->ChangeLevelShouldBePrevented( st_szNextMap ) ) {
-		return;
-	} else {
-		if ( player ) {
-			player->ClearSoundQueue();
-		}
-		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 	}
+
+	if ( player ) {
+		player->ClearSoundQueue();
+	}
+	ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
+	CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 }
 
 //
@@ -2144,14 +2147,17 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 
 	if (pev->message)
 	{
-		CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules );
-		if ( cgm && strcmp( st_szNextMap, cgm->config.endMap.c_str() ) == 0 ) {
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-			cgm->End( player );
-		} else {
-			ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-			CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+			const std::string endMap = cgm->config.GetEndMap();
+			if ( player && endMap == st_szNextMap ) {
+				cgm->End( player );
+				return;
+			}
 		}
+
+		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
+		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 	}
 	UTIL_Remove( this );
 }

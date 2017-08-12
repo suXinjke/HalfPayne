@@ -15,7 +15,7 @@ int gmsgTimerValue	= 0;
 int gmsgTimerPause  = 0;
 int gmsgTimerCheat  = 0;
 
-CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_BMM )
+CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( CONFIG_TYPE_BMM )
 {
 	if ( !gmsgTimerMsg ) {
 		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
@@ -154,10 +154,11 @@ void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 	PauseTimer( pPlayer );
 
 	BlackMesaMinuteRecord record( config.configName.c_str() );
+	const std::string configName = config.GetName();
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pPlayer->pev );
 	
-		WRITE_STRING( config.name.c_str() );
+		WRITE_STRING( configName.c_str() );
 
 		WRITE_FLOAT( currentTime );
 		WRITE_FLOAT( currentRealTime );
@@ -224,48 +225,14 @@ void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activa
 {
 	CCustomGameModeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
 
-	// Does timerPauses contain such index?
-	auto foundIndex = config.timerPauses.begin(); // it's complex iterator type, so leave it auto
-	while ( foundIndex != config.timerPauses.end() ) {
-		if ( 
-			foundIndex->mapName != std::string( STRING( gpGlobals->mapname ) ) ||
-			foundIndex->modelIndex != modelIndex &&
-			( foundIndex->targetName != targetName || foundIndex->targetName.size() == 0 )
-		) {
-			foundIndex++;
-			continue;
-		}
-
-		bool constant = foundIndex->constant;
-
-		if ( !constant ) {
-			config.timerPauses.erase( foundIndex );
-		}
-
+	// Does timer_pauses section contain such index?
+	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_PAUSE, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
 		PauseTimer( pPlayer );
-		return;
 	}
 
-	// Does timerResumes contain such index?
-	foundIndex = config.timerResumes.begin();
-	while ( foundIndex != config.timerResumes.end() ) {
-		if ( 
-			foundIndex->mapName != std::string( STRING( gpGlobals->mapname ) ) ||
-			foundIndex->modelIndex != modelIndex &&
-			( foundIndex->targetName != targetName || foundIndex->targetName.size() == 0 )
-		) {
-			foundIndex++;
-			continue;
-		}
-
-		bool constant = foundIndex->constant;
-
-		if ( !constant ) {
-			config.timerResumes.erase( foundIndex );
-		}
-
+	// Does timer_resume section contain such index?
+	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_RESUME, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
 		ResumeTimer( pPlayer );
-		return;
 	}
 }
 

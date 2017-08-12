@@ -14,7 +14,7 @@ std::vector< CustomGameModeConfig > cgmConfigs;
 std::vector< CustomGameModeConfig > bmmConfigs;
 std::vector< CustomGameModeConfig > sagmConfigs;
 
-int selectedGamemodeTab = CustomGameModeConfig::GAME_MODE_CONFIG_CGM;
+int selectedGamemodeTab = CONFIG_TYPE_CGM;
 
 // To draw imgui on top of Half-Life, we take a detour from certain engine's function into GameModeGUI_Draw function
 void GameModeGUI_Init() {
@@ -75,12 +75,12 @@ int GameModeGUI_ProcessEvent( void *data, SDL_Event* event ) {
 }
 
 void GameModeGUI_RefreshConfigFiles() {
-	GameModeGUI_RefreshConfigFileList( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
-	GameModeGUI_RefreshConfigFileList( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
-	GameModeGUI_RefreshConfigFileList( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
+	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_CGM );
+	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_BMM );
+	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_SAGM );
 }
 
-void GameModeGUI_RefreshConfigFileList( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+void GameModeGUI_RefreshConfigFileList( CONFIG_TYPE configType ) {
 	std::vector< CustomGameModeConfig > *configs = GameModeGUI_GameModeConfigVectorFromType( configType );
 	configs->clear();
 
@@ -96,7 +96,7 @@ void GameModeGUI_RefreshConfigFileList( CustomGameModeConfig::GAME_MODE_CONFIG_T
 	}
 }
 
-void GameModeGUI_RunCustomGameMode( const CustomGameModeConfig &config  ) {
+void GameModeGUI_RunCustomGameMode( CustomGameModeConfig &config ) {
 	if ( config.error.length() > 0 ) {
 		return;
 	}
@@ -107,8 +107,9 @@ void GameModeGUI_RunCustomGameMode( const CustomGameModeConfig &config  ) {
 	gEngfuncs.Cvar_Set( "gamemode_config", ( char * ) config.configName.c_str() );
 	gEngfuncs.Cvar_Set( "gamemode", ( char * ) CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ).c_str() );
 
+	const std::string startMap = config.GetStartMap();
 	char mapCmd[64];
-	sprintf( mapCmd, "map %s", config.startMap.c_str() );
+	sprintf( mapCmd, "map %s", startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
@@ -134,15 +135,15 @@ void GameModeGUI_SelectableButton( bool isSelected ) {
 	ImGui::PushStyleColor( ImGuiCol_ButtonActive, isSelected ? ImVec4( 0.3f, 0.3f, 1.0f, 1.0f ) : ImVec4( 1.0f, 0.3f, 0.3f, 1.0f ) );
 }
 
-std::vector<CustomGameModeConfig> *GameModeGUI_GameModeConfigVectorFromType( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+std::vector<CustomGameModeConfig> *GameModeGUI_GameModeConfigVectorFromType( CONFIG_TYPE configType ) {
 	switch ( configType ) {
-		case CustomGameModeConfig::GAME_MODE_CONFIG_CGM:
+		case CONFIG_TYPE_CGM:
 			return &cgmConfigs;
 
-		case CustomGameModeConfig::GAME_MODE_CONFIG_BMM:
+		case CONFIG_TYPE_BMM:
 			return &bmmConfigs;
 
-		case CustomGameModeConfig::GAME_MODE_CONFIG_SAGM:
+		case CONFIG_TYPE_SAGM:
 			return &sagmConfigs;
 	}
 }
@@ -166,23 +167,23 @@ void GameModeGUI_DrawMainWindow() {
 
 	// HEADER BUTTONS
 	{
-		GameModeGUI_SelectableButton( selectedGamemodeTab == CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
+		GameModeGUI_SelectableButton( selectedGamemodeTab == CONFIG_TYPE_CGM );
 		if ( ImGui::Button( "Custom Game Mode", ImVec2( -1, 0 ) ) ) {
-			selectedGamemodeTab = CustomGameModeConfig::GAME_MODE_CONFIG_CGM;
+			selectedGamemodeTab = CONFIG_TYPE_CGM;
 		}
 		ImGui::PopStyleColor( 3 );
 		ImGui::NextColumn();
 
-		GameModeGUI_SelectableButton( selectedGamemodeTab == CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
+		GameModeGUI_SelectableButton( selectedGamemodeTab == CONFIG_TYPE_BMM );
 		if ( ImGui::Button( "Black Mesa Minute", ImVec2( -1, 0 ) ) ) {
-			selectedGamemodeTab = CustomGameModeConfig::GAME_MODE_CONFIG_BMM;
+			selectedGamemodeTab = CONFIG_TYPE_BMM;
 		}
 		ImGui::PopStyleColor( 3 );
 		ImGui::NextColumn();
 
-		GameModeGUI_SelectableButton( selectedGamemodeTab == CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
+		GameModeGUI_SelectableButton( selectedGamemodeTab == CONFIG_TYPE_SAGM );
 		if ( ImGui::Button( "Score Attack", ImVec2( -1, 0 ) ) ) {
-			selectedGamemodeTab = CustomGameModeConfig::GAME_MODE_CONFIG_SAGM;
+			selectedGamemodeTab = CONFIG_TYPE_SAGM;
 		}
 		ImGui::PopStyleColor( 3 );
 		ImGui::NextColumn();
@@ -209,7 +210,7 @@ void GameModeGUI_DrawMainWindow() {
 		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, ImGui::GetWindowHeight() - 110 ), true ); // TODO: hardcoded number of 110 - how do I calculate this dynamic?
 
 		ImGui::Columns( 2, "gamemode_data_columns" );
-		GameModeGUI_DrawGamemodeConfigTable( ( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE ) selectedGamemodeTab );
+		GameModeGUI_DrawGamemodeConfigTable( ( CONFIG_TYPE ) selectedGamemodeTab );
 
 		ImGui::EndChild();
 	}
@@ -226,7 +227,7 @@ void GameModeGUI_DrawMainWindow() {
 	ImGui::End();
 }
 
-void GameModeGUI_DrawGamemodeConfigTable( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 	
 	const std::vector<CustomGameModeConfig> *configs = GameModeGUI_GameModeConfigVectorFromType( configType );
 
@@ -236,8 +237,8 @@ void GameModeGUI_DrawGamemodeConfigTable( CustomGameModeConfig::GAME_MODE_CONFIG
 		CustomGameModeConfig config = configs->at( i );
 
 		const char *file = config.configName.c_str();
-		const char *name = config.name.c_str();
-		const char *startMap = config.startMap.c_str();
+		const std::string name = config.GetName();
+		const std::string startMap = config.GetStartMap();
 
 		if ( ImGui::Selectable( file, selected == i, ImGuiSelectableFlags_SpanAllColumns ) ) {
 			selected = i;
@@ -258,12 +259,12 @@ void GameModeGUI_DrawGamemodeConfigTable( CustomGameModeConfig::GAME_MODE_CONFIG
 				ImGui::BeginTooltip();
 
 				ImGui::Text( "Start map\n" );
-				ImGui::Text( ( config.startMap ).c_str() );
+				ImGui::Text( startMap.c_str() );
 
-				if ( config.configType == CustomGameModeConfig::GAME_MODE_CONFIG_BMM ) {
+				if ( config.configType == CONFIG_TYPE_BMM ) {
 					ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
 					ImGui::Text( "Time-based game mode - rush against a minute, kill enemies to get more time.\n" );
-				} else if ( config.configType == CustomGameModeConfig::GAME_MODE_CONFIG_SAGM ) {
+				} else if ( config.configType == CONFIG_TYPE_SAGM ) {
 					ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nScore Attack\n" );
 					ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
 				}
@@ -284,6 +285,6 @@ void GameModeGUI_DrawGamemodeConfigTable( CustomGameModeConfig::GAME_MODE_CONFIG
 			}
 		}
 		
-		ImGui::Text( name ); ImGui::NextColumn();
+		ImGui::Text( name.c_str() ); ImGui::NextColumn();
 	}
 }

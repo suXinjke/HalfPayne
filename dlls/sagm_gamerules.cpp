@@ -17,7 +17,7 @@ int	gmsgScoreEnd	= 0;
 int gmsgScoreValue	= 0;
 int gmsgScoreCheat	= 0;
 
-CScoreAttack::CScoreAttack() : CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM )
+CScoreAttack::CScoreAttack() : CCustomGameModeRules( CONFIG_TYPE_SAGM )
 {
 	if ( !gmsgScoreMsg ) {
 
@@ -195,9 +195,11 @@ void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 
 	ScoreAttackRecord record( config.configName.c_str() );
 
+	const std::string configName = config.GetName();
+
 	MESSAGE_BEGIN( MSG_ONE, gmsgScoreEnd, NULL, pPlayer->pev );
 
-		WRITE_STRING( config.name.c_str() );
+		WRITE_STRING( configName.c_str() );
 
 		WRITE_LONG( currentScore );
 

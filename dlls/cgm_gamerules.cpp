@@ -21,7 +21,7 @@ int	gmsgCustomEnd	= 0;
 
 extern int g_changeLevelOccured;
 
-CCustomGameModeRules::CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) : config( configType )
+CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( configType )
 {
 	if ( !gmsgCustomEnd ) {
 		gmsgCustomEnd = REG_USER_MSG( "CustomEnd", -1 );
@@ -45,8 +45,9 @@ CCustomGameModeRules::CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONF
 }
 
 void CCustomGameModeRules::RestartGame() {
+	const std::string startMap = config.GetStartMap();
 	char mapName[256];
-	sprintf( mapName, "%s", config.startMap.c_str() );
+	sprintf( mapName, "%s", startMap.c_str() );
 
 	// Change level to [startmap] and queue the 'restart' command
 	// for CCustomGameModeRules::PlayerSpawn.
@@ -71,9 +72,9 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
+	auto loadout = config.GetLoadout();
 	pPlayer->SetEvilImpulse101( true );
-	for ( size_t i = 0; i < config.loadout.size( ); i++ ) {
-		std::string loadoutItem = config.loadout.at( i );
+	for ( std::string loadoutItem : loadout ) {
 
 		if ( loadoutItem == "all" ) {
 			pPlayer->GiveAll( true );
@@ -103,17 +104,20 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->TakeSlowmotionCharge( 100 );
 	}
 
-	if ( config.startPositionSpecified ) {
-		pPlayer->pev->origin = config.startPosition;
-	}
-	if ( config.startYawSpecified ) {
-		pPlayer->pev->angles[1] = config.startYaw;
+	StartPosition startPosition = config.GetStartPosition();
+	if ( startPosition.defined ) {
+		pPlayer->pev->origin.x = startPosition.x;
+		pPlayer->pev->origin.y = startPosition.y;
+		pPlayer->pev->origin.z = startPosition.z;
+		if ( !std::isnan( startPosition.angle ) ) {
+			pPlayer->pev->angles[1] = startPosition.angle;
+		}
 	}
 
 	// Do not let player cheat by not starting at the [startmap]
-	const char *startMap = config.startMap.c_str();
+	const std::string startMap = config.GetStartMap();
 	const char *actualMap = STRING( gpGlobals->mapname );
-	if ( strcmp( startMap, actualMap ) != 0 ) {
+	if ( startMap != actualMap ) {
 		cheated = true;
 	}
 
@@ -127,7 +131,7 @@ void CCustomGameModeRules::OnNewlyVisitedMap() {
 }
 
 bool CCustomGameModeRules::ChangeLevelShouldBePrevented( const char *nextMap ) {
-	return config.changeLevelsToPrevent.find( nextMap ) != config.changeLevelsToPrevent.end();
+	return config.IsChangeLevelPrevented( nextMap );
 }
 
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
@@ -246,9 +250,11 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
+	const std::string configName = config.GetName();
+
 	MESSAGE_BEGIN( MSG_ONE, gmsgCustomEnd, NULL, pPlayer->pev );
 
-	WRITE_STRING( config.name.c_str() );
+		WRITE_STRING( configName.c_str() );
 
 		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
 		WRITE_SHORT( pPlayer->kills );
@@ -264,37 +270,21 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 {
 	CHalfLifeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
 
-	// Does endTriggers contain such index?
-	auto foundIndex = config.endTriggers.begin();
-	while ( foundIndex != config.endTriggers.end() ) {
-		if ( 
-			foundIndex->mapName != std::string( STRING( gpGlobals->mapname ) ) ||
-			foundIndex->modelIndex != modelIndex &&
-			( foundIndex->targetName != targetName || foundIndex->targetName.size() == 0 )
-		) {
-			foundIndex++;
-			continue;
-		}
-		config.endTriggers.erase( foundIndex );
-
+	// Does end_trigger section contain such index?
+	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_END_TRIGGER, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
 		End( pPlayer );
-		return;
 	}
 }
 
 void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 {
-	if ( config.entitySpawns.size() == 0 ) {
-		return;
-	}
-
-	std::vector<EntitySpawn>::iterator entitySpawn = config.entitySpawns.begin();
-	for ( entitySpawn; entitySpawn != config.entitySpawns.end(); entitySpawn++ ) {
-		if ( entitySpawn->mapName == mapName ) {
-			CBaseEntity::Create( allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn->entityName.c_str() )], entitySpawn->origin, Vector( 0, entitySpawn->angle, 0 ) );
-			config.entitySpawns.erase( entitySpawn );
-			entitySpawn--;
-		}
+	auto entitySpawns = config.GetEntitySpawnsForMapOnce( std::string( mapName ) );
+	for ( auto entitySpawn : entitySpawns ) {
+		CBaseEntity::Create(
+			allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entityName.c_str() )],
+			Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),
+			Vector( 0, entitySpawn.angle, 0 )
+		);
 	}
 }
 

@@ -8,7 +8,7 @@
 class CCustomGameModeRules : public CHalfLifeRules {
 
 public:
-	CCustomGameModeRules( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType = CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
+	CCustomGameModeRules( CONFIG_TYPE configType = CONFIG_TYPE_CGM );
 
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void OnNewlyVisitedMap();

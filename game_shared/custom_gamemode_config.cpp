@@ -50,7 +50,7 @@ void CustomGameModeConfig::OnError( std::string message ) {
 	error = message;
 }
 
-CustomGameModeConfig::CustomGameModeConfig( GAME_MODE_CONFIG_TYPE configType )
+CustomGameModeConfig::CustomGameModeConfig( CONFIG_TYPE configType )
 {
 	this->configType = configType;
 
@@ -61,21 +61,199 @@ CustomGameModeConfig::CustomGameModeConfig( GAME_MODE_CONFIG_TYPE configType )
 	// Create directory if it's not there
 	CreateDirectory( folderPath.c_str(), NULL );
 
+	InitConfigSections();
 	Reset();
 }
 
-std::string CustomGameModeConfig::ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TYPE configType ) {
+void CustomGameModeConfig::InitConfigSections() {
+
+	configSections[CONFIG_FILE_SECTION_NAME] = ConfigSection(
+		"name", true,
+		[]( ConfigSectionData &data ) {
+			std::string sanitizedName = data.argsString.at( 0 );
+			if ( sanitizedName.size() > 54 ) {
+				sanitizedName = sanitizedName.substr( 0, 53 );
+			}
+
+			data.argsString[0] = sanitizedName;
+
+			return "";
+		}
+	);
+
+	configSections[CONFIG_FILE_SECTION_START_MAP] = ConfigSection(
+		"start_map", true,
+		[]( ConfigSectionData &data ) { return ""; }
+	);
+
+	configSections[CONFIG_FILE_SECTION_START_POSITION] = ConfigSection(
+		"start_position", true,
+		[]( ConfigSectionData &data ) {
+
+			if ( data.argsFloat.size() < 3 ) {
+				return std::string( "not enough coordinates provided" );
+			}
+
+			for ( size_t i = 0 ; i < min( data.argsFloat.size(), 4 ) ; i++ ) {
+				float arg = data.argsFloat.at( i );
+				if ( std::isnan( arg ) ) {
+					char error[1024];
+					sprintf_s( error, "invalid coordinate by index %d", i + 1 );
+					return std::string( error );
+				}
+			}
+
+			return std::string( "" );
+		}
+	);
+
+
+
+	configSections[CONFIG_FILE_SECTION_END_MAP] = ConfigSection(
+		"end_map", true,
+		[]( ConfigSectionData &data ) { return ""; }
+	);
+
+	configSections[CONFIG_FILE_SECTION_END_TRIGGER] = ConfigSection(
+		"end_trigger", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT] = ConfigSection(
+		"change_level_prevent", false,
+		[this]( ConfigSectionData &data ) { return ""; }
+	);
+
+	configSections[CONFIG_FILE_SECTION_LOADOUT] = ConfigSection(
+		"loadout", false,
+		[]( ConfigSectionData &data ) {
+			
+			std::string itemName = data.argsString.at( 0 );
+			if ( GetAllowedItemIndex( itemName.c_str() ) == -1 ) {
+				char error[1024];
+				sprintf_s( error, "incorrect loadout item name: %s", itemName.c_str() );
+				return std::string( error );
+			}
+
+			if ( data.argsFloat.size() >= 2 ) {
+				float arg = data.argsFloat.at( 1 );
+				if ( std::isnan( arg ) ) {
+					return std::string( "loadout item count incorrectly specified" );
+				}
+			}
+
+			return std::string( "" );
+		}
+	);
+
+	configSections[CONFIG_FILE_SECTION_ENTITY_SPAWN] = ConfigSection(
+		"entity_spawn", false,
+		[]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 5 ) {
+				return std::string( "<map_name> <entity_name> <x> <y> <z> [angle] not specified" );
+			}
+
+			std::string entityName = data.argsString.at( 1 );
+			if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "incorrect entity name" );
+				return std::string( errorCString );
+			}
+
+			for ( size_t i = 2 ; i < min( data.argsFloat.size(), 5 ) ; i++ ) {
+				float arg = data.argsFloat.at( i );
+				if ( std::isnan( arg ) ) {
+					char error[1024];
+					sprintf_s( error, "invalid coordinate by index %d", i + 1 );
+					return std::string( error );
+				}
+			}
+		}
+	);
+
+	configSections[CONFIG_FILE_SECTION_ENTITY_USE] = ConfigSection(
+		"entity_use", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_SOUND_PREVENT] = ConfigSection(
+		"sound_prevent", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_SOUND] = ConfigSection(
+		"sound", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithSoundSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_MAX_COMMENTARY] = ConfigSection(
+		"max_commentary", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithSoundSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_MODS] = ConfigSection(
+		"max_commentary", false,
+		[this]( ConfigSectionData &data ) { 
+			if ( !AddGameplayMod( data.line ) ) {
+				char errorCString[1024];
+				sprintf_s( errorCString, "incorrect mod specified: %s\n", data.line.c_str() );
+				return std::string( errorCString );
+			}
+
+			return std::string( "" );
+		}
+	);
+
+	configSections[CONFIG_FILE_SECTION_TIMER_PAUSE] = ConfigSection(
+		"timer_pause", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_TIMER_RESUME] = ConfigSection(
+		"timer_resume", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+	);
+}
+
+std::string CustomGameModeConfig::ValidateModelIndexSectionData( ConfigSectionData &data ) {
+
+	if ( data.argsString.size() < 2 ) {
+		return "<mapname> <modelindex | targetname> [const] not specified";
+	}
+
+	return "";
+}
+
+std::string CustomGameModeConfig::ValidateModelIndexWithSoundSectionData( ConfigSectionData &data ) {
+
+	if ( data.argsString.size() < 3 ) {
+		return "<mapname> <modelindex | targetname> <sound_path> [delay] [const] not specified";
+	}
+
+	if ( data.argsFloat.size() >= 4 ) {
+		float arg = data.argsFloat.at( 3 );
+		if ( std::isnan( arg ) ) {
+			return "delay incorrectly specified";
+		}
+	}
+
+	soundsToPrecache.insert( data.argsString.at( 2 ) );
+
+	return "";
+}
+
+std::string CustomGameModeConfig::ConfigTypeToDirectoryName( CONFIG_TYPE configType ) {
 	switch ( configType ) {
-		case GAME_MODE_CONFIG_MAP:
+		case CONFIG_TYPE_MAP:
 			return "map_cfg";
 
-		case GAME_MODE_CONFIG_CGM:
+		case CONFIG_TYPE_CGM:
 			return "cgm_cfg";
 
-		case GAME_MODE_CONFIG_BMM:
+		case CONFIG_TYPE_BMM:
 			return "bmm_cfg";
 
-		case GAME_MODE_CONFIG_SAGM:
+		case CONFIG_TYPE_SAGM:
 			return "sagm_cfg";
 
 		default:
@@ -83,15 +261,15 @@ std::string CustomGameModeConfig::ConfigTypeToDirectoryName( GAME_MODE_CONFIG_TY
 	}
 }
 
-std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( GAME_MODE_CONFIG_TYPE configType ) {
+std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE configType ) {
 	switch ( configType ) {
-		case GAME_MODE_CONFIG_CGM:
+		case CONFIG_TYPE_CGM:
 			return "cgm";
 
-		case GAME_MODE_CONFIG_BMM:
+		case CONFIG_TYPE_BMM:
 			return "bmm";
 
-		case GAME_MODE_CONFIG_SAGM:
+		case CONFIG_TYPE_SAGM:
 			return "sagm";
 
 		default:
@@ -99,15 +277,15 @@ std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( GAME_MODE_CONFIG_
 	}
 }
 
-std::string CustomGameModeConfig::ConfigTypeToGameModeName( GAME_MODE_CONFIG_TYPE configType ) {
+std::string CustomGameModeConfig::ConfigTypeToGameModeName( CONFIG_TYPE configType ) {
 	switch ( configType ) {
-		case GAME_MODE_CONFIG_CGM:
+		case CONFIG_TYPE_CGM:
 			return "Custom";
 
-		case GAME_MODE_CONFIG_BMM:
+		case CONFIG_TYPE_BMM:
 			return "Black Mesa Minute";
 
-		case GAME_MODE_CONFIG_SAGM:
+		case CONFIG_TYPE_SAGM:
 			return "Score Attack";
 
 		default:
@@ -171,6 +349,7 @@ std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames( const char
 bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	error = "";
+	Reset();
 
 	configName = fileName;
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
@@ -211,7 +390,11 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 				OnError( std::string( errorCString ) );
 			};
 		} else {
-			OnSectionData( line, lineCount );
+			std::string error = configSections[currentFileSection].OnSectionData( configName, line, lineCount, configType );
+			if ( error.size() > 0 ) {
+				OnError( error );
+				return false;
+			}
 		}
 
 		if ( error.size() > 0 ) {
@@ -228,29 +411,18 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 // This function is called in CHalfLifeRules constructor
 // to ensure we won't get a leftover variable value in the default gamemode.
 void CustomGameModeConfig::Reset() {
+
+	for ( int section = CONFIG_FILE_SECTION_NO_SECTION + 1 ; section < CONFIG_FILE_SECTION_AUX_END - 1 ; section++ ) {
+		configSections[(CONFIG_FILE_SECTION) section].data.clear();
+	}
 	
 	this->configName.clear();
 	this->error.clear();
 
 	this->markedForRestart = false;
 
-	this->name.clear();
-	this->startMap.clear();
-	this->endMap.clear();
-	
-	this->loadout.clear();
-	
-	this->timerPauses.clear();
-	this->timerResumes.clear();
-	this->endTriggers.clear();
-	this->sounds.clear();
-	this->entitySpawns.clear();
 	this->entitiesToPrecache.clear();
 	this->soundsToPrecache.clear();
-	this->entitiesToPrevent.clear();
-
-	this->startPositionSpecified = false;
-	this->startYawSpecified = false;
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
@@ -700,36 +872,35 @@ bool CustomGameModeConfig::AddGameplayMod( const std::string &modName ) {
 bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 
 	if ( sectionName == "start_map" ) {
-		currentFileSection = FILE_SECTION_START_MAP;
+		currentFileSection = CONFIG_FILE_SECTION_START_MAP;
 	} else if ( sectionName == "end_map" ) {
-		currentFileSection = FILE_SECTION_END_MAP;
+		currentFileSection = CONFIG_FILE_SECTION_END_MAP;
 	} else if ( sectionName == "loadout" ) {
-		currentFileSection = FILE_SECTION_LOADOUT;
+		currentFileSection = CONFIG_FILE_SECTION_LOADOUT;
 	} else if ( sectionName == "start_position" ) {
-		currentFileSection = FILE_SECTION_START_POSITION;
-		startPositionSpecified = true;
+		currentFileSection = CONFIG_FILE_SECTION_START_POSITION;
 	} else if ( sectionName == "name" ) {
-		currentFileSection = FILE_SECTION_NAME;
+		currentFileSection = CONFIG_FILE_SECTION_NAME;
 	} else if ( sectionName == "end_trigger" ) {
-		currentFileSection = FILE_SECTION_END_TRIGGER;
+		currentFileSection = CONFIG_FILE_SECTION_END_TRIGGER;
 	} else if ( sectionName == "change_level_prevent" ) {
-		currentFileSection = FILE_SECTION_CHANGE_LEVEL_PREVENT;
+		currentFileSection = CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT;
 	} else if ( sectionName == "entity_spawn" ) {
-		currentFileSection = FILE_SECTION_ENTITY_SPAWN;
+		currentFileSection = CONFIG_FILE_SECTION_ENTITY_SPAWN;
 	} else if ( sectionName == "entity_use" ) {
-		currentFileSection = FILE_SECTION_ENTITY_USE;
+		currentFileSection = CONFIG_FILE_SECTION_ENTITY_USE;
 	} else if ( sectionName == "mods" ) {
-		currentFileSection = FILE_SECTION_MODS;
+		currentFileSection = CONFIG_FILE_SECTION_MODS;
 	} else if ( sectionName == "timer_pause" ) {
-		currentFileSection = FILE_SECTION_TIMER_PAUSE;
+		currentFileSection = CONFIG_FILE_SECTION_TIMER_PAUSE;
 	} else if ( sectionName == "timer_resume" ) {
-		currentFileSection = FILE_SECTION_TIMER_RESUME;
+		currentFileSection = CONFIG_FILE_SECTION_TIMER_RESUME;
 	} else if ( sectionName == "sound" ) {
-		currentFileSection = FILE_SECTION_SOUND;
+		currentFileSection = CONFIG_FILE_SECTION_SOUND;
 	} else if ( sectionName == "max_commentary" ) {
-		currentFileSection = FILE_SECTION_MAX_COMMENTARY;
+		currentFileSection = CONFIG_FILE_SECTION_MAX_COMMENTARY;
 	} else if ( sectionName == "sound_prevent" ) {
-		currentFileSection = FILE_SECTION_SOUND_PREVENT;
+		currentFileSection = CONFIG_FILE_SECTION_SOUND_PREVENT;
 	} else {
 		return false;
 	}
@@ -737,422 +908,204 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 	return true;
 }
 
-void CustomGameModeConfig::OnSectionData( std::string line, int lineCount ) {
-
-	switch ( currentFileSection ) {
-		case FILE_SECTION_START_MAP: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [start_map] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			startMap = line;
-			currentFileSection = FILE_SECTION_NO_SECTION;
-			break;
-
-		}
-
-		case FILE_SECTION_END_MAP: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [end_map] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			endMap = line;
-			currentFileSection = FILE_SECTION_NO_SECTION;
-			break;
-
-		}
-
-		case FILE_SECTION_LOADOUT: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [loadout] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			std::vector<std::string> loadoutStrings = Split( line, ' ' );
-
-			std::string itemName = loadoutStrings.at( 0 );
-			if ( GetAllowedItemIndex( itemName.c_str() ) == -1 ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect loadout item name in [loadout] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, itemName.c_str() );
-				OnError( errorCString );
-				return;
-			}
-
-			int itemCount = 1;
-
-			if ( loadoutStrings.size() > 1 ) {
-				try {
-					itemCount = std::stoi( loadoutStrings.at( 1 ) );
-				} catch ( std::invalid_argument e ) {
-					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: loadout item count incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-					OnError( errorCString );
-					return;
-				}
-			}
-
-			for ( int i = 0; i < itemCount; i++ ) {
-				loadout.push_back( itemName );
-			}
-
-			break;
-
-		}
-
-		case FILE_SECTION_START_POSITION: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [start_position] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			std::vector<std::string> startPositionValueStrings = Split( line, ' ' );
-			std::vector<float> startPositionValues;
-			for ( size_t i = 0; i < startPositionValueStrings.size( ); i++ ) {
-				std::string startPositionValueString = startPositionValueStrings.at( i );
-				float startPositionValue;
-				try {
-					startPositionValue = std::stof( startPositionValueString );
-				}
-				catch ( std::invalid_argument e ) {
-					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect value in [start_position] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, startPositionValueString.c_str() );
-					OnError( errorCString );
-					return;
-				}
-
-				startPositionValues.push_back( startPositionValue );
-			}
-
-			if ( startPositionValues.size() < 3 ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: not enough coordinates provided in [start_position] section\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			startPosition[0] = startPositionValues.at( 0 );
-			startPosition[1] = startPositionValues.at( 1 );
-			startPosition[2] = startPositionValues.at( 2 );
-
-			if ( startPositionValues.size() >= 4 ) {
-				startYawSpecified = true;
-				startYaw = startPositionValues.at( 3 );
-			}
-
-			currentFileSection = FILE_SECTION_NO_SECTION;
-			break;
-
-		}
-
-		case FILE_SECTION_NAME: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [name] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			name = Uppercase( line );
-			if ( name.size() > 54 ) {
-				name = name.substr( 0, 53 );
-			}
-			currentFileSection = FILE_SECTION_NO_SECTION;
-			break;
-
-		}
-
-		case FILE_SECTION_END_TRIGGER: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [end_trigger] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
-			endTriggers.insert( modelIndex );
-
-			break;
-
-		}
-
-		case FILE_SECTION_TIMER_PAUSE: {
-			if ( configType != GAME_MODE_CONFIG_BMM ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [timer_pause] section is only allowed for Black Mesa Minute configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
-			timerPauses.insert( modelIndex );
-
-			break;
-
-		}
-
-		case FILE_SECTION_TIMER_RESUME: {
-			if ( configType != GAME_MODE_CONFIG_BMM ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [timer_resume] section is only allowed for Black Mesa Minute configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
-			timerResumes.insert( modelIndex );
-
-			break;
-
-		}
-
-		case FILE_SECTION_SOUND_PREVENT: {
-			if ( configType != GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [sound_prevent] section is only allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
-			entitiesToPrevent.insert( modelIndex );
-
-			break;
-		}
-
-		case FILE_SECTION_CHANGE_LEVEL_PREVENT: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [change_level_prevent] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			changeLevelsToPrevent.insert( line );
-
-			break;
-		}
-
-		case FILE_SECTION_SOUND:
-		case FILE_SECTION_MAX_COMMENTARY: {
-			if ( configType != GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [sound] or [max_commentary] sections are only allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			bool isMaxCommentary = currentFileSection == FILE_SECTION_MAX_COMMENTARY;
-
-			ModelIndexWithSound modelIndex = ParseModelIndexWithSoundString( line, lineCount, isMaxCommentary );
-			sounds.insert( modelIndex );
-
-			soundsToPrecache.insert( modelIndex.soundPath );
-
-			break;
-
-		}
-
-		case FILE_SECTION_ENTITY_USE: {
-			if ( configType != GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [entity_use] section is only allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			ModelIndex modelIndex = ParseModelIndexString( line, lineCount );
-			entityUses.insert( modelIndex );
-
-			break;
-
-		}
-
-		case FILE_SECTION_ENTITY_SPAWN: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [entity_spawn] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			std::vector<std::string> entitySpawnStrings = Split( line, ' ' );
-
-			if ( entitySpawnStrings.size() < 5 ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: <map_name> <entity_name> <x> <y> <z> [angle] not specified in [entity_spawn] section\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			std::string mapName = entitySpawnStrings.at( 0 );
-
-			std::string entityName = entitySpawnStrings.at( 1 );
-			if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect entity name in [entity_spawn] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, entityName.c_str() );
-				OnError( errorCString );
-				return;
-			}
-
-			float entityAngle = 0;
-
-			std::vector<float> originValues;
-			for ( size_t i = 2; i < entitySpawnStrings.size( ); i++ ) {
-				std::string entitySpawnString = entitySpawnStrings.at( i );
-				float originValue;
-				try {
-					originValue = std::stof( entitySpawnString );
-				}
-				catch ( std::invalid_argument e ) {
-					char errorCString[1024];
-					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect value in [entity_spawn] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, entitySpawnString.c_str() );
-					OnError( errorCString );
-					return;
-				}
-
-				originValues.push_back( originValue );
-			}
-
-			if ( originValues.size() >= 4 ) {
-				entityAngle = originValues.at( 3 );
-			}
-
-			entitySpawns.push_back( { mapName, entityName, { originValues.at( 0 ), originValues.at( 1 ), originValues.at( 2 ) }, entityAngle } );
-			entitiesToPrecache.insert( entityName );
-			break;
-
-		}
-
-		case FILE_SECTION_MODS: {
-			if ( configType == GAME_MODE_CONFIG_MAP ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: [mods] section is not allowed for map configs\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return;
-			}
-
-			if ( !AddGameplayMod( line ) ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: incorrect mod specified in [mods] section: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, line.c_str() );
-				OnError( errorCString );
-				return;
-			}
-
-			break;
-
-		}
-
-		case FILE_SECTION_NO_SECTION:
-		default: {
-
-			char errorCString[1024];
-			sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: preceding section not specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-			OnError( errorCString );
-			break;
-
-		}
-	}
+const std::string CustomGameModeConfig::GetName() {
+	ConfigSection section = configSections[CONFIG_FILE_SECTION_NAME];
+	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
 }
 
-const ModelIndex CustomGameModeConfig::ParseModelIndexString( std::string line, int lineCount ) {
-	std::vector<std::string> modelIndexStrings = Split( line, ' ' );
+const std::string CustomGameModeConfig::GetStartMap() {
+	ConfigSection section = configSections[CONFIG_FILE_SECTION_START_MAP];
+	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
+}
 
-	if ( modelIndexStrings.size() < 2 ) {
-		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: <mapname> <modelindex> not specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-		OnError( errorCString );
-		return ModelIndex();
+const std::string CustomGameModeConfig::GetEndMap() {
+	ConfigSection section = configSections[CONFIG_FILE_SECTION_END_MAP];
+	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
+}
+
+const StartPosition CustomGameModeConfig::GetStartPosition() {
+	ConfigSection section = configSections[CONFIG_FILE_SECTION_START_POSITION];
+	if ( section.data.size() == 0 ) {
+		return { false, NAN, NAN, NAN, NAN };
 	}
 
-	std::string mapName = modelIndexStrings.at( 0 );
-	int modelIndex = -2;
-	std::string targetName = "";
-	try {
-		modelIndex = std::stoi( modelIndexStrings.at( 1 ) );
-	} catch ( std::invalid_argument ) {
-		targetName = modelIndexStrings.at( 1 );
-	}
+	std::vector<float> args = section.data.at( 0 ).argsFloat;
+	float x = args.at( 0 );
+	float y = args.at( 1 );
+	float z = args.at( 2 );
+	float angle = args.size() > 3 ? args.at( 3 ) : NAN;
 
-	bool constant = false;
-	if ( modelIndexStrings.size() >= 3 ) {
-		std::string constantString = modelIndexStrings.at( 2 );
-		if ( constantString == "const" ) {
-			constant = true;
+	return { true, x, y, z, angle };
+}
+
+const std::vector<std::string> CustomGameModeConfig::GetLoadout() {
+	std::vector<std::string> loadout;
+	for ( auto data : configSections[CONFIG_FILE_SECTION_LOADOUT].data ) {
+		int itemCount = 1;
+
+		if ( data.argsFloat.size() >= 2 ) {
+			itemCount = ceil( data.argsFloat.at( 1 ) );
+		}
+
+		for ( int i = 0 ; i < itemCount ; i++ ) {
+			loadout.push_back( data.argsString.at( 0 ) );
 		}
 	}
 
-	return ModelIndex( mapName, modelIndex, targetName, constant );
+	return loadout;
 }
 
-// TODO: This is dumb copy of parser above, would simplify
-const ModelIndexWithSound CustomGameModeConfig::ParseModelIndexWithSoundString( std::string line, int lineCount, bool isMaxCommentary ) {
-	std::deque<std::string> modelIndexStrings = SplitDeque( line, ' ' );
+const std::vector<EntitySpawn> CustomGameModeConfig::GetEntitySpawnsForMapOnce( const std::string &map ) {
+	std::vector<EntitySpawn> result;
+	auto *sectionData = &configSections[CONFIG_FILE_SECTION_ENTITY_SPAWN].data;
 
-	if ( modelIndexStrings.size() < 3 ) {
-		char errorCString[1024];
-		sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: <map_name> <model_index> <sound_path> not specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-		OnError( errorCString );
-		return ModelIndexWithSound();
+	auto i = sectionData->begin();
+	while ( i != sectionData->end() ) {
+		const std::string storedMapName = i->argsString.at( 0 );
+		if ( storedMapName != map ) {
+			i++;
+			continue;
+		}
+
+		const std::string entityName = i->argsString.at( 1 );
+		const float x = i->argsFloat.at( 2 );
+		const float y = i->argsFloat.at( 3 );
+		const float z = i->argsFloat.at( 4 );
+		const float angle = i->argsFloat.size() >= 6 ? i->argsFloat.at( 5 ) : 0.0f;
+
+		result.push_back( { entityName, x, y, z, angle } );
+
+		i = sectionData->erase( i );
 	}
 
-	std::string mapName = modelIndexStrings.at( 0 );
-	modelIndexStrings.pop_front();
+	return result;
+}
 
-	int modelIndex = -2;
-	std::string targetName = "";
-	try {
-		modelIndex = std::stoi( modelIndexStrings.at( 0 ) );
-	} catch ( std::invalid_argument ) {
-		targetName = modelIndexStrings.at( 0 );
+bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+	auto *sectionData = &configSections[fileSection].data;
+	auto i = sectionData->begin();
+	while ( i != sectionData->end() ) {
+		std::string storedMapName = i->argsString.at( 0 );
+		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? - 1 : i->argsFloat.at( 1 );
+		std::string storedTargetName = i->argsString.at( 1 );
+
+		if ( 
+			mapName != storedMapName ||
+			modelIndex != storedModelIndex &&
+			( storedTargetName != targetName || storedTargetName.size() == 0 )
+		) {
+			i++;
+			continue;
+		}
+
+		bool constant = false;
+		if ( i->argsString.size() >= 3 ) {
+			constant = i->argsString.at( 2 ) == "const";
+		}
+
+		if ( !constant ) {
+			i = sectionData->erase( i );
+		}
+
+		return true;
 	}
-	modelIndexStrings.pop_front();
 
+	return false;
+}
 
-	std::string soundPath = modelIndexStrings.at( 0 );
-	modelIndexStrings.pop_front();
+const ConfigFileSound CustomGameModeConfig::MarkModelIndexWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+	auto *sectionData = &configSections[fileSection].data;
+	auto i = sectionData->begin();
+	while ( i != sectionData->end() ) {
+		std::string storedMapName = i->argsString.at( 0 );
+		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? - 1 : i->argsFloat.at( 1 );
+		std::string storedTargetName = i->argsString.at( 1 );
+		std::string storedSoundPath = i->argsString.at( 2 );
 
-	bool constant = false;
-	float delay = 0.0f;
-	
-	while ( modelIndexStrings.size() > 0 ) {
-		std::string constantString = modelIndexStrings.at( 0 );
-		if ( constantString == "const" ) {
-			constant = true;
-		} else {
-			delay = 0.0f;
-			try {
-				delay = std::stof( modelIndexStrings.at( 0 ) );
-			} catch ( std::invalid_argument ) {
-				char errorCString[1024];
-				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: delay incorrectly specified\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount );
-				OnError( errorCString );
-				return ModelIndexWithSound();
+		if ( 
+			mapName != storedMapName ||
+			modelIndex != storedModelIndex &&
+			( storedTargetName != targetName || storedTargetName.size() == 0 )
+		) {
+			i++;
+			continue;
+		}
+
+		bool constant = false;
+		float delay = 0.0f;
+		if ( i->argsString.size() >= 4 ) {
+			for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
+				constant = i->argsString.at( arg ) == "const";
+				delay = std::isnan( i->argsFloat.at( arg ) ) ? 0.0f : i->argsFloat.at( arg );
 			}
 		}
 
-		modelIndexStrings.pop_front();
+		if ( !constant ) {
+			i = sectionData->erase( i );
+		}
+
+		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
+			delay = 0.101f;
+		}
+
+		return { true, storedSoundPath, constant, delay };
 	}
 
-	// this forced delay is required for CHANGE_LEVEL calls, becuase they mess
-	// up with global time and player's sound queue is not able to catch it.
-	if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
-		delay = 0.101f;
-	}
-
-	return ModelIndexWithSound( mapName, modelIndex, targetName, soundPath, isMaxCommentary, delay, constant );
+	return { false, "", false, NAN };
 }
 
-bool operator < ( const ModelIndex &modelIndex1, const ModelIndex &modelIndex2 ) {
-	return modelIndex1.key < modelIndex2.key;
+bool CustomGameModeConfig::IsChangeLevelPrevented( const std::string &nextMap ) {
+	for ( auto data : configSections[CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT].data ) {
+		if ( data.line == nextMap ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+CustomGameModeConfig::ConfigSection::ConfigSection() {
+	this->name = "UNDEFINED_SECTION";
+	this->single = false;
+	this->Validate = []( ConfigSectionData &data ){ return ""; };
+}
+
+CustomGameModeConfig::ConfigSection::ConfigSection( const std::string &sectionName, bool single, ConfigSectionValidateFunction validateFunction ) {
+	this->name = sectionName;
+	this->single = single;
+	this->Validate = validateFunction;
+}
+
+const std::string CustomGameModeConfig::ConfigSection::OnSectionData( const std::string &configName, const std::string &line, int lineCount, CONFIG_TYPE configType ) {
+	if ( single && data.size() > 0 ) {
+		char error[1024];
+		sprintf_s( error, "Error parsing %s\\%s.txt, line %d: [%s] section can only have one line\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, name.c_str() );
+		return error;
+	}
+
+	ConfigSectionData sectionData;
+	sectionData.line = line;
+	sectionData.argsString = Split( line, ' ' );
+	for ( const std::string &arg : sectionData.argsString ) {
+		float value;
+		try {
+			value = std::stof( arg );
+		} catch ( std::invalid_argument e ) {
+			value = NAN;
+		}
+
+		sectionData.argsFloat.push_back( value );
+	}
+
+	std::string error = Validate( sectionData );
+	if ( error.size() > 0 ) {
+		char errorComposed[1024];
+		sprintf_s( errorComposed, "Error parsing %s\\%s.txt, line %d, section [%s]: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, name.c_str(), error.c_str() );
+		return errorComposed;
+	} else {
+		data.push_back( sectionData );
+	}
+
+	return "";
+
 }

@@ -980,7 +980,7 @@ void CL_ResetButtonBits( int bits )
 	}
 }
 
-void RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+void RunCustomGameMode( CONFIG_TYPE configType ) {
 	int argCount = gEngfuncs.Cmd_Argc();
 	if ( argCount < 2 ) {
 		gEngfuncs.Con_Printf(
@@ -1009,27 +1009,28 @@ void RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType )
 	gEngfuncs.Cvar_Set( "gamemode_config", configName );
 	gEngfuncs.Cvar_Set( "gamemode", ( char * ) CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ).c_str() );
 
+	const std::string startMap = config.GetStartMap();
 	char mapCmd[64];
-	sprintf( mapCmd, "map %s", config.startMap.c_str() );
+	sprintf( mapCmd, "map %s", startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
 void RunBlackMesaMinute()
 {
-	RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
+	RunCustomGameMode( CONFIG_TYPE_BMM );
 }
 
 void RunCustomGameMode()
 {
-	RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
+	RunCustomGameMode( CONFIG_TYPE_CGM );
 }
 
 void RunScoreAttack()
 {
-	RunCustomGameMode( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
+	RunCustomGameMode( CONFIG_TYPE_SAGM );
 }
 
-void ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType ) {
+void ShowGameModeConfigs( CONFIG_TYPE configType ) {
 	CustomGameModeConfig config( configType );
 	std::vector<std::string> files = config.GetAllConfigFileNames();
 	gEngfuncs.Con_Printf( "Command | Start map | Config name\n" );
@@ -1038,9 +1039,9 @@ void ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType
 			continue;
 		};
 
-		std::string result = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + " " + file + " | " + config.startMap;
-		if ( config.name.length() > 0 ) {
-			result += " | " + config.name;
+		std::string result = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + " " + file + " | " + config.GetStartMap();
+		if ( config.GetName().length() > 0 ) {
+			result += " | " + config.GetName();
 		}
 		gEngfuncs.Con_Printf( "%s\n", result.c_str() );
 
@@ -1048,15 +1049,15 @@ void ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_TYPE configType
 }
 
 void ShowCustomGameModesList() {
-	ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_CGM );
+	ShowGameModeConfigs( CONFIG_TYPE_CGM );
 }
 
 void ShowBlackMesaMinuteList() {
-	ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_BMM );
+	ShowGameModeConfigs( CONFIG_TYPE_BMM );
 }
 
 void ShowScoreAttackList() {
-	ShowGameModeConfigs( CustomGameModeConfig::GAME_MODE_CONFIG_SAGM );
+	ShowGameModeConfigs( CONFIG_TYPE_SAGM );
 }
 
 /*
