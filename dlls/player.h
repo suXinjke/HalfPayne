@@ -153,6 +153,8 @@ public:
 	BOOL				oneHitKO;
 	BOOL				oneHitKOFromPlayer;
 	BOOL				noFallDamage;
+	BOOL				noMapMusic;
+	BOOL				currentMusicPlaylistIndex;
 
 	BOOL				upsideDown;
 	bool				upsideDownMessageSent;
@@ -531,6 +533,9 @@ public:
 	BOOL snarkFromExplosion;
 
 	float postRestoreDelay;
+	float postSpawnDelay;
+
+	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE );
 
 	int PackGameplayMods() {
 		int bitmask = 0;
@@ -545,6 +550,11 @@ public:
 		}
 		return bitmask;
 	}
+
+	string_t musicFile;
+	float	 musicPos;
+	BOOL	 musicLooping;
+	BOOL	 musicGoingThroughChangeLevel;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

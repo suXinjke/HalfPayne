@@ -740,6 +740,40 @@ void CTriggerCDAudio::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 	PlayTrack();
 }
 
+extern int gmsgBassPlay;
+extern int gmsgBassStop;
+std::vector<std::string> cdTrackMap {
+	"",
+	"",
+	"valve\\media\\Half-Life01.mp3",
+	"valve\\media\\Prospero01.mp3",
+	"valve\\media\\Half-Life12.mp3",
+	"valve\\media\\Half-Life07.mp3",
+	"valve\\media\\Half-Life10.mp3",
+	"valve\\media\\Suspense01.mp3",
+	"valve\\media\\Suspense03.mp3",
+	"valve\\media\\Half-Life09.mp3",
+	"valve\\media\\Half-Life02.mp3",
+	"valve\\media\\Half-Life13.mp3",
+	"valve\\media\\Half-Life04.mp3",
+	"valve\\media\\Half-Life15.mp3",
+	"valve\\media\\Half-Life14.mp3",
+	"valve\\media\\Half-Life16.mp3",
+	"valve\\media\\Suspense02.mp3",
+	"valve\\media\\Half-Life03.mp3",
+	"valve\\media\\Half-Life08.mp3",
+	"valve\\media\\Prospero02.mp3",
+	"valve\\media\\Half-Life05.mp3",
+	"valve\\media\\Prospero04.mp3",
+	"valve\\media\\Half-Life11.mp3",
+	"valve\\media\\Half-Life06.mp3", 
+	"valve\\media\\Prospero03.mp3",
+	"valve\\media\\Half-Life17.mp3",
+	"valve\\media\\Prospero05.mp3",
+	"valve\\media\\Suspense05.mp3",
+	"valve\\media\\Suspense07.mp3"
+};
+
 void PlayCDTrack( int iTrack )
 {
 	edict_t *pClient;
@@ -759,17 +793,20 @@ void PlayCDTrack( int iTrack )
 
 	if ( iTrack == -1 )
 	{
-		CLIENT_COMMAND ( pClient, "cd stop\n");
+		MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, pClient );
+		MESSAGE_END();
 	}
 	else
 	{
-		char string [ 64 ];
+		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( pClient );
 
-		sprintf( string, "cd play %3d\n", iTrack );
-		CLIENT_COMMAND ( pClient, string);
+		if ( !player || player->noMapMusic ) {
+			return;
+		}
+
+		player->SendPlayMusicMessage( cdTrackMap[iTrack].c_str() );
 	}
 }
-
 
 // only plays for ONE client, so only use in single play!
 void CTriggerCDAudio :: PlayTrack( void )

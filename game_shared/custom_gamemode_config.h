@@ -107,6 +107,18 @@ struct ConfigFileSound {
 
 };
 
+struct ConfigFileMusic {
+
+	bool valid;
+	std::string musicPath;
+	bool constant;
+	bool looping;
+	float delay;
+	float initialPos;
+
+};
+
+
 struct EntitySpawn
 {
 	std::string entityName;
@@ -138,6 +150,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_INFINITE_SLOWMOTION,
 	GAMEPLAY_MOD_INSTAGIB,
 	GAMEPLAY_MOD_NO_FALL_DAMAGE,
+	GAMEPLAY_MOD_NO_MAP_MUSIC,
 	GAMEPLAY_MOD_NO_PILLS,
 	GAMEPLAY_MOD_NO_SAVING,
 	GAMEPLAY_MOD_NO_SECONDARY_ATTACK,
@@ -175,6 +188,8 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_ENTITY_USE,
 	CONFIG_FILE_SECTION_SOUND_PREVENT,
 	CONFIG_FILE_SECTION_SOUND,
+	CONFIG_FILE_SECTION_MUSIC,
+	CONFIG_FILE_SECTION_PLAYLIST,
 	CONFIG_FILE_SECTION_MAX_COMMENTARY,
 	CONFIG_FILE_SECTION_MODS,
 
@@ -260,7 +275,8 @@ public:
 	static std::string ConfigTypeToGameModeName( CONFIG_TYPE configType );
 
 	std::vector<std::string> GetAllConfigFileNames();
-	std::vector<std::string> GetAllConfigFileNames( const char *path );
+	std::vector<std::string> GetAllFileNames( const char *path, const char *extension, bool includeExtension = false );
+	std::vector<std::string> GetAllFileNames( const char *path, const std::vector<std::string> &extensions, bool includeExtension = false );
 
 	static std::string GetGamePath();
 	static int GetAllowedItemIndex( const char *allowedItem );
@@ -286,16 +302,21 @@ public:
 
 	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
 	const ConfigFileSound MarkModelIndexWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
+	const ConfigFileMusic MarkModelIndexWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
 
 	std::set<std::string>		 entitiesToPrecache;
 	std::set<std::string>		 soundsToPrecache;
 
 	std::string ValidateModelIndexSectionData( ConfigSectionData &data );
 	std::string ValidateModelIndexWithSoundSectionData( ConfigSectionData &data );
+	std::string ValidateModelIndexWithMusicSectionData( ConfigSectionData &data );
 
 	std::vector<GameplayMod> mods;
 	bool IsGameplayModActive( GAMEPLAY_MOD mod );
 	bool AddGameplayMod( ConfigSectionData &modName );
+
+	std::vector<std::string> musicPlaylist;
+	bool musicPlaylistShuffle;
 
 protected:
 	std::string folderPath;

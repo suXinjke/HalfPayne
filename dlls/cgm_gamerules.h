@@ -10,6 +10,7 @@ class CCustomGameModeRules : public CHalfLifeRules {
 public:
 	CCustomGameModeRules( CONFIG_TYPE configType = CONFIG_TYPE_CGM );
 
+	virtual void OnChangeLevel();
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void OnNewlyVisitedMap();
 	virtual void RefreshSkillData();
@@ -35,6 +36,7 @@ public:
 
 	float timeDelta;
 	float lastGlobalTime;
+	float musicSwitchDelay;
 
 	bool monsterSpawnPrevented;
 

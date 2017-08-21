@@ -23,6 +23,7 @@ extern "C"
 #include <ctype.h>
 #include "Exports.h"
 #include "custom_gamemode_config.h"
+#include "soundmanager.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -85,6 +86,14 @@ cvar_t  *max_commentary_near_death;
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
 cvar_t  *hud_autoswitch;
+
+cvar_t  *slowmotion_effect_change_duration;
+cvar_t  *slowmotion_low_pass_cutoff;
+cvar_t  *slowmotion_negative_pitch;
+
+cvar_t  *sm_current_pos;
+cvar_t  *sm_current_file;
+cvar_t  *sm_looping;
 /*
 ===============================================================================
 
@@ -1030,6 +1039,38 @@ void RunScoreAttack()
 	RunCustomGameMode( CONFIG_TYPE_SAGM );
 }
 
+void MP3Play()
+{
+	int argCount = gEngfuncs.Cmd_Argc();
+	if ( argCount < 2 ) {
+		gEngfuncs.Con_Printf( "MP3Play <filePath> : plays MP3 file using BASS audio library\n" );
+		return;
+	}
+
+	SM_Play( gEngfuncs.Cmd_Argv( 1 ) );
+}
+
+void MP3Stop()
+{
+	SM_Stop();
+}
+
+void MP3Seek()
+{
+	int argCount = gEngfuncs.Cmd_Argc();
+	if ( argCount < 2 ) {
+		gEngfuncs.Con_Printf( "MP3Seek <seconds>\n" );
+		return;
+	}
+
+	try {
+		double pos = std::stod( gEngfuncs.Cmd_Argv( 1 ) );
+		SM_Seek( pos );
+	} catch ( std::invalid_argument ) {
+		gEngfuncs.Con_Printf( "MP3Seek <seconds>\n" );
+	}
+}
+
 void ShowGameModeConfigs( CONFIG_TYPE configType ) {
 	CustomGameModeConfig config( configType );
 	std::vector<std::string> files = config.GetAllConfigFileNames();
@@ -1165,9 +1206,21 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
 	gEngfuncs.pfnAddCommand( "sagm", RunScoreAttack );
 
+	gEngfuncs.pfnAddCommand( "MP3Play", MP3Play );
+	gEngfuncs.pfnAddCommand( "MP3Stop", MP3Stop );
+	gEngfuncs.pfnAddCommand( "MP3Seek", MP3Seek );
+
 	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );
 	printaimcoordinates = gEngfuncs.pfnRegisterVariable( "print_aim_coordinates", "0", FCVAR_ARCHIVE );
 	hud_autoswitch	  = gEngfuncs.pfnRegisterVariable( "hud_autoswitch", "1", FCVAR_ARCHIVE );
+
+	slowmotion_effect_change_duration = gEngfuncs.pfnRegisterVariable( "slowmotion_effect_change_duration", "0.7", FCVAR_ARCHIVE );
+	slowmotion_low_pass_cutoff = gEngfuncs.pfnRegisterVariable( "slowmotion_low_pass_cutoff", "1200", FCVAR_ARCHIVE );
+	slowmotion_negative_pitch = gEngfuncs.pfnRegisterVariable( "slowmotion_negative_pitch", "0", FCVAR_ARCHIVE );
+
+	sm_current_pos = gEngfuncs.pfnRegisterVariable( "sm_current_pos", "0", NULL );
+	sm_current_file = gEngfuncs.pfnRegisterVariable( "sm_current_file", "0", NULL );
+	sm_looping = gEngfuncs.pfnRegisterVariable( "sm_looping", "0", NULL );
 
 	// Initialize third person camera controls.
 	CAM_Init();
@@ -1177,6 +1230,8 @@ void InitInput (void)
 	KB_Init();
 	// Initialize view system
 	V_Init();
+
+	SM_Init();
 }
 
 /*

@@ -43,6 +43,7 @@
 
 extern cvar_t *g_gl_vsync;
 extern bool using_sys_timescale;
+extern int g_changeLevelOccured;
 
 float last_fps_max = 0.0f;
 
@@ -169,7 +170,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noFallDamage, FIELD_BOOLEAN ),
-
+	DEFINE_FIELD( CBasePlayer, noMapMusic, FIELD_BOOLEAN ),
+	
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
@@ -235,6 +237,13 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, postRestoreDelay, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, postSpawnDelay, FIELD_TIME ),
+
+	DEFINE_FIELD( CBasePlayer, musicFile, FIELD_STRING ),
+	DEFINE_FIELD( CBasePlayer, musicPos, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, musicLooping, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, musicGoingThroughChangeLevel, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, currentMusicPlaylistIndex, FIELD_INTEGER ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -308,6 +317,9 @@ int gmsgTeamNames = 0;
 int gmsgConcuss = 0;
 int gmsgFadeOut = 0;
 int gmsgFlash = 0;
+int gmsgBassPlay = 0;
+int gmsgBassStop = 0;
+int gmsgBassSlowmo = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -370,6 +382,9 @@ void LinkUserMessages( void )
 	gmsgFadeOut = REG_USER_MSG( "FadeOut", 1 );
 	gmsgFlash = REG_USER_MSG( "Flash", 8 );
 
+	gmsgBassPlay = REG_USER_MSG( "BassPlay", -1 );
+	gmsgBassStop = REG_USER_MSG( "BassStop", -1 );
+	gmsgBassSlowmo = REG_USER_MSG( "BassSlowmo", 1 );
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );
@@ -1464,6 +1479,9 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	pev->flags &= ~FL_DIVING;
 	FlashlightTurnOff();
 
+	MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
+	MESSAGE_END();
+
 	SetSlowMotion( true );
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
@@ -2371,7 +2389,19 @@ void CBasePlayer::UpdateStatusBar()
 	}
 }
 
+void CBasePlayer::SendPlayMusicMessage( const std::string &filePath, float musicPos, BOOL looping )
+{
+	if ( !gmsgBassPlay ) {
+		return;
+	}
 
+	MESSAGE_BEGIN( MSG_ONE, gmsgBassPlay, NULL, this->pev );
+		WRITE_STRING( filePath.c_str() );
+		WRITE_FLOAT( musicPos );
+		WRITE_BYTE( slowMotionEnabled );
+		WRITE_BYTE( looping );
+	MESSAGE_END();
+}
 
 
 
@@ -2558,7 +2588,20 @@ void CBasePlayer::PreThink(void)
 		if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 			singlePlayerRules->OnHookedModelIndex( this, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
 		}
+
+		if ( strlen( STRING( musicFile ) ) > 0 && !musicGoingThroughChangeLevel ) {
+			this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping );
+		}
+
+		musicGoingThroughChangeLevel = FALSE;
 		postRestoreDelay = 0.0f;
+	}
+
+	if ( postSpawnDelay && gpGlobals->time >= postSpawnDelay ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
+		MESSAGE_END();
+
+		postSpawnDelay = 0.0f;
 	}
 }
 /* Time based Damage works as follows: 
@@ -3608,6 +3651,8 @@ void CBasePlayer::Spawn( void )
 	oneHitKO = 0;
 	oneHitKOFromPlayer = 0;
 	noFallDamage = 0;
+	noMapMusic = 0;
+	currentMusicPlaylistIndex = -1;
 
 	painkillerCount = 0;
 	
@@ -3650,6 +3695,7 @@ void CBasePlayer::Spawn( void )
 	reverseGravity = false;
 
 	postRestoreDelay = 0.0f;
+	postSpawnDelay = 0.1f;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -3764,6 +3810,11 @@ void CBasePlayer::Spawn( void )
 
 	latestMaxCommentaryTime = 0.0f;
 	latestMaxCommentaryIsImportant = false;
+
+	musicFile = 0;
+	musicPos = 0.0f;
+	musicLooping = 0;
+	musicGoingThroughChangeLevel = FALSE;
 
 	g_pGameRules->PlayerSpawn( this );
 }
@@ -4051,6 +4102,14 @@ void CBasePlayer :: Precache( void )
 
 int CBasePlayer::Save( CSave &save )
 {
+	if ( !g_changeLevelOccured ) {
+		musicFile = MAKE_STRING( CVAR_GET_STRING( "sm_current_file" ) );
+		musicPos = CVAR_GET_FLOAT( "sm_current_pos" );
+		musicLooping = CVAR_GET_FLOAT( "sm_looping" ) > 0.0f;
+	} else {
+		musicGoingThroughChangeLevel = TRUE;
+	}
+
 	if ( !CBaseMonster::Save(save) )
 		return 0;
 
@@ -4602,7 +4661,6 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 }
 
 void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
-
 	if ( slowMotionEnabled ) {
 		desiredTimeScale = using_sys_timescale ? 0.25f : GET_FRAMERATE_BASE() / 4.0f;
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
@@ -4614,6 +4672,12 @@ void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 			desiredTimeScale = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 		}
 		this->slowMotionEnabled = false;
+	}
+
+	if ( gmsgBassSlowmo ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgBassSlowmo, NULL, pev );
+			WRITE_BYTE( slowMotionEnabled );
+		MESSAGE_END();
 	}
 }
 

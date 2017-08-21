@@ -7,6 +7,7 @@
 #include	"cgm_gamerules.h"
 #include	"custom_gamemode_config.h"
 #include	<algorithm>
+#include	<random>
 #include	"monsters.h"
 
 // Custom Game Mode Rules
@@ -40,6 +41,7 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 
 	timeDelta = 0.0f;
 	lastGlobalTime = 0.0f;
+	musicSwitchDelay = 0.0f;
 
 	monsterSpawnPrevented = false;
 }
@@ -112,6 +114,10 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		if ( !std::isnan( startPosition.angle ) ) {
 			pPlayer->pev->angles[1] = startPosition.angle;
 		}
+	}
+
+	if ( config.musicPlaylist.size() > 0 ) {
+		pPlayer->noMapMusic = TRUE;
 	}
 
 	// Do not let player cheat by not starting at the [startmap]
@@ -206,6 +212,30 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 		monsterSpawnPrevented = true;
 	}
+
+	size_t musicPlaylistSize = config.musicPlaylist.size();
+	if (
+		musicPlaylistSize > 0 &&
+		CVAR_GET_FLOAT( "sm_current_pos" ) == 0.0f &&
+		gpGlobals->time > musicSwitchDelay
+	) {
+		int musicIndexToPlay = pPlayer->currentMusicPlaylistIndex + 1;
+		if ( config.musicPlaylistShuffle ) {
+			static std::random_device rd;
+			static std::mt19937 gen( rd() );
+			std::uniform_int_distribution<> dis( 0, musicPlaylistSize - 1 );
+			musicIndexToPlay = dis( gen );
+		}
+
+		if ( musicIndexToPlay >= musicPlaylistSize ) {
+			musicIndexToPlay = 0;
+		}
+		
+		pPlayer->SendPlayMusicMessage( config.musicPlaylist.at( musicIndexToPlay ) );
+		pPlayer->currentMusicPlaylistIndex = musicIndexToPlay;
+
+		musicSwitchDelay = gpGlobals->time + 0.2f;
+	}
 }
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
@@ -274,6 +304,15 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_END_TRIGGER, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
 		End( pPlayer );
 	}
+
+	std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName;
+	auto music = config.MarkModelIndexWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
+	if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
+		pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
+		if ( !music.constant ) {
+			pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+		}
+	}
 }
 
 void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
@@ -286,6 +325,11 @@ void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 			Vector( 0, entitySpawn.angle, 0 )
 		);
 	}
+}
+
+void CCustomGameModeRules::OnChangeLevel() {
+	CHalfLifeRules::OnChangeLevel();
+	musicSwitchDelay = 0.0f;
 }
 
 void CCustomGameModeRules::Precache() {

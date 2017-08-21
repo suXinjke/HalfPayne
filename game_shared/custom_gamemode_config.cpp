@@ -186,6 +186,41 @@ void CustomGameModeConfig::InitConfigSections() {
 		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithSoundSectionData( data ); }
 	);
 
+	configSections[CONFIG_FILE_SECTION_MUSIC] = ConfigSection(
+		"music", false,
+		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithMusicSectionData( data ); }
+	);
+
+	configSections[CONFIG_FILE_SECTION_PLAYLIST] = ConfigSection(
+		"playlist", false,
+		[this]( ConfigSectionData &data ) {
+			for ( auto line : data.argsString ) {
+				if ( line == "shuffle" ) {
+					musicPlaylistShuffle = true;
+					continue;
+				}
+
+				WIN32_FIND_DATA fdFile;
+				HANDLE hFind = NULL;
+
+				if ( ( hFind = FindFirstFile( line.c_str(), &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+					continue;
+				}
+
+				if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
+					if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
+						auto vec = GetAllFileNames( data.argsString.at( 0 ).c_str(), { ".wav", ".ogg", ".mp3" }, true );
+						musicPlaylist.insert( musicPlaylist.end(), vec.begin(), vec.end() );
+					} else {
+						musicPlaylist.push_back( line );
+					}
+				}
+			}
+
+			return "";
+		}
+	);
+
 	configSections[CONFIG_FILE_SECTION_MAX_COMMENTARY] = ConfigSection(
 		"max_commentary", false,
 		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithSoundSectionData( data ); }
@@ -242,6 +277,24 @@ std::string CustomGameModeConfig::ValidateModelIndexWithSoundSectionData( Config
 	return "";
 }
 
+std::string CustomGameModeConfig::ValidateModelIndexWithMusicSectionData( ConfigSectionData &data ) {
+
+	if ( data.argsString.size() < 3 ) {
+		return "<mapname> <modelindex | targetname> <sound_path> [delay] [initial_pos] [const] [looping] not specified";
+	}
+
+	if ( data.argsFloat.size() >= 4 ) {
+		for ( size_t i = 3 ; i < min( data.argsFloat.size(), 3 + 1 ) ; i++ ) {
+			float arg = data.argsFloat.at( i );
+			if ( std::isnan( arg ) ) {
+				return "delay or initial_pos incorrectly specified";
+			}
+		}
+	}
+
+	return "";
+}
+
 std::string CustomGameModeConfig::ConfigTypeToDirectoryName( CONFIG_TYPE configType ) {
 	switch ( configType ) {
 		case CONFIG_TYPE_MAP:
@@ -294,12 +347,22 @@ std::string CustomGameModeConfig::ConfigTypeToGameModeName( CONFIG_TYPE configTy
 }
 
 std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames() {
-	return GetAllConfigFileNames( folderPath.c_str() );
+	return GetAllFileNames( folderPath.c_str(), ".txt" );
+}
+
+std::vector<std::string> CustomGameModeConfig::GetAllFileNames( const char *path, const std::vector<std::string> &extensions, bool includeExtension ) {
+	std::vector<std::string> result;
+	for ( auto extension : extensions ) {
+		auto extensionVector = GetAllFileNames( path, extension.c_str(), includeExtension );
+		result.insert( result.end(), extensionVector.begin(), extensionVector.end() );
+	}
+
+	return result;
 }
 
 // Based on this answer
 // http://stackoverflow.com/questions/2314542/listing-directory-contents-using-c-and-windows
-std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames( const char *path ) {
+std::vector<std::string> CustomGameModeConfig::GetAllFileNames( const char *path, const char *extension, bool includeExtension ) {
 
 	std::vector<std::string> result;
 
@@ -319,12 +382,12 @@ std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames( const char
 			sprintf( sPath, "%s\\%s", path, fdFile.cFileName );
 
 			if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-				std::vector<std::string> sub = GetAllConfigFileNames( sPath );
+				std::vector<std::string> sub = GetAllFileNames( sPath, extension, includeExtension );
 				result.insert( result.end(), sub.begin(), sub.end() );
 			} else {
 				std::string path = sPath;
 				std::string pathSubstring = folderPath + "\\";
-				std::string extensionSubstring = ".txt";
+				std::string extensionSubstring = extension;
 
 				std::string::size_type pos = path.find( pathSubstring );
 				if ( pos != std::string::npos ) {
@@ -334,7 +397,9 @@ std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames( const char
 				pos = path.rfind( extensionSubstring );
 				if ( pos != std::string::npos ) {
 
-					path.erase( pos, extensionSubstring.length() );
+					if ( !includeExtension ) {
+						path.erase( pos, extensionSubstring.length() );
+					}
 					result.push_back( path );
 				}
 			}
@@ -418,6 +483,8 @@ void CustomGameModeConfig::Reset() {
 	
 	this->configName.clear();
 	this->error.clear();
+	this->musicPlaylist.clear();
+	musicPlaylistShuffle = false;
 
 	this->markedForRestart = false;
 
@@ -653,6 +720,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"No fall damage",
 			"Self explanatory.",
 			[]( CBasePlayer *player ) { player->noFallDamage = true; }
+		) );
+		return true;
+	}
+
+	if ( modName == "no_map_music" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_NO_MAP_MUSIC,
+			"No map music",
+			"Music which is defined by map will not be played.\nOnly the music defined in map and gameplay config files will play.",
+			[]( CBasePlayer *player ) { player->noMapMusic = true; }
 		) );
 		return true;
 	}
@@ -907,6 +984,10 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = CONFIG_FILE_SECTION_TIMER_RESUME;
 	} else if ( sectionName == "sound" ) {
 		currentFileSection = CONFIG_FILE_SECTION_SOUND;
+	} else if ( sectionName == "music" ) {
+		currentFileSection = CONFIG_FILE_SECTION_MUSIC;
+	} else if ( sectionName == "playlist" ) {
+		currentFileSection = CONFIG_FILE_SECTION_PLAYLIST;
 	} else if ( sectionName == "max_commentary" ) {
 		currentFileSection = CONFIG_FILE_SECTION_MAX_COMMENTARY;
 	} else if ( sectionName == "sound_prevent" ) {
@@ -996,7 +1077,7 @@ bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, cons
 	auto i = sectionData->begin();
 	while ( i != sectionData->end() ) {
 		std::string storedMapName = i->argsString.at( 0 );
-		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? - 1 : i->argsFloat.at( 1 );
+		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? -2 : i->argsFloat.at( 1 );
 		std::string storedTargetName = i->argsString.at( 1 );
 
 		if ( 
@@ -1045,7 +1126,7 @@ const ConfigFileSound CustomGameModeConfig::MarkModelIndexWithSound( CONFIG_FILE
 		float delay = 0.0f;
 		if ( i->argsString.size() >= 4 ) {
 			for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
-				constant = i->argsString.at( arg ) == "const";
+				constant = !constant && i->argsString.at( arg ) == "const";
 				delay = std::isnan( i->argsFloat.at( arg ) ) ? 0.0f : i->argsFloat.at( arg );
 			}
 		}
@@ -1062,6 +1143,60 @@ const ConfigFileSound CustomGameModeConfig::MarkModelIndexWithSound( CONFIG_FILE
 	}
 
 	return { false, "", false, NAN };
+}
+
+const ConfigFileMusic CustomGameModeConfig::MarkModelIndexWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+	auto *sectionData = &configSections[fileSection].data;
+	auto i = sectionData->begin();
+	while ( i != sectionData->end() ) {
+		std::string storedMapName = i->argsString.at( 0 );
+		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? -2 : i->argsFloat.at( 1 );
+		std::string storedTargetName = i->argsString.at( 1 );
+		std::string storedSoundPath = i->argsString.at( 2 );
+
+		if ( 
+			mapName != storedMapName ||
+			modelIndex != storedModelIndex &&
+			( storedTargetName != targetName || storedTargetName.size() == 0 )
+		) {
+			i++;
+			continue;
+		}
+
+		bool constant = false;
+		bool looping = false;
+		float delay = NAN;
+		float initialPos = NAN;
+		if ( i->argsString.size() >= 4 ) {
+			for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
+				constant = !constant && i->argsString.at( arg ) == "const";
+				looping = !looping && i->argsString.at( arg ) == "looping";
+				if ( std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
+					delay = i->argsFloat.at( arg );
+				} else if ( !std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
+					initialPos = i->argsFloat.at( arg );
+				}
+			}
+		}
+		if ( std::isnan( delay ) ) {
+			delay = 0.0f;
+		}
+		if ( std::isnan( initialPos ) ) {
+			initialPos = 0.0f;
+		}
+
+		if ( !constant ) {
+			i = sectionData->erase( i );
+		}
+
+		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
+			delay = 0.101f;
+		}
+
+		return { true, storedSoundPath, constant, looping, delay, initialPos };
+	}
+
+	return { false, "", false, false, NAN, NAN };
 }
 
 bool CustomGameModeConfig::IsChangeLevelPrevented( const std::string &nextMap ) {

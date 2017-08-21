@@ -24,6 +24,7 @@
 #undef INTERFACE_H
 #include "../public/interface.h"
 //#include "vgui_schememanager.h"
+#include "soundmanager.h"
 
 extern "C"
 {
@@ -277,6 +278,7 @@ void CL_DLLEXPORT HUD_Frame( double time )
 
 	GetClientVoiceMgr()->Frame(time);
 	inMainMenu = gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 1.0f;
+	SM_Think( time );
 }
 
 
