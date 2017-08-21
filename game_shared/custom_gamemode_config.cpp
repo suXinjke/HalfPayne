@@ -1028,7 +1028,7 @@ const ConfigFileSound CustomGameModeConfig::MarkModelIndexWithSound( CONFIG_FILE
 	auto i = sectionData->begin();
 	while ( i != sectionData->end() ) {
 		std::string storedMapName = i->argsString.at( 0 );
-		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? - 1 : i->argsFloat.at( 1 );
+		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? -2 : i->argsFloat.at( 1 );
 		std::string storedTargetName = i->argsString.at( 1 );
 		std::string storedSoundPath = i->argsString.at( 2 );
 
