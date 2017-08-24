@@ -85,7 +85,6 @@ extern CGraph	WorldGraph;
 #define HEALTH_TIME_UNTIL_CHARGE 3
 #define HEALTH_CHARGE_TIME 0.2
 #define BLEED_DRAIN_TIME 1
-#define FADE_OUT_TIME 0.5
 #define HEALTH_MAX_CHARGE 20
 
 #define TIMELEFT_UPDATE_TIME 0.001
@@ -215,6 +214,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, bleedTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, fade, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, fadeOutThreshold, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, fadeOutFrequency, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, isFadingOut, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, fadeOutTime, FIELD_TIME ),
 
@@ -3796,6 +3797,8 @@ void CBasePlayer::Spawn( void )
 	isFadingOut = false;
 	fadeOutTime = 0.0f;
 	fade = 255;
+	fadeOutFrequency = 0.5f;
+	fadeOutThreshold = 25;
 
 	kills = 0;
 	headshotKills = 0;
@@ -5494,10 +5497,10 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	if ( isFadingOut && lastHealingTime <= gpGlobals->time && fadeOutTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
-		fadeOutTime = FADE_OUT_TIME + gpGlobals->time;
+		fadeOutTime = fadeOutFrequency + gpGlobals->time;
 		fade--;
-		if ( fade < 25 ) {
-			fade = 25;
+		if ( fade < fadeOutThreshold ) {
+			fade = fadeOutThreshold;
 		}
 	}
 

@@ -514,6 +514,8 @@ public:
 	float bleedTime;
 
 	int fade;
+	int fadeOutThreshold;
+	float fadeOutFrequency;
 	BOOL isFadingOut;
 	float fadeOutTime;
 

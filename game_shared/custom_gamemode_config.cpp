@@ -637,13 +637,35 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	}
 
 	if ( modName == "fading_out" ) {
+		int fadeOutPercent = 90;
+		float fadeOutFrequency = 0.5f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				fadeOutPercent = min( max( 0, data.argsFloat.at( i ) ), 100 );
+			}
+			if ( i == 2 ) {
+				fadeOutFrequency = data.argsFloat.at( i );
+			}
+		}
+
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_FADING_OUT,
 			"Fading out",
 			"View is fading out, or in other words it's blacking out until you can't see almost anything.\n"
 			"Take painkillers to restore the vision.\n"
 			"Allows to take painkillers even when you have 100 health and enough time have passed since the last take.",
-			[]( CBasePlayer *player ) { player->isFadingOut = true; }
+			[fadeOutPercent, fadeOutFrequency]( CBasePlayer *player ) {
+				player->isFadingOut = true;
+				player->fadeOutThreshold = 255 - ( fadeOutPercent / 100.0f ) * 255;
+				player->fadeOutFrequency = fadeOutFrequency;
+			},
+			{
+				"Fade out percent: " + std::to_string( fadeOutPercent ) + "\n",
+				"Fade out frequency: " + std::to_string( fadeOutFrequency ) + "\n",
+			}
 		) );
 		return true;
 	}
