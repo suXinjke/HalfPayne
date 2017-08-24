@@ -527,6 +527,7 @@ public:
 	void SpawnSnarksAtRandomNode();
 	BOOL snarkParanoia;
 	float nextSnarkSpawn;
+	float nextSnarkSpawnPeriod;
 
 	BOOL snarkInception;
 	BOOL snarkNuclear;

@@ -223,6 +223,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, snarkParanoia, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, nextSnarkSpawnPeriod, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
@@ -3772,6 +3773,7 @@ void CBasePlayer::Spawn( void )
 
 	snarkParanoia = false;
 	nextSnarkSpawn = 2.0f;
+	nextSnarkSpawnPeriod = 1.0f;
 
 	snarkInception = false;
 	snarkNuclear = false;
@@ -5389,7 +5391,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 	if ( snarkParanoia && gpGlobals->time > nextSnarkSpawn ) {
 		SpawnSnarksAtRandomNode();
-		nextSnarkSpawn = gpGlobals->time + 1.0f;
+		nextSnarkSpawn = gpGlobals->time + nextSnarkSpawnPeriod;
 	}
 
 	if (pev->dmg_take || pev->dmg_save || m_bitsHUDDamage != m_bitsDamageType)

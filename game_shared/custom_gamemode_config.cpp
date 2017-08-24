@@ -891,12 +891,26 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	}
 
 	if ( modName == "snark_paranoia" ) {
+		float nextSnarkSpawnPeriod = 1.0f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				nextSnarkSpawnPeriod = data.argsFloat.at( i );
+			}
+		}
+
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SNARK_PARANOIA,
 			"Snark paranoia",
 			"Snarks spawn randomly around the map, mostly out of your sight.\n"
 			"Spawn positions are determined by world graph.",
-			[]( CBasePlayer *player ) { player->snarkParanoia = true; }
+			[nextSnarkSpawnPeriod]( CBasePlayer *player ) {
+				player->snarkParanoia = true;
+				player->nextSnarkSpawnPeriod = nextSnarkSpawnPeriod;
+			},
+			{ "Snark spawning period: " + std::to_string( nextSnarkSpawnPeriod ) + "\n" }
 		) );
 		return true;
 	}
