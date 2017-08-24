@@ -515,7 +515,7 @@ public:
 
 	int fade;
 	int fadeOutThreshold;
-	float fadeOutFrequency;
+	float fadeOutUpdatePeriod;
 	BOOL isFadingOut;
 	float fadeOutTime;
 

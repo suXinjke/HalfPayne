@@ -588,9 +588,9 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	}
 
 	if ( modName == "drunk" ) {
-		int drunkiness = 64;
+		int drunkinessPercent = 25;
 		if ( data.argsFloat.size() >= 2 && !std::isnan( data.argsFloat.at( 1 ) ) ) {
-			drunkiness = min( max( 0, data.argsFloat.at( 1 ) ), 255 );
+			drunkinessPercent = min( max( 0, data.argsFloat.at( 1 ) ), 100 );
 		}
 
 		mods.push_back( GameplayMod( 
@@ -598,10 +598,10 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"Drunk",
 			"Self explanatory. The camera view becomes wobbly and makes aim harder.\n"
 			"Wobble doesn't get slower when slowmotion is present.",
-			[drunkiness]( CBasePlayer *player ) { 
-				player->drunkiness = drunkiness;
+			[drunkinessPercent]( CBasePlayer *player ) { 
+				player->drunkiness = ( drunkinessPercent / 100.0f ) * 255;
 			},
-			{ "Drunkiness: " + std::to_string( drunkiness ) + "\n" }
+			{ "Drunkiness: " + std::to_string( drunkinessPercent ) + "%%\n" }
 		) );
 		return true;
 	}
@@ -638,7 +638,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 
 	if ( modName == "fading_out" ) {
 		int fadeOutPercent = 90;
-		float fadeOutFrequency = 0.5f;
+		float fadeOutUpdatePeriod = 0.5f;
 		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
 			if ( std::isnan( data.argsFloat.at( i ) ) ) {
 				continue;
@@ -647,7 +647,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 				fadeOutPercent = min( max( 0, data.argsFloat.at( i ) ), 100 );
 			}
 			if ( i == 2 ) {
-				fadeOutFrequency = data.argsFloat.at( i );
+				fadeOutUpdatePeriod = data.argsFloat.at( i );
 			}
 		}
 
@@ -657,14 +657,14 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"View is fading out, or in other words it's blacking out until you can't see almost anything.\n"
 			"Take painkillers to restore the vision.\n"
 			"Allows to take painkillers even when you have 100 health and enough time have passed since the last take.",
-			[fadeOutPercent, fadeOutFrequency]( CBasePlayer *player ) {
+			[fadeOutPercent, fadeOutUpdatePeriod]( CBasePlayer *player ) {
 				player->isFadingOut = true;
 				player->fadeOutThreshold = 255 - ( fadeOutPercent / 100.0f ) * 255;
-				player->fadeOutFrequency = fadeOutFrequency;
+				player->fadeOutUpdatePeriod = fadeOutUpdatePeriod;
 			},
 			{
-				"Fade out percent: " + std::to_string( fadeOutPercent ) + "\n",
-				"Fade out frequency: " + std::to_string( fadeOutFrequency ) + "\n",
+				"Fade out intensity: " + std::to_string( fadeOutPercent ) + "%%\n",
+				"Fade out update period: " + std::to_string( fadeOutUpdatePeriod ) + " sec \n",
 			}
 		) );
 		return true;
@@ -910,7 +910,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 				player->snarkParanoia = true;
 				player->nextSnarkSpawnPeriod = nextSnarkSpawnPeriod;
 			},
-			{ "Snark spawning period: " + std::to_string( nextSnarkSpawnPeriod ) + "\n" }
+			{ "Snark spawning period: " + std::to_string( nextSnarkSpawnPeriod ) + " sec \n" }
 		) );
 		return true;
 	}

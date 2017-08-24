@@ -215,7 +215,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, fade, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, fadeOutThreshold, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, fadeOutFrequency, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, fadeOutUpdatePeriod, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, isFadingOut, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, fadeOutTime, FIELD_TIME ),
 
@@ -3799,7 +3799,7 @@ void CBasePlayer::Spawn( void )
 	isFadingOut = false;
 	fadeOutTime = 0.0f;
 	fade = 255;
-	fadeOutFrequency = 0.5f;
+	fadeOutUpdatePeriod = 0.5f;
 	fadeOutThreshold = 25;
 
 	kills = 0;
@@ -5499,7 +5499,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	if ( isFadingOut && lastHealingTime <= gpGlobals->time && fadeOutTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
-		fadeOutTime = fadeOutFrequency + gpGlobals->time;
+		fadeOutTime = fadeOutUpdatePeriod + gpGlobals->time;
 		fade--;
 		if ( fade < fadeOutThreshold ) {
 			fade = fadeOutThreshold;
