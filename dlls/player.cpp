@@ -84,7 +84,6 @@ extern CGraph	WorldGraph;
 
 #define HEALTH_TIME_UNTIL_CHARGE 3
 #define HEALTH_CHARGE_TIME 0.2
-#define BLEED_DRAIN_TIME 1
 #define HEALTH_MAX_CHARGE 20
 
 #define TIMELEFT_UPDATE_TIME 0.001
@@ -212,6 +211,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, isBleeding, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, lastHealingTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, bleedTime, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, bleedUpdatePeriod, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, bleedHandicap, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, fade, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, fadeOutThreshold, FIELD_INTEGER ),
@@ -3795,6 +3796,8 @@ void CBasePlayer::Spawn( void )
 	isBleeding = false;
 	lastHealingTime = 0.0f;
 	bleedTime = 0.0f;
+	bleedUpdatePeriod = 1.0f;
+	bleedHandicap = 20.0f;
 
 	isFadingOut = false;
 	fadeOutTime = 0.0f;
@@ -5486,9 +5489,13 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	if ( isBleeding && lastHealingTime <= gpGlobals->time && bleedTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
-		if ( pev->health > 20 ) {
-			bleedTime = BLEED_DRAIN_TIME + gpGlobals->time;
+		if ( pev->health > bleedHandicap ) {
+			bleedTime = bleedUpdatePeriod + gpGlobals->time;
 			pev->health--;
+			if ( pev->health <= 1.0f ) {
+				// Force proper dying
+				TakeDamage( pev, pev, 1.0f, DMG_GENERIC );
+			}
 		}
 	}
 

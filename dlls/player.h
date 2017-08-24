@@ -512,6 +512,8 @@ public:
 	BOOL isBleeding;
 	float lastHealingTime;
 	float bleedTime;
+	float bleedUpdatePeriod;
+	float bleedHandicap;
 
 	int fade;
 	int fadeOutThreshold;
