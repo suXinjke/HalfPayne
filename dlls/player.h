@@ -502,6 +502,7 @@ public:
 	void SetEvilImpulse101( bool evilImpulse101 );
 
 	BOOL infiniteAmmo;
+	BOOL infiniteAmmoClip;
 	BOOL weaponRestricted;
 	BOOL noSmgGrenadePickup;
 	BOOL instaGib;

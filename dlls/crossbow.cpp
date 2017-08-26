@@ -359,7 +359,9 @@ void CCrossbow::FireSniperBolt()
 	TraceResult tr;
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
-	m_iClip--;
+	if ( !m_pPlayer->infiniteAmmoClip ) {
+		m_iClip--;
+	}
 
 	int flags;
 #if defined( CLIENT_WEAPONS )
@@ -402,7 +404,9 @@ void CCrossbow::FireBolt()
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
-	m_iClip--;
+	if ( !m_pPlayer->infiniteAmmoClip ) {
+		m_iClip--;
+	}
 
 	int flags;
 #if defined( CLIENT_WEAPONS )

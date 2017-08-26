@@ -199,7 +199,9 @@ void CPython::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
-	m_iClip--;
+	if ( !m_pPlayer->infiniteAmmoClip ) {
+		m_iClip--;
+	}
 
 	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 

@@ -190,6 +190,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, infiniteAmmoClip, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noSmgGrenadePickup, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
@@ -3765,6 +3766,7 @@ void CBasePlayer::Spawn( void )
 	healthChargeTime = 1.0f;
 
 	infiniteAmmo = false;
+	infiniteAmmoClip = false;
 	weaponRestricted = false;
 	noSmgGrenadePickup = false;
 	instaGib = false;

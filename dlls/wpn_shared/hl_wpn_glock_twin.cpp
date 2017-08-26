@@ -237,7 +237,11 @@ void CGlockTwin::GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim 
 		m_iClip--;
 		UTIL_SetWeaponClip( WEAPON_GLOCK, m_iClip );
 	} else {
-		m_iClip2--;
+		if ( !m_pPlayer->infiniteAmmoClip ) {
+			m_iClip2--;
+		} else {
+			m_iClip++;
+		}
 	}
 
 	m_pPlayer->pev->effects = ( int ) ( m_pPlayer->pev->effects ) | EF_MUZZLEFLASH;

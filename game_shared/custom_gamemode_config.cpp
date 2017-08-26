@@ -734,6 +734,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "infinite_ammo_clip" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_INFINITE_AMMO_CLIP,
+			"Infinite ammo clip",
+			"Most weapons get an infinite ammo clip and need no reloading.",
+			[]( CBasePlayer *player ) { player->infiniteAmmoClip = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "infinite_slowmotion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_INFINITE_SLOWMOTION,
