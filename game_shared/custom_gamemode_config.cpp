@@ -585,6 +585,18 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "crossbow_explosive_bolts" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_CROSSBOW_EXPLOSIVE_BOLTS,
+			"Crossbow explosive bolts",
+			"Crossbow bolts explode when then hit the wall.",
+			[]( CBasePlayer *player ) {
+				player->crossbowExplosiveBolts = true;
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "diving_allowed_without_slowmotion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_DIVING_ALLOWED_WITHOUT_SLOWMOTION,

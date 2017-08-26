@@ -166,7 +166,9 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		}
 	}
 
-	if ( g_pGameRules->IsMultiplayer() )
+	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( pev->owner ) );
+
+	if ( ( player && player->crossbowExplosiveBolts ) || g_pGameRules->IsMultiplayer() )
 	{
 		SetThink( &CCrossbowBolt::ExplodeThink );
 		pev->nextthink = gpGlobals->time + 0.1;

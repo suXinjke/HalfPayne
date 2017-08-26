@@ -506,6 +506,7 @@ public:
 	BOOL weaponRestricted;
 	BOOL noSmgGrenadePickup;
 	BOOL instaGib;
+	BOOL crossbowExplosiveBolts;
 
 	BOOL edibleGibs;
 	BOOL garbageGibs;
