@@ -915,6 +915,30 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "slow_painkillers" ) {
+		float nextPainkillerEffectTimePeriod = 0.2f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				nextPainkillerEffectTimePeriod = max( 0, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SLOW_PAINKILLERS,
+			"Slow painkillers",
+			"Painkillers take time to have an effect, like in original Max Payne.",
+			[nextPainkillerEffectTimePeriod]( CBasePlayer *player ) {
+				player->slowPainkillers = true;
+				player->nextPainkillerEffectTimePeriod = nextPainkillerEffectTimePeriod;
+			},
+			{ "Healing period " + std::to_string( nextPainkillerEffectTimePeriod ) + " sec\n" }
+		) );
+		return true;
+	}
+
 	if ( modName == "snark_from_explosion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SNARK_FROM_EXPLOSION,

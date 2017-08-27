@@ -171,6 +171,10 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, noMapMusic, FIELD_BOOLEAN ),
 	
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, slowPainkillers, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, painkillerEnergy, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, nextPainkillerEffectTime, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, nextPainkillerEffectTimePeriod, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
@@ -348,7 +352,7 @@ void LinkUserMessages( void )
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgUpsideDown = REG_USER_MSG("UpsideDown", 1);
-	gmsgHealth = REG_USER_MSG( "Health", 2 );
+	gmsgHealth = REG_USER_MSG( "Health", 4 );
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
@@ -566,9 +570,12 @@ void CBasePlayer::UsePainkiller()
 		return;
 	}
 
-	if ( TakeHealth( 20, DMG_GENERIC ) || ( isFadingOut && fade <= 180 ) ) {
+	if ( TakeHealth( slowPainkillers ? 0 : 20, DMG_GENERIC ) && ( pev->health + painkillerEnergy ) < pev->max_health || ( isFadingOut && fade <= 180 ) ) {
 		painkillerCount--;
 		lastHealingTime = gpGlobals->time + 10.0f;
+		if ( slowPainkillers ) {
+			painkillerEnergy += min( 20, pev->max_health - ( pev->health + painkillerEnergy ) );
+		}
 
 		if ( isFadingOut ) {
 			fade = 255;
@@ -1445,6 +1452,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	m_iClientHealth = 0;
 	MESSAGE_BEGIN( MSG_ONE, gmsgHealth, NULL, pev );
 		WRITE_SHORT( m_iClientHealth );
+		WRITE_SHORT( painkillerEnergy );
 	MESSAGE_END();
 
 	// Tell Ammo Hud that the player is dead
@@ -3660,7 +3668,11 @@ void CBasePlayer::Spawn( void )
 	currentMusicPlaylistIndex = -1;
 
 	painkillerCount = 0;
-	
+	slowPainkillers = 0;
+	painkillerEnergy = 0;
+	nextPainkillerEffectTime = 0.0f;
+	nextPainkillerEffectTimePeriod = 0.2f;
+
 	activeGameMode = GAME_MODE_VANILLA;
 	activeGameModeConfig = 0;
 	noSaving = false;
@@ -5362,7 +5374,7 @@ void CBasePlayer :: UpdateClientData( void )
 		gDisplayTitle = 0;
 	}
 
-	if (pev->health != m_iClientHealth)
+	if (pev->health != m_iClientHealth || painkillerEnergy)
 	{
 #define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) )
 		int iHealth = clamp( pev->health, 0, 32767 );  // make sure that no negative health values are sent
@@ -5372,6 +5384,7 @@ void CBasePlayer :: UpdateClientData( void )
 		// send "health" update message
 		MESSAGE_BEGIN( MSG_ONE, gmsgHealth, NULL, pev );
 			WRITE_SHORT( iHealth );
+			WRITE_SHORT( painkillerEnergy );
 		MESSAGE_END();
 
 		m_iClientHealth = pev->health;
@@ -5501,6 +5514,12 @@ void CBasePlayer :: UpdateClientData( void )
 				TakeDamage( pev, pev, 1.0f, DMG_GENERIC );
 			}
 		}
+	}
+
+	if ( painkillerEnergy && nextPainkillerEffectTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
+		TakeHealth( 1, DMG_GENERIC );
+		painkillerEnergy--;
+		nextPainkillerEffectTime = nextPainkillerEffectTimePeriod + gpGlobals->time;
 	}
 
 	if ( isFadingOut ) {

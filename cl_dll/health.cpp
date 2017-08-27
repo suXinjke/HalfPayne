@@ -61,6 +61,7 @@ int CHudHealth::Init(void)
 	HOOK_MESSAGE(FadeOut);
 	HOOK_MESSAGE(Flash);
 	m_iHealth = 100;
+	painkillerEffect = 0;
 	m_fFade = 0;
 	m_iFlags = 0;
 	m_bitsDamage = 0;
@@ -110,6 +111,7 @@ int CHudHealth:: MsgFunc_Health(const char *pszName,  int iSize, void *pbuf )
 	// TODO: update local health data
 	BEGIN_READ( pbuf, iSize );
 	int x = READ_SHORT();
+	painkillerEffect = READ_SHORT();
 
 	m_iFlags |= HUD_ACTIVE;
 
@@ -228,10 +230,12 @@ int CHudHealth::Draw(float flTime)
 
 	wrect_t painRect = gHUD.GetSpriteRect( healthSprite );
 	wrect_t painRect2 = gHUD.GetSpriteRect( healthSprite );
+	wrect_t painRect3 = gHUD.GetSpriteRect( healthSprite );
 	int painRectHeight = painRect.bottom - painRect.top;
 
 	float healthPercent = ( m_iHealth / 100.0f );
-	float damagePercent = 1.0f - healthPercent;
+	float painkillerEffectPercent = ( painkillerEffect / 100.0f );
+	float damagePercent = 1.0f - ( healthPercent + painkillerEffectPercent );
 
 	int x = CORNER_OFFSET;
 	int y = ScreenHeight - painRectHeight - CORNER_OFFSET;
@@ -242,9 +246,18 @@ int CHudHealth::Draw(float flTime)
 		SPR_DrawAdditive( 0, x, y, &painRect );
 	}
 
+	if ( painkillerEffectPercent > 0.0f ) {
+		int painkillerEffectOffset = painRectHeight * healthPercent;
+		painRect3.top = painRect.bottom;
+		painRect3.bottom *= ( healthPercent + painkillerEffectPercent );
+
+		SPR_Set( gHUD.GetSprite( healthSprite ), 255, 125, 125 );
+		SPR_DrawAdditive( 0, x, y + painkillerEffectOffset, &painRect3 );
+	}
+
 	if ( damagePercent > 0.0f ) {
 		int damageHeight = painRectHeight * damagePercent;
-		int healthOffset = painRectHeight * healthPercent;
+		int healthOffset = painRectHeight * ( healthPercent + painkillerEffectPercent );
 		painRect2.top = painRect2.bottom - damageHeight;
 
 		SPR_Set( gHUD.GetSprite( healthSprite ), 255, 0, 0 );

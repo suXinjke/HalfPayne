@@ -110,6 +110,7 @@ public:
 	int MsgFunc_FadeOut(const char *pszName,  int iSize, void *pbuf );
 	int MsgFunc_Flash(const char *pszName,  int iSize, void *pbuf );
 	int m_iHealth;
+	int painkillerEffect;
 	int m_HUD_dmg_bio;
 	int m_HUD_cross;
 	int healthSprite;

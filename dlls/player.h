@@ -451,6 +451,8 @@ public:
 	int painkillerCount;
 	int TakePainkiller();
 	void UsePainkiller();
+	BOOL slowPainkillers;
+	int painkillerEnergy;
 
 	// Death camera
 	float deathCameraYaw;
@@ -513,6 +515,8 @@ public:
 
 	BOOL isBleeding;
 	float lastHealingTime;
+	float nextPainkillerEffectTime;
+	float nextPainkillerEffectTimePeriod;
 	float bleedTime;
 	float bleedUpdatePeriod;
 	float bleedHandicap;
