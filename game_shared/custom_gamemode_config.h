@@ -128,6 +128,17 @@ struct EntitySpawn
 	float		angle;
 };
 
+struct Intermission
+{
+	bool defined;
+	
+	std::string toMap;
+	float x;
+	float y;
+	float z;
+	float angle;
+	bool strip;
+};
 
 enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_UNKNOWN,
@@ -185,6 +196,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_END_MAP,
 	CONFIG_FILE_SECTION_END_TRIGGER,
 	CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT,
+	CONFIG_FILE_SECTION_INTERMISSION,
 	CONFIG_FILE_SECTION_LOADOUT,
 	CONFIG_FILE_SECTION_ENTITY_SPAWN,
 	CONFIG_FILE_SECTION_ENTITY_USE,
@@ -285,6 +297,7 @@ public:
 	static int GetAllowedEntityIndex( const char *allowedEntity );
 
 	const StartPosition GetStartPosition();
+	const Intermission GetIntermission( const std::string &mapName, int modelIndex, const std::string &targetName );
 
 	std::string configName;
 	std::string error;

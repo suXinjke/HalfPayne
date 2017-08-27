@@ -21,6 +21,7 @@ int	gmsgCustomEnd	= 0;
 // using g_changeLevelOccured like below and see also CWorld::Precache 
 
 extern int g_changeLevelOccured;
+extern Intermission g_latestIntermission;
 
 CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( configType )
 {
@@ -114,6 +115,24 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		if ( !std::isnan( startPosition.angle ) ) {
 			pPlayer->pev->angles[1] = startPosition.angle;
 		}
+	}
+
+	if ( g_latestIntermission.defined ) {
+		if ( !std::isnan( g_latestIntermission.x ) ) {
+			pPlayer->pev->origin.x = g_latestIntermission.x;
+			pPlayer->pev->origin.y = std::isnan( g_latestIntermission.y ) ? 0 : g_latestIntermission.y;
+			pPlayer->pev->origin.z = std::isnan( g_latestIntermission.z ) ? 0 : g_latestIntermission.z;
+		}
+
+		if ( !std::isnan( g_latestIntermission.angle ) ) {
+			pPlayer->pev->angles[1] = g_latestIntermission.angle;
+		}
+
+		if ( g_latestIntermission.strip ) {
+			pPlayer->RemoveAllItems( false );
+		}
+
+		g_latestIntermission.defined = false;
 	}
 
 	if ( config.musicPlaylist.size() > 0 ) {
@@ -312,6 +331,13 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 		if ( !music.constant ) {
 			pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
 		}
+	}
+
+	Intermission potentialIntermission = config.GetIntermission( STRING( gpGlobals->mapname ), modelIndex, targetName );
+	if ( potentialIntermission.defined ) {
+		g_latestIntermission = potentialIntermission;
+		CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
+		// after that, g_latestIntermission becomes undefined in PlayerSpawn function
 	}
 }
 

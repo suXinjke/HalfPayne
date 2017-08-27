@@ -248,6 +248,27 @@ void CustomGameModeConfig::InitConfigSections() {
 		"timer_resume", false,
 		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
 	);
+
+	configSections[CONFIG_FILE_SECTION_INTERMISSION] = ConfigSection(
+		"intermission", false,
+		[this]( ConfigSectionData &data ) {
+			for ( auto line : data.argsString ) {
+				if ( data.argsString.size() < 3 ) {
+					return std::string( "<map_name> <model_index | target_name | next_map_name> <real_next_map_name> [x] [y] [z] [angle] [stripped] not specified" );
+				}
+
+				for ( size_t i = 3 ; i < min( data.argsFloat.size(), 6 ) ; i++ ) {
+					float arg = data.argsFloat.at( i );
+					if ( std::isnan( arg ) ) {
+						char error[1024];
+						sprintf_s( error, "invalid coordinate by index %d", i + 1 );
+						return std::string( error );
+					}
+				}
+			}
+			return std::string( "" );
+		}
+	);
 }
 
 std::string CustomGameModeConfig::ValidateModelIndexSectionData( ConfigSectionData &data ) {
@@ -1074,6 +1095,8 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = CONFIG_FILE_SECTION_MAX_COMMENTARY;
 	} else if ( sectionName == "sound_prevent" ) {
 		currentFileSection = CONFIG_FILE_SECTION_SOUND_PREVENT;
+	} else if ( sectionName == "intermission" ) {
+		currentFileSection = CONFIG_FILE_SECTION_INTERMISSION;
 	} else {
 		return false;
 	}
@@ -1109,6 +1132,39 @@ const StartPosition CustomGameModeConfig::GetStartPosition() {
 	float angle = args.size() > 3 ? args.at( 3 ) : NAN;
 
 	return { true, x, y, z, angle };
+}
+
+const Intermission CustomGameModeConfig::GetIntermission( const std::string &mapName, int modelIndex, const std::string &targetName ) {
+	ConfigSection section = configSections[CONFIG_FILE_SECTION_INTERMISSION];
+	if ( section.data.size() == 0 ) {
+		return { false, "", NAN, NAN, NAN, NAN, false };
+	}
+
+	for ( auto data : section.data ) {
+		std::string storedMapName = data.argsString.at( 0 );
+		int storedModelIndex = std::isnan( data.argsFloat.at( 1 ) ) ? -2 : data.argsFloat.at( 1 );
+		std::string storedTargetName = data.argsString.at( 1 );
+		std::string storedToMap = data.argsString.at( 2 );
+
+		if ( 
+			mapName != storedMapName ||
+			modelIndex != storedModelIndex &&
+			( storedTargetName != targetName || storedTargetName.size() == 0 )
+		) {
+			continue;
+		}
+
+		float x = data.argsFloat.size() > 3 ? data.argsFloat.at( 3 ) : NAN;
+		float y = data.argsFloat.size() > 4 ? data.argsFloat.at( 4 ) : NAN;
+		float z = data.argsFloat.size() > 5 ? data.argsFloat.at( 5 ) : NAN;
+		float angle = data.argsFloat.size() > 6 ? data.argsFloat.at( 6 ) : NAN;
+
+		bool stripped = data.argsFloat.size() > 7 ? data.argsString.at( 7 ) == "strip" : false;
+
+		return { true, storedToMap, x, y, z, angle, stripped };
+	}
+
+	return { false, "", NAN, NAN, NAN, NAN, false };
 }
 
 const std::vector<std::string> CustomGameModeConfig::GetLoadout() {

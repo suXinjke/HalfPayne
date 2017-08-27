@@ -1556,6 +1556,7 @@ void CChangeLevel :: UseChangeLevel ( CBaseEntity *pActivator, CBaseEntity *pCal
 }
 
 int g_changeLevelOccured = 0;
+Intermission g_latestIntermission;
 
 void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 {
@@ -1617,6 +1618,7 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
+	g_latestIntermission.defined = false;
 
 	// Are we changing to the map that should end Custom Game Mode session?
 	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
@@ -1629,13 +1631,19 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 			cgm->End( player );
 			return;
 		}
+
+		g_latestIntermission = cgm->config.GetIntermission( STRING( gpGlobals->mapname ), pev->modelindex, st_szNextMap );
 	}
 
 	if ( player ) {
 		player->ClearSoundQueue();
 	}
 	ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-	CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+	if ( !g_latestIntermission.defined ) {
+		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+	} else {
+		CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
+	}
 }
 
 //
@@ -2184,6 +2192,8 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 
 	if (pev->message)
 	{
+		g_latestIntermission.defined = false;
+
 		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 			const std::string endMap = cgm->config.GetEndMap();
@@ -2191,10 +2201,16 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 				cgm->End( player );
 				return;
 			}
+
+			g_latestIntermission = cgm->config.GetIntermission( STRING( gpGlobals->mapname ), pev->modelindex, st_szNextMap );
 		}
 
 		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+		if ( !g_latestIntermission.defined ) {
+			CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
+		} else {
+			CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
+		}
 	}
 	UTIL_Remove( this );
 }
