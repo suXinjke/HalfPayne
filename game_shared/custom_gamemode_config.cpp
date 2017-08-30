@@ -783,6 +783,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "infinite_painkillers" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_INFINITE_PAINKILLERS,
+			"Infinite painkillers",
+			"Self explanatory.",
+			[]( CBasePlayer *player ) { player->infinitePainkillers = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "infinite_slowmotion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_INFINITE_SLOWMOTION,

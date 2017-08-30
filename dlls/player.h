@@ -505,6 +505,7 @@ public:
 
 	BOOL infiniteAmmo;
 	BOOL infiniteAmmoClip;
+	BOOL infinitePainkillers;
 	BOOL weaponRestricted;
 	BOOL noSmgGrenadePickup;
 	BOOL instaGib;

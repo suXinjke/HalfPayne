@@ -195,6 +195,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, infiniteAmmoClip, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, infinitePainkillers, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noSmgGrenadePickup, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
@@ -3781,6 +3782,7 @@ void CBasePlayer::Spawn( void )
 
 	infiniteAmmo = false;
 	infiniteAmmoClip = false;
+	infinitePainkillers = false;
 	weaponRestricted = false;
 	noSmgGrenadePickup = false;
 	instaGib = false;
@@ -5658,6 +5660,10 @@ void CBasePlayer :: UpdateClientData( void )
 	
 	if ( infiniteSlowMotion ) {
 		slowMotionCharge = 100;
+	}
+
+	if ( infinitePainkillers ) {
+		painkillerCount = MAX_PAINKILLERS;
 	}
 
 	if ( readyToComplainAboutDumbShots && !( this->pev->button & IN_ATTACK ) ) {
