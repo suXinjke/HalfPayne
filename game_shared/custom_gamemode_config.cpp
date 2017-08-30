@@ -527,6 +527,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	if ( modName == "bleeding" ) {
 		int bleedHandicap = 20;
 		float bleedUpdatePeriod = 1.0f;
+		float bleedImmunityPeriod = 10.0f;
 		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
 			if ( std::isnan( data.argsFloat.at( i ) ) ) {
 				continue;
@@ -537,6 +538,9 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			if ( i == 2 ) {
 				bleedUpdatePeriod = data.argsFloat.at( i );
 			}
+			if ( i == 3 ) {
+				bleedImmunityPeriod = max( 0.05, data.argsFloat.at( i ) );
+			}
 		}
 
 		mods.push_back( GameplayMod( 
@@ -544,16 +548,18 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"Bleeding",
 			"After your last painkiller take, you start to lose health.\n"
 			"Health regeneration is turned off.",
-			[bleedHandicap, bleedUpdatePeriod]( CBasePlayer *player ) {
+			[bleedHandicap, bleedUpdatePeriod, bleedImmunityPeriod]( CBasePlayer *player ) {
 				player->isBleeding = true;
 				player->bleedHandicap = bleedHandicap;
 				player->bleedUpdatePeriod = bleedUpdatePeriod;
+				player->bleedImmunityPeriod = bleedImmunityPeriod;
 
-				player->lastHealingTime = gpGlobals->time + 10.0f;
+				player->lastHealingTime = gpGlobals->time + bleedImmunityPeriod;
 			},
 			{
 				"Bleeding until " + std::to_string( bleedHandicap ) + "%% health left\n",
 				"Bleed update period: " + std::to_string( bleedUpdatePeriod ) + " sec \n",
+				"Bleed again after healing in: " + std::to_string( bleedImmunityPeriod ) + " sec \n",
 			}
 		) );
 		return true;

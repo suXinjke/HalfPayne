@@ -520,6 +520,7 @@ public:
 	float bleedTime;
 	float bleedUpdatePeriod;
 	float bleedHandicap;
+	float bleedImmunityPeriod;
 
 	int fade;
 	int fadeOutThreshold;

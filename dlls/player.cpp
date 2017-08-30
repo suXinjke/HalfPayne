@@ -219,6 +219,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, bleedTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, bleedUpdatePeriod, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, bleedHandicap, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, bleedImmunityPeriod, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, fade, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, fadeOutThreshold, FIELD_INTEGER ),
@@ -572,7 +573,7 @@ void CBasePlayer::UsePainkiller()
 
 	if ( TakeHealth( slowPainkillers ? 0 : 20, DMG_GENERIC ) && ( pev->health + painkillerEnergy ) < pev->max_health || ( isFadingOut && fade <= 180 ) ) {
 		painkillerCount--;
-		lastHealingTime = gpGlobals->time + 10.0f;
+		lastHealingTime = gpGlobals->time + bleedImmunityPeriod;
 		if ( slowPainkillers ) {
 			painkillerEnergy += min( 20, pev->max_health - ( pev->health + painkillerEnergy ) );
 		}
@@ -3814,6 +3815,7 @@ void CBasePlayer::Spawn( void )
 	bleedTime = 0.0f;
 	bleedUpdatePeriod = 1.0f;
 	bleedHandicap = 20.0f;
+	bleedImmunityPeriod = 10.0f;
 
 	isFadingOut = false;
 	fadeOutTime = 0.0f;
