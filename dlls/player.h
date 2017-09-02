@@ -492,6 +492,10 @@ public:
 	BULLET_PHYSICS_MODE bulletPhysicsMode;
 	BOOL shouldProducePhysicalBullets;
 
+	int bulletRicochetCount;
+	int bulletRicochetError;
+	float bulletRicochetMaxDotProduct;
+
 	// Statistics
 	int kills;
 	int headshotKills;

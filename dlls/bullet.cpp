@@ -10,17 +10,28 @@ LINK_ENTITY_TO_CLASS( bullet, CBullet );
 
 TYPEDESCRIPTION	CBullet::m_SaveData[] = 
 {
-	DEFINE_FIELD( CBullet, bulletType, FIELD_INTEGER )
+	DEFINE_FIELD( CBullet, bulletType, FIELD_INTEGER ),
+	DEFINE_FIELD( CBullet, ricochetCount, FIELD_INTEGER ),
+	DEFINE_FIELD( CBullet, ricochetError, FIELD_INTEGER ),
+	DEFINE_FIELD( CBullet, ricochetMaxDotProduct, FIELD_FLOAT ),
+	DEFINE_FIELD( CBullet, ricochetVelocity, FIELD_VECTOR ),
+	DEFINE_FIELD( CBullet, tryToRicochet, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBullet, ricochettedOnce, FIELD_BOOLEAN )
 };
 IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
 
-CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive, edict_t *owner )
-{
+CBullet *CBullet::BulletCreate(
+	Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive, edict_t *owner,
+	int ricochetCount, int ricochetError, float ricochetMaxDotProduct
+) {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;
 	bullet->bulletType = bulletType;
 	bullet->pev->owner = owner;
 	bullet->activateTrail = trailActive;
+	bullet->ricochetCount = ricochetCount;
+	bullet->ricochetError = ricochetError;
+	bullet->ricochetMaxDotProduct = ricochetMaxDotProduct;
 
 	switch ( bulletType ) {
 		case BULLET_PLAYER_BUCKSHOT:
@@ -39,6 +50,11 @@ void CBullet::Spawn( )
 	Precache( );
 
 	bulletType = BULLET_MONSTER_9MM;
+	ricochetCount = 0;
+	ricochetError = 5;
+	ricochetMaxDotProduct = 0.5;
+	tryToRicochet = FALSE;
+	ricochettedOnce = FALSE;
 
 	pev->movetype = MOVETYPE_FLY;
 	pev->solid = SOLID_BSP;
@@ -67,15 +83,13 @@ int CBullet::Classify( void )
 
 void CBullet::BulletTouch( CBaseEntity *pOther )
 {
-
-	// Don't touch neighbour bullets or owner
-	if ( pev->owner == pOther->pev->owner || pev->owner == pOther->edict() ) {
-		pev->nextthink = gpGlobals->time + 0.01;
+	// Bullets mashing into each other should be destroyed
+	if ( FStrEq( "bullet", STRING( pOther->pev->classname ) ) ) {
+		SetTouch( NULL );
+		SetThink( &CBaseEntity::SUB_Remove );
+		pOther->Killed( pev, GIB_NEVER );
 		return;
 	}
-
-	SetTouch( NULL );
-	SetThink( NULL );
 
 	Vector vecSrc = pev->origin;
 	Vector vecEnd = pev->origin + pev->velocity.Normalize() * 3;
@@ -84,8 +98,10 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 	TEXTURETYPE_PlaySound( &tr, vecSrc, vecEnd, bulletType );
 	DecalGunshot( &tr, bulletType );
 
-	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pev->owner ) ) ) {
-		player->OnBulletHit( pOther );
+	if ( !ricochettedOnce ) {
+		if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pev->owner ) ) ) {
+			player->OnBulletHit( pOther );
+		}
 	}
 
 	if ( pOther->pev->takedamage )
@@ -142,17 +158,42 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 		{
 			Killed( pev, GIB_NEVER );
 		}
-	}
-	else
-	{
+
+		SetTouch( NULL );
+		SetThink( NULL );
+	} else if ( ricochetCount != 0 ) {
+		Vector normal = tr.vecPlaneNormal;
+		// TODO: add an error by utilising ricochetError correctly
+
+		if ( DotProduct( -pev->velocity.Normalize(), normal ) < ricochetMaxDotProduct ) {
+			ricochetVelocity = pev->velocity - 2 * ( DotProduct( pev->velocity, normal ) ) * normal;
+			ricochettedOnce = TRUE;
+			tryToRicochet = true;
+			if ( ricochetCount > 0 ) {
+				ricochetCount--;
+			}
+		} else {
+			SetThink( &CBaseEntity::SUB_Remove );
+		}
+	} else {
 		SetThink( &CBaseEntity::SUB_Remove );
-		pev->nextthink = gpGlobals->time + 0.01;
 	}
+
+	if ( pev->velocity.Length() > 0 ) {
+		lastVelocity = pev->velocity;
+	}
+	pev->nextthink = gpGlobals->time + 0.01;
 }
 
 void CBullet::BubbleThink( void )
 {
 	pev->nextthink = gpGlobals->time + 0.01;
+
+	if ( tryToRicochet ) {
+		pev->velocity = ricochetVelocity;
+		pev->angles = UTIL_VecToAngles( pev->velocity );
+		tryToRicochet = false;
+	}
 
 	if ( activateTrail ) {
 		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );

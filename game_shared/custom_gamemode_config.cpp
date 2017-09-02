@@ -595,6 +595,48 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "bullet_ricochet" ) {
+		
+		int bulletRicochetCount = 2;
+		int bulletRicochetError = 5;
+		float bulletRicochetMaxDegree = 45;
+
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				bulletRicochetCount = data.argsFloat.at( i );
+				if ( bulletRicochetCount <= 0 ) {
+					bulletRicochetCount = -1;
+				}
+			}
+			if ( i == 2 ) {
+				bulletRicochetMaxDegree = min( max( 1, data.argsFloat.at( i ) ), 90 );
+			}
+			if ( i == 3 ) {
+				bulletRicochetError = data.argsFloat.at( i );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_BULLET_RICOCHET,
+			"Bullet ricochet",
+			"Physical bullets ricochet off the walls.",
+			[bulletRicochetCount, bulletRicochetError, bulletRicochetMaxDegree]( CBasePlayer *player ) {
+				player->bulletRicochetCount = bulletRicochetCount;
+				player->bulletRicochetError = bulletRicochetError;
+				player->bulletRicochetMaxDotProduct = bulletRicochetMaxDegree / 90.0f;
+			},
+			{
+				"Max ricochets: " + ( bulletRicochetCount <= 0 ? "Infinite" : std::to_string( bulletRicochetCount ) ) + "\n",
+				"Max angle for ricochet: " + std::to_string( bulletRicochetMaxDegree ) + " deg \n",
+				//"Ricochet error: " + std::to_string( bulletRicochetError ) + "%% \n",
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "constant_slowmotion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_CONSTANT_SLOWMOTION,

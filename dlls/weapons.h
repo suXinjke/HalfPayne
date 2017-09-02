@@ -1078,9 +1078,16 @@ class CBullet : public CBaseEntity
 	int m_iTrail;
 	int bulletType;
 	int activateTrail;
+	int ricochetCount;
+	int ricochetError;
+	float ricochetMaxDotProduct;
+	BOOL ricochettedOnce;
+	Vector lastVelocity;
+	Vector ricochetVelocity;
+	BOOL tryToRicochet;
 
 public:
-	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive = false, edict_t *owner = NULL );
+	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive = false, edict_t *owner = NULL, int ricochetCount = 0, int ricochetError = 5, float ricochetMaxDotProduct = 0.5 );
 	static TYPEDESCRIPTION m_SaveData[];
 };
 
