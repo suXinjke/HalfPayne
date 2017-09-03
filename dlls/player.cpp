@@ -362,7 +362,7 @@ void LinkUserMessages( void )
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgUpsideDown = REG_USER_MSG("UpsideDown", 1);
-	gmsgHealth = REG_USER_MSG( "Health", 4 );
+	gmsgHealth = REG_USER_MSG( "Health", 6 );
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
@@ -1470,7 +1470,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	// send "health" update message to zero
 	m_iClientHealth = 0;
 	MESSAGE_BEGIN( MSG_ONE, gmsgHealth, NULL, pev );
-		WRITE_SHORT( m_iClientHealth );
+		WRITE_LONG( m_iClientHealth );
 		WRITE_SHORT( painkillerEnergy );
 	MESSAGE_END();
 
@@ -5406,13 +5406,13 @@ void CBasePlayer :: UpdateClientData( void )
 	if (pev->health != m_iClientHealth || painkillerEnergy)
 	{
 #define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) )
-		int iHealth = clamp( pev->health, 0, 32767 );  // make sure that no negative health values are sent
+		int iHealth = clamp( pev->health, 0, 2147483647 );  // make sure that no negative health values are sent
 		if ( pev->health > 0.0f && pev->health <= 1.0f )
 			iHealth = 1;
 
 		// send "health" update message
 		MESSAGE_BEGIN( MSG_ONE, gmsgHealth, NULL, pev );
-			WRITE_SHORT( iHealth );
+			WRITE_LONG( iHealth );
 			WRITE_SHORT( painkillerEnergy );
 		MESSAGE_END();
 

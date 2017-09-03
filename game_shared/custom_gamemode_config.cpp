@@ -1114,6 +1114,30 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "starting_health" ) {
+		int startingHealth = 100;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				startingHealth = data.argsFloat.at( i );
+				if ( startingHealth <= 0 ) {
+					startingHealth = 1;
+				}
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_STARTING_HEALTH,
+			"Starting Health",
+			"Start with specified health amount.",
+			[startingHealth]( CBasePlayer *player ) { player->pev->health = startingHealth; },
+			{ "Health amount: " + std::to_string( startingHealth ) + "\n" }
+		) );
+		return true;
+	}
+
 	if ( modName == "superhot" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SUPERHOT,
