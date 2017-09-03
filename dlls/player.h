@@ -483,6 +483,8 @@ public:
 	edict_t *rhetoricalQuestionHolder;
 	void AnswerAboutRhetoricalQuestion();
 
+	BOOL gameTitleShown;
+
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;
 	BOOL noSaving;

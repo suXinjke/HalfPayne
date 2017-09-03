@@ -185,6 +185,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, activeGameModeConfig, FIELD_STRING ),
 
+	DEFINE_FIELD( CBasePlayer, gameTitleShown, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, edibleGibs, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, garbageGibs, FIELD_BOOLEAN ),
 
@@ -3696,6 +3698,8 @@ void CBasePlayer::Spawn( void )
 	activeGameModeConfig = 0;
 	noSaving = false;
 
+	gameTitleShown = false;
+
 	noPills = false;
 	noHealing = false;
 	noSecondaryAttack = false;
@@ -5395,12 +5399,13 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// HACKHACK -- send the message to display the game title
-	if (gDisplayTitle)
+	if (gDisplayTitle && !gameTitleShown)
 	{
 		MESSAGE_BEGIN( MSG_ONE, gmsgShowGameTitle, NULL, pev );
 		WRITE_BYTE( 0 );
 		MESSAGE_END();
 		gDisplayTitle = 0;
+		gameTitleShown = true;
 	}
 
 	if (pev->health != m_iClientHealth || painkillerEnergy)
