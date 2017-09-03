@@ -189,6 +189,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, garbageGibs, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, noPills, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, noHealing, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noSecondaryAttack, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
@@ -542,6 +543,10 @@ void CBasePlayer :: DeathSound( void )
 
 int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 {
+	if ( noHealing ) {
+		return 0;
+	}
+
 	return CBaseMonster :: TakeHealth (flHealth, bitsDamageType);
 
 }
@@ -921,6 +926,10 @@ void CBasePlayer :: TraceAttack( entvars_t *pevAttacker, float flDamage, Vector 
 
 int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType )
 {
+	if ( noHealing && flDamage < 0 ) {
+		return 0;
+	}
+
 	// have suit diagnose the problem - ie: report damage type
 	int bitsDamage = bitsDamageType;
 	int ffound = TRUE;
@@ -3688,6 +3697,7 @@ void CBasePlayer::Spawn( void )
 	noSaving = false;
 
 	noPills = false;
+	noHealing = false;
 	noSecondaryAttack = false;
 
 	allowedToReactOnPainkillerPickup = 0.0f;
@@ -5502,7 +5512,7 @@ void CBasePlayer :: UpdateClientData( void )
 	{
 		if ( pev->health < 20 ) {
 			healthChargeTime = HEALTH_CHARGE_TIME + gpGlobals->time;
-			pev->health++;
+			TakeHealth( 1, DMG_GENERIC );
 
 			if ( pev->health >= 20 ) {
 				if (

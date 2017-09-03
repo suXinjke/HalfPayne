@@ -488,6 +488,7 @@ public:
 	BOOL noSaving;
 
 	BOOL noPills;
+	BOOL noHealing;
 	BOOL noSecondaryAttack;
 
 	BULLET_PHYSICS_MODE bulletPhysicsMode;

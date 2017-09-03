@@ -881,6 +881,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "no_healing" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_NO_HEALING,
+			"No healing",
+			"Don't allow to heal in any way, including Xen healing pools.",
+			[]( CBasePlayer *player ) { player->noHealing = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "no_pills" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_NO_PILLS,
