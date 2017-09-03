@@ -997,6 +997,26 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "snark_friendly_to_allies" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SNARK_FRIENDLY_TO_ALLIES,
+			"Snarks friendly to allies",
+			"Snarks won't attack player's allies.",
+			[]( CBasePlayer *player ) { player->snarkFriendlyToAllies = true; }
+		) );
+		return true;
+	}
+
+	if ( modName == "snark_friendly_to_player" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SNARK_FRIENDLY_TO_PLAYER,
+			"Snarks friendly to player",
+			"Snarks won't attack player.",
+			[]( CBasePlayer *player ) { player->snarkFriendlyToPlayer = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "snark_from_explosion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SNARK_FROM_EXPLOSION,
@@ -1060,6 +1080,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 				player->nextSnarkSpawnPeriod = nextSnarkSpawnPeriod;
 			},
 			{ "Snark spawning period: " + std::to_string( nextSnarkSpawnPeriod ) + " sec \n" }
+		) );
+		return true;
+	}
+
+	if ( modName == "snark_penguins" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SNARK_PENGUINS,
+			"Snark penguins",
+			"Replaces snarks with penguins from Opposing Force.\n",
+			[]( CBasePlayer *player ) { player->snarkPenguins = true; }
 		) );
 		return true;
 	}

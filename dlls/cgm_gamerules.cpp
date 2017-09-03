@@ -72,6 +72,10 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	pPlayer->activeGameMode = GAME_MODE_CUSTOM;
 	pPlayer->activeGameModeConfig = ALLOC_STRING( config.configName.c_str() );
 
+	for ( const GameplayMod &mod : config.mods ) {
+		mod.init( pPlayer );
+	}
+
 	// For first map
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 
@@ -98,10 +102,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
-
-	for ( const GameplayMod &mod : config.mods ) {
-		mod.init( pPlayer );
-	}
 
 	if ( !config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ) {
 		pPlayer->TakeSlowmotionCharge( 100 );

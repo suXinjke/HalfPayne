@@ -93,7 +93,13 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 	pWeapon->hAmmo = 0;
 	pWeapon->hAmmo2 = 0;
 
-	sprintf(sz, "sprites/%s.txt", pWeapon->szName);
+	// Dirty hack because I was too lazy to subclass snarks, notice the flag mask
+	const int WEAPON_SNARK = 15;
+	if ( pWeapon->iId == 15 && pWeapon->iFlags & 32 ) {
+		sprintf(sz, "sprites/%s.txt", "weapon_pingu");
+	} else {
+		sprintf(sz, "sprites/%s.txt", pWeapon->szName);
+	}
 	client_sprite_t *pList = SPR_GetList(sz, &i);
 
 	if (!pList)

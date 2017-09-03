@@ -128,6 +128,11 @@ int __MsgFunc_Concuss(const char *pszName, int iSize, void *pbuf)
 	return gHUD.MsgFunc_Concuss( pszName, iSize, pbuf );
 }
 
+int __MsgFunc_SetSkin(const char *pszName, int iSize, void *pbuf)
+{
+	return gHUD.MsgFunc_SetSkin( pszName, iSize, pbuf );
+}
+
 int __MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf )
 {
 	return gHUD.MsgFunc_GameMode( pszName, iSize, pbuf );
@@ -298,6 +303,7 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( ViewMode );
 	HOOK_MESSAGE( SetFOV );
 	HOOK_MESSAGE( Concuss );
+	HOOK_MESSAGE( SetSkin );
 	HOOK_MESSAGE( UpsideDown );
 
 	// TFFree CommandMenu

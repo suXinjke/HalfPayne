@@ -848,6 +848,7 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	player.instaGib = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_INSTAGIB;
 	player.shouldProducePhysicalBullets = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_SHOULD_PRODUCE_PHYSICAL_BULLETS;
 	player.noSecondaryAttack = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK;
+	player.snarkNuclear = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR;
 
 	//Stores all our ammo info, so the client side weapons can use them.
 	player.ammo_9mm			= (int)from->client.vuser1[0];

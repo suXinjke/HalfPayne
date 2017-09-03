@@ -234,6 +234,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 
 	DEFINE_FIELD( CBasePlayer, snarkParanoia, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, snarkPenguins, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, nextSnarkSpawnPeriod, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
@@ -241,6 +242,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkFromExplosion, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, snarkFriendlyToPlayer, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, snarkFriendlyToAllies, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, divingAllowedWithoutSlowmotion, FIELD_BOOLEAN ),
@@ -339,6 +342,7 @@ int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
 
 int gmsgAimCoords = 0; 
+int gmsgSetSkin = 0;
 
 
 void LinkUserMessages( void )
@@ -392,6 +396,7 @@ void LinkUserMessages( void )
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
 	gmsgAimCoords = REG_USER_MSG( "AimCoords", 8 );
+	gmsgSetSkin = REG_USER_MSG( "SetSkin", 1 );
 	gmsgConcuss = REG_USER_MSG( "Concuss", 1 );
 	gmsgFadeOut = REG_USER_MSG( "FadeOut", 1 );
 	gmsgFlash = REG_USER_MSG( "Flash", 8 );
@@ -3799,6 +3804,7 @@ void CBasePlayer::Spawn( void )
 	usedCheat = false;
 
 	snarkParanoia = false;
+	snarkPenguins = false;
 	nextSnarkSpawn = 2.0f;
 	nextSnarkSpawnPeriod = 1.0f;
 
@@ -3807,6 +3813,8 @@ void CBasePlayer::Spawn( void )
 	snarkStayAlive = false;
 	snarkInfestation = false;
 	snarkFromExplosion = false;
+	snarkFriendlyToAllies = false;
+	snarkFriendlyToPlayer = false;
 
 	garbageGibs = false;
 
@@ -3884,7 +3892,7 @@ void CBasePlayer::SpawnSnarksAtRandomNode()
 
 	int snarkCount = snarkInception ? 1 : RANDOM_LONG( 1, 4 );
 	for ( int i = 0 ; i < snarkCount ; i++ ) {	
-		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + Vector( 0, 0, 4 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + Vector( 0, 0, 4 + i * ( snarkPenguins ? 32 : 16 ) ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
 		pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
 	}
 }
@@ -5733,6 +5741,10 @@ void CBasePlayer :: UpdateClientData( void )
 				pszName = "Empty";
 			else
 				pszName = II.pszName;
+
+			if ( II.iId == WEAPON_SNARK && snarkPenguins ) {
+				II.iFlags |= 32;
+			}
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgWeaponList, NULL, pev );  
 				WRITE_STRING(pszName);			// string	weapon name

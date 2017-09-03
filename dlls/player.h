@@ -107,7 +107,8 @@ enum sbar_data
 enum GAMEPLAY_MOD_PLAYER_BITMASK {
 	GAMEPLAY_MOD_PLAYER_BITMASK_INSTAGIB							= 1 << 0,
 	GAMEPLAY_MOD_PLAYER_BITMASK_SHOULD_PRODUCE_PHYSICAL_BULLETS	= 1 << 1,
-	GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK				= 1 << 2
+	GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK				= 1 << 2,
+	GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR				= 1 << 3,
 };
 
 #define CHAT_INTERVAL 1.0f
@@ -540,6 +541,7 @@ public:
 
 	void SpawnSnarksAtRandomNode();
 	BOOL snarkParanoia;
+	BOOL snarkPenguins;
 	float nextSnarkSpawn;
 	float nextSnarkSpawnPeriod;
 
@@ -548,6 +550,8 @@ public:
 	BOOL snarkStayAlive;
 	BOOL snarkInfestation;
 	BOOL snarkFromExplosion;
+	BOOL snarkFriendlyToAllies;
+	BOOL snarkFriendlyToPlayer;
 
 	float postRestoreDelay;
 	float postSpawnDelay;
@@ -564,6 +568,9 @@ public:
 		}
 		if ( noSecondaryAttack ) {
 			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK;
+		}
+		if ( snarkNuclear ) {
+			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR;
 		}
 		return bitmask;
 	}

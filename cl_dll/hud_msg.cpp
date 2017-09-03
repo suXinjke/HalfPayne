@@ -139,3 +139,13 @@ int CHud :: MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf )
 		this->m_StatusIcons.DisableIcon("dmg_concuss");
 	return 1;
 }
+
+int CHud::MsgFunc_SetSkin( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	int skin = READ_BYTE();
+	cl_entity_s *view = gEngfuncs.GetViewModel();
+	view->curstate.skin = skin;
+
+	return 1;
+}
