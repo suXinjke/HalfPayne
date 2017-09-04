@@ -58,7 +58,7 @@ extern DLL_GLOBAL int		g_iSkillLevel;
 #define HGRUNT_DMG_HEADSHOT				( DMG_BULLET | DMG_CLUB )	// damage types that can kill a grunt with a single headshot.
 #define HGRUNT_NUM_HEADS				2 // how many grunt heads are there? 
 #define HGRUNT_MINIMUM_HEADSHOT_DAMAGE	15 // must do at least this much damage in one shot to head to score a headshot kill
-#define	HGRUNT_SENTENCE_VOLUME			(float)0.35 // volume of grunt sentences
+#define	HGRUNT_SENTENCE_VOLUME			1 // volume of grunt sentences
 
 #define HGRUNT_9MMAR				( 1 << 0)
 #define HGRUNT_HANDGRENADE			( 1 << 1)
