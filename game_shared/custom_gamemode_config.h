@@ -199,6 +199,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_NO_SECTION,
 
 	CONFIG_FILE_SECTION_NAME,
+	CONFIG_FILE_SECTION_DESCRIPTION,
 	CONFIG_FILE_SECTION_START_MAP,
 	CONFIG_FILE_SECTION_START_POSITION,
 	CONFIG_FILE_SECTION_END_MAP,
@@ -314,6 +315,7 @@ public:
 	bool		markedForRestart;
 
 	const std::string GetName();
+	const std::string GetDescription();
 	const std::string GetStartMap();
 	const std::string GetEndMap();
 

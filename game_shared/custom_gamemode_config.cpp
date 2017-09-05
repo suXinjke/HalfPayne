@@ -81,6 +81,17 @@ void CustomGameModeConfig::InitConfigSections() {
 		}
 	);
 
+	configSections[CONFIG_FILE_SECTION_DESCRIPTION] = ConfigSection(
+		"description", false,
+		[]( ConfigSectionData &data ) {
+			if ( data.argsString.size() == 0 ) {
+				return "description not provided";
+			}
+
+			return "";
+		}
+	);
+
 	configSections[CONFIG_FILE_SECTION_START_MAP] = ConfigSection(
 		"start_map", true,
 		[]( ConfigSectionData &data ) { return ""; }
@@ -1217,6 +1228,8 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = CONFIG_FILE_SECTION_START_POSITION;
 	} else if ( sectionName == "name" ) {
 		currentFileSection = CONFIG_FILE_SECTION_NAME;
+	} else if ( sectionName == "description" ) {
+		currentFileSection = CONFIG_FILE_SECTION_DESCRIPTION;
 	} else if ( sectionName == "end_trigger" ) {
 		currentFileSection = CONFIG_FILE_SECTION_END_TRIGGER;
 	} else if ( sectionName == "change_level_prevent" ) {
@@ -1253,6 +1266,16 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 const std::string CustomGameModeConfig::GetName() {
 	ConfigSection section = configSections[CONFIG_FILE_SECTION_NAME];
 	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
+}
+
+const std::string CustomGameModeConfig::GetDescription() {
+	std::string result = "";
+	ConfigSection section = configSections[CONFIG_FILE_SECTION_DESCRIPTION];
+	for ( auto line : section.data ) {
+		result += line.line + "\n";
+	}
+
+	return result;
 }
 
 const std::string CustomGameModeConfig::GetStartMap() {

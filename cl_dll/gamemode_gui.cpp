@@ -238,6 +238,7 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 
 		const char *file = config.configName.c_str();
 		const std::string name = config.GetName();
+		const std::string description = config.GetDescription();
 		const std::string startMap = config.GetStartMap();
 
 		if ( ImGui::Selectable( file, selected == i, ImGuiSelectableFlags_SpanAllColumns ) ) {
@@ -260,6 +261,11 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 
 				ImGui::Text( "Start map\n" );
 				ImGui::Text( startMap.c_str() );
+
+				if ( description.size() > 0 ) {
+					ImGui::Text( "\nDescription\n" );
+					ImGui::Text( description.c_str() );
+				}
 
 				if ( config.configType == CONFIG_TYPE_BMM ) {
 					ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
