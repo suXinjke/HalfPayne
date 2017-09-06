@@ -719,7 +719,9 @@ void CCustomGameModeRules::RecordSave() {
 
 	// Create 'records' directory if it's not there. Proceed only when directory exists
 	if ( CreateDirectory( folderPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
-		const std::string filePath = folderPath + CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ) + "_" + config.sha1 + ".hpr";
+		const std::string filePath =
+			folderPath + CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ) +
+			"_" + config.configName + "_" + config.sha1 + ".hpr";
 
 		std::ofstream out( filePath, std::ios::out | std::ios::binary );
 
