@@ -310,6 +310,7 @@ public:
 
 	std::string configName;
 	std::string error;
+	std::string sha1;
 	CONFIG_TYPE configType;
 
 	bool		markedForRestart;

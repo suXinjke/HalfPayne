@@ -2,6 +2,7 @@
 #include "string_aux.h"
 #include <fstream>
 #include <regex>
+#include "sha1.h"
 #include "Windows.h"
 
 int CustomGameModeConfig::GetAllowedItemIndex( const char *allowedItem ) {
@@ -465,8 +466,10 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	bool readingSection = false;
 
 	std::string line;
+	std::string fileContents = "";
 	while ( std::getline( inp, line ) && error.size() == 0 ) {
 		lineCount++;
+		fileContents += line;
 		line = Trim( line );
 
 		// remove trailing comments
@@ -500,6 +503,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 		}
 	}
 
+	sha1 = SHA1::from_file( filePath );
 	inp.close(); // TODO: find out if it's called automatically
 
 	return true;

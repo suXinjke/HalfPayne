@@ -369,6 +369,9 @@
     <ClCompile Include="..\..\dlls\sagm_gamerules.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\sha1.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\doors.h">
@@ -520,6 +523,9 @@
     </ClInclude>
     <ClInclude Include="..\..\dlls\sagm_gamerules.h">
       <Filter>Header Files\dlls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\sha1.h">
+      <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,19 +3,6 @@
 
 #include "cgm_gamerules.h"
 
-class ScoreAttackRecord
-{
-public:
-	ScoreAttackRecord( const char *recordName );
-	void Save();
-
-	int score;
-
-private:
-	const float DEFAULT_TIME = 59999.0f; // 999:59.00
-	std::string filePath;
-};
-
 // CBlackMesaMinute - rules for time/score attack gamemode
 class CScoreAttack : public CCustomGameModeRules {
 
@@ -30,12 +17,17 @@ public:
 	virtual void OnCheated( CBasePlayer *pPlayer );
 
 	int currentScore;
+	int recordScore;
 
 	int comboMultiplier;
 	float comboMultiplierReset;
 
 protected:
 	virtual void OnEnd( CBasePlayer *pPlayer );
+
+	virtual void RecordAdditionalDefaultInit() override;
+	virtual void RecordAdditionalRead( std::ifstream &inp ) override;
+	virtual void RecordAdditionalWrite( std::ofstream &out ) override;
 };
 
 #endif // SAGM_GAMERULES_H

@@ -13,6 +13,11 @@
 // Custom Game Mode Rules
 
 int	gmsgCustomEnd	= 0;
+int	gmsgTimerMsg	= 0;
+int	gmsgTimerEnd	= 0;
+int gmsgTimerValue	= 0;
+int gmsgTimerPause  = 0;
+int gmsgTimerCheat  = 0;
 
 // CGameRules were recreated each level change and there were no built-in saving method,
 // that means we'd lose config file state on each level change.
@@ -27,6 +32,11 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 {
 	if ( !gmsgCustomEnd ) {
 		gmsgCustomEnd = REG_USER_MSG( "CustomEnd", -1 );
+		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
+		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
+		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
+		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
+		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 	}
 
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
@@ -43,6 +53,12 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	timeDelta = 0.0f;
 	lastGlobalTime = 0.0f;
 	musicSwitchDelay = 0.0f;
+
+	timerBackwards = false;
+	timerPaused = false;
+	time = 0.0f;
+	realTime = 0.0f;
+	lastRealTime = 0.0f;
 
 	monsterSpawnPrevented = false;
 }
@@ -175,10 +191,30 @@ BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerI
 void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 {
 	CHalfLifeRules::PlayerThink( pPlayer );
-
+	
 	timeDelta = ( gpGlobals->time - lastGlobalTime );
 
 	lastGlobalTime = gpGlobals->time;
+
+	if ( !timerPaused && !UTIL_IsPaused() && pPlayer->pev->deadflag == DEAD_NO ) {
+
+		if ( fabs( timeDelta ) <= 0.1 ) {
+			if ( timerBackwards ) {
+				time -= timeDelta;
+			} else {
+				time += timeDelta;
+			}
+		}
+
+		// Counting real time
+		float realTimeDetla = ( g_engfuncs.pfnTime() - lastRealTime );
+
+		lastRealTime = g_engfuncs.pfnTime();
+
+		if ( fabs( realTimeDetla ) <= 0.1 ) {
+			realTime += realTimeDetla;
+		}
+	}
 
 	if ( pPlayer->pev->deadflag == DEAD_NO ) {
 		
@@ -299,7 +335,11 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
+	PauseTimer( pPlayer );
+
 	const std::string configName = config.GetName();
+
+	RecordSave();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgCustomEnd, NULL, pPlayer->pev );
 
@@ -364,6 +404,32 @@ void CCustomGameModeRules::Precache() {
 	for ( std::string spawn : config.entitiesToPrecache ) {
 		UTIL_PrecacheOther( spawn.c_str() );
 	}
+}
+
+void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
+{
+	if ( timerPaused ) {
+		return;
+	}
+
+	timerPaused = true;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
+		WRITE_BYTE( true );
+	MESSAGE_END();
+}
+
+void CCustomGameModeRules::ResumeTimer( CBasePlayer *pPlayer )
+{
+	if ( !timerPaused ) {
+		return;
+	}
+
+	timerPaused = false;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
+		WRITE_BYTE( false );
+	MESSAGE_END();
 }
 
 // Hardcoded values so it won't depend on console variables
@@ -623,5 +689,44 @@ void CCustomGameModeRules::RefreshSkillData()
 		gSkillData.suitchargerCapacity = 50.0f;
 		gSkillData.batteryCapacity = 15.0f;
 		gSkillData.healthchargerCapacity = 40.0f;
+	}
+}
+
+
+void CCustomGameModeRules::RecordRead() {
+
+	std::string folderPath = CustomGameModeConfig::GetGamePath() + "\\records\\";
+
+	// Create 'records' directory if it's not there. Proceed only when directory exists
+	if ( CreateDirectory( folderPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
+		const std::string filePath = folderPath + CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ) + "_" + config.sha1 + ".hpr";
+
+		std::ifstream inp( filePath, std::ios::in | std::ios::binary );
+		if ( !inp.is_open() ) {
+			recordTime = 0.0f;
+			recordRealTime = DEFAULT_TIME;
+			RecordAdditionalDefaultInit();
+		} else {
+			inp.read( ( char * ) &recordTime, sizeof( float ) );
+			inp.read( ( char * ) &recordRealTime, sizeof( float ) );
+			RecordAdditionalRead( inp );
+		}
+	}
+}
+
+void CCustomGameModeRules::RecordSave() {
+	std::string folderPath = CustomGameModeConfig::GetGamePath() + "\\records\\";
+
+	// Create 'records' directory if it's not there. Proceed only when directory exists
+	if ( CreateDirectory( folderPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
+		const std::string filePath = folderPath + CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ) + "_" + config.sha1 + ".hpr";
+
+		std::ofstream out( filePath, std::ios::out | std::ios::binary );
+
+		out.write( ( char * ) &recordTime, sizeof( float ) );
+		out.write( ( char * ) &recordRealTime, sizeof( float ) );
+		RecordAdditionalWrite( out );
+
+		out.close();
 	}
 }

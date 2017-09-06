@@ -3,6 +3,7 @@
 
 #include "custom_gamemode_config.h"
 #include "gamerules.h"
+#include	<fstream>
 
 // CCustomGameMode - Half-Life with additional mini-mods
 class CCustomGameModeRules : public CHalfLifeRules {
@@ -31,6 +32,9 @@ public:
 
 	virtual void RestartGame();
 
+	virtual void PauseTimer( CBasePlayer *pPlayer );
+	virtual void ResumeTimer( CBasePlayer *pPlayer );
+
 	bool cheated;
 	bool cheatedMessageSent;
 
@@ -42,8 +46,27 @@ public:
 
 	CustomGameModeConfig config;
 
+	bool timerBackwards;
+	bool timerPaused;
+	float time;
+	float realTime;
+	float lastRealTime;
+
+	float recordTime;
+	float recordRealTime;
+
+protected:
+	void RecordRead();
+	void RecordSave();
+	virtual void RecordAdditionalDefaultInit() {};
+	virtual void RecordAdditionalRead( std::ifstream &inp ) {};
+	virtual void RecordAdditionalWrite( std::ofstream &out ) {};
+
+	const float DEFAULT_TIME = 59999.0f; // 999:59.00
+
 private:
 	virtual void OnEnd( CBasePlayer *pPlayer );
 };
+
 
 #endif // CGM_GAMERULES_H

@@ -9,27 +9,15 @@
 #include <fstream>
 #include	"monsters.h"
 
-int	gmsgTimerMsg	= 0;
-int	gmsgTimerEnd	= 0;
-int gmsgTimerValue	= 0;
-int gmsgTimerPause  = 0;
-int gmsgTimerCheat  = 0;
+extern int gmsgTimerValue;
+extern int gmsgTimerCheat;
+extern int gmsgTimerEnd;
+extern int gmsgTimerMsg;
 
 CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( CONFIG_TYPE_BMM )
 {
-	if ( !gmsgTimerMsg ) {
-		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
-		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
-		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
-		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
-		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
-	}
-
-	timerPaused = false;
-
-	currentTime = 60.0f;
-	currentRealTime = 0.0f;
-	lastRealTime = 0.0f;
+	time = 60.0f;
+	timerBackwards = true;
 }
 
 void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
@@ -45,28 +33,12 @@ void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerThink( pPlayer );
 
-	if ( !timerPaused && !UTIL_IsPaused() && pPlayer->pev->deadflag == DEAD_NO ) {
-		
-		if ( fabs( timeDelta ) <= 0.1 ) {
-			currentTime -= timeDelta;
-		}
-		
-		// Counting real time
-		float realTimeDetla = ( g_engfuncs.pfnTime() - lastRealTime );
-		
-		lastRealTime = g_engfuncs.pfnTime();
-
-		if ( fabs( realTimeDetla ) <= 0.1 ) {
-			currentRealTime += realTimeDetla;
-		}
-	}
-
-	if ( currentTime <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+	if ( time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
 		ClientKill( ENT( pPlayer->pev ) );
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
-		WRITE_FLOAT( currentTime );
+		WRITE_FLOAT( time );
 	MESSAGE_END();
 }
 
@@ -138,7 +110,7 @@ void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPo
 		return;
 	}
 
-	currentTime += timeToAdd;
+	time += timeToAdd;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
 		WRITE_STRING( message );
@@ -153,19 +125,19 @@ void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 
 	PauseTimer( pPlayer );
 
-	BlackMesaMinuteRecord record( config.configName.c_str() );
+	RecordRead();
 	const std::string configName = config.GetName();
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pPlayer->pev );
 	
 		WRITE_STRING( configName.c_str() );
 
-		WRITE_FLOAT( currentTime );
-		WRITE_FLOAT( currentRealTime );
+		WRITE_FLOAT( time );
+		WRITE_FLOAT( realTime );
 
-		WRITE_FLOAT( record.time );
-		WRITE_FLOAT( record.realTime );
-		WRITE_FLOAT( record.realTimeMinusTime );
+		WRITE_FLOAT( recordTime );
+		WRITE_FLOAT( recordRealTime );
+		WRITE_FLOAT( recordRealTimeMinusTime );
 
 		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
 		WRITE_SHORT( pPlayer->kills );
@@ -179,46 +151,20 @@ void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 	if ( !cheated ) {
 
 		// Write new records if there are
-		if ( currentTime > record.time ) {
-			record.time = currentTime;
+		if ( time > recordTime ) {
+			recordTime = time;
 		}
-		if ( currentRealTime < record.realTime ) {
-			record.realTime = currentRealTime;
-		}
-
-		float bmmRealTimeMinusTime = max( 0.0f, currentRealTime - currentTime );
-		if ( bmmRealTimeMinusTime < record.realTimeMinusTime ) {
-			record.realTimeMinusTime = bmmRealTimeMinusTime;
+		if ( realTime < recordRealTime ) {
+			recordRealTime = realTime;
 		}
 
-		record.Save();
-	}
-}
+		float realTimeMinusTime = max( 0.0f, realTime - time );
+		if ( realTimeMinusTime < recordRealTimeMinusTime ) {
+			recordRealTimeMinusTime = realTimeMinusTime;
+		}
 
-void CBlackMesaMinute::PauseTimer( CBasePlayer *pPlayer )
-{
-	if ( timerPaused ) {
-		return;
+		RecordSave();
 	}
-	
-	timerPaused = true;
-	
-	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
-		WRITE_BYTE( true );
-	MESSAGE_END();
-}
-
-void CBlackMesaMinute::ResumeTimer( CBasePlayer *pPlayer )
-{
-	if ( !timerPaused ) {
-		return;
-	}
-
-	timerPaused = false;
-	
-	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
-		WRITE_BYTE( false );
-	MESSAGE_END();
 }
 
 void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
@@ -236,35 +182,14 @@ void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activa
 	}
 }
 
+void CBlackMesaMinute::RecordAdditionalDefaultInit() {
+	recordRealTimeMinusTime = DEFAULT_TIME;
+};
 
-BlackMesaMinuteRecord::BlackMesaMinuteRecord( const char *recordName ) {
+void CBlackMesaMinute::RecordAdditionalRead( std::ifstream &inp ) {
+	inp.read( ( char * ) &recordRealTimeMinusTime, sizeof( float ) );
+};
 
-	std::string folderPath = CustomGameModeConfig::GetGamePath() + "\\bmm_records\\";
-
-	// Create bmm_records directory if it's not there. Proceed only when directory exists
-	if ( CreateDirectory( folderPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
-		filePath = folderPath + std::string( recordName ) + ".bmmr";
-
-		std::ifstream inp( filePath, std::ios::in | std::ios::binary );
-		if ( !inp.is_open() ) {
-			time = 0.0f;
-			realTime = DEFAULT_TIME;
-			realTimeMinusTime = DEFAULT_TIME;
-
-		} else {
-			inp.read( ( char * ) &time, sizeof( float ) );
-			inp.read( ( char * ) &realTime, sizeof( float ) );
-			inp.read( ( char * ) &realTimeMinusTime, sizeof( float ) );
-		}
-	}
-}
-
-void BlackMesaMinuteRecord::Save() {
-	std::ofstream out( filePath, std::ios::out | std::ios::binary );
-
-	out.write( (char *) &time, sizeof( float ) );
-	out.write( (char *) &realTime, sizeof( float ) );
-	out.write( (char *) &realTimeMinusTime, sizeof( float ) );
-
-	out.close();
-}
+void CBlackMesaMinute::RecordAdditionalWrite( std::ofstream &out ) {
+	out.write( ( char * ) &recordRealTimeMinusTime, sizeof( float ) );
+};

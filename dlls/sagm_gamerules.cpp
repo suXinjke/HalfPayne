@@ -193,8 +193,7 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 
 void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 
-	ScoreAttackRecord record( config.configName.c_str() );
-
+	RecordRead();
 	const std::string configName = config.GetName();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgScoreEnd, NULL, pPlayer->pev );
@@ -203,7 +202,7 @@ void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 
 		WRITE_LONG( currentScore );
 
-		WRITE_LONG( record.score );
+		WRITE_LONG( recordScore );
 
 		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
 		WRITE_SHORT( pPlayer->kills );
@@ -217,36 +216,22 @@ void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 	if ( !cheated ) {
 
 		// Write new records if there are
-		if ( currentScore > record.score) {
-			record.score = currentScore;
+		if ( currentScore > recordScore ) {
+			recordScore = currentScore;
 		}
 
-		record.Save();
+		RecordSave();
 	}
 }
 
-ScoreAttackRecord::ScoreAttackRecord( const char *recordName ) {
+void CScoreAttack::RecordAdditionalDefaultInit() {
+	recordScore = 0;
+};
 
-	std::string folderPath = CustomGameModeConfig::GetGamePath() + "\\sagm_records\\";
+void CScoreAttack::RecordAdditionalRead( std::ifstream &inp ) {
+	inp.read( ( char * ) &recordScore, sizeof( int ) );
+};
 
-	// Create bmm_records directory if it's not there. Proceed only when directory exists
-	if ( CreateDirectory( folderPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
-		filePath = folderPath + std::string( recordName ) + ".sagmr";
-
-		std::ifstream inp( filePath, std::ios::in | std::ios::binary );
-		if ( !inp.is_open() ) {
-			score = 0;
-
-		} else {
-			inp.read( ( char * ) &score, sizeof( int ) );
-		}
-	}
-}
-
-void ScoreAttackRecord::Save() {
-	std::ofstream out( filePath, std::ios::out | std::ios::binary );
-
-	out.write( (char *) &score, sizeof( int ) );
-
-	out.close();
-}
+void CScoreAttack::RecordAdditionalWrite( std::ofstream &out ) {
+	out.write( ( char * ) &recordScore, sizeof( int ) );
+};
