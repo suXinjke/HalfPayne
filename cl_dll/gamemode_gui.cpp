@@ -2,6 +2,7 @@
 #include "cl_dll.h"
 #include <Windows.h>
 #include <Psapi.h>
+#include "FontAwesome.h"
 
 #include "gamemode_gui.h"
 
@@ -94,6 +95,10 @@ void GameModeGUI_Init() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16 );
+	ImFontConfig config;
+	config.MergeMode = true;
+	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/fontawesome-webfont.ttf", 13.0f, &config, icon_ranges );
 	
 	GameModeGUI_RefreshConfigFiles();
 }
@@ -178,9 +183,9 @@ std::vector<CustomGameModeConfig> *GameModeGUI_GameModeConfigVectorFromType( CON
 
 void GameModeGUI_DrawMainWindow() {
 
-	static bool showTestWindow = false;
-	ImGui::SetNextWindowPos( ImVec2( 0, 0 ), ImGuiSetCond_FirstUseEver );
-	ImGui::ShowTestWindow( &showTestWindow );
+	//static bool showTestWindow = false;
+	//ImGui::SetNextWindowPos( ImVec2( 0, 0 ), ImGuiSetCond_FirstUseEver );
+	//ImGui::ShowTestWindow( &showTestWindow );
 
 	static bool showGameModeWindow = false;
 	const int GAME_MODE_WINDOW_WIDTH  = 570;
@@ -203,7 +208,6 @@ void GameModeGUI_DrawMainWindow() {
 	// TABLES
 	{
 		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, -1 ) );
-
 		if ( ImGui::CollapsingHeader( "Custom Game Modes" ) ) {
 			GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE_CGM );
 			ImGui::Columns( 1 );
@@ -233,21 +237,19 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 		ImGui::Columns( 1, "gamemode_hint_column" );
 
 		const char *launchHint = "Double click on the row to launch game mode\n";
-		const char *launchHint2 = "Right click on the row for more options";
 		ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - ImGui::CalcTextSize( launchHint ).x / 2.0f );
 		ImGui::Text( launchHint );
-
-		ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - ImGui::CalcTextSize( launchHint2 ).x / 2.0f );
-		ImGui::Text( launchHint2 );
 
 		ImGui::NextColumn();
 	}
 
 	// TABLE HEADERS
 	{
-		ImGui::Columns( 2, "gamemode_header_columns" );
-		ImGui::Text( "File" ); ImGui::NextColumn();
+		ImGui::Columns( 3, "gamemode_header_columns" );
+		ImGui::TextColored( ImVec4( 1.0, 1.0, 1.0, 0.0 ), "%s", ICON_FA_CHECK ); ImGui::SameLine(); ImGui::Text( "File" ); ImGui::NextColumn();
 		ImGui::Text( "Name" ); ImGui::NextColumn();
+		ImGui::Text( "" ); ImGui::NextColumn();
+		ImGui::SetColumnOffset( 2, ImGui::GetWindowWidth() - 70 );
 		ImGui::Separator();
 	}
 
@@ -263,85 +265,88 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 			const std::string description = config.GetDescription();
 			const std::string startMap = config.GetStartMap();
 			
-			//if ( config.gameFinishedOnce ) {
-			//	ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0.2, 0.8, 0.2, 1 ) );
-			//}
+			// COMPLETED?
+			ImGui::TextColored( ImVec4( 1.0, 1.0, 1.0, config.gameFinishedOnce ? 1.0 : 0.0 ), "%s", ICON_FA_CHECK );
+			ImGui::SameLine();
+
+			// FILE NAME + ROW
 			ImGui::Selectable( file, false, ImGuiSelectableFlags_SpanAllColumns );
-			//if ( config.gameFinishedOnce ) {	
-			//	ImGui::PopStyleColor( 1 );
-			//}
-
-			if ( ImGui::BeginPopupContextItem( ( "color context menu" + std::to_string( i ) ).c_str() ) ) {
-				ImGui::Text( name.length() > 0 ? name.c_str() : file );
-				ImGui::Separator();
-				if ( ImGui::Selectable( "Launch", false, 0, ImVec2( 150, 15 ) ) ) {
-					GameModeGUI_RunCustomGameMode( config );
-				}
-				// TODO: info
-				//if ( ImGui::Selectable( "Info", false, 0, ImVec2( 150, 15 ) ) ) {
-				//	
-				//}
-				ImGui::EndPopup();
-			}
-			
-
+			ImGui::SetItemAllowOverlap();
 			if ( config.error.length() > 0 ) {
-				if ( ImGui::IsItemHovered() ) {
-					ImGui::BeginTooltip();
-					ImGui::PushTextWrapPos(300.0f);
-					ImGui::Text( config.error.c_str() );
-					ImGui::PopTextWrapPos();
-					ImGui::EndTooltip();
-				}
-
 				ImGui::SameLine();
 				ImGui::TextColored( ImVec4( 1, 0, 0, 1 ), "error" );
-			} else {
-				if ( config.gameFinishedOnce ) {
-					ImGui::SameLine();
-					ImGui::TextColored( ImVec4( 0.2, 0.8, 0.2, 1 ), "done" );
-				}
-
-				if ( ImGui::IsItemHovered() ) {
-					ImGui::BeginTooltip();
-
-					ImGui::Text( "Start map\n" );
-					ImGui::Text( startMap.c_str() );
-
-					if ( description.size() > 0 ) {
-						ImGui::Text( "\nDescription\n" );
-						ImGui::Text( description.c_str() );
-					}
-
-					if ( config.configType == CONFIG_TYPE_BMM ) {
-						ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
-						ImGui::Text( "Time-based game mode - rush against a minute, kill enemies to get more time.\n" );
-					} else if ( config.configType == CONFIG_TYPE_SAGM ) {
-						ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nScore Attack\n" );
-						ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
-					}
-
-					for ( const GameplayMod &mod : config.mods ) {
-						ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
-						ImGui::Text( mod.description.c_str() );
-						for ( auto argDescription : mod.argDescriptions ) {
-							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   OPTION" ); ImGui::SameLine();
-							ImGui::Text( argDescription.c_str() );
-						}
-					}
-
-					ImGui::EndTooltip();
-				}
 			}
-			ImGui::NextColumn();
-
 			if ( ImGui::IsItemHovered() ) {
 				if ( ImGui::IsMouseDoubleClicked( 0 ) ) {
 					GameModeGUI_RunCustomGameMode( config );
 				}
 			}
+			ImGui::NextColumn();
 
+			// CONFIG NAME
 			ImGui::Text( name.c_str() ); ImGui::NextColumn();
+
+			// CONFIG FILE INFO
+			{
+				ImGui::Text( "%s", ICON_FA_INFO_CIRCLE );
+				if ( ImGui::IsItemHovered() ) {
+					ImGui::BeginTooltip();
+
+					if ( config.error.length() > 0 ) {
+						ImGui::PushTextWrapPos(300.0f);
+						ImGui::Text( config.error.c_str() );
+						ImGui::PopTextWrapPos();
+					} else {
+						ImGui::Text( "Start map\n" );
+						ImGui::Text( startMap.c_str() );
+
+						if ( description.size() > 0 ) {
+							ImGui::Text( "\nDescription\n" );
+							ImGui::Text( description.c_str() );
+						}
+
+						if ( config.configType == CONFIG_TYPE_BMM ) {
+							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
+							ImGui::Text( "Time-based game mode - rush against a minute, kill enemies to get more time.\n" );
+						} else if ( config.configType == CONFIG_TYPE_SAGM ) {
+							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nScore Attack\n" );
+							ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
+						}
+
+						for ( const GameplayMod &mod : config.mods ) {
+							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
+							ImGui::Text( mod.description.c_str() );
+							for ( auto argDescription : mod.argDescriptions ) {
+								ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   OPTION" ); ImGui::SameLine();
+								ImGui::Text( argDescription.c_str() );
+							}
+						}
+
+					}
+
+					ImGui::EndTooltip();
+				}
+			}
+
+			// LAUNCH BUTTON
+			ImGui::SameLine();
+			{
+				ImGui::Text( "%s", ICON_FA_ARROW_RIGHT );
+				if ( ImGui::IsItemHovered() ) {
+
+					ImGui::BeginTooltip();
+
+					ImGui::Text( "Launch" );
+					
+					ImGui::EndTooltip();
+				}
+				if ( ImGui::IsItemClicked() ) {
+					GameModeGUI_RunCustomGameMode( config );
+				}
+			}
+
+			ImGui::NextColumn();
+
 		}
 	}
 }
