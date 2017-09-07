@@ -312,6 +312,7 @@ public:
 	std::string error;
 	std::string sha1;
 	CONFIG_TYPE configType;
+	bool gameFinishedOnce;
 
 	bool		markedForRestart;
 
