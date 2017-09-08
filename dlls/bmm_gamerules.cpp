@@ -25,8 +25,6 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	CCustomGameModeRules::PlayerSpawn( pPlayer );
 
 	pPlayer->activeGameMode = GAME_MODE_BMM;
-	pPlayer->noSaving = true;
-
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )

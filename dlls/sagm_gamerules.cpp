@@ -38,7 +38,6 @@ void CScoreAttack::PlayerSpawn( CBasePlayer *pPlayer )
 	CCustomGameModeRules::PlayerSpawn( pPlayer );
 
 	pPlayer->activeGameMode = GAME_MODE_SCORE_ATTACK;
-	pPlayer->noSaving = true;
 }
 
 void CScoreAttack::PlayerThink( CBasePlayer *pPlayer )

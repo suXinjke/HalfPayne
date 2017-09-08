@@ -511,6 +511,15 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	inp.close(); // TODO: find out if it's called automatically
 
+	// TODO: fix this ugly, I should be able just to specify GAMEMOD_TYPE instead of typing 'no_saving' strings and args
+	if (
+		( configType == CONFIG_TYPE_BMM || configType == CONFIG_TYPE_SAGM ) &&
+		!IsGameplayModActive( GAMEPLAY_MOD_NO_SAVING )
+	) {
+		ConfigSectionData noSaving = { "no_saving", { "no_saving" }, { NAN } };
+		AddGameplayMod( noSaving );
+	}
+
 	return true;
 }
 
