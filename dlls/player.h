@@ -549,6 +549,7 @@ public:
 	float nextSnarkSpawnPeriod;
 
 	BOOL snarkInception;
+	int snarkInceptionDepth;
 	BOOL snarkNuclear;
 	BOOL snarkStayAlive;
 	BOOL snarkInfestation;

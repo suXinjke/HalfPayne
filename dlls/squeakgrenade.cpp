@@ -52,7 +52,6 @@ class CSqueakGrenade : public CGrenade
 	int  BloodColor( void );
 	void Killed( entvars_t *pevAttacker, int iGib );
 	void GibMonster( void );
-	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType );
 	virtual int IRelationship( CBaseEntity *pTarget );
 
 	virtual int		Save( CSave &save ); 
@@ -72,6 +71,7 @@ class CSqueakGrenade : public CGrenade
 	EHANDLE m_hOwner;
 	int  m_iMyClass;
 	BOOL inception;
+	int inceptionDepth;
 	BOOL nuclear;
 	BOOL isPenguin;
 };
@@ -88,6 +88,7 @@ TYPEDESCRIPTION	CSqueakGrenade::m_SaveData[] =
 	DEFINE_FIELD( CSqueakGrenade, m_posPrev, FIELD_POSITION_VECTOR ),
 	DEFINE_FIELD( CSqueakGrenade, m_hOwner, FIELD_EHANDLE ),
 	DEFINE_FIELD( CSqueakGrenade, stayAlive, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CSqueakGrenade, inceptionDepth, FIELD_INTEGER ),
 	DEFINE_FIELD( CSqueakGrenade, inception, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CSqueakGrenade, isPenguin, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CSqueakGrenade, nuclear, FIELD_BOOLEAN ),
@@ -145,6 +146,7 @@ void CSqueakGrenade :: Spawn( void )
 	isPenguin = false;
 	stayAlive = false;
 	inception = false;
+	inceptionDepth = 10;
 	nuclear = false;
 	float health = gSkillData.snarkHealth;
 
@@ -153,6 +155,7 @@ void CSqueakGrenade :: Spawn( void )
 	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 		stayAlive = pPlayer->snarkStayAlive;
 		inception = pPlayer->snarkInception;
+		inceptionDepth = pPlayer->snarkInceptionDepth;
 		nuclear = pPlayer->snarkNuclear;
 		isPenguin = pPlayer->snarkPenguins;
 		if ( isPenguin ) {
@@ -250,13 +253,15 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 
 	CBaseMonster :: Killed( pevAttacker, GIB_ALWAYS );
 
-	if ( inception ) {
+	if ( inception && inceptionDepth > 0 ) {
 		Vector spawnPos = pev->origin;
 			
-		CBaseEntity *snark1 = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * 16 + gpGlobals->v_up * 8, pev->angles, NULL );
+		CSqueakGrenade *snark1 = ( CSqueakGrenade * ) CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * 16 + gpGlobals->v_up * 8, pev->angles, NULL );
+		snark1->inceptionDepth = inceptionDepth - 1;
 		snark1->pev->velocity = gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
 
-		CBaseEntity *snark2 = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * -16 + gpGlobals->v_up * 8, pev->angles, NULL );
+		CSqueakGrenade *snark2 = ( CSqueakGrenade * ) CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * -16 + gpGlobals->v_up * 8, pev->angles, NULL );
+		snark2->inceptionDepth = inceptionDepth - 1;
 		snark2->pev->velocity = -gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
 	}
 
@@ -285,15 +290,6 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 void CSqueakGrenade :: GibMonster( void )
 {
 	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "common/bodysplat.wav", 0.75, ATTN_NORM, 0, 200);		
-}
-
-int CSqueakGrenade::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType )
-{
-	if ( inception && ( bitsDamageType & DMG_BLAST ) ) {
-		return 0;
-	}
-
-	return CBaseMonster::TakeDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
 }
 
 void CSqueakGrenade::HuntThink( void )

@@ -241,6 +241,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, nextSnarkSpawnPeriod, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, snarkInceptionDepth, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
@@ -3823,6 +3824,7 @@ void CBasePlayer::Spawn( void )
 	nextSnarkSpawnPeriod = 1.0f;
 
 	snarkInception = false;
+	snarkInceptionDepth = 10;
 	snarkNuclear = false;
 	snarkStayAlive = false;
 	snarkInfestation = false;

@@ -1059,12 +1059,27 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	}
 
 	if ( modName == "snark_inception" ) {
+		int snarkInceptionDepth = 10;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				snarkInceptionDepth = min( max( 1, data.argsFloat.at( i ) ), 100 );
+			}
+		}
+
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SNARK_INCEPTION,
 			"Snark inception",
-			"Killing snark splits it into two snarks.\n"
-			"Snarks are immune to explosions.",
-			[]( CBasePlayer *player ) { player->snarkInception = true; }
+			"Killing snark splits it into two snarks.",
+			[snarkInceptionDepth]( CBasePlayer *player ) {
+				player->snarkInception = true;
+				player->snarkInceptionDepth = snarkInceptionDepth;
+			},
+			{
+				"Inception depth: " + std::to_string( snarkInceptionDepth ) + " snarks\n"
+			}
 		) );
 		return true;
 	}
