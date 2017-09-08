@@ -1013,6 +1013,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "slowmotion_only_diving" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SLOWMOTION_ONLY_DIVING,
+			"Slowmotion only when diving",
+			"You're allowed to go into slowmotion only by diving.",
+			[]( CBasePlayer *player ) { player->slowmotionOnlyDiving = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "slow_painkillers" ) {
 		float nextPainkillerEffectTimePeriod = 0.2f;
 		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {

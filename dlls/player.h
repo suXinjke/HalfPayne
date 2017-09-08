@@ -257,6 +257,7 @@ public:
 	BOOL noSlowmotion;
 	BOOL constantSlowmotion;
 	BOOL slowMotionEnabled;
+	BOOL slowmotionOnlyDiving;
 	float slowMotionNextHeartbeatSound;
 	float desiredTimeScale;
 	float nextSmoothTimeScaleChange;

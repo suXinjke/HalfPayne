@@ -164,6 +164,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, slowmotionOnlyDiving, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
@@ -2729,7 +2730,7 @@ void CBasePlayer::HandleSlowmotionFlags()
 
 		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;
 	} else if ( pev->flags & FL_DEACTIVATE_SLOWMOTION_REQUESTED ) {
-		if ( desperation != DESPERATION_IMMINENT && desperation != DESPERATION_FIGHTING ) {
+		if ( desperation != DESPERATION_IMMINENT && desperation != DESPERATION_FIGHTING || slowmotionOnlyDiving ) {
 			DeactivateSlowMotion( true );
 		}
 		pev->flags &= ~FL_DEACTIVATE_SLOWMOTION_REQUESTED;
@@ -3682,6 +3683,7 @@ void CBasePlayer::Spawn( void )
 	nextSmoothTimeScaleChange = 0.0f;
 
 	slowmotionOnDamage = 0;
+	slowmotionOnlyDiving = 0;
 
 	oneHitKO = 0;
 	oneHitKOFromPlayer = 0;
@@ -3979,6 +3981,9 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 			case DESPERATION_IMMINENT: {
 				GiveNamedItem( "weapon_9mmhandgun" );
 				GiveNamedItem( "weapon_9mmhandgun_twin" );
+				if ( slowmotionOnlyDiving ) {
+					SetSlowMotion( false );
+				}
 
 				CBaseEntity *pEntity;
 				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
@@ -4657,7 +4662,7 @@ void CBasePlayer::ToggleSlowMotion() {
 	if ( slowMotionEnabled ) {
 		DeactivateSlowMotion();
 	} else {
-		if ( ActivateSlowMotion() ) {
+		if ( !slowmotionOnlyDiving && ActivateSlowMotion() ) {
 			if ( slowMotionEnabled ) {
 				MESSAGE_BEGIN( MSG_ONE, gmsgFlash, NULL, pev );
 					WRITE_BYTE( 0 );
