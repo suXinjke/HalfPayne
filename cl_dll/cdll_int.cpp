@@ -25,6 +25,8 @@
 #include "../public/interface.h"
 //#include "vgui_schememanager.h"
 #include "soundmanager.h"
+#include <Windows.h>
+#include <random>
 
 extern "C"
 {
@@ -142,6 +144,77 @@ void CL_DLLEXPORT HUD_PlayerMove( struct playermove_s *ppmove, int server )
 //	RecClClientMove(ppmove, server);
 
 	PM_Move( ppmove, server );
+}
+
+// Checks resource 'half_payne/resource' directory for directory names
+// that start with 'background' but not exact 'background'.
+// One of these random directories will be copied to 'half_payne/resource/background'
+
+// The function is very ugly mostly because of WinAPI usage
+void ShuffleMainMenuBackground() {
+	std::vector<std::string> backgroundFolders;
+
+	WIN32_FIND_DATA fdFile;
+	HANDLE hFind = NULL;
+
+	const char *root = ".\\half_payne\\resource";
+
+	char sPath[2048];
+	sprintf( sPath, "%s\\*.*", root );
+
+	if ( ( hFind = FindFirstFile( sPath, &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+		return;
+	}
+
+	do {
+		if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
+
+			sprintf( sPath, "%s\\%s", root, fdFile.cFileName );
+
+			if (
+				fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+				std::string( fdFile.cFileName ) != "background" &&
+				std::string( fdFile.cFileName ).find( "background" ) == 0
+			) {
+				backgroundFolders.push_back( sPath );
+			}
+		}
+	} while ( FindNextFile( hFind, &fdFile ) );
+
+	FindClose( hFind );
+
+	if ( backgroundFolders.size() > 0 ) {
+		static std::random_device rd;
+		static std::mt19937 gen( rd() );
+		std::uniform_int_distribution<> dis( 0, backgroundFolders.size() - 1 );
+
+		std::string backgroundFolder = ".\\half_payne\\resource\\background";
+		std::string newBackground = backgroundFolders.at( dis( gen ) );
+
+		TCHAR backgroundFolderRaw[MAX_PATH];
+		strcpy(backgroundFolderRaw, backgroundFolder.c_str());
+		backgroundFolderRaw[backgroundFolder.size() + 1] = NULL;
+
+		TCHAR newBackgroundRaw[MAX_PATH];
+		strcpy(newBackgroundRaw, newBackground.c_str());
+		newBackgroundRaw[newBackground.size() + 1] = NULL;
+
+		SHFILEOPSTRUCT s = { 0 };
+		s.hwnd = NULL;
+		s.wFunc = FO_DELETE;
+		s.pFrom = backgroundFolderRaw;
+		s.pTo = "";
+		s.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
+		SHFileOperation(&s);
+
+		SHFILEOPSTRUCT s2 = { 0 };
+		s2.hwnd = NULL;
+		s2.wFunc = FO_COPY;
+		s2.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT | FOF_NOCONFIRMMKDIR;
+		s2.pFrom = newBackgroundRaw;
+		s2.pTo = backgroundFolderRaw;
+		SHFileOperation(&s2);
+	}
 }
 
 int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
@@ -279,6 +352,12 @@ void CL_DLLEXPORT HUD_Frame( double time )
 	GetClientVoiceMgr()->Frame(time);
 	inMainMenu = gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 1.0f;
 	SM_Think( time );
+
+	static bool changedBackground = false;
+	if ( !changedBackground && gEngfuncs.GetAbsoluteTime() > 1.0f ) {
+		ShuffleMainMenuBackground();
+		changedBackground = true;
+	}
 }
 
 
