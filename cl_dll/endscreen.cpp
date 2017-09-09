@@ -3,6 +3,7 @@
 #include "parsemsg.h"
 
 DECLARE_MESSAGE( m_endScreen, CustomEnd )
+DECLARE_MESSAGE( m_endScreen, CustomChea )
 
 #define MESSAGE_BRIGHTENESS 200
 
@@ -11,6 +12,7 @@ extern globalvars_t *gpGlobals;
 int CHudEndScreen::Init(void)
 {
 	HOOK_MESSAGE( CustomEnd );
+	HOOK_MESSAGE( CustomChea );
 
 	gHUD.AddHudElem(this);
 
@@ -22,6 +24,7 @@ void CHudEndScreen::Reset( void )
 	m_iFlags = 0;
 
 	ended = false;
+	cheated = false;
 
 	messages.clear();
 
@@ -94,6 +97,11 @@ void CHudEndScreen::DrawEndScreen()
 	// Bottom messages
 	y = ScreenHeight - yOffset - CORNER_OFFSET - gHUD.m_scrinfo.iCharHeight;
 	gHUD.DrawHudStringKeepCenter( x, y, 300, "PRESS ESC TO QUIT OR START THE NEW GAME", r, g, b );
+
+	if ( cheated ) {
+		y -= gHUD.m_scrinfo.iCharHeight;
+		gHUD.DrawHudStringKeepCenter( x, y, 300, "YOU'VE BEEN CHEATING - PB WILL NOT BE SAVED", 200, 0, 0 );
+	}
 }
 
 void CHudEndScreen::DrawEndScreenStatistics( int x, int y )
@@ -175,6 +183,13 @@ int CHudEndScreen::MsgFunc_CustomEnd( const char *pszName, int iSize, void *pbuf
 	ended = true;
 	
 	m_iFlags |= HUD_ACTIVE;
+
+	return 1;
+}
+
+int CHudEndScreen::MsgFunc_CustomChea( const char *pszName, int iSize, void *pbuf )
+{
+	cheated = true;
 
 	return 1;
 }

@@ -13,6 +13,7 @@
 // Custom Game Mode Rules
 
 int	gmsgCustomEnd	= 0;
+int	gmsgCustomChea	= 0;
 int	gmsgTimerMsg	= 0;
 int	gmsgTimerEnd	= 0;
 int gmsgTimerValue	= 0;
@@ -32,6 +33,7 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 {
 	if ( !gmsgCustomEnd ) {
 		gmsgCustomEnd = REG_USER_MSG( "CustomEnd", -1 );
+		gmsgCustomChea = REG_USER_MSG( "CustomChea", 0 );
 		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
 		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
 		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
@@ -334,14 +336,15 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 	cheatedMessageSent = true;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgCustomChea, NULL, pPlayer->pev );
+	MESSAGE_END();
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	PauseTimer( pPlayer );
 
 	const std::string configName = config.GetName();
-
-	RecordSave();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgCustomEnd, NULL, pPlayer->pev );
 
@@ -355,6 +358,10 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 		WRITE_SHORT( pPlayer->projectileKills );
 
 	MESSAGE_END();
+
+	if ( !cheated ) {
+		RecordSave();
+	}
 }
 
 void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )

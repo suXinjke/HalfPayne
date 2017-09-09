@@ -395,9 +395,11 @@ public:
 	virtual void Reset( void );
 	virtual int Draw( float fTime );
 	int MsgFunc_CustomEnd( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_CustomChea( const char *pszName, int iSize, void *pbuf );
 
 private:
 	bool ended;
+	bool cheated;
 
 	int kills;
 	int headshotKills;
