@@ -385,11 +385,13 @@ void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 {
 	auto entitySpawns = config.GetEntitySpawnsForMapOnce( std::string( mapName ) );
 	for ( auto entitySpawn : entitySpawns ) {
-		CBaseEntity::Create(
+		CBaseEntity *entity = CBaseEntity::Create(
 			allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entityName.c_str() )],
 			Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),
 			Vector( 0, entitySpawn.angle, 0 )
 		);
+
+		entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
 	}
 }
 

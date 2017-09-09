@@ -160,7 +160,7 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_ENTITY_SPAWN] = ConfigSection(
 		"entity_spawn", false,
-		[]( ConfigSectionData &data ) {
+		[this]( ConfigSectionData &data ) {
 			if ( data.argsString.size() < 5 ) {
 				return std::string( "<map_name> <entity_name> <x> <y> <z> [angle] not specified" );
 			}
@@ -180,6 +180,10 @@ void CustomGameModeConfig::InitConfigSections() {
 					return std::string( error );
 				}
 			}
+
+			entitiesToPrecache.insert( entityName );
+
+			return std::string( "" );
 		}
 	);
 
