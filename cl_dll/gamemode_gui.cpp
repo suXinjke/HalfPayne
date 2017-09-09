@@ -98,7 +98,7 @@ void GameModeGUI_Init() {
 	ImFontConfig config;
 	config.MergeMode = true;
 	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/fontawesome-webfont.ttf", 13.0f, &config, icon_ranges );
+	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/fontawesome-webfont.ttf", 14.0f, &config, icon_ranges );
 	static const ImWchar icon_ranges_cyrillic[] = { 0x0410, 0x044F, 0 };
 	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16, &config, icon_ranges_cyrillic );
 	
@@ -319,7 +319,7 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
 							ImGui::Text( mod.description.c_str() );
 							for ( auto argDescription : mod.argDescriptions ) {
-								ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   OPTION" ); ImGui::SameLine();
+								ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
 								ImGui::Text( argDescription.c_str() );
 							}
 						}
