@@ -162,7 +162,7 @@ void CustomGameModeConfig::InitConfigSections() {
 		"entity_spawn", false,
 		[this]( ConfigSectionData &data ) {
 			if ( data.argsString.size() < 5 ) {
-				return std::string( "<map_name> <entity_name> <x> <y> <z> [angle] not specified" );
+				return std::string( "<map_name> <entity_name> <x> <y> <z> [angle] [target_name] not specified" );
 			}
 
 			std::string entityName = data.argsString.at( 1 );
@@ -1456,8 +1456,9 @@ const std::vector<EntitySpawn> CustomGameModeConfig::GetEntitySpawnsForMapOnce( 
 		const float y = i->argsFloat.at( 3 );
 		const float z = i->argsFloat.at( 4 );
 		const float angle = i->argsFloat.size() >= 6 ? i->argsFloat.at( 5 ) : 0.0f;
+		const std::string targetName = i->argsFloat.size() >= 7 ? i->argsString.at( 6 ) : "";
 
-		result.push_back( { entityName, x, y, z, angle } );
+		result.push_back( { entityName, x, y, z, angle, targetName } );
 
 		i = sectionData->erase( i );
 	}

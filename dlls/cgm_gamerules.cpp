@@ -394,6 +394,9 @@ void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 		);
 
 		entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
+		if ( entitySpawn.targetName.size() > 0 ) {
+			entity->pev->targetname = ALLOC_STRING( entitySpawn.targetName.c_str() ); // memory leak
+		}
 	}
 }
 

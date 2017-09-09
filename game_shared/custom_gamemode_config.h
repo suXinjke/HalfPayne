@@ -126,6 +126,7 @@ struct EntitySpawn
 	float		y;
 	float		z;
 	float		angle;
+	std::string targetName;
 };
 
 struct Intermission
