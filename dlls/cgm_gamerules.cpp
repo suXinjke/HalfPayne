@@ -325,8 +325,8 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 		return;
 	}
 
-	if ( ( pPlayer->pev->flags & FL_GODMODE ) ||
-		 ( pPlayer->pev->flags & FL_NOTARGET ) ||
+	if ( ( pPlayer->pev->flags & FL_GODMODE && !pPlayer->godConstant ) ||
+		 ( pPlayer->pev->flags & FL_NOTARGET && !pPlayer->noTargetConstant ) ||
 		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
 		 pPlayer->usedCheat ) {
 		cheated = true;

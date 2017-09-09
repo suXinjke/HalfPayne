@@ -257,6 +257,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, vvvvvv, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
 
+	DEFINE_FIELD( CBasePlayer, godConstant, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, noTargetConstant, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, postRestoreDelay, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, postSpawnDelay, FIELD_TIME ),
 
@@ -2501,6 +2504,14 @@ void CBasePlayer::PreThink(void)
 		return;
 	}
 
+	if ( godConstant ) {
+		pev->flags |= FL_GODMODE;
+	}
+
+	if ( noTargetConstant ) {
+		pev->flags |= FL_NOTARGET;
+	}
+
 	// So the correct flags get sent to client asap.
 	//
 	if ( m_afPhysicsFlags & PFLAG_ONTRAIN )
@@ -3740,6 +3751,9 @@ void CBasePlayer::Spawn( void )
 
 	vvvvvv = false;
 	reverseGravity = false;
+
+	godConstant = false;
+	noTargetConstant = false;
 
 	postRestoreDelay = 0.0f;
 	postSpawnDelay = 0.1f;

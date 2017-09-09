@@ -166,6 +166,9 @@ public:
 	BOOL				vvvvvv;
 	BOOL				reverseGravity;
 
+	BOOL				godConstant;
+	BOOL				noTargetConstant;
+
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;

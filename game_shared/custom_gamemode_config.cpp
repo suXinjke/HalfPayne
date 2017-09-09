@@ -809,6 +809,28 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "garbage_gibs" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_GARBAGE_GIBS,
+			"Garbage gibs",
+			"Replaces all gibs with garbage.",
+			[]( CBasePlayer *player ) { player->garbageGibs = true; }
+		) );
+		return true;
+	}
+
+	if ( modName == "god" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_GOD,
+			"God mode",
+			"You are invincible and it doesn't count as a cheat.",
+			[]( CBasePlayer *player ) {
+				player->godConstant = true;
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "hard" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_HARD,
@@ -825,16 +847,6 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"Headshots",
 			"Headshots dealt to enemies become much more deadly.",
 			[]( CBasePlayer *player ) {}
-		) );
-		return true;
-	}
-
-	if ( modName == "garbage_gibs" ) {
-		mods.push_back( GameplayMod( 
-			GAMEPLAY_MOD_GARBAGE_GIBS,
-			"Garbage gibs",
-			"Replaces all gibs with garbage.",
-			[]( CBasePlayer *player ) { player->garbageGibs = true; }
 		) );
 		return true;
 	}
@@ -1009,6 +1021,18 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"No SMG grenade pickup",
 			"You're not allowed to pickup and use SMG (MP5) grenades.",
 			[]( CBasePlayer *player ) { player->noSmgGrenadePickup = true; }
+		) );
+		return true;
+	}
+
+	if ( modName == "no_target" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_NO_TARGET,
+			"No target",
+			"You are invisible to everyone and it doesn't count as a cheat.",
+			[]( CBasePlayer *player ) {
+				player->noTargetConstant = true;
+			}
 		) );
 		return true;
 	}
