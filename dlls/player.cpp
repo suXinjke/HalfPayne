@@ -82,10 +82,6 @@ extern CGraph	WorldGraph;
 
 #define SLOWMOTION_DRAIN_TIME 0.0288 // full slowmotion charge drains in 3 seconds (by ingame time)
 
-#define HEALTH_TIME_UNTIL_CHARGE 3
-#define HEALTH_CHARGE_TIME 0.2
-#define HEALTH_MAX_CHARGE 20
-
 #define TIMELEFT_UPDATE_TIME 0.001
 
 // Global Savedata for player
@@ -179,6 +175,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, regenerationMax, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, regenerationDelay, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, regenerationFrequency, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, showCredits, FIELD_BOOLEAN ),
 
@@ -1226,7 +1225,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 				SetSuitUpdate("!HEV_HLTH1", FALSE, SUIT_NEXT_IN_10MIN);	// health dropping
 		}
 
-	lastDamageTime = gpGlobals->time + HEALTH_TIME_UNTIL_CHARGE;
+	lastDamageTime = gpGlobals->time + regenerationDelay;
 	return fTookDamage;
 }
 
@@ -3808,6 +3807,9 @@ void CBasePlayer::Spawn( void )
 
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
+	regenerationMax = 20.0f;
+	regenerationDelay = 3.0f;
+	regenerationFrequency = 0.2f;
 
 	infiniteAmmo = false;
 	infiniteAmmoClip = false;
@@ -5519,19 +5521,19 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_END();
 	}
 
-	// Charge health if it's less than 20
-	if ( !isBleeding && lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time && pev->deadflag == DEAD_NO )
+	// Regenerate health if you can
+	if ( lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time && pev->deadflag == DEAD_NO )
 	{
-		if ( pev->health < 20 ) {
-			healthChargeTime = HEALTH_CHARGE_TIME + gpGlobals->time;
+		if ( pev->health < regenerationMax ) {
+			healthChargeTime = regenerationFrequency + gpGlobals->time;
 			TakeHealth( 1, DMG_GENERIC );
 
-			if ( pev->health >= 20 ) {
+			if ( pev->health >= 20 && regenerationMax <= 30 ) {
 				if (
 					CVAR_GET_FLOAT( "max_commentary_near_death" ) > 0.0f &&
 					RANDOM_LONG( 0, 100 ) < 50 &&
 					gpGlobals->time > allowedToReactOnPainkillerNeed
-					) {
+				) {
 					char fileName[256];
 					if ( painkillerCount > 0 ) {
 						sprintf_s( fileName, "max/painkiller/HAS_PILLS_%d.wav", RANDOM_LONG( 1, 6 ) );

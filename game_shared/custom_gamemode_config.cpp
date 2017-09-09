@@ -891,6 +891,44 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "health_regeneration" ) {
+		int regenerationMax = 20;
+		float regenerationDelay = 3.0f;
+		float regenerationFrequency = 0.2f;
+
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				regenerationMax = min( max( 0, data.argsFloat.at( i ) ), 100 );
+			}
+			if ( i == 2 ) {
+				regenerationDelay = max( 0, data.argsFloat.at( i ) );
+			}
+			if ( i == 3 ) {
+				regenerationFrequency = max( 0, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_HEALTH_REGENERATION,
+			"Health regeneration",
+			"Allows for health regeneration options.",
+			[regenerationMax, regenerationDelay, regenerationFrequency]( CBasePlayer *player ) {
+				player->regenerationMax = regenerationMax;
+				player->regenerationDelay = regenerationDelay;
+				player->regenerationFrequency = regenerationFrequency;
+			},
+			{
+				"Regenerate up to: " + std::to_string( regenerationMax ) + " HP\n",
+				std::to_string( regenerationDelay ) + " sec after last damage\n",
+				"Regenerating: " + std::to_string( 1 / regenerationFrequency ) + " HP/sec\n",
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "no_fall_damage" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_NO_FALL_DAMAGE,

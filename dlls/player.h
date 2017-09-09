@@ -462,6 +462,9 @@ public:
 	// Health charge
 	float lastDamageTime;
 	float healthChargeTime;
+	float regenerationMax;
+	float regenerationDelay;
+	float regenerationFrequency;
 
 	float allowedToReactOnPainkillerPickup;
 	float allowedToReactOnPainkillerTake;
