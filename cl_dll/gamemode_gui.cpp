@@ -1,4 +1,4 @@
-#include "wrect.h"
+﻿#include "wrect.h"
 #include "cl_dll.h"
 #include <Windows.h>
 #include <Psapi.h>
@@ -99,6 +99,8 @@ void GameModeGUI_Init() {
 	config.MergeMode = true;
 	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/fontawesome-webfont.ttf", 13.0f, &config, icon_ranges );
+	static const ImWchar icon_ranges_cyrillic[] = { 0x0410, 0x044F, 0 };
+	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16, &config, icon_ranges_cyrillic );
 	
 	GameModeGUI_RefreshConfigFiles();
 }
