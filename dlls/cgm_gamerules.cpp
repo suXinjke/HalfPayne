@@ -308,6 +308,8 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 	} else if ( killedEntity == KILLED_ENTITY_NIHILANTH ) {
 		End( pPlayer );
 	}
+
+	HookModelIndex( victim->edict() );
 }
 
 void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
