@@ -11,6 +11,7 @@
 #include <set>
 #include <map>
 #include <functional>
+#include "custom_gamemode_record.h"
 
 #define CHANGE_LEVEL_MODEL_INDEX -1
 
@@ -289,6 +290,7 @@ public:
 	};
 	
 	CustomGameModeConfig( CONFIG_TYPE configType );
+	CustomGameModeRecord record;
 
 	bool ReadFile( const char *fileName );
 

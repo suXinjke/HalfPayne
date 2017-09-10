@@ -14,3 +14,4 @@ void GameModeGUI_RunCustomGameMode( const CustomGameModeConfig &config );
 void GameModeGUI_SelectableButton( bool isSelected );
 int GameModeGUI_ProcessEvent( void *data, SDL_Event* event );
 void GameModeGUI_RefreshConfigFiles();
+const std::string GameModeGUI_GetFormattedTime( float time );

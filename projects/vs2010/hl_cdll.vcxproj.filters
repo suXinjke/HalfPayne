@@ -360,6 +360,9 @@
     <ClCompile Include="..\..\game_shared\sha1.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -525,6 +528,9 @@
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\game_shared\FontAwesome.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\custom_gamemode_record.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>

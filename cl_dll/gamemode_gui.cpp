@@ -269,6 +269,23 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 			
 			// COMPLETED?
 			ImGui::TextColored( ImVec4( 1.0, 1.0, 1.0, config.gameFinishedOnce ? 1.0 : 0.0 ), "%s", ICON_FA_CHECK );
+			if (
+				config.gameFinishedOnce &&
+				( config.configType == CONFIG_TYPE_BMM || config.configType == CONFIG_TYPE_SAGM ) &&
+				ImGui::IsItemHovered()
+			) {
+				ImGui::BeginTooltip();
+
+				if ( config.configType == CONFIG_TYPE_BMM ) {
+					ImGui::Text( "Time score: %s", GameModeGUI_GetFormattedTime( config.record.time ).c_str() );
+					ImGui::Text( "Real time: %s", GameModeGUI_GetFormattedTime( config.record.realTime ).c_str() );
+					ImGui::Text( "Real time minus score: %s", GameModeGUI_GetFormattedTime( config.record.realTimeMinusTime ).c_str() );
+				} else if ( config.configType == CONFIG_TYPE_SAGM ) {
+					ImGui::Text( "Score: %s", GameModeGUI_GetFormattedTime( config.record.score ).c_str() );
+				}
+
+				ImGui::EndTooltip();
+			}
 			ImGui::SameLine();
 
 			// FILE NAME + ROW
@@ -351,4 +368,34 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 
 		}
 	}
+}
+
+const std::string GameModeGUI_GetFormattedTime( float time ) {
+	float minutes = time / 60.0f;
+	int actualMinutes = floor( minutes );
+	float seconds = fmod( time, 60.0f );
+	float secondsIntegral;
+	float secondsFractional = modf( seconds, &secondsIntegral );
+
+	int actualSeconds = secondsIntegral;
+	int actualMilliseconds = secondsFractional * 100;
+
+	std::string result;
+
+	if ( actualMinutes < 10 ) {
+		result += "0";
+	}
+	result += std::to_string( actualMinutes ) + ":";
+
+	if ( actualSeconds < 10 ) {
+		result += "0";
+	}
+	result += std::to_string( actualSeconds ) + ".";
+
+	if ( actualMilliseconds < 10 ) {
+		result += "0";
+	}
+	result += std::to_string( actualMilliseconds );
+
+	return result;
 }

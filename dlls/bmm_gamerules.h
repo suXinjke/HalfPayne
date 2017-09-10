@@ -18,15 +18,9 @@ public:
 	virtual void OnCheated( CBasePlayer *pPlayer );
 
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
-	
-	float recordRealTimeMinusTime;
 
 protected:
 	virtual void OnEnd( CBasePlayer *pPlayer );
-
-	virtual void RecordAdditionalDefaultInit() override;
-	virtual void RecordAdditionalRead( std::ifstream &inp ) override;
-	virtual void RecordAdditionalWrite( std::ofstream &out ) override;
 };
 
 #endif // BMM_GAMERULES_H

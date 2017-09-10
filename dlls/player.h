@@ -508,6 +508,19 @@ public:
 	float bulletRicochetMaxDotProduct;
 
 	// Statistics
+	BOOL cheated;
+
+	float time;
+	float realTime;
+	float lastGlobalTime;
+	float lastRealTime;
+	int score;
+	int comboMultiplier;
+	float comboMultiplierReset;
+
+	BOOL timerBackwards;
+	BOOL timerPaused;
+
 	int kills;
 	int headshotKills;
 	int explosiveKills;

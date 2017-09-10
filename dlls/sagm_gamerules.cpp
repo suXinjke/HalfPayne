@@ -26,11 +26,6 @@ CScoreAttack::CScoreAttack() : CCustomGameModeRules( CONFIG_TYPE_SAGM )
 		gmsgScoreValue = REG_USER_MSG( "ScoreValue", 12 );
 		gmsgScoreCheat = REG_USER_MSG( "ScoreCheat", 0 );
 	}
-
-	currentScore = 0;
-
-	comboMultiplier = 1;
-	comboMultiplierReset = 0.0f;
 }
 
 void CScoreAttack::PlayerSpawn( CBasePlayer *pPlayer )
@@ -44,16 +39,16 @@ void CScoreAttack::PlayerThink( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerThink( pPlayer );
 
-	comboMultiplierReset -= timeDelta;
-	if ( comboMultiplierReset < 0.0f ) {
-		comboMultiplierReset = 0.0f;
-		comboMultiplier = 1;
+	pPlayer->comboMultiplierReset -= timeDelta;
+	if ( pPlayer->comboMultiplierReset < 0.0f ) {
+		pPlayer->comboMultiplierReset = 0.0f;
+		pPlayer->comboMultiplier = 1;
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
-		WRITE_LONG( currentScore );
-		WRITE_LONG( comboMultiplier );
-		WRITE_FLOAT( comboMultiplierReset );
+		WRITE_LONG( pPlayer->score );
+		WRITE_LONG( pPlayer->comboMultiplier );
+		WRITE_FLOAT( pPlayer->comboMultiplierReset );
 	MESSAGE_END();
 }
 
@@ -65,7 +60,6 @@ void CScoreAttack::OnCheated( CBasePlayer *pPlayer ) {
 }
 
 void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
-	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 
 	if ( pPlayer->pev->deadflag != DEAD_NO ) {
 		return;
@@ -159,7 +153,7 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 			break;
 	}
 
-	currentScore += scoreToAdd * ( comboMultiplier + additionalMultiplier );
+	pPlayer->score += scoreToAdd * ( pPlayer->comboMultiplier + additionalMultiplier );
 
 	if ( scoreToAdd != -1 ) {
 
@@ -167,7 +161,7 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 			MESSAGE_BEGIN( MSG_ONE, gmsgScoreMsg, NULL, pPlayer->pev );
 				WRITE_STRING( message.c_str() );
 				WRITE_LONG( scoreToAdd );
-				WRITE_FLOAT( comboMultiplier + additionalMultiplier );
+				WRITE_FLOAT( pPlayer->comboMultiplier + additionalMultiplier );
 				WRITE_COORD( deathPos.x );
 				WRITE_COORD( deathPos.y );
 				WRITE_COORD( deathPos.z );
@@ -182,26 +176,27 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 				break;
 
 			default:
-				comboMultiplier++;
+				pPlayer->comboMultiplier++;
 				break;
 		}
 
-		comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
+		pPlayer->comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
 	}
+
+	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 }
 
 void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 
-	RecordRead();
 	const std::string configName = config.GetName();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgScoreEnd, NULL, pPlayer->pev );
 
 		WRITE_STRING( configName.c_str() );
 
-		WRITE_LONG( currentScore );
+		WRITE_LONG( pPlayer->score );
 
-		WRITE_LONG( recordScore );
+		WRITE_LONG( config.record.score );
 
 		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
 		WRITE_SHORT( pPlayer->kills );
@@ -212,25 +207,7 @@ void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 
 	MESSAGE_END();
 
-	if ( !cheated ) {
-
-		// Write new records if there are
-		if ( currentScore > recordScore ) {
-			recordScore = currentScore;
-		}
-
-		RecordSave();
+	if ( !pPlayer->cheated ) {
+		config.record.Save( pPlayer );
 	}
 }
-
-void CScoreAttack::RecordAdditionalDefaultInit() {
-	recordScore = 0;
-};
-
-void CScoreAttack::RecordAdditionalRead( std::ifstream &inp ) {
-	inp.read( ( char * ) &recordScore, sizeof( int ) );
-};
-
-void CScoreAttack::RecordAdditionalWrite( std::ofstream &out ) {
-	out.write( ( char * ) &recordScore, sizeof( int ) );
-};

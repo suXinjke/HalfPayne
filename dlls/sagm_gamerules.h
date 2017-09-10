@@ -16,18 +16,8 @@ public:
 
 	virtual void OnCheated( CBasePlayer *pPlayer );
 
-	int currentScore;
-	int recordScore;
-
-	int comboMultiplier;
-	float comboMultiplierReset;
-
 protected:
 	virtual void OnEnd( CBasePlayer *pPlayer );
-
-	virtual void RecordAdditionalDefaultInit() override;
-	virtual void RecordAdditionalRead( std::ifstream &inp ) override;
-	virtual void RecordAdditionalWrite( std::ofstream &out ) override;
 };
 
 #endif // SAGM_GAMERULES_H

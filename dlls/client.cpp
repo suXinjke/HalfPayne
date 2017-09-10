@@ -155,15 +155,19 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 	}
 	else
 	{   
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			bmm->RestartGame();
-		} else if ( CScoreAttack *sagm = dynamic_cast< CScoreAttack * >( g_pGameRules ) ) {
-			sagm->RestartGame();
-		} else {
-
-			// restart the entire server
-			SERVER_COMMAND( "reload\n" );
+		bool noSaving = false;
+		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+			noSaving = pPlayer->noSaving;
 		}
+
+		if ( noSaving ) {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+				cgm->RestartGame();
+				return;
+			}
+		}
+
+		SERVER_COMMAND( "reload\n" );
 	}
 }
 

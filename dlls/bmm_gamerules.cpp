@@ -16,8 +16,9 @@ extern int gmsgTimerMsg;
 
 CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( CONFIG_TYPE_BMM )
 {
-	time = 60.0f;
-	timerBackwards = true;
+	if ( config.record.time == DEFAULT_TIME ) {
+		config.record.time = 0.0f;
+	}
 }
 
 void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
@@ -25,18 +26,20 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 	CCustomGameModeRules::PlayerSpawn( pPlayer );
 
 	pPlayer->activeGameMode = GAME_MODE_BMM;
+	pPlayer->time = 60.0f;
+	pPlayer->timerBackwards = true;
 }
 
 void CBlackMesaMinute::PlayerThink( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerThink( pPlayer );
 
-	if ( time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+	if ( pPlayer->time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
 		ClientKill( ENT( pPlayer->pev ) );
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
-		WRITE_FLOAT( time );
+		WRITE_FLOAT( pPlayer->time );
 	MESSAGE_END();
 }
 
@@ -48,7 +51,6 @@ void CBlackMesaMinute::OnCheated( CBasePlayer *pPlayer ) {
 }
 
 void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
-	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 
 	int timeToAdd = 0;
 	std::string message;
@@ -100,15 +102,17 @@ void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity
 	}
 
 	IncreaseTime( pPlayer, deathPos, timeToAdd, message.c_str() );
+
+	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 }
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message )
 {
-	if ( timerPaused || timeToAdd <= 0 ) {
+	if ( pPlayer->timerPaused || timeToAdd <= 0 ) {
 		return;
 	}
 
-	time += timeToAdd;
+	pPlayer->time += timeToAdd;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
 		WRITE_STRING( message );
@@ -123,19 +127,18 @@ void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 
 	PauseTimer( pPlayer );
 
-	RecordRead();
 	const std::string configName = config.GetName();
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pPlayer->pev );
 	
 		WRITE_STRING( configName.c_str() );
 
-		WRITE_FLOAT( time );
-		WRITE_FLOAT( realTime );
+		WRITE_FLOAT( pPlayer->time );
+		WRITE_FLOAT( pPlayer->realTime );
 
-		WRITE_FLOAT( recordTime );
-		WRITE_FLOAT( recordRealTime );
-		WRITE_FLOAT( recordRealTimeMinusTime );
+		WRITE_FLOAT( config.record.time );
+		WRITE_FLOAT( config.record.realTime );
+		WRITE_FLOAT( config.record.realTimeMinusTime );
 
 		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
 		WRITE_SHORT( pPlayer->kills );
@@ -146,28 +149,19 @@ void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
 		
 	MESSAGE_END();
 
-	if ( !cheated ) {
-
-		// Write new records if there are
-		if ( time > recordTime ) {
-			recordTime = time;
-		}
-		if ( realTime < recordRealTime ) {
-			recordRealTime = realTime;
-		}
-
-		float realTimeMinusTime = max( 0.0f, realTime - time );
-		if ( realTimeMinusTime < recordRealTimeMinusTime ) {
-			recordRealTimeMinusTime = realTimeMinusTime;
-		}
-
-		RecordSave();
+	if ( !pPlayer->cheated ) {
+		config.record.Save( pPlayer );
 	}
 }
 
 void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
 	CCustomGameModeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
+
+	// Dumb hack to prevent timer pausing
+	if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
+		return;
+	}
 
 	// Does timer_pauses section contain such index?
 	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_PAUSE, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
@@ -179,15 +173,3 @@ void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activa
 		ResumeTimer( pPlayer );
 	}
 }
-
-void CBlackMesaMinute::RecordAdditionalDefaultInit() {
-	recordRealTimeMinusTime = DEFAULT_TIME;
-};
-
-void CBlackMesaMinute::RecordAdditionalRead( std::ifstream &inp ) {
-	inp.read( ( char * ) &recordRealTimeMinusTime, sizeof( float ) );
-};
-
-void CBlackMesaMinute::RecordAdditionalWrite( std::ofstream &out ) {
-	out.write( ( char * ) &recordRealTimeMinusTime, sizeof( float ) );
-};

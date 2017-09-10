@@ -209,6 +209,17 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, swearOnKill, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, crossbowExplosiveBolts, FIELD_BOOLEAN ),
 	
+	DEFINE_FIELD( CBasePlayer, cheated, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, time, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, realTime, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, lastGlobalTime, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, lastRealTime, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, score, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, comboMultiplier, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, comboMultiplierReset, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, timerBackwards, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, timerPaused, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, explosiveKills, FIELD_INTEGER ),
@@ -3874,6 +3885,18 @@ void CBasePlayer::Spawn( void )
 	fadeOutUpdatePeriod = 0.5f;
 	fadeOutThreshold = 25;
 
+	cheated = 0;
+	time = 0.0f;
+	realTime = 0.0f;
+	lastGlobalTime = 0.0f;
+	lastRealTime = 0.0f;
+	score = 0;
+	comboMultiplier = 1;
+	comboMultiplierReset = 0.0f;
+
+	timerBackwards = FALSE;
+	timerPaused = FALSE;
+
 	kills = 0;
 	headshotKills = 0;
 	explosiveKills = 0;
@@ -6482,13 +6505,19 @@ void CRevertSaved :: LoadThink( void )
 {
 	if ( !gpGlobals->deathmatch )
 	{
-		if ( CBlackMesaMinute *bmm = dynamic_cast< CBlackMesaMinute * >( g_pGameRules ) ) {
-			bmm->RestartGame();
-		} else if ( CScoreAttack *sagm = dynamic_cast< CScoreAttack * >( g_pGameRules ) ) {
-			sagm->RestartGame();
-		} else {
-			SERVER_COMMAND( "reload\n" );
+		bool noSaving = false;
+		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+			noSaving = pPlayer->noSaving;
 		}
+
+		if ( noSaving ) {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+				cgm->RestartGame();
+				return;
+			}
+		}
+
+		SERVER_COMMAND( "reload\n" );
 	}
 }
 

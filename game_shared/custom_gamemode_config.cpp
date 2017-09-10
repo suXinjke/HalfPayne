@@ -509,20 +509,11 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	sha1 = SHA1::from_file( filePath );
 
-	const std::string recordFilePath = GetGamePath() + "\\records\\" + CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configName +  + "_" + sha1 + ".hpr";
-	DWORD dwAttrib = GetFileAttributes( recordFilePath.c_str() );
-	gameFinishedOnce = ( dwAttrib != INVALID_FILE_ATTRIBUTES && !( dwAttrib & FILE_ATTRIBUTE_DIRECTORY ) );
+	const std::string recordDirectoryPath = GetGamePath() + "\\records\\";
+	const std::string recordFileName = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configName +  + "_" + sha1 + ".hpr";
+	gameFinishedOnce = record.Read( recordDirectoryPath, recordFileName );
 
 	inp.close(); // TODO: find out if it's called automatically
-
-	// TODO: fix this ugly, I should be able just to specify GAMEMOD_TYPE instead of typing 'no_saving' strings and args
-	if (
-		( configType == CONFIG_TYPE_BMM || configType == CONFIG_TYPE_SAGM ) &&
-		!IsGameplayModActive( GAMEPLAY_MOD_NO_SAVING )
-	) {
-		ConfigSectionData noSaving = { "no_saving", { "no_saving" }, { NAN } };
-		AddGameplayMod( noSaving );
-	}
 
 	return true;
 }
