@@ -180,6 +180,8 @@ void CHgun::PrimaryAttack()
 	}
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
+
+	m_pPlayer->ApplyWeaponPushback( 220 );
 }
 
 
@@ -275,6 +277,8 @@ void CHgun::SecondaryAttack( void )
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.1;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
+
+	m_pPlayer->ApplyWeaponPushback( 220 );
 }
 
 

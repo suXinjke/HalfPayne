@@ -480,6 +480,8 @@ void CRpg::PrimaryAttack()
 				
 		m_flNextPrimaryAttack = GetNextAttackDelay(1.5);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
+
+		m_pPlayer->ApplyWeaponPushback( 1000 );
 	}
 	else
 	{

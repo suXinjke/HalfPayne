@@ -344,6 +344,8 @@ void CCrossbow::PrimaryAttack( void )
 		return;
 	}
 
+	m_pPlayer->ApplyWeaponPushback( 200 );
+
 	FireBolt();
 }
 

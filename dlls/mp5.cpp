@@ -281,6 +281,8 @@ void CMP5::SecondaryAttack( void )
 							m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16, 
 							gpGlobals->v_forward * 800 );
 
+	m_pPlayer->ApplyWeaponPushback( 1000 );
+
 	int flags;
 #if defined( CLIENT_WEAPONS )
 	flags = FEV_NOTHOST;

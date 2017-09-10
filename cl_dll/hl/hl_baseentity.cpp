@@ -258,6 +258,7 @@ void CBasePlayer::Jump() { }
 void CBasePlayer::Duck( ) { }
 int  CBasePlayer::Classify ( void ) { return 0; }
 void CBasePlayer::PreThink(void) { }
+void CBasePlayer::ApplyWeaponPushback(float) { };
 void CBasePlayer::CheckTimeBasedDamage()  { }
 void CBasePlayer :: UpdateGeigerCounter( void ) { }
 void CBasePlayer::CheckSuitUpdate() { }

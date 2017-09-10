@@ -300,6 +300,8 @@ public:
 	void RemoveAllItems( BOOL removeSuit );
 	BOOL SwitchWeapon( CBasePlayerItem *pWeapon );
 
+	void ApplyWeaponPushback( float impulse );
+
 	// JOHN:  sends custom messages if player HUD data has changed  (eg health, ammo)
 	virtual void UpdateClientData( void );
 	
@@ -491,6 +493,9 @@ public:
 	void AnswerAboutRhetoricalQuestion();
 
 	BOOL gameTitleShown;
+
+	BOOL weaponPushBack;
+	float weaponPushBackMultiplier;
 
 	GAME_MODE activeGameMode;
 	int activeGameModeConfig;

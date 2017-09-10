@@ -143,6 +143,7 @@ BOOL CEgon::HasAmmo( void )
 void CEgon::UseAmmo( int count )
 {
 	if ( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] >= count ) {
+		m_pPlayer->ApplyWeaponPushback( 190 );
 		if ( !m_pPlayer->infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= count;
 		}

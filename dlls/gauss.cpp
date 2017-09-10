@@ -163,6 +163,8 @@ void CGauss::PrimaryAttack()
 	} else {
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.2;
 	}
+
+	m_pPlayer->ApplyWeaponPushback( 270 );
 }
 
 void CGauss::SecondaryAttack()
@@ -346,9 +348,10 @@ void CGauss::StartFire( void )
 		if ( !m_fPrimaryFire )
 		{
 			m_pPlayer->pev->velocity = m_pPlayer->pev->velocity - gpGlobals->v_forward * flDamage * 5;
+			m_pPlayer->ApplyWeaponPushback( 400 );
 		}
 
-		if ( !g_pGameRules->IsMultiplayer() )
+		if ( !g_pGameRules->IsMultiplayer() && !m_pPlayer->weaponPushBack )
 
 		{
 			// in deathmatch, gauss can pop you up into the air. Not in single play.

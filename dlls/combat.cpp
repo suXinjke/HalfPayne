@@ -1781,6 +1781,8 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		}
 		// make bullet trails
 		UTIL_BubbleTrail( vecSrc, tr.vecEndPos, (flDistance * tr.flFraction) / 64.0 );
+
+		player->ApplyWeaponPushback( iBulletType == BULLET_PLAYER_357 ? 260 : 190 );
 	}
 	ApplyMultiDamage(pev, pevAttacker);
 

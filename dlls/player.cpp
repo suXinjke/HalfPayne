@@ -209,6 +209,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, swearOnKill, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, crossbowExplosiveBolts, FIELD_BOOLEAN ),
 	
+	DEFINE_FIELD( CBasePlayer, weaponPushBack, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, weaponPushBackMultiplier, FIELD_FLOAT ),
+		
 	DEFINE_FIELD( CBasePlayer, cheated, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, time, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, realTime, FIELD_FLOAT ),
@@ -1373,6 +1376,14 @@ void CBasePlayer::PackDeadPlayerItems( void )
 	pWeaponBox->pev->velocity = pev->velocity * 1.2;// weaponbox has player's velocity, then some.
 
 	RemoveAllItems( TRUE );// now strip off everything that wasn't handled by the code above.
+}
+
+void CBasePlayer::ApplyWeaponPushback( float impulse ) {
+	if ( !weaponPushBack ) {
+		return;
+	}
+
+	pev->velocity = pev->velocity - ( gpGlobals->v_forward * impulse * weaponPushBackMultiplier );
 }
 
 void CBasePlayer::RemoveAllItems( BOOL removeSuit )
@@ -3723,6 +3734,9 @@ void CBasePlayer::Spawn( void )
 	noSaving = false;
 
 	gameTitleShown = false;
+
+	weaponPushBack = false;
+	weaponPushBackMultiplier = 1.0f;
 
 	noPills = false;
 	noHealing = false;

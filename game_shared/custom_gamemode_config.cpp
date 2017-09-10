@@ -1302,6 +1302,33 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "weapon_push_back" ) {
+
+		float weaponPushBackMultiplier = 1.0f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				weaponPushBackMultiplier = max( 0.1f, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_WEAPON_PUSH_BACK,
+			"Weapon push back",
+			"Shooting weapons pushes you back.",
+			[weaponPushBackMultiplier]( CBasePlayer *player ) {
+				player->weaponPushBack = true;
+				player->weaponPushBackMultiplier = weaponPushBackMultiplier;
+			},
+			{
+				"Push back multiplier: " + std::to_string( weaponPushBackMultiplier ) + "\n",
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "weapon_restricted" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_WEAPON_RESTRICTED,
