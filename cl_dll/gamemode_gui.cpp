@@ -15,6 +15,10 @@ std::vector< CustomGameModeConfig > cgmConfigs;
 std::vector< CustomGameModeConfig > bmmConfigs;
 std::vector< CustomGameModeConfig > sagmConfigs;
 
+int configAmount;
+int configCompleted;
+float configCompletedPercent;
+
 int selectedGamemodeTab = CONFIG_TYPE_CGM;
 
 // To draw imgui on top of Half-Life, we take a detour from certain engine's function into GameModeGUI_Draw function
@@ -92,6 +96,7 @@ void GameModeGUI_Init() {
 	style->Colors[ImGuiCol_CloseButton]           = ImVec4(0.50f, 0.50f, 0.90f, 0.00f);
 	style->Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.70f, 0.70f, 0.90f, 0.00f);
 	style->Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.70f, 0.70f, 0.70f, 0.00f);
+	style->Colors[ImGuiCol_PlotHistogram]         = ImVec4(1.00f, 1.00f, 1.00f, 0.35f);
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16 );
@@ -109,10 +114,25 @@ int GameModeGUI_ProcessEvent( void *data, SDL_Event* event ) {
 	return ImGui_ImplSdl_ProcessEvent( event );
 }
 
+int GetAmountOfCompletedConfigs( const std::vector< CustomGameModeConfig > &configs ) {
+	int result = 0;
+	for ( auto config : configs ) {
+		if ( config.gameFinishedOnce ) {
+			result++;
+		}
+	}
+
+	return result;
+}
+
 void GameModeGUI_RefreshConfigFiles() {
 	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_CGM );
 	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_BMM );
 	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_SAGM );
+
+	configAmount = cgmConfigs.size() + bmmConfigs.size() + sagmConfigs.size();
+	configCompleted = GetAmountOfCompletedConfigs( cgmConfigs ) + GetAmountOfCompletedConfigs( bmmConfigs ) + GetAmountOfCompletedConfigs( sagmConfigs );
+	configCompletedPercent = ( ( ( float ) configCompleted ) / configAmount );
 }
 
 void GameModeGUI_RefreshConfigFileList( CONFIG_TYPE configType ) {
@@ -122,7 +142,6 @@ void GameModeGUI_RefreshConfigFileList( CONFIG_TYPE configType ) {
 	CustomGameModeConfig dumbConfig = CustomGameModeConfig( configType );
 	std::vector<std::string> files = dumbConfig.GetAllConfigFileNames();
 
-	gEngfuncs.Con_Printf( "Command | Start map | Config name\n" );
 	for ( auto file : files ) {
 		CustomGameModeConfig config( configType );
 		config.ReadFile( file.c_str() );
@@ -198,10 +217,17 @@ void GameModeGUI_DrawMainWindow() {
 	ImGui::SetNextWindowSize( ImVec2( GAME_MODE_WINDOW_WIDTH, GAME_MODE_WINDOW_HEIGHT ), ImGuiSetCond_FirstUseEver );
 	ImGui::Begin( "Custom game modes", &showGameModeWindow, ImGuiWindowFlags_NoTitleBar );
 
-	// REFRESH BUTTON
+	
 	{
-		ImGui::Columns( 1, "gamemode_refresh_button_column" );
+		// PROGRESSION
+		char progressLabel[64];
+		sprintf( progressLabel, "Completed %d/%d (%.1f%%)", configCompleted, configAmount, configCompletedPercent * 100 );
+		ImGui::ProgressBar( configCompletedPercent, ImVec2( -100.0f, 0.0f ), progressLabel );
 
+		ImGui::SameLine();
+
+		// REFRESH BUTTON
+		//ImGui::Columns( 1, "gamemode_refresh_button_column" );
 		if ( ImGui::Button( "Refresh", ImVec2( -1, 0 ) ) ) {
 			GameModeGUI_RefreshConfigFiles();
 		}
@@ -281,7 +307,7 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 					ImGui::Text( "Real time: %s", GameModeGUI_GetFormattedTime( config.record.realTime ).c_str() );
 					ImGui::Text( "Real time minus score: %s", GameModeGUI_GetFormattedTime( config.record.realTimeMinusTime ).c_str() );
 				} else if ( config.configType == CONFIG_TYPE_SAGM ) {
-					ImGui::Text( "Score: %s", GameModeGUI_GetFormattedTime( config.record.score ).c_str() );
+					ImGui::Text( "Score: %d", config.record.score );
 				}
 
 				ImGui::EndTooltip();
