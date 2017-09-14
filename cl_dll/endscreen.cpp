@@ -3,6 +3,7 @@
 #include "parsemsg.h"
 #include "triangleapi.h"
 #include "string_aux.h"
+#include "gamemode_gui.h"
 
 DECLARE_MESSAGE( m_EndScreen, EndActiv )
 DECLARE_MESSAGE( m_EndScreen, EndTitle )
@@ -119,6 +120,10 @@ int CHudEndScreen::MsgFunc_EndActiv( const char *pszName, int iSize, void *pbuf 
 	for ( auto &animationLine : animationLines ) {
 		animationLine.value->StartRunning();
 		animationLine.recordValue->StartRunning();
+	}
+
+	if ( !cheated ) {
+		GameModeGUI_RefreshConfigFiles();
 	}
 
 	return 1;
