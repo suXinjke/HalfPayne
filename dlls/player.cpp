@@ -2669,6 +2669,15 @@ void CBasePlayer::PreThink(void)
 		MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
 		MESSAGE_END();
 
+		if ( !HasWeapons() ) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgCurWeapon, NULL, pev );
+				WRITE_BYTE(0);
+				WRITE_BYTE(0);
+				WRITE_BYTE(0);
+				WRITE_BYTE(0);
+			MESSAGE_END();
+		}
+
 		postSpawnDelay = 0.0f;
 	}
 }
