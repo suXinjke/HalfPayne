@@ -11,18 +11,16 @@
 
 #define COMBO_MULTIPLIER_DECAY_TIME 8.0f;
 
-int	gmsgScoreMsg	= 0;
-int	gmsgScoreCombo	= 0;
-int	gmsgScoreEnd	= 0;
+int gmsgScoreDeact  = 0;
 int gmsgScoreValue	= 0;
 int gmsgScoreCheat	= 0;
 
+extern int gmsgEndScore;
+
 CScoreAttack::CScoreAttack() : CCustomGameModeRules( CONFIG_TYPE_SAGM )
 {
-	if ( !gmsgScoreMsg ) {
-
-		gmsgScoreMsg = REG_USER_MSG( "ScoreMsg", -1 );
-		gmsgScoreEnd = REG_USER_MSG( "ScoreEnd", -1 );
+	if ( !gmsgScoreValue ) {
+		gmsgScoreDeact = REG_USER_MSG( "ScoreDeact", 0 );
 		gmsgScoreValue = REG_USER_MSG( "ScoreValue", 12 );
 		gmsgScoreCheat = REG_USER_MSG( "ScoreCheat", 0 );
 	}
@@ -158,14 +156,19 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 	if ( scoreToAdd != -1 ) {
 
 		if ( scoreToAdd > 0 ) {
-			MESSAGE_BEGIN( MSG_ONE, gmsgScoreMsg, NULL, pPlayer->pev );
-				WRITE_STRING( message.c_str() );
-				WRITE_LONG( scoreToAdd );
-				WRITE_FLOAT( pPlayer->comboMultiplier + additionalMultiplier );
-				WRITE_COORD( deathPos.x );
-				WRITE_COORD( deathPos.y );
-				WRITE_COORD( deathPos.z );
-			MESSAGE_END();
+			SendGameLogMessage( pPlayer, message );
+
+			float comboMultiplier = pPlayer->comboMultiplier + additionalMultiplier;
+			bool comboMultiplierIsInteger = abs( comboMultiplier - std::lround( comboMultiplier ) ) < 0.00000001f;
+
+			char upperString[128];
+			if ( comboMultiplierIsInteger ) {
+				std::sprintf( upperString, "%d x%.0f", scoreToAdd, comboMultiplier );
+			} else {
+				std::sprintf( upperString, "%d x%.1f", scoreToAdd, comboMultiplier );
+			}
+
+			SendGameLogWorldMessage( pPlayer, deathPos, std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ), upperString );
 		}
 
 		switch ( killedEntity ) {
@@ -187,27 +190,15 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 }
 
 void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
-
-	const std::string configName = config.GetName();
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgScoreEnd, NULL, pPlayer->pev );
-
-		WRITE_STRING( configName.c_str() );
-
-		WRITE_LONG( pPlayer->score );
-
-		WRITE_LONG( config.record.score );
-
-		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
-		WRITE_SHORT( pPlayer->kills );
-		WRITE_SHORT( pPlayer->headshotKills );
-		WRITE_SHORT( pPlayer->explosiveKills );
-		WRITE_SHORT( pPlayer->crowbarKills );
-		WRITE_SHORT( pPlayer->projectileKills );
-
+	MESSAGE_BEGIN( MSG_ONE, gmsgScoreDeact, NULL, pPlayer->pev );
 	MESSAGE_END();
 
-	if ( !pPlayer->cheated ) {
-		config.record.Save( pPlayer );
-	}
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndScore, NULL, pPlayer->pev );
+		WRITE_STRING( "SCORE|PERSONAL BEST" );
+		WRITE_LONG( pPlayer->score );
+		WRITE_LONG( config.record.score );
+		WRITE_BYTE( pPlayer->score > config.record.score );
+	MESSAGE_END();
+
+	CCustomGameModeRules::OnEnd( pPlayer );
 }

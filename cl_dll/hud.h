@@ -35,6 +35,8 @@
 #include "cl_dll.h"
 #include "ammo.h"
 #include <vector>
+#include <utility>
+#include <memory>
 
 #define CORNER_OFFSET 20
 #define HEALTH_SPRITE_WIDTH 64
@@ -211,209 +213,6 @@ private:
 	int slowMotionCharge;
 	int hourglassStrokeSprite;
 	int hourglassFillSprite;
-};
-
-#define TIMER_MESSAGE_REMOVAL_TIME 3.0f
-#define TIME_ADDED_REMOVAL_TIME 1.0f
-#define TIME_ADDED_FLASHING_TIME 0.1f
-
-// TODO: Class purpose is dumb now - it is also used in score attack
-// which has nothing to do with timers.
-// This class should more general and string formatting is something for the upper level
-class CHudTimerMessage
-{
-public:
-	CHudTimerMessage( const std::string &message, const Vector &coords, float initialTime, const std::string &scoreMessageUpper = "" ) {
-		this->message = message;
-		this->timeAddedUpperString = scoreMessageUpper;
-		this->coords = coords;
-		this->timerMessageRemovalTime = initialTime + TIMER_MESSAGE_REMOVAL_TIME;
-		this->timeAddedRemovalTime = initialTime + TIME_ADDED_REMOVAL_TIME;
-
-		this->timeAddedFlash1Time = TIME_ADDED_FLASHING_TIME;
-		this->timeAddedFlash2Time = TIME_ADDED_FLASHING_TIME * 2;
-	}
-
-	CHudTimerMessage( const std::string &message, int timeAdded, const Vector &coords, float initialTime, const std::string &scoreMessageUpper = "" ) 
-		: CHudTimerMessage( message, coords, initialTime, scoreMessageUpper ) {
-
-		char timeAddedCString[6];
-		sprintf( timeAddedCString, "00:%02d", timeAdded ); // mm:ss
-		timeAddedString = std::string( timeAddedCString );
-	}
-
-	CHudTimerMessage( const std::string &message, const std::string &scoreMessage, const Vector &coords, float initialTime, const std::string &scoreMessageUpper = "" )
-		: CHudTimerMessage( message, coords, initialTime, scoreMessageUpper ) {
-
-		timeAddedString = scoreMessage;
-	}
-
-	std::string message;
-	std::string timeAddedUpperString;
-	std::string timeAddedString;
-	Vector coords;
-	float timerMessageRemovalTime;
-	float timeAddedRemovalTime;
-	float timeAddedFlash1Time;
-	float timeAddedFlash2Time;
-};
-
-class CHudRunningTimerAnimation
-{
-public:
-	CHudRunningTimerAnimation();
-	void StartRunning( float endTime, float stepFraction = 60.0f );
-	int Draw( int x, int y, int r, int g, int b );
-	
-	bool isRunning;
-
-private:
-	float time;
-	float endTime;
-	float timeStep;
-
-	float nextUpdateTime;
-};
-
-// TODO: this is a duplicate of CHudRunningTimerAnimation but with different
-// Draw function. RunningAnimation should be more abstract
-class CHudRunningScoreAnimation
-{
-public:
-	CHudRunningScoreAnimation();
-	void StartRunning( int endScore, float stepFraction = 60.0f );
-	int Draw( int x, int y, int r, int g, int b );
-
-	bool isRunning;
-
-private:
-	int score;
-	int endScore;
-	float scoreStep;
-
-	float nextUpdateTime;
-};
-
-class CHudTimer : public CHudBase
-{
-public:
-	virtual int Init( void );
-	virtual void Reset( void );
-	virtual int Draw( float fTime );
-	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TimerMsg( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TimerEnd( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TimerCheat( const char *pszName, int iSize, void *pbuf );
-
-private:
-	bool paused;
-	bool ended;
-	bool cheated;
-	float time;
-	float realTime;
-	float realTimeMinusTime;
-
-	float oldTimeRecord;
-	float oldRealTimeRecord;
-	float oldRealTimeMinusTimeRecord;
-
-	int kills;
-	int headshotKills;
-	int explosiveKills;
-	int crowbarKills;
-	int projectileKills;
-	float secondsInSlowmotion;
-
-	CHudRunningTimerAnimation timeRunningAnimation;
-	CHudRunningTimerAnimation realTimeRunningAnimation;
-	CHudRunningTimerAnimation realTimeMinusTimeRunningAnimation;
-	
-	bool blinked;
-	float nextTimerBlinkTime;
-
-	float nextRuntimeSoundTime;
-
-	void DrawMessages( int x, int y );
-	void DrawEndScreen();
-	void DrawEndScreenTimes( int x, int y );
-	void DrawEndScreenRecords( int x, int y );
-	void DrawEndScreenStatistics( int x, int y );
-
-	std::string endScreenLevelCompletedMessage;
-
-	std::vector<CHudTimerMessage>	messages;
-};
-
-class CHudScore : public CHudBase
-{
-public:
-	virtual int Init( void );
-	virtual void Reset( void );
-	virtual int Draw( float fTime );
-	int MsgFunc_ScoreMsg( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_ScoreEnd( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_ScoreValue( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_ScoreCheat( const char *pszName, int iSize, void *pbuf );
-
-private:
-	bool ended;
-	bool cheated;
-
-	int currentScore;
-
-	int comboMultiplier;
-	float comboMultiplierReset;
-
-	int oldScoreRecord;
-
-	int kills;
-	int headshotKills;
-	int explosiveKills;
-	int crowbarKills;
-	int projectileKills;
-	float secondsInSlowmotion;
-
-	float nextRuntimeSoundTime;
-	CHudRunningScoreAnimation scoreRunningAnimation;
-
-	void DrawMessages( int x, int y );
-	void DrawEndScreen();
-	void DrawEndScreenScore( int x, int y );
-	void DrawEndScreenRecords( int x, int y );
-	void DrawEndScreenStatistics( int x, int y );
-
-	std::string endScreenLevelCompletedMessage;
-
-	std::vector<CHudTimerMessage>	messages;
-};
-
-class CHudEndScreen : public CHudBase
-{
-public:
-	virtual int Init( void );
-	virtual void Reset( void );
-	virtual int Draw( float fTime );
-	int MsgFunc_CustomEnd( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_CustomChea( const char *pszName, int iSize, void *pbuf );
-
-private:
-	bool ended;
-	bool cheated;
-
-	int kills;
-	int headshotKills;
-	int explosiveKills;
-	int crowbarKills;
-	int projectileKills;
-	float secondsInSlowmotion;
-
-	void DrawEndScreen();
-	void DrawEndScreenStatistics( int x, int y );
-
-	std::string endScreenLevelCompletedMessage;
-
-	std::vector<CHudTimerMessage>	messages;
 };
 
 class CHudEndCredits : public CHudBase
@@ -798,6 +597,160 @@ private:
 	int 	m_nCompositeScore;
 };
 
+#define MESSAGE_BRIGHTENESS 200
+
+class CHudTimer : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_TimerDeact( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_TimerCheat( const char *pszName, int iSize, void *pbuf );
+
+private:
+	bool paused;
+	bool cheated;
+
+	float time;
+	
+	bool blinked;
+	float nextTimerBlinkTime;
+};
+
+class CHudScore : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_ScoreDeact( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_ScoreValue( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_ScoreCheat( const char *pszName, int iSize, void *pbuf );
+
+private:
+	bool cheated;
+
+	int currentScore;
+	int comboMultiplier;
+	float comboMultiplierReset;
+};
+
+typedef std::pair< std::string, float > GameLogMessage;
+
+class CHudGameLog : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_GLogDeact( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_GLogMsg( const char *pszName, int iSize, void *pbuf );
+
+private:
+	std::vector<GameLogMessage> messages;
+};
+
+struct GameLogWorldMessage {
+	Vector coords;
+	std::string message;
+	std::string message2;
+
+	float timeAddedRemovalTime;
+	float timeAddedFlash1Time;
+	float timeAddedFlash2Time;
+};
+
+class CHudGameLogWorld : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_GLogWDeact( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_GLogWMsg( const char *pszName, int iSize, void *pbuf );
+
+private:
+	std::vector<GameLogWorldMessage> messages;
+};
+
+#define RUNTIME_SOUND_DURATION 0.072f
+#define RUNTIME_UPDATE_TIME 0.02f
+
+class CHudRunningAnimation
+{
+public:
+	CHudRunningAnimation( float endValue, float stepFraction = 60.0f );
+	void StartRunning();
+	virtual int Draw( int x, int y, int r, int g, int b );
+
+	bool isRunning;
+
+	static float nextRuntimeSoundTime;
+
+protected:
+	float value;
+	float endValue;
+	float step;
+
+	float nextUpdateTime;
+};
+
+class CHudRunningTimerAnimation : public CHudRunningAnimation {
+
+public:
+	CHudRunningTimerAnimation( float endValue, float stepFraction = 60.0f );
+	virtual int Draw( int x, int y, int r, int g, int b ) override;
+};
+
+class CHudRunningScoreAnimation : public CHudRunningAnimation {
+
+public:
+	CHudRunningScoreAnimation( float endValue, float stepFraction = 60.0f );
+	virtual int Draw( int x, int y, int r, int g, int b ) override;
+};
+
+struct EndScreenRunningAnimationLine {
+	std::string label;
+	std::unique_ptr<CHudRunningAnimation> value;
+
+	bool recordBeaten;
+	std::string recordLabel;
+	std::unique_ptr<CHudRunningAnimation> recordValue;
+};
+
+struct EndScreenStatisticsLine {
+	std::string key;
+	std::string value;
+};
+
+class CHudEndScreen : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_EndActiv( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_EndTitle( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_EndTime( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_EndScore( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_EndStat( const char *pszName, int iSize, void *pbuf );
+
+private:
+	bool cheated;
+	std::vector< std::string> titleLines;
+
+	std::vector<EndScreenRunningAnimationLine> animationLines;
+	std::vector<EndScreenStatisticsLine> statLines;
+};
+
 //
 //-----------------------------------------------------
 //
@@ -891,7 +844,9 @@ public:
 	CHudPainkiller  m_Painkiller;
 	CHudTimer		m_Timer;
 	CHudScore		m_Score;
-	CHudEndScreen	m_endScreen;
+	CHudGameLog		m_GameLog;
+	CHudGameLogWorld m_GameLogWorld;
+	CHudEndScreen	m_EndScreen;
 	CHudEndCredits  m_endCredits;
 
 	void Init( void );

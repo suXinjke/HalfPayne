@@ -132,6 +132,8 @@
     <ClCompile Include="..\..\cl_dll\flashlight.cpp" />
     <ClCompile Include="..\..\cl_dll\gamemode_gui.cpp" />
     <ClCompile Include="..\..\cl_dll\GameStudioModelRenderer.cpp" />
+    <ClCompile Include="..\..\cl_dll\game_log.cpp" />
+    <ClCompile Include="..\..\cl_dll\game_log_world.cpp" />
     <ClCompile Include="..\..\cl_dll\geiger.cpp" />
     <ClCompile Include="..\..\cl_dll\health.cpp" />
     <ClCompile Include="..\..\cl_dll\hl\hl_baseentity.cpp" />

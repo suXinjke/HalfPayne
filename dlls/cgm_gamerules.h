@@ -43,7 +43,10 @@ public:
 
 	CustomGameModeConfig config;
 
-private:
+protected:
+	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message );
+	void SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 = "" );
+
 	virtual void OnEnd( CBasePlayer *pPlayer );
 };
 

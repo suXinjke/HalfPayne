@@ -20,7 +20,7 @@ public:
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
 
 protected:
-	virtual void OnEnd( CBasePlayer *pPlayer );
+	virtual void OnEnd( CBasePlayer *pPlayer ) override;
 };
 
 #endif // BMM_GAMERULES_H

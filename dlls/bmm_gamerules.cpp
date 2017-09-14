@@ -9,15 +9,22 @@
 #include <fstream>
 #include	"monsters.h"
 
-extern int gmsgTimerValue;
-extern int gmsgTimerCheat;
-extern int gmsgTimerEnd;
-extern int gmsgTimerMsg;
+int gmsgTimerDeact = 0;
+int gmsgTimerValue = 0;
+int gmsgTimerCheat = 0;
+
+extern int gmsgEndTime;
 
 CBlackMesaMinute::CBlackMesaMinute() : CCustomGameModeRules( CONFIG_TYPE_BMM )
 {
 	if ( config.record.time == DEFAULT_TIME ) {
 		config.record.time = 0.0f;
+	}
+
+	if ( !gmsgTimerValue ) {
+		gmsgTimerDeact = REG_USER_MSG( "TimerDeact", 0 );
+		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
+		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 	}
 }
 
@@ -114,44 +121,42 @@ void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPo
 
 	pPlayer->time += timeToAdd;
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgTimerMsg, NULL, pPlayer->pev );
-		WRITE_STRING( message );
-		WRITE_LONG( timeToAdd );
-		WRITE_COORD( eventPos.x );
-		WRITE_COORD( eventPos.y );
-		WRITE_COORD( eventPos.z );
-	MESSAGE_END();
+	SendGameLogMessage( pPlayer, message );
+
+	char timeAddedCString[6];
+	sprintf( timeAddedCString, "00:%02d", timeToAdd ); // mm:ss
+	const std::string timeAddedString = std::string( timeAddedCString );
+
+	SendGameLogWorldMessage( pPlayer, eventPos, timeAddedString );
 }
 
 void CBlackMesaMinute::OnEnd( CBasePlayer *pPlayer ) {
-
-	PauseTimer( pPlayer );
-
-	const std::string configName = config.GetName();
-	
-	MESSAGE_BEGIN( MSG_ONE, gmsgTimerEnd, NULL, pPlayer->pev );
-	
-		WRITE_STRING( configName.c_str() );
-
-		WRITE_FLOAT( pPlayer->time );
-		WRITE_FLOAT( pPlayer->realTime );
-
-		WRITE_FLOAT( config.record.time );
-		WRITE_FLOAT( config.record.realTime );
-		WRITE_FLOAT( config.record.realTimeMinusTime );
-
-		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
-		WRITE_SHORT( pPlayer->kills );
-		WRITE_SHORT( pPlayer->headshotKills );
-		WRITE_SHORT( pPlayer->explosiveKills );
-		WRITE_SHORT( pPlayer->crowbarKills );
-		WRITE_SHORT( pPlayer->projectileKills );
-		
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerDeact, NULL, pPlayer->pev );
 	MESSAGE_END();
 
-	if ( !pPlayer->cheated ) {
-		config.record.Save( pPlayer );
-	}
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
+		WRITE_STRING( "TIME SCORE|PERSONAL BESTS" );
+		WRITE_FLOAT( pPlayer->time );
+		WRITE_FLOAT( config.record.time );
+		WRITE_BYTE( pPlayer->time > config.record.time );
+	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
+		WRITE_STRING( "REAL TIME" );
+		WRITE_FLOAT( pPlayer->realTime );
+		WRITE_FLOAT( config.record.realTime );
+		WRITE_BYTE( pPlayer->realTime < config.record.realTime );
+	MESSAGE_END();
+
+	float realTimeMinusTime = max( 0.0f, pPlayer->realTime - pPlayer->time );
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
+		WRITE_STRING( "REAL TIME MINUS SCORE" );
+		WRITE_FLOAT( realTimeMinusTime );
+		WRITE_FLOAT( config.record.realTimeMinusTime );
+		WRITE_BYTE( realTimeMinusTime < config.record.realTimeMinusTime );
+	MESSAGE_END();
+
+	CCustomGameModeRules::OnEnd( pPlayer );
 }
 
 void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )

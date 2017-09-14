@@ -303,7 +303,7 @@ public:
 
 	static std::string ConfigTypeToDirectoryName( CONFIG_TYPE configType );
 	static std::string ConfigTypeToGameModeCommand( CONFIG_TYPE configType );
-	static std::string ConfigTypeToGameModeName( CONFIG_TYPE configType );
+	static std::string ConfigTypeToGameModeName( CONFIG_TYPE configType, bool uppercase = false );
 
 	std::vector<std::string> GetAllConfigFileNames();
 	std::vector<std::string> GetAllFileNames( const char *path, const char *extension, bool includeExtension = false );

@@ -318,9 +318,6 @@
     <ClCompile Include="..\..\cl_dll\painkiller.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cl_dll\timer.cpp">
-      <Filter>Source Files\cl_dll</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\game_shared\string_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
@@ -329,12 +326,6 @@
     </ClCompile>
     <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp">
       <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\endscreen.cpp">
-      <Filter>Source Files\cl_dll</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\cl_dll\score.cpp">
-      <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
     <ClCompile Include="..\..\cl_dll\endcredits.cpp">
       <Filter>Source Files\cl_dll</Filter>
@@ -362,6 +353,21 @@
     </ClCompile>
     <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp">
       <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\timer.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\game_log.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\game_log_world.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\endscreen.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\score.cpp">
+      <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

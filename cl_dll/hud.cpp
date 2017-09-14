@@ -26,6 +26,7 @@
 #include "hud_servers.h"
 #include "vgui_int.h"
 #include "vgui_TeamFortressViewport.h"
+#include "../common/event_api.h"
 
 #include "demo.h"
 #include "demo_api.h"
@@ -369,9 +370,11 @@ void CHud :: Init( void )
 	m_Health.Init();
 	m_SlowMotion.Init();
 	m_Painkiller.Init();
-	m_Timer.Init();
 	m_Score.Init();
-	m_endScreen.Init();
+	m_GameLog.Init();
+	m_GameLogWorld.Init();
+	m_Timer.Init();
+	m_EndScreen.Init();
 	m_endCredits.Init();
 	m_SayText.Init();
 	m_Spectator.Init();
@@ -524,8 +527,10 @@ void CHud :: VidInit( void )
 	m_Painkiller.VidInit();
 	m_Timer.VidInit();
 	m_Score.VidInit();
-	m_endScreen.VidInit();
+	m_GameLog.VidInit();
+	m_GameLogWorld.VidInit();
 	m_endCredits.VidInit();
+	m_EndScreen.VidInit();
 	m_SlowMotion.VidInit();
 	m_Spectator.VidInit();
 	m_Geiger.VidInit();
@@ -722,4 +727,61 @@ float CHud::GetSensitivity( void )
 	return m_flMouseSensitivity;
 }
 
+extern globalvars_t *gpGlobals;
 
+float CHudRunningAnimation::nextRuntimeSoundTime = 0.0f;
+CHudRunningAnimation::CHudRunningAnimation( float endValue, float stepFraction ) :
+	isRunning( false ),
+	value( 0.0f ),
+	endValue( endValue <= 0.0f ? 0.000000001f : endValue ),
+	step( this->endValue / ( stepFraction <= 0.0f ? 0.00000001f : stepFraction ) ),
+	nextUpdateTime( 0.0f )
+{ }
+
+void CHudRunningAnimation::StartRunning()
+{
+	isRunning = true;
+	nextUpdateTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
+	nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+}
+
+int CHudRunningAnimation::Draw( int x, int y, int r, int g, int b )
+{
+	if ( isRunning && gpGlobals->time > nextUpdateTime ) {
+		if ( value < endValue ) {
+			value += step;
+		}
+
+		if ( value >= endValue ) {
+			value = endValue;
+			isRunning = false;
+		} else {
+			nextUpdateTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
+		}
+
+		if ( gpGlobals->time > nextRuntimeSoundTime ) {
+			gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, "var/runtime.wav", 1.0, ATTN_NORM, 0, PITCH_NORM, true );
+			nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+		}
+	}
+
+	return 1;
+}
+
+CHudRunningTimerAnimation::CHudRunningTimerAnimation( float endValue, float stepFraction ) : CHudRunningAnimation( endValue, stepFraction )
+{}
+
+int CHudRunningTimerAnimation::Draw( int x, int y, int r, int g, int b )
+{
+	CHudRunningAnimation::Draw( x, y, r, g, b );
+	return gHUD.DrawFormattedTime( value, x, y, r, g, b );
+}
+
+CHudRunningScoreAnimation::CHudRunningScoreAnimation( float endValue, float stepFraction ) : CHudRunningAnimation( endValue, stepFraction )
+{}
+
+int CHudRunningScoreAnimation::Draw( int x, int y, int r, int g, int b )
+{
+	CHudRunningAnimation::Draw( x, y, r, g, b );
+	return gHUD.DrawFormattedNumber( value, x, y, r, g, b );
+}

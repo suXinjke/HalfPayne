@@ -367,16 +367,16 @@ std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE confi
 	}
 }
 
-std::string CustomGameModeConfig::ConfigTypeToGameModeName( CONFIG_TYPE configType ) {
+std::string CustomGameModeConfig::ConfigTypeToGameModeName( CONFIG_TYPE configType, bool uppercase ) {
 	switch ( configType ) {
 		case CONFIG_TYPE_CGM:
-			return "Custom";
+			return uppercase ? "CUSTOM GAME MODE" : "Custom Game Mode";
 
 		case CONFIG_TYPE_BMM:
-			return "Black Mesa Minute";
+			return uppercase ? "BLACK MESA MINUTE" : "Black Mesa Minute";
 
 		case CONFIG_TYPE_SAGM:
-			return "Score Attack";
+			return uppercase ? "SCORE ATTACK" : "Score Attack";
 
 		default:
 			return "";

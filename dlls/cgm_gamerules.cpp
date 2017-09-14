@@ -12,13 +12,17 @@
 
 // Custom Game Mode Rules
 
-int	gmsgCustomEnd	= 0;
-int	gmsgCustomChea	= 0;
-int	gmsgTimerMsg	= 0;
-int	gmsgTimerEnd	= 0;
-int gmsgTimerValue	= 0;
+int	gmsgEndActiv = 0;
+int	gmsgEndTitle = 0;
+int	gmsgEndTime  = 0;
+int	gmsgEndScore = 0;
+int	gmsgEndStat  = 0;
+
+int	gmsgGLogDeact	= 0;
+int	gmsgGLogMsg		= 0;
+int	gmsgGLogWDeact	= 0;
+int	gmsgGLogWMsg	= 0;
 int gmsgTimerPause  = 0;
-int gmsgTimerCheat  = 0;
 
 // CGameRules were recreated each level change and there were no built-in saving method,
 // that means we'd lose config file state on each level change.
@@ -31,14 +35,19 @@ extern Intermission g_latestIntermission;
 
 CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( configType )
 {
-	if ( !gmsgCustomEnd ) {
-		gmsgCustomEnd = REG_USER_MSG( "CustomEnd", -1 );
-		gmsgCustomChea = REG_USER_MSG( "CustomChea", 0 );
-		gmsgTimerMsg = REG_USER_MSG( "TimerMsg", -1 );
-		gmsgTimerEnd = REG_USER_MSG( "TimerEnd", -1 );
-		gmsgTimerValue = REG_USER_MSG( "TimerValue", 4 );
+	if ( !gmsgEndActiv ) {
+		gmsgEndActiv = REG_USER_MSG( "EndActiv", 1 );
+		gmsgEndTitle = REG_USER_MSG( "EndTitle", -1 );
+		gmsgEndTime  = REG_USER_MSG( "EndTime", -1 );
+		gmsgEndScore = REG_USER_MSG( "EndScore", -1 );
+		gmsgEndStat  = REG_USER_MSG( "EndStat", -1 );
+
+
+		gmsgGLogDeact = REG_USER_MSG( "GLogDeact", 0 );
+		gmsgGLogMsg = REG_USER_MSG( "GLogMsg", -1 );
+		gmsgGLogWDeact = REG_USER_MSG( "GLogWDeact", 0 );
+		gmsgGLogWMsg = REG_USER_MSG( "GLogWMsg", -1 );
 		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
-		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 	}
 
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
@@ -67,6 +76,23 @@ void CCustomGameModeRules::RestartGame() {
 	// Would be better just to execute 'cgm' command directly somehow.
 	config.markedForRestart = true;
 	CHANGE_LEVEL( mapName, NULL );
+}
+
+void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message ) {
+	MESSAGE_BEGIN( MSG_ONE, gmsgGLogMsg, NULL, pPlayer->pev );
+		WRITE_STRING( message.c_str() );
+	MESSAGE_END();
+}
+
+void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 ) {
+	MESSAGE_BEGIN( MSG_ONE, gmsgGLogWMsg, NULL, pPlayer->pev );
+		WRITE_COORD( location.x );
+		WRITE_COORD( location.y );
+		WRITE_COORD( location.z );
+
+		// You cant send TWO strings - they overwrite each other, so split them with |
+		WRITE_STRING( ( message + "|" + message2 ).c_str() );
+	MESSAGE_END();
 }
 
 void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
@@ -328,9 +354,6 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 	cheatedMessageSent = true;
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgCustomChea, NULL, pPlayer->pev );
-	MESSAGE_END();
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
@@ -338,17 +361,63 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 
 	const std::string configName = config.GetName();
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgCustomEnd, NULL, pPlayer->pev );
+	MESSAGE_BEGIN( MSG_ONE, gmsgGLogDeact, NULL, pPlayer->pev );
+	MESSAGE_END();
 
-		WRITE_STRING( configName.c_str() );
+	MESSAGE_BEGIN( MSG_ONE, gmsgGLogWDeact, NULL, pPlayer->pev );
+	MESSAGE_END();
+	
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTitle, NULL, pPlayer->pev );
+		WRITE_STRING( CustomGameModeConfig::ConfigTypeToGameModeName( config.configType, true ).c_str() );
+	MESSAGE_END();
 
-		WRITE_FLOAT( pPlayer->secondsInSlowmotion );
-		WRITE_SHORT( pPlayer->kills );
-		WRITE_SHORT( pPlayer->headshotKills );
-		WRITE_SHORT( pPlayer->explosiveKills );
-		WRITE_SHORT( pPlayer->crowbarKills );
-		WRITE_SHORT( pPlayer->projectileKills );
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTitle, NULL, pPlayer->pev );
+		WRITE_STRING(
+			config.GetName().size() > 0 ?
+			( config.GetName() + " - COMPLETE" ).c_str() :
+			"LEVEL COMPLETE"
+		);
+	MESSAGE_END();
 
+	int secondsInSlowmotion = ( int ) roundf( pPlayer->secondsInSlowmotion );
+	if ( secondsInSlowmotion > 0 ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
+			WRITE_STRING( ( "SECONDS IN SLOWMOTION|" + std::to_string( secondsInSlowmotion ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	if ( pPlayer->kills > 0 ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
+			WRITE_STRING( ( "TOTAL KILLS|" + std::to_string( pPlayer->kills ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	if ( pPlayer->headshotKills > 0 ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
+			WRITE_STRING( ( "HEADSHOT KILLS|" + std::to_string( pPlayer->headshotKills ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	if ( pPlayer->explosiveKills > 0 ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
+			WRITE_STRING( ( "EXPLOSION KILLS|" + std::to_string( pPlayer->explosiveKills ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	if ( pPlayer->crowbarKills > 0 ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
+			WRITE_STRING( ( "MELEE KILLS|" + std::to_string( pPlayer->crowbarKills ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	if ( pPlayer->projectileKills > 0 ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
+			WRITE_STRING( ( "PROJECTILES DESTROYED KILLS|" + std::to_string( pPlayer->projectileKills ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndActiv, NULL, pPlayer->pev );
+		WRITE_BYTE( pPlayer->cheated );
 	MESSAGE_END();
 
 	if ( !pPlayer->cheated ) {

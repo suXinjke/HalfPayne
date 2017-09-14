@@ -993,7 +993,7 @@ void RunCustomGameMode( CONFIG_TYPE configType ) {
 	int argCount = gEngfuncs.Cmd_Argc();
 	if ( argCount < 2 ) {
 		gEngfuncs.Con_Printf(
-			"%s <configname> : launches %s game mode with settings specified in %s\\<configname>\n",
+			"%s <configname> : launches %s with settings specified in %s\\<configname>\n",
 			CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ).c_str(),
 			CustomGameModeConfig::ConfigTypeToGameModeName( configType ).c_str(),
 			CustomGameModeConfig::ConfigTypeToDirectoryName( configType ).c_str()
