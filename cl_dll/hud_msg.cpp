@@ -57,6 +57,9 @@ int CHud :: MsgFunc_ResetHUD(const char *pszName, int iSize, void *pbuf )
 	// reset concussion effect
 	m_iConcussionEffect = 0;
 
+	aimOffsetX = 0;
+	aimOffsetY = 0;
+
 	return 1;
 }
 
@@ -146,6 +149,14 @@ int CHud::MsgFunc_SetSkin( const char *pszName, int iSize, void *pbuf )
 	int skin = READ_BYTE();
 	cl_entity_s *view = gEngfuncs.GetViewModel();
 	view->curstate.skin = skin;
+
+	return 1;
+}
+
+int CHud::MsgFunc_AimOffset( const char *pszName, int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+	aimOffsetX = READ_FLOAT();
+	aimOffsetY = READ_FLOAT();
 
 	return 1;
 }

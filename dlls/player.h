@@ -373,6 +373,7 @@ public:
 
 	void ResetAutoaim( void );
 	Vector GetAutoaimVector( float flDelta  );
+	Vector GetAimForwardWithOffset( bool degrees = false );
 	Vector AutoaimDeflection( Vector &vecSrc, float flDist, float flDelta  );
 
 	void ForceClientDllUpdate( void );  // Forces all client .dll specific data to be resent to client.
@@ -584,6 +585,13 @@ public:
 
 	float postRestoreDelay;
 	float postSpawnDelay;
+	
+	float aimOffsetX;
+	float aimOffsetY;
+
+	float aimMaxOffsetX;
+	float aimMaxOffsetY;
+	float aimOffsetChangeFreqency;
 
 	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE );
 

@@ -430,7 +430,9 @@ void CSatchel::Throw( void )
 	{
 		Vector vecSrc = m_pPlayer->pev->origin;
 
-		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
+		Vector forward = m_pPlayer->GetAimForwardWithOffset();
+
+		Vector vecThrow = forward * 274 + m_pPlayer->pev->velocity;
 
 #ifndef CLIENT_DLL
 		CSatchelCharge *pSatchel = ( CSatchelCharge * ) Create( "monster_satchel", vecSrc, Vector( 0, 0, 0 ), m_pPlayer->edict( ) );

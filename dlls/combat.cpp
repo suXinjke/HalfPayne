@@ -1703,6 +1703,8 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 	ClearMultiDamage();
 	gMultiDamage.type = DMG_BULLET | DMG_NEVERGIB;
 
+	vecDirShooting = player->GetAimForwardWithOffset();
+
 	for ( ULONG iShot = 1; iShot <= cShots; iShot++ )
 	{
 		//Use player's random seed.

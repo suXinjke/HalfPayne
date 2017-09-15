@@ -136,8 +136,11 @@ void CHgun::PrimaryAttack()
 		return;
 	}
 
+	Vector forward = m_pPlayer->GetAimForwardWithOffset();
+	Vector forwardDeg = m_pPlayer->GetAimForwardWithOffset( true );
+
 #ifndef CLIENT_DLL
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
+	UTIL_MakeVectors( forwardDeg );
 
 	int rightOffset = 8;
 	int upOffset = -12;
@@ -146,8 +149,8 @@ void CHgun::PrimaryAttack()
 		upOffset = 16;
 	}
 
-	CBaseEntity *pHornet = CBaseEntity::Create( "hornet", m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset, m_pPlayer->pev->v_angle, m_pPlayer->edict() );
-	pHornet->pev->velocity = gpGlobals->v_forward * 300;
+	CBaseEntity *pHornet = CBaseEntity::Create( "hornet", m_pPlayer->GetGunPosition( ) + forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset, forwardDeg, m_pPlayer->edict() );
+	pHornet->pev->velocity = forward * 300;
 
 	m_flRechargeTime = gpGlobals->time + 0.5;
 #endif
@@ -199,12 +202,15 @@ void CHgun::SecondaryAttack( void )
 		return;
 	}
 
+	Vector forward = m_pPlayer->GetAimForwardWithOffset();
+	Vector forwardDeg = m_pPlayer->GetAimForwardWithOffset( true );
+
 	//Wouldn't be a bad idea to completely predict these, since they fly so fast...
 #ifndef CLIENT_DLL
 	CBaseEntity *pHornet;
 	Vector vecSrc;
 
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
+	UTIL_MakeVectors( forwardDeg );
 
 	int rightOffset = 8;
 	int upOffset = -12;
@@ -213,7 +219,7 @@ void CHgun::SecondaryAttack( void )
 		upOffset = 16;
 	}
 
-	vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset;
+	vecSrc = m_pPlayer->GetGunPosition( ) + forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset;
 
 	m_iFirePhase++;
 	switch ( m_iFirePhase )
@@ -249,8 +255,8 @@ void CHgun::SecondaryAttack( void )
 		break;
 	}
 
-	pHornet = CBaseEntity::Create( "hornet", vecSrc, m_pPlayer->pev->v_angle, m_pPlayer->edict() );
-	pHornet->pev->velocity = gpGlobals->v_forward * 1200;
+	pHornet = CBaseEntity::Create( "hornet", vecSrc, forwardDeg, m_pPlayer->edict() );
+	pHornet->pev->velocity = forward * 1200;
 	pHornet->pev->angles = UTIL_VecToAngles( pHornet->pev->velocity );
 
 	pHornet->SetThink( &CHornet::StartDart );

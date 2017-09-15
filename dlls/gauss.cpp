@@ -314,9 +314,12 @@ void CGauss::SecondaryAttack()
 void CGauss::StartFire( void )
 {
 	float flDamage;
+
+	Vector forward = m_pPlayer->GetAimForwardWithOffset();
+	Vector forwardDeg = m_pPlayer->GetAimForwardWithOffset( true );
 	
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle );
-	Vector vecAiming = gpGlobals->v_forward;
+	UTIL_MakeVectors( forwardDeg + m_pPlayer->pev->punchangle );
+	Vector vecAiming = forward;
 	Vector vecSrc = m_pPlayer->GetGunPosition( ); // + gpGlobals->v_up * -8 + gpGlobals->v_right * 8;
 	
 	if ( gpGlobals->time - m_pPlayer->m_flStartCharge > GetFullChargeTime() )
@@ -347,7 +350,7 @@ void CGauss::StartFire( void )
 
 		if ( !m_fPrimaryFire )
 		{
-			m_pPlayer->pev->velocity = m_pPlayer->pev->velocity - gpGlobals->v_forward * flDamage * 5;
+			m_pPlayer->pev->velocity = m_pPlayer->pev->velocity - forward * flDamage * 5;
 			m_pPlayer->ApplyWeaponPushback( 400 );
 		}
 

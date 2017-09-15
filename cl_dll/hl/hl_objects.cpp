@@ -44,6 +44,8 @@ void UpdateBeams ( void )
 	// Determine our last predicted origin
 	HUD_GetLastOrg( (float *)&origin );
 
+	ApplyAimOffset( angles );
+
 	AngleVectors( angles, forward, right, up );
 
 	VectorCopy( origin, vecSrc );

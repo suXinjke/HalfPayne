@@ -868,6 +868,7 @@ public:
 	int _cdecl MsgFunc_SetFOV(const char *pszName,  int iSize, void *pbuf);
 	int  _cdecl MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_SetSkin( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_AimOffset( const char *pszName, int iSize, void *pbuf );
 
 	// Screen information
 	SCREENINFO	m_scrinfo;
@@ -875,6 +876,9 @@ public:
 	int	m_iWeaponBits;
 	int	m_fPlayerDead;
 	int m_iIntermission;
+
+	float aimOffsetX;
+	float aimOffsetY;
 
 	// sprite indexes
 	int m_HUD_number_0;
@@ -894,3 +898,7 @@ extern int g_iUser1;
 extern int g_iUser2;
 extern int g_iUser3;
 
+inline void ApplyAimOffset( vec3_t &angles ) {
+	angles[0] -= gHUD.aimOffsetY;
+	angles[1] -= gHUD.aimOffsetX;
+}

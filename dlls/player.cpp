@@ -146,6 +146,13 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_ARRAY( CBasePlayer, visitedMaps, FIELD_STRING, MAX_VISITED_MAPS ),
 	DEFINE_FIELD( CBasePlayer, visitedMapsCount, FIELD_INTEGER ),
 
+	DEFINE_FIELD( CBasePlayer, aimOffsetX, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, aimOffsetY, FIELD_FLOAT ),
+
+	DEFINE_FIELD( CBasePlayer, aimMaxOffsetX, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, aimMaxOffsetY, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, aimOffsetChangeFreqency, FIELD_FLOAT ),
+
 	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, constantSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
@@ -364,6 +371,7 @@ int gmsgStatusValue = 0;
 
 int gmsgAimCoords = 0; 
 int gmsgSetSkin = 0;
+int gmsgAimOffset = 0;
 
 
 void LinkUserMessages( void )
@@ -418,6 +426,7 @@ void LinkUserMessages( void )
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
 	gmsgAimCoords = REG_USER_MSG( "AimCoords", 8 );
 	gmsgSetSkin = REG_USER_MSG( "SetSkin", 1 );
+	gmsgAimOffset = REG_USER_MSG( "AimOffset", 8 );
 	gmsgConcuss = REG_USER_MSG( "Concuss", 1 );
 	gmsgFadeOut = REG_USER_MSG( "FadeOut", 1 );
 	gmsgFlash = REG_USER_MSG( "Flash", 8 );
@@ -3531,6 +3540,19 @@ pt_end:
 		ThinkAboutFinalDesperation();
 	}
 
+	if ( aimMaxOffsetX > 0.0f || aimMaxOffsetY > 0.0f ) {
+		float phi = gpGlobals->time * aimOffsetChangeFreqency;
+		aimOffsetX = sin( phi ) * aimMaxOffsetX;
+		aimOffsetY = cos( phi ) * sin( phi ) * aimMaxOffsetY;
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgAimOffset, NULL, pev );
+			WRITE_FLOAT( aimOffsetX );
+			WRITE_FLOAT( aimOffsetY );
+		MESSAGE_END();
+
+		SET_CROSSHAIRANGLE( edict(), aimOffsetY, -aimOffsetX );
+	}
+
 	if ( showCredits ) {
 		if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 			rules->End( this );
@@ -3791,6 +3813,13 @@ void CBasePlayer::Spawn( void )
 
 	postRestoreDelay = 0.0f;
 	postSpawnDelay = 0.1f;
+
+	aimOffsetX = 0.0f;
+	aimOffsetY = 0.0f;
+
+	aimMaxOffsetX = 0.0f;
+	aimMaxOffsetY = 0.0f;
+	aimOffsetChangeFreqency = 0.0f;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -5935,6 +5964,21 @@ void CBasePlayer :: EnableControl(BOOL fControl)
 #define DOT_15DEGREE  0.9659258262891
 #define DOT_20DEGREE  0.9396926207859
 #define DOT_25DEGREE  0.9063077870367
+
+Vector CBasePlayer::GetAimForwardWithOffset( bool degrees ) 
+{
+	Vector vecDirShooting;
+	Vector crosshairAngle = Vector( -aimOffsetY, -aimOffsetX, 0 );
+	Vector angles = pev->v_angle + crosshairAngle;
+
+	if ( degrees ) {
+		return angles;
+	}
+
+	g_engfuncs.pfnAngleVectors( angles, vecDirShooting, NULL, NULL );
+
+	return vecDirShooting;
+}
 
 //=========================================================
 // Autoaim

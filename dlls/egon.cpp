@@ -169,8 +169,11 @@ void CEgon::Attack( void )
 		return;
 	}
 
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle );
-	Vector vecAiming = gpGlobals->v_forward;
+	Vector forward = m_pPlayer->GetAimForwardWithOffset();
+	Vector forwardDeg = m_pPlayer->GetAimForwardWithOffset( true );
+
+	UTIL_MakeVectors( forwardDeg + m_pPlayer->pev->punchangle );
+	Vector vecAiming = forward;
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( );
 
 	int flags;

@@ -140,7 +140,12 @@ void CRpgRocket :: Spawn( void )
 	UTIL_MakeVectors( pev->angles );
 	pev->angles.x = -(pev->angles.x + 30);
 
-	pev->velocity = gpGlobals->v_forward * 250;
+	Vector forward = gpGlobals->v_forward;
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		forward = pPlayer->GetAimForwardWithOffset();
+	}
+
+	pev->velocity = forward * 250;
 	pev->gravity = 0.5;
 
 	pev->nextthink = gpGlobals->time + 0.4;
@@ -215,7 +220,12 @@ void CRpgRocket :: FollowThink( void  )
 
 	UTIL_MakeAimVectors( pev->angles );
 
-	vecTarget = gpGlobals->v_forward;
+	Vector forward = gpGlobals->v_forward;
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		forward = pPlayer->GetAimForwardWithOffset();
+	}
+
+	vecTarget = forward;
 	flMax = 4096;
 	
 	// Examine all entities within a reasonable radius
@@ -228,7 +238,7 @@ void CRpgRocket :: FollowThink( void  )
 			vecDir = pOther->pev->origin - pev->origin;
 			flDist = vecDir.Length( );
 			vecDir = vecDir.Normalize( );
-			flDot = DotProduct( gpGlobals->v_forward, vecDir );
+			flDot = DotProduct( forward, vecDir );
 			if ((flDot > 0) && (flDist * (1 - flDot) < flMax))
 			{
 				flMax = flDist * (1 - flDot);
@@ -452,15 +462,19 @@ void CRpg::PrimaryAttack()
 			rightOffset *= -1;
 			upOffset = 0;
 		}
-		Vector vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset;
+
+		Vector forward = m_pPlayer->GetAimForwardWithOffset();
+		Vector forwardDeg = m_pPlayer->GetAimForwardWithOffset( true );
+
+		Vector vecSrc = m_pPlayer->GetGunPosition( ) + forward * 16 + gpGlobals->v_right * rightOffset + gpGlobals->v_up * upOffset;
 		
-		CRpgRocket *pRocket = CRpgRocket::CreateRpgRocket( vecSrc, m_pPlayer->pev->v_angle, m_pPlayer, this );
+		CRpgRocket *pRocket = CRpgRocket::CreateRpgRocket( vecSrc, forwardDeg, m_pPlayer, this );
 		// RPG rockets are always player owned
 		// Store the player in auxOwner because that's what is used for player kill counting
 		pRocket->auxOwner = m_pPlayer->edict();
 
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );// RpgRocket::Create stomps on globals, so remake.
-		pRocket->pev->velocity = pRocket->pev->velocity + gpGlobals->v_forward * DotProduct( m_pPlayer->pev->velocity, gpGlobals->v_forward );
+		UTIL_MakeVectors( forwardDeg );// RpgRocket::Create stomps on globals, so remake.
+		pRocket->pev->velocity = pRocket->pev->velocity + forward * DotProduct( m_pPlayer->pev->velocity, forward );
 #endif
 
 		// firing RPG no longer turns on the designator. ALT fire is a toggle switch for the LTD.
@@ -566,7 +580,7 @@ void CRpg::UpdateSpot( void )
 
 		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 		Vector vecSrc = m_pPlayer->GetGunPosition( );;
-		Vector vecAiming = gpGlobals->v_forward;
+		Vector vecAiming = m_pPlayer->GetAimForwardWithOffset();
 
 		TraceResult tr;
 		UTIL_TraceLine ( vecSrc, vecSrc + vecAiming * 8192, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr );

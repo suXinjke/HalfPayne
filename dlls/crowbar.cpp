@@ -170,11 +170,14 @@ int CCrowbar::Swing( int fFirst )
 {
 	int fDidHit = FALSE;
 
+	Vector forward = m_pPlayer->GetAimForwardWithOffset();
+	Vector forwardDeg = m_pPlayer->GetAimForwardWithOffset( true );
+
 	TraceResult tr;
 
-	UTIL_MakeVectors (m_pPlayer->pev->v_angle);
+	UTIL_MakeVectors (forwardDeg);
 	Vector vecSrc	= m_pPlayer->GetGunPosition( );
-	Vector vecEnd	= vecSrc + gpGlobals->v_forward * 32;
+	Vector vecEnd	= vecSrc + forward * 32;
 
 	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, ENT( m_pPlayer->pev ), &tr );
 
@@ -236,12 +239,12 @@ int CCrowbar::Swing( int fFirst )
 		if ( (m_flNextPrimaryAttack + 1 < UTIL_WeaponTimeBase() ) || g_pGameRules->IsMultiplayer() )
 		{
 			// first swing does full damage
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, gpGlobals->v_forward, &tr, DMG_CLUB ); 
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar, forward, &tr, DMG_CLUB ); 
 		}
 		else
 		{
 			// subsequent swings do half
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, gpGlobals->v_forward, &tr, DMG_CLUB ); 
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgCrowbar / 2, forward, &tr, DMG_CLUB ); 
 		}	
 		ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
 

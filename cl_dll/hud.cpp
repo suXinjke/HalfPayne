@@ -139,6 +139,11 @@ int __MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf )
 	return gHUD.MsgFunc_GameMode( pszName, iSize, pbuf );
 }
 
+int __MsgFunc_AimOffset(const char *pszName, int iSize, void *pbuf)
+{
+	return gHUD.MsgFunc_AimOffset( pszName, iSize, pbuf );
+}
+
 // TFFree Command Menu
 void __CmdFunc_OpenCommandMenu(void)
 {
@@ -305,6 +310,7 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( SetFOV );
 	HOOK_MESSAGE( Concuss );
 	HOOK_MESSAGE( SetSkin );
+	HOOK_MESSAGE( AimOffset );
 	HOOK_MESSAGE( UpsideDown );
 
 	// TFFree CommandMenu

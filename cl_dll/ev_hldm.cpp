@@ -490,6 +490,8 @@ void EV_FireGlock1( event_args_t *args )
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
 
+	ApplyAimOffset( angles );
+
 	empty = args->bparam1;
 	int shouldProducePhysicalBullets = args->bparam2;
 	AngleVectors( angles, forward, right, up );
@@ -543,6 +545,8 @@ void EV_FireGlock2( event_args_t *args )
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
 
+	ApplyAimOffset( angles );
+
 	AngleVectors( angles, forward, right, up );
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shell.mdl");// brass shell
@@ -592,6 +596,8 @@ void EV_FireGlockTwin( event_args_t *args ) {
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
+
+	ApplyAimOffset( angles );
 
 	int empty = args->iparam1;
 	int empty2 = args->iparam2;
@@ -689,6 +695,8 @@ void EV_FireShotGunDouble( event_args_t *args )
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
 
+	ApplyAimOffset( angles );
+
 	AngleVectors( angles, forward, right, up );
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shotgunshell.mdl");// brass shell
@@ -755,6 +763,8 @@ void EV_FireShotGunSingle( event_args_t *args )
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
+
+	ApplyAimOffset( angles );
 
 	AngleVectors( angles, forward, right, up );
 
@@ -839,6 +849,8 @@ void EV_FireMP5( event_args_t *args )
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
+
+	ApplyAimOffset( angles );
 
 	AngleVectors( angles, forward, right, up );
 
@@ -942,6 +954,8 @@ void EV_FirePython( event_args_t *args )
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
+
+	ApplyAimOffset( angles );
 
 	AngleVectors( angles, forward, right, up );
 
@@ -1058,6 +1072,8 @@ void EV_FireGauss( event_args_t *args )
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
 	VectorCopy( args->velocity, velocity );
+
+	ApplyAimOffset( angles );
 
 	if ( args->bparam2 )
 	{
@@ -1413,6 +1429,8 @@ void EV_FireCrossbow2( event_args_t *args )
 	VectorCopy( args->origin, origin );
 	VectorCopy( args->angles, angles );
 
+	ApplyAimOffset( angles );
+
 	VectorCopy( args->velocity, velocity );
 	
 	AngleVectors( angles, forward, right, up );
@@ -1627,7 +1645,8 @@ void EV_EgonFire( event_args_t *args )
 		if ( pl )
 		{
 			VectorCopy( gHUD.m_vecAngles, angles );
-			
+
+			ApplyAimOffset( angles );
 			AngleVectors( angles, forward, right, up );
 
 			EV_GetGunPosition( args, vecSrc, pl->origin );
@@ -1725,6 +1744,8 @@ void EV_HornetGunFire( event_args_t *args )
 	VectorCopy( args->angles, angles );
 	iFireMode = args->iparam1;
 
+	ApplyAimOffset( angles );
+
 	//Only play the weapon anims if I shot it.
 	if ( EV_IsLocal( idx ) )
 	{
@@ -1769,6 +1790,8 @@ void EV_TripmineFire( event_args_t *args )
 	idx = args->entindex;
 	VectorCopy( args->origin, vecSrc );
 	VectorCopy( args->angles, angles );
+
+	ApplyAimOffset( angles );
 
 	AngleVectors ( angles, forward, NULL, NULL );
 		
@@ -1822,6 +1845,8 @@ void EV_SnarkFire( event_args_t *args )
 	idx = args->entindex;
 	VectorCopy( args->origin, vecSrc );
 	VectorCopy( args->angles, angles );
+
+	ApplyAimOffset( angles );
 
 	AngleVectors ( angles, forward, NULL, NULL );
 		

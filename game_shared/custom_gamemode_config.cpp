@@ -736,6 +736,44 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "drunk_aim" ) {
+		float aimMaxOffsetX = 20.0f;
+		float aimMaxOffsetY = 5.0f;
+		float aimOffsetChangeFreqency = 1.0f;
+
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				aimMaxOffsetX = min( max( 0, data.argsFloat.at( i ) ), 25.5 );
+			}
+			if ( i == 2 ) {
+				aimMaxOffsetY = min( max( 0, data.argsFloat.at( i ) ), 25.5 );
+			}
+			if ( i == 3 ) {
+				aimOffsetChangeFreqency = max( 0.01, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_DRUNK_AIM,
+			"Drunk aim",
+			"Your aim becomes wobbly.",
+			[aimMaxOffsetX, aimMaxOffsetY, aimOffsetChangeFreqency]( CBasePlayer *player ) { 
+				player->aimMaxOffsetX = aimMaxOffsetX;
+				player->aimMaxOffsetY = aimMaxOffsetY;
+				player->aimOffsetChangeFreqency = aimOffsetChangeFreqency;
+			},
+			{
+				"Max horizontal wobble: " + std::to_string( aimMaxOffsetX ) + " deg\n",
+				"Max vertical wobble: " + std::to_string( aimMaxOffsetX ) + " deg\n",
+				"Wobble frequency: " + std::to_string( aimOffsetChangeFreqency ) + "\n",
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "easy" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_EASY,
