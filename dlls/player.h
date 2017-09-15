@@ -508,6 +508,7 @@ public:
 	BOOL noHealing;
 	BOOL noSecondaryAttack;
 	BOOL noJumping;
+	BOOL noWalking;
 
 	BULLET_PHYSICS_MODE bulletPhysicsMode;
 	BOOL shouldProducePhysicalBullets;

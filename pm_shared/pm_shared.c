@@ -158,6 +158,7 @@ int g_onladder = 0;
 int g_slowMotionCharge = 0;
 int g_divingAllowedWithoutSlowmotion = 0;
 int g_noJumping = 0;
+int g_noWalking = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
@@ -1054,6 +1055,10 @@ Only used by players.  Moves along the ground when player is a MOVETYPE_WALK.
 */
 void PM_WalkMove ()
 {
+	if ( g_noWalking ) {
+		return;
+	}
+
 	int			clip;
 	int			oldonground;
 	int i;
@@ -1377,17 +1382,21 @@ void PM_WaterMove (void)
 
 	float speed, newspeed, addspeed, accelspeed;
 
-//
-// user intentions
-//
-	for (i=0 ; i<3 ; i++)
-		wishvel[i] = pmove->forward[i]*pmove->cmd.forwardmove + pmove->right[i]*pmove->cmd.sidemove;
 
-	// Sinking after no other movement occurs
-	if (!pmove->cmd.forwardmove && !pmove->cmd.sidemove && !pmove->cmd.upmove)
-		wishvel[2] -= 60;		// drift towards bottom
-	else  // Go straight up by upmove amount.
-		wishvel[2] += pmove->cmd.upmove;
+	if ( !g_noWalking ) {
+	//
+	// user intentions
+	//
+		for (i=0 ; i<3 ; i++)
+			wishvel[i] = pmove->forward[i]*pmove->cmd.forwardmove + pmove->right[i]*pmove->cmd.sidemove;
+
+		// Sinking after no other movement occurs
+		if (!pmove->cmd.forwardmove && !pmove->cmd.sidemove && !pmove->cmd.upmove)
+			wishvel[2] -= 60;		// drift towards bottom
+		else  // Go straight up by upmove amount.
+			wishvel[2] += pmove->cmd.upmove;
+
+	}
 
 	// Copy it over and determine speed
 	VectorCopy (wishvel, wishdir);
@@ -2045,6 +2054,10 @@ void PM_UnDuck( void )
 
 void PM_Duck( void )
 {
+	if ( g_noWalking ) {
+		return;
+	}
+
 	int i;
 	float time;
 	float duckFraction;
@@ -2754,7 +2767,7 @@ void PM_Jump (void)
 // Dive is simillar to long jump, but can be done in any direction
 void PM_Dive(void)
 {
-	if ( g_slowMotionCharge <= 0 && !g_divingAllowedWithoutSlowmotion ) {
+	if ( g_slowMotionCharge <= 0 && !g_divingAllowedWithoutSlowmotion || g_noWalking ) {
 		return;
 	}
 

@@ -1098,6 +1098,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "no_walking" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_NO_WALKING,
+			"No walking",
+			"Don't allow to walk, crouch, swim, dive, climb ladders.",
+			[]( CBasePlayer *player ) { player->noWalking = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "one_hit_ko" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_ONE_HIT_KO,

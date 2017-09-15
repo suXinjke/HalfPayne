@@ -59,6 +59,7 @@ extern "C" int				g_slowMotionCharge;
 extern "C" int				g_divingAllowedWithoutSlowmotion;
 extern "C" float			g_frictionOverride;
 extern "C" int				g_noJumping;
+extern "C" int				g_noWalking;
 
 BOOL gInitHUD = TRUE;
 
@@ -204,6 +205,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, noPills, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noHealing, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noJumping, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, noWalking, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noSecondaryAttack, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
@@ -3531,6 +3533,7 @@ pt_end:
 
 	g_frictionOverride = frictionOverride;
 	g_noJumping = noJumping;
+	g_noWalking = noWalking;
 
 	if ( divingOnly ) {
 		pev->fuser4 = 1.0f;
@@ -3781,6 +3784,7 @@ void CBasePlayer::Spawn( void )
 	noHealing = false;
 	noSecondaryAttack = false;
 	noJumping = false;
+	noWalking = false;
 
 	allowedToReactOnPainkillerPickup = 0.0f;
 	allowedToReactOnPainkillerTake = 0.0f;
