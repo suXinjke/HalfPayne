@@ -160,6 +160,11 @@ int g_divingAllowedWithoutSlowmotion = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
+float g_frictionOverride = -1.0f;
+
+inline float GetFriction() {
+	return g_frictionOverride >= 0.0f ? g_frictionOverride : pmove->movevars->friction;
+}
 
 inline int IsReverseGravity() {
 	return pmove->vuser3[1] >= 1.0f;
@@ -1280,9 +1285,9 @@ void PM_Friction (void)
 		trace = pmove->PM_PlayerTrace (start, stop, PM_NORMAL, -1 );
 
 		if (trace.fraction == 1.0)
-			friction = pmove->movevars->friction*pmove->movevars->edgefriction;
+			friction = GetFriction()*pmove->movevars->edgefriction;
 		else
-			friction = pmove->movevars->friction;
+			friction = GetFriction();
 		
 		// Grab friction value.
 		//friction = pmove->movevars->friction;      
@@ -1402,7 +1407,7 @@ void PM_WaterMove (void)
 	speed = VectorNormalize(temp);
 	if (speed)
 	{
-		newspeed = speed - pmove->frametime * speed * pmove->movevars->friction * pmove->friction;
+		newspeed = speed - pmove->frametime * speed * GetFriction() * pmove->friction;
 
 		if (newspeed < 0)
 			newspeed = 0;
@@ -1865,7 +1870,7 @@ void PM_SpectatorMove (void)
 		{
 			drop = 0;
 
-			friction = pmove->movevars->friction*1.5;	// extra friction
+			friction = GetFriction()*1.5;	// extra friction
 			control = speed < pmove->movevars->stopspeed ? pmove->movevars->stopspeed : speed;
 			drop += control*friction*pmove->frametime;
 

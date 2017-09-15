@@ -57,6 +57,7 @@ extern DLL_GLOBAL int		g_iSkillLevel, gDisplayTitle;
 
 extern "C" int				g_slowMotionCharge;
 extern "C" int				g_divingAllowedWithoutSlowmotion;
+extern "C" float			g_frictionOverride;
 
 BOOL gInitHUD = TRUE;
 
@@ -173,6 +174,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noFallDamage, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noMapMusic, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, frictionOverride, FIELD_FLOAT ),
 	
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, slowPainkillers, FIELD_BOOLEAN ),
@@ -3524,6 +3527,8 @@ pt_end:
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
 
+	g_frictionOverride = frictionOverride;
+
 	if ( divingOnly ) {
 		pev->fuser4 = 1.0f;
 	}
@@ -3967,6 +3972,8 @@ void CBasePlayer::Spawn( void )
 	musicPos = 0.0f;
 	musicLooping = 0;
 	musicGoingThroughChangeLevel = FALSE;
+
+	frictionOverride = -1.0f;
 
 	g_pGameRules->PlayerSpawn( this );
 }

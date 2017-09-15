@@ -429,6 +429,8 @@ public:
 	
 	float m_flNextChatTime;
 
+	float frictionOverride;
+
 	int crystalsDestroyed;
 
 	BOOL showCredits;

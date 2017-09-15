@@ -837,6 +837,29 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "friction" ) {
+		float friction = 4.0f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				friction = max( 0, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_FRICTION,
+			"Friction",
+			"Changes player's friction.",
+			[friction]( CBasePlayer *player ) {
+				player->frictionOverride = friction;
+			},
+			{ "Friction: " + std::to_string( friction ) + "\n" }
+		) );
+		return true;
+	}
+
 	if ( modName == "garbage_gibs" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_GARBAGE_GIBS,
