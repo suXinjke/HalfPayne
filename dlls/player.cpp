@@ -1399,7 +1399,7 @@ void CBasePlayer::ApplyWeaponPushback( float impulse ) {
 		return;
 	}
 
-	pev->velocity = pev->velocity - ( gpGlobals->v_forward * impulse * weaponPushBackMultiplier );
+	pev->velocity = pev->velocity - ( GetAimForwardWithOffset() * impulse * weaponPushBackMultiplier );
 }
 
 void CBasePlayer::RemoveAllItems( BOOL removeSuit )
