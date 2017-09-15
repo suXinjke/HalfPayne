@@ -243,7 +243,7 @@ void CustomGameModeConfig::InitConfigSections() {
 	);
 
 	configSections[CONFIG_FILE_SECTION_MODS] = ConfigSection(
-		"max_commentary", false,
+		"mods", false,
 		[this]( ConfigSectionData &data ) { 
 			if ( !AddGameplayMod( data ) ) {
 				char errorCString[1024];
