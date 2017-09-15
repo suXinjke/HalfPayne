@@ -717,25 +717,6 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
-	if ( modName == "drunk" ) {
-		int drunkinessPercent = 25;
-		if ( data.argsFloat.size() >= 2 && !std::isnan( data.argsFloat.at( 1 ) ) ) {
-			drunkinessPercent = min( max( 0, data.argsFloat.at( 1 ) ), 100 );
-		}
-
-		mods.push_back( GameplayMod( 
-			GAMEPLAY_MOD_DRUNK,
-			"Drunk",
-			"Self explanatory. The camera view becomes wobbly and makes aim harder.\n"
-			"Wobble doesn't get slower when slowmotion is present.",
-			[drunkinessPercent]( CBasePlayer *player ) { 
-				player->drunkiness = ( drunkinessPercent / 100.0f ) * 255;
-			},
-			{ "Drunkiness: " + std::to_string( drunkinessPercent ) + "%%\n" }
-		) );
-		return true;
-	}
-
 	if ( modName == "drunk_aim" ) {
 		float aimMaxOffsetX = 20.0f;
 		float aimMaxOffsetY = 5.0f;
@@ -770,6 +751,24 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 				"Max vertical wobble: " + std::to_string( aimMaxOffsetX ) + " deg\n",
 				"Wobble frequency: " + std::to_string( aimOffsetChangeFreqency ) + "\n",
 			}
+		) );
+		return true;
+	}
+
+	if ( modName == "drunk_look" ) {
+		int drunkinessPercent = 25;
+		if ( data.argsFloat.size() >= 2 && !std::isnan( data.argsFloat.at( 1 ) ) ) {
+			drunkinessPercent = min( max( 0, data.argsFloat.at( 1 ) ), 100 );
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_DRUNK_LOOK,
+			"Drunk look",
+			"Camera view becomes wobbly and makes aim harder.",
+			[drunkinessPercent]( CBasePlayer *player ) { 
+			player->drunkiness = ( drunkinessPercent / 100.0f ) * 255;
+		},
+			{ "Drunkiness: " + std::to_string( drunkinessPercent ) + "%%\n" }
 		) );
 		return true;
 	}
