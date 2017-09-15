@@ -1026,6 +1026,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "no_jumping" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_NO_JUMPING,
+			"No jumping",
+			"Don't allow to jump.",
+			[]( CBasePlayer *player ) { player->noJumping = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "no_pills" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_NO_PILLS,

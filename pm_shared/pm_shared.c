@@ -157,6 +157,7 @@ static char grgchTextureType[CTEXTURESMAX];
 int g_onladder = 0;
 int g_slowMotionCharge = 0;
 int g_divingAllowedWithoutSlowmotion = 0;
+int g_noJumping = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
@@ -2610,7 +2611,7 @@ PM_Jump
 */
 void PM_Jump (void)
 {
-	if ( pmove->flags & FL_DIVING ) {
+	if ( pmove->flags & FL_DIVING || g_noJumping ) {
 		return;
 	}
 
