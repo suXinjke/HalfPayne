@@ -512,6 +512,7 @@ public:
 
 	BULLET_PHYSICS_MODE bulletPhysicsMode;
 	BOOL shouldProducePhysicalBullets;
+	BOOL bulletSelfHarm;
 
 	int bulletRicochetCount;
 	int bulletRicochetError;

@@ -592,7 +592,8 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 				|| strcmp( STRING( pevAttacker->classname ), "rpg_rocket" ) == 0
 				|| strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0
 				|| strcmp( STRING( pevAttacker->classname ), "monster_satchel" ) == 0
-				|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
+				|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0
+				|| strcmp( STRING( pevAttacker->classname ), "bullet" ) == 0 ) {
 
 				CBaseEntity *pevAttackerEntity = CBaseEntity::Instance( pevAttacker );
 				if ( pevAttackerEntity ) {

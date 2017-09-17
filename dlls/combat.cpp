@@ -667,6 +667,16 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 			player->OnKilledEntity( this );
 		}
 
+		// Killed by player's bullet?
+		if ( strcmp( STRING( pevAttacker->classname ), "bullet" ) == 0 ) {
+			if ( CBasePlayer *player = dynamic_cast<CBasePlayer*>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				CBaseEntity *entity = CBaseEntity::Instance( pevAttacker );
+				if ( entity && entity->auxOwner == player->edict() ) {
+					player->OnKilledEntity( this );
+				}
+			}			
+		}
+
 		// Killed by player caused explosion?
 		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 
 			|| strcmp( STRING( pevAttacker->classname ), "rpg_rocket" ) == 0
@@ -684,8 +694,9 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 			if ( explosion->killedOrCausedByPlayer ) { 
 				this->killedByExplosion = true;
 
-				CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-				player->OnKilledEntity( this );
+				if ( CBasePlayer *player = dynamic_cast<CBasePlayer*>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+					player->OnKilledEntity( this );
+				}
 			}
 
 			if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -1570,7 +1581,7 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 
 			CBullet::BulletCreate(
 				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || player->superHot, edict(),
-				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct
+				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct, player->bulletSelfHarm
 			);
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {
@@ -1720,7 +1731,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		if ( player->shouldProducePhysicalBullets ) {
 			CBullet::BulletCreate(
 				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || player->superHot, edict(),
-				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct
+				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct, player->bulletSelfHarm
 			);
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {

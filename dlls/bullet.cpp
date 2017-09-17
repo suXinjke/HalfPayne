@@ -16,13 +16,14 @@ TYPEDESCRIPTION	CBullet::m_SaveData[] =
 	DEFINE_FIELD( CBullet, ricochetMaxDotProduct, FIELD_FLOAT ),
 	DEFINE_FIELD( CBullet, ricochetVelocity, FIELD_VECTOR ),
 	DEFINE_FIELD( CBullet, tryToRicochet, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBullet, ricochettedOnce, FIELD_BOOLEAN )
+	DEFINE_FIELD( CBullet, ricochettedOnce, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBullet, selfHarm, FIELD_BOOLEAN ),
 };
 IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
 
 CBullet *CBullet::BulletCreate(
 	Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive, edict_t *owner,
-	int ricochetCount, int ricochetError, float ricochetMaxDotProduct
+	int ricochetCount, int ricochetError, float ricochetMaxDotProduct, bool selfHarm
 ) {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;
@@ -32,6 +33,8 @@ CBullet *CBullet::BulletCreate(
 	bullet->ricochetCount = ricochetCount;
 	bullet->ricochetError = ricochetError;
 	bullet->ricochetMaxDotProduct = ricochetMaxDotProduct;
+	bullet->selfHarm = selfHarm;
+	bullet->auxOwner = ENT( owner );
 
 	switch ( bulletType ) {
 		case BULLET_PLAYER_BUCKSHOT:
@@ -55,6 +58,7 @@ void CBullet::Spawn( )
 	ricochetMaxDotProduct = 0.5;
 	tryToRicochet = FALSE;
 	ricochettedOnce = FALSE;
+	selfHarm = FALSE;
 
 	pev->movetype = MOVETYPE_FLY;
 	pev->solid = SOLID_BSP;
@@ -151,7 +155,7 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 			pOther->TraceAttack(pevOwner, damage, pev->velocity.Normalize(), &tr, DMG_BULLET | DMG_NEVERGIB ); 
 		}
 
-		ApplyMultiDamage( pev, pevOwner );
+		ApplyMultiDamage( pev, pevOwner ? pevOwner : pev );
 		pev->velocity = Vector( 0, 0, 0 );
 
 		if ( !g_pGameRules->IsMultiplayer() )
@@ -188,6 +192,19 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 void CBullet::BubbleThink( void )
 {
 	pev->nextthink = gpGlobals->time + 0.01;
+
+	if ( selfHarm && pev->owner != NULL ) {
+		CBaseEntity *potentialOwner = NULL;
+		while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
+
+			if ( pev->owner == potentialOwner->edict() ) {
+				break;
+			}
+		}
+		if ( !potentialOwner ) {
+			pev->owner = NULL;
+		}
+	}
 
 	if ( tryToRicochet ) {
 		pev->velocity = ricochetVelocity;

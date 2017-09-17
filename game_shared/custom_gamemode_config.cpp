@@ -662,6 +662,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "bullet_self_harm" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_BULLET_SELF_HARM,
+			"Bullet self harm",
+			"Bullets shot by player can harm back (ricochet mod is required).",
+			[]( CBasePlayer *player ) { player->bulletSelfHarm = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "constant_slowmotion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_CONSTANT_SLOWMOTION,

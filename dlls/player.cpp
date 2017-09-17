@@ -212,6 +212,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, bulletRicochetCount, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, bulletRicochetError, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, bulletRicochetMaxDotProduct, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, bulletSelfHarm, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, infiniteAmmoClip, FIELD_BOOLEAN ),
@@ -3822,6 +3823,8 @@ void CBasePlayer::Spawn( void )
 
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
+
+	bulletSelfHarm = false;
 
 	bulletRicochetCount = 0;
 	bulletRicochetError = 5;
