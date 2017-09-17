@@ -2007,6 +2007,13 @@ void CBaseMonster::MoveExecute( CBaseEntity *pTargetEnt, const Vector &vecDir, f
 //=========================================================
 void CBaseMonster :: MonsterInit ( void )
 {
+	if ( CHalfLifeRules *rules = dynamic_cast<CHalfLifeRules *>( g_pGameRules ) ) {
+		if ( rules->EntityShouldBePrevented( edict() ) ) {
+			pev->flags |= FL_KILLME;
+			return;
+		}
+	}
+
 	if (!g_pGameRules->FAllowMonsters())
 	{
 		pev->flags |= FL_KILLME;		// Post this because some monster code modifies class data after calling this function

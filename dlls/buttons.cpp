@@ -584,6 +584,13 @@ void CBaseButton::ButtonSpark ( void )
 //
 void CBaseButton::ButtonUse ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+	if ( CHalfLifeRules *rules = dynamic_cast<CHalfLifeRules *>( g_pGameRules ) ) {
+		if ( rules->EntityShouldBePrevented( edict() ) ) {
+			pev->flags |= FL_KILLME;
+			return;
+		}
+	}
+
 	// Ignore touches if button is moving, or pushed-in and waiting to auto-come-out.
 	// UNDONE: Should this use ButtonResponseToTouch() too?
 	if (m_toggle_state == TS_GOING_UP || m_toggle_state == TS_GOING_DOWN )

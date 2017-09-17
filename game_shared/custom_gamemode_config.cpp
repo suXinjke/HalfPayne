@@ -192,7 +192,7 @@ void CustomGameModeConfig::InitConfigSections() {
 		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
 	);
 
-	configSections[CONFIG_FILE_SECTION_SOUND_PREVENT] = ConfigSection(
+	configSections[CONFIG_FILE_SECTION_ENTITY_PREVENT] = ConfigSection(
 		"sound_prevent", false,
 		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
 	);
@@ -1460,8 +1460,8 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		currentFileSection = CONFIG_FILE_SECTION_PLAYLIST;
 	} else if ( sectionName == "max_commentary" ) {
 		currentFileSection = CONFIG_FILE_SECTION_MAX_COMMENTARY;
-	} else if ( sectionName == "sound_prevent" ) {
-		currentFileSection = CONFIG_FILE_SECTION_SOUND_PREVENT;
+	} else if ( sectionName == "sound_prevent" || sectionName == "entity_prevent" ) {
+		currentFileSection = CONFIG_FILE_SECTION_ENTITY_PREVENT;
 	} else if ( sectionName == "intermission" ) {
 		currentFileSection = CONFIG_FILE_SECTION_INTERMISSION;
 	} else {

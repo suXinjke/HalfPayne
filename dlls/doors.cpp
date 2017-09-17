@@ -544,6 +544,12 @@ void CBaseDoor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 //
 int CBaseDoor::DoorActivate( )
 {
+	if ( CHalfLifeRules *rules = dynamic_cast<CHalfLifeRules *>( g_pGameRules ) ) {
+		if ( rules->EntityShouldBePrevented( edict() ) ) {
+			return 0;
+		}
+	}
+
 	if (!UTIL_IsMasterTriggered(m_sMaster, m_hActivator))
 		return 0;
 

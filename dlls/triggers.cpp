@@ -600,6 +600,13 @@ void CBaseTrigger::InitTrigger( )
 	SET_MODEL(ENT(pev), STRING(pev->model));    // set size and link into world
 	if ( CVAR_GET_FLOAT("showtriggers") == 0 )
 		SetBits( pev->effects, EF_NODRAW );
+
+	if ( CHalfLifeRules *rules = dynamic_cast<CHalfLifeRules *>( g_pGameRules ) ) {
+		if ( rules->EntityShouldBePrevented( edict() ) ) {
+			pev->flags |= FL_KILLME;
+			return;
+		}
+	}
 }
 
 
@@ -2073,6 +2080,10 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 
 	pevToucher->fixangle = TRUE;
 	pevToucher->velocity = pevToucher->basevelocity = g_vecZero;
+
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( this->edict() );
+	}
 
 	if ( strcmp( STRING( pev->target ), "loser" ) == 0 ) {
 		UTIL_Remove( this );

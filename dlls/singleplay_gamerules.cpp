@@ -61,11 +61,14 @@ bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
 	if ( entity ) {
 		int modelIndex = entity->v.modelindex;
 		std::string targetName = STRING( entity->v.targetname );
+		std::string className = STRING( entity->v.classname );
 		std::string mapName = STRING( gpGlobals->mapname );
 
 		bool willBePrevented = false;
 		for ( auto config : configs ) {
-			willBePrevented = willBePrevented || mapConfig.MarkModelIndex( CONFIG_FILE_SECTION_SOUND_PREVENT, mapName, modelIndex, targetName );
+			willBePrevented = willBePrevented ||
+				config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_PREVENT, mapName, modelIndex, targetName ) ||
+				config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_PREVENT, mapName, modelIndex, className );
 		}
 
 		return willBePrevented;
