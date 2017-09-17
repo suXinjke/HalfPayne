@@ -142,6 +142,13 @@ void Subtitles_Draw() {
 	bool willDrawAtLeastOneSubtitle = false;
 
 	float time = gEngfuncs.GetClientTime();
+	float fontScale = gEngfuncs.pfnGetCvarFloat( "subtitles_font_scale" );
+	if ( fontScale < 1.0f ) {
+		fontScale = 1.0f;
+	}
+	if ( fontScale > 2.0f ) {
+		fontScale = 2.0f;
+	}
 
 	auto i = subtitlesToDraw.begin();
 	while ( i != subtitlesToDraw.end() ) {
@@ -164,9 +171,9 @@ void Subtitles_Draw() {
 
 		ImVec2 textSize = ImGui::CalcTextSize( subtitle.text.c_str() );
 		if ( textSize.x > FrameWidth ) {
-			FrameWidth = textSize.x;
+			FrameWidth = textSize.x * fontScale;
 		}
-		FrameHeight += textSize.y;
+		FrameHeight += textSize.y * fontScale;
 
 		willDrawAtLeastOneSubtitle = true;
 		i++;
@@ -194,6 +201,7 @@ void Subtitles_Draw() {
 		ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - textSize.x / 2.0f );
 		ImGui::TextColored( ImVec4( subtitle.color[0], subtitle.color[1], subtitle.color[2], 1.0 ), "%s", subtitle.text.c_str() );
 	}
+	ImGui::SetWindowFontScale( fontScale );
 	ImGui::End();
 }
 

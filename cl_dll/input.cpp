@@ -87,6 +87,7 @@ cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
 cvar_t  *hud_autoswitch;
 cvar_t  *print_subtitles;
+cvar_t  *subtitles_font_scale;
 
 cvar_t  *slowmotion_effect_change_duration;
 cvar_t  *slowmotion_low_pass_cutoff;
@@ -1216,6 +1217,7 @@ void InitInput (void)
 	hud_autoswitch	  = gEngfuncs.pfnRegisterVariable( "hud_autoswitch", "1", FCVAR_ARCHIVE );
 
 	print_subtitles = gEngfuncs.pfnRegisterVariable( "subtitles", "2", FCVAR_ARCHIVE );
+	subtitles_font_scale = gEngfuncs.pfnRegisterVariable( "subtitles_font_scale", "1", FCVAR_ARCHIVE );
 
 	slowmotion_effect_change_duration = gEngfuncs.pfnRegisterVariable( "slowmotion_effect_change_duration", "0.7", FCVAR_ARCHIVE );
 	slowmotion_low_pass_cutoff = gEngfuncs.pfnRegisterVariable( "slowmotion_low_pass_cutoff", "1200", FCVAR_ARCHIVE );
