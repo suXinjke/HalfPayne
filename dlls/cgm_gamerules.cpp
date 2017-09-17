@@ -35,6 +35,8 @@ extern Intermission g_latestIntermission;
 
 CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( configType )
 {
+	configs.push_back( &config );
+
 	if ( !gmsgEndActiv ) {
 		gmsgEndActiv = REG_USER_MSG( "EndActiv", 1 );
 		gmsgEndTitle = REG_USER_MSG( "EndTitle", -1 );
@@ -432,18 +434,6 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 	// Does end_trigger section contain such index?
 	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_END_TRIGGER, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
 		End( pPlayer );
-	}
-
-	auto musicPieces = config.MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
-	for ( auto music : musicPieces ) {
-		std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
-
-		if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-			pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
-			if ( !music.constant ) {
-				pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
-			}
-		}
 	}
 
 	Intermission potentialIntermission = config.GetIntermission( STRING( gpGlobals->mapname ), modelIndex, targetName );

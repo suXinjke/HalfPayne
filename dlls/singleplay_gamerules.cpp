@@ -37,6 +37,8 @@ int	gmsgEndCredits	= 0;
 //=========================================================
 CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CONFIG_TYPE_MAP )
 {
+	configs.push_back( &mapConfig );
+
 	if ( !gmsgEndCredits ) {
 		gmsgEndCredits = REG_USER_MSG( "EndCredits", 0 );
 	}
@@ -61,7 +63,12 @@ bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
 		std::string targetName = STRING( entity->v.targetname );
 		std::string mapName = STRING( gpGlobals->mapname );
 
-		return mapConfig.MarkModelIndex( CONFIG_FILE_SECTION_SOUND_PREVENT, mapName, modelIndex, targetName );
+		bool willBePrevented = false;
+		for ( auto config : configs ) {
+			willBePrevented = willBePrevented || mapConfig.MarkModelIndex( CONFIG_FILE_SECTION_SOUND_PREVENT, mapName, modelIndex, targetName );
+		}
+
+		return willBePrevented;
 	}
 
 	return false;
@@ -136,10 +143,10 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName 
 
 void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
-
-	CONFIG_FILE_SECTION sections[2] = { CONFIG_FILE_SECTION_SOUND, CONFIG_FILE_SECTION_MAX_COMMENTARY };
-	for ( auto section : sections ) {
-		auto sounds = mapConfig.MarkModelIndexesWithSound( section, STRING( gpGlobals->mapname ), modelIndex, targetName );
+	for ( auto config : configs ) {
+		CONFIG_FILE_SECTION sections[2] = { CONFIG_FILE_SECTION_SOUND, CONFIG_FILE_SECTION_MAX_COMMENTARY };
+		for ( auto section : sections ) {
+			auto sounds = config->MarkModelIndexesWithSound( section, STRING( gpGlobals->mapname ), modelIndex, targetName );
 			for ( auto sound : sounds ) {
 				if ( !sound.valid ) {
 					continue;
@@ -159,26 +166,29 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
 				}
 			}
-	}
+		}
 
-	auto musicPieces = mapConfig.MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
-	for ( auto music : musicPieces ) {
+		auto musicPieces = config->MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
+		for ( auto music : musicPieces ) {
 
-		std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
+			std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
 
-		if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-			pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
-			if ( !music.constant ) {
-				pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+			if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
+				pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
+				if ( !music.constant ) {
+					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+				}
 			}
 		}
 	}
 }
 void CHalfLifeRules::Precache()
 {
-	// I'm very sorry for this memory leak for now
-	for ( std::string sound : mapConfig.soundsToPrecache ) {
-		PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
+	for ( auto config : configs ) {
+		// I'm very sorry for this memory leak for now
+		for ( std::string sound : config->soundsToPrecache ) {
+			PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
+		}
 	}
 }
 
@@ -310,16 +320,18 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 	}
 
 	if ( !entitiesUsed ) {
-		if ( mapConfig.configSections[CONFIG_FILE_SECTION_ENTITY_USE].data.size() > 0 ) {
-			for ( int i = 0 ; i < 1024 ; i++ ) {
-				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
-				if ( !edict ) {
-					continue;
-				}
+		for ( auto config : configs ) {
+			if ( config->configSections[CONFIG_FILE_SECTION_ENTITY_USE].data.size() > 0 ) {
+				for ( int i = 0 ; i < 1024 ; i++ ) {
+					edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+					if ( !edict ) {
+						continue;
+					}
 
-				if ( mapConfig.MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_USE, STRING( gpGlobals->mapname ), edict->v.modelindex, STRING( edict->v.targetname ) ) ) {
-					if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
-						entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+					if ( config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_USE, STRING( gpGlobals->mapname ), edict->v.modelindex, STRING( edict->v.targetname ) ) ) {
+						if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+							entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+						}
 					}
 				}
 			}

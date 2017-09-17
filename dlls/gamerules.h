@@ -177,6 +177,7 @@ public:
 	CHalfLifeRules ( void );
 
 	CustomGameModeConfig mapConfig;
+	std::vector<CustomGameModeConfig *> configs;
 	bool				 playerProcessed;
 	bool				 entitiesUsed;
 	int				     lastSkill;
