@@ -136,34 +136,41 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName 
 
 void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
-	std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName;
 
 	CONFIG_FILE_SECTION sections[2] = { CONFIG_FILE_SECTION_SOUND, CONFIG_FILE_SECTION_MAX_COMMENTARY };
 	for ( auto section : sections ) {
-		auto sound = mapConfig.MarkModelIndexWithSound( section, STRING( gpGlobals->mapname ), modelIndex, targetName );
-		if ( !sound.valid ) {
-			continue;
-		}
+		auto sounds = mapConfig.MarkModelIndexesWithSound( section, STRING( gpGlobals->mapname ), modelIndex, targetName );
+			for ( auto sound : sounds ) {
+				if ( !sound.valid ) {
+					continue;
+				}
 
-		
-		if ( pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-			continue;
-		}
+				std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + sound.soundPath;
 
-		// I'm very sorry for this memory leak for now
-		string_t soundPathAllocated = ALLOC_STRING( sound.soundPath.c_str() );
+				if ( pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
+					continue;
+				}
 
-		pPlayer->AddToSoundQueue( soundPathAllocated, sound.delay, section == CONFIG_FILE_SECTION_MAX_COMMENTARY, true );
-		if ( !sound.constant ) {
-			pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
-		}
+				// I'm very sorry for this memory leak for now
+				string_t soundPathAllocated = ALLOC_STRING( sound.soundPath.c_str() );
+
+				pPlayer->AddToSoundQueue( soundPathAllocated, sound.delay, section == CONFIG_FILE_SECTION_MAX_COMMENTARY, true );
+				if ( !sound.constant ) {
+					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+				}
+			}
 	}
 
-	auto music = mapConfig.MarkModelIndexWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
-	if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-		pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
-		if ( !music.constant ) {
-			pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+	auto musicPieces = mapConfig.MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
+	for ( auto music : musicPieces ) {
+
+		std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
+
+		if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
+			pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
+			if ( !music.constant ) {
+				pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+			}
 		}
 	}
 }

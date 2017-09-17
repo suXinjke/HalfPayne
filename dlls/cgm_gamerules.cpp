@@ -434,12 +434,15 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 		End( pPlayer );
 	}
 
-	std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName;
-	auto music = config.MarkModelIndexWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
-	if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-		pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
-		if ( !music.constant ) {
-			pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+	auto musicPieces = config.MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
+	for ( auto music : musicPieces ) {
+		std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
+
+		if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
+			pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
+			if ( !music.constant ) {
+				pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+			}
 		}
 	}
 

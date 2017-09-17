@@ -1620,7 +1620,9 @@ bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, cons
 	return false;
 }
 
-const ConfigFileSound CustomGameModeConfig::MarkModelIndexWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+const std::vector<ConfigFileSound> CustomGameModeConfig::MarkModelIndexesWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+	std::vector<ConfigFileSound> result;
+	
 	auto *sectionData = &configSections[fileSection].data;
 	auto i = sectionData->begin();
 	while ( i != sectionData->end() ) {
@@ -1647,21 +1649,27 @@ const ConfigFileSound CustomGameModeConfig::MarkModelIndexWithSound( CONFIG_FILE
 			}
 		}
 
-		if ( !constant ) {
-			i = sectionData->erase( i );
-		}
+
 
 		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
 			delay = 0.101f;
 		}
 
-		return { true, storedSoundPath, constant, delay };
+		result.push_back( { true, storedSoundPath, constant, delay } );
+		
+		if ( !constant ) {
+			i = sectionData->erase( i );
+		} else {
+			i++;
+		}
 	}
 
-	return { false, "", false, NAN };
+	return result;
 }
 
-const ConfigFileMusic CustomGameModeConfig::MarkModelIndexWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+const std::vector<ConfigFileMusic> CustomGameModeConfig::MarkModelIndexesWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+	std::vector<ConfigFileMusic> result;
+	
 	auto *sectionData = &configSections[fileSection].data;
 	auto i = sectionData->begin();
 	while ( i != sectionData->end() ) {
@@ -1701,18 +1709,20 @@ const ConfigFileMusic CustomGameModeConfig::MarkModelIndexWithMusic( CONFIG_FILE
 			initialPos = 0.0f;
 		}
 
-		if ( !constant ) {
-			i = sectionData->erase( i );
-		}
-
 		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
 			delay = 0.101f;
 		}
 
-		return { true, storedSoundPath, constant, looping, delay, initialPos };
+		result.push_back( { true, storedSoundPath, constant, looping, delay, initialPos } );
+
+		if ( !constant ) {
+			i = sectionData->erase( i );
+		} else {
+			i++;
+		}
 	}
 
-	return { false, "", false, false, NAN, NAN };
+	return result;
 }
 
 bool CustomGameModeConfig::IsChangeLevelPrevented( const std::string &nextMap ) {

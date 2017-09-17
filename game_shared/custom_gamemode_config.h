@@ -340,8 +340,8 @@ public:
 	std::map< CONFIG_FILE_SECTION, ConfigSection> configSections;
 
 	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
-	const ConfigFileSound MarkModelIndexWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
-	const ConfigFileMusic MarkModelIndexWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
+	const std::vector<ConfigFileSound> MarkModelIndexesWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
+	const std::vector<ConfigFileMusic> MarkModelIndexesWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
 
 	std::set<std::string>		 entitiesToPrecache;
 	std::set<std::string>		 soundsToPrecache;

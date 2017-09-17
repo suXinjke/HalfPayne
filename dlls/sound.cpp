@@ -1454,7 +1454,7 @@ void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volu
 	{
 		char name[32];
 		if (SENTENCEG_Lookup(sample, name) >= 0) {
-			if ( gmsgOnSound ) {
+			if ( gmsgOnSound && !( flags & SND_STOP ) ) {
 				MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
 					WRITE_STRING( sample );
 					WRITE_BYTE( ignoreSlowmotion );
@@ -1469,7 +1469,7 @@ void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volu
 			ALERT( at_aiconsole, "Unable to find %s in sentences.txt\n", sample );
 	}
 	else { 
-		if ( gmsgOnSound  && pPlayer ) {
+		if ( gmsgOnSound && pPlayer && !( flags & SND_STOP ) ) {
 			MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
 				WRITE_STRING( sample );
 				WRITE_BYTE( ignoreSlowmotion );
