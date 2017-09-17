@@ -140,12 +140,7 @@ void CRpgRocket :: Spawn( void )
 	UTIL_MakeVectors( pev->angles );
 	pev->angles.x = -(pev->angles.x + 30);
 
-	Vector forward = gpGlobals->v_forward;
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		forward = pPlayer->GetAimForwardWithOffset();
-	}
-
-	pev->velocity = forward * 250;
+	pev->velocity = gpGlobals->v_forward * 250;
 	pev->gravity = 0.5;
 
 	pev->nextthink = gpGlobals->time + 0.4;
