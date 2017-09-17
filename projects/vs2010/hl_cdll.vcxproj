@@ -140,6 +140,7 @@
     <ClCompile Include="..\..\cl_dll\hl\hl_events.cpp" />
     <ClCompile Include="..\..\cl_dll\hl\hl_objects.cpp" />
     <ClCompile Include="..\..\cl_dll\hl\hl_weapons.cpp" />
+    <ClCompile Include="..\..\cl_dll\hl_imgui.cpp" />
     <ClCompile Include="..\..\cl_dll\hud.cpp" />
     <ClCompile Include="..\..\cl_dll\hud_bench.cpp" />
     <ClCompile Include="..\..\cl_dll\hud_benchtrace.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="..\..\cl_dll\status_icons.cpp" />
     <ClCompile Include="..\..\cl_dll\StudioModelRenderer.cpp" />
     <ClCompile Include="..\..\cl_dll\studio_util.cpp" />
+    <ClCompile Include="..\..\cl_dll\subtitles.cpp" />
     <ClCompile Include="..\..\cl_dll\text_message.cpp" />
     <ClCompile Include="..\..\cl_dll\timer.cpp" />
     <ClCompile Include="..\..\cl_dll\train.cpp" />
@@ -231,6 +233,7 @@
     <ClInclude Include="..\..\cl_dll\gamemode_gui.h" />
     <ClInclude Include="..\..\cl_dll\GameStudioModelRenderer.h" />
     <ClInclude Include="..\..\cl_dll\health.h" />
+    <ClInclude Include="..\..\cl_dll\hl_imgui.h" />
     <ClInclude Include="..\..\cl_dll\hud.h" />
     <ClInclude Include="..\..\cl_dll\hud_servers.h" />
     <ClInclude Include="..\..\cl_dll\hud_servers_priv.h" />
@@ -240,6 +243,7 @@
     <ClInclude Include="..\..\cl_dll\kbutton.h" />
     <ClInclude Include="..\..\cl_dll\soundmanager.h" />
     <ClInclude Include="..\..\cl_dll\StudioModelRenderer.h" />
+    <ClInclude Include="..\..\cl_dll\subtitles.h" />
     <ClInclude Include="..\..\cl_dll\tri.h" />
     <ClInclude Include="..\..\cl_dll\util_vector.h" />
     <ClInclude Include="..\..\cl_dll\vgui_ControlConfigPanel.h" />

@@ -49,7 +49,7 @@ extern "C"
 #include "vgui_TeamFortressViewport.h"
 #include "../public/interface.h"
 
-#include "gamemode_gui.h"
+#include "hl_imgui.h"
 
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
@@ -231,7 +231,7 @@ int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
 	EV_HookEvents();
 	CL_LoadParticleMan();
 
-	GameModeGUI_Init();
+	HL_ImGUI_Init();
 
 	// get tracker interface, if any
 	return 1;

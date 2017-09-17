@@ -647,7 +647,7 @@ void UTIL_MakeInvVectors( const Vector &vec, globalvars_t *pgv )
 	SWAP(pgv->v_right.z, pgv->v_up.y, tmp);
 }
 
-
+extern int gmsgOnSound;
 void UTIL_EmitAmbientSound( edict_t *entity, const Vector &vecOrigin, const char *samp, float vol, float attenuation, int fFlags, int pitch )
 {
 	float rgfl[3];
@@ -656,11 +656,31 @@ void UTIL_EmitAmbientSound( edict_t *entity, const Vector &vecOrigin, const char
 	if (samp && *samp == '!')
 	{
 		char name[32];
-		if (SENTENCEG_Lookup(samp, name) >= 0)
+		if (SENTENCEG_Lookup(samp, name) >= 0) {
+			if ( gmsgOnSound ) {
+				MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
+					WRITE_STRING( samp );
+					WRITE_BYTE( true );
+					WRITE_COORD( 0 );
+					WRITE_COORD( 0 );
+					WRITE_COORD( 0 );
+				MESSAGE_END();
+			}
 			EMIT_AMBIENT_SOUND(entity, rgfl, name, vol, attenuation, fFlags, pitch);
+		}
 	}
-	else
+	else {
+		if ( gmsgOnSound ) {
+			MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
+				WRITE_STRING( samp );
+				WRITE_BYTE( true );
+				WRITE_COORD( 0 );
+				WRITE_COORD( 0 );
+				WRITE_COORD( 0 );
+			MESSAGE_END();
+		}
 		EMIT_AMBIENT_SOUND(entity, rgfl, samp, vol, attenuation, fFlags, pitch);
+	}
 }
 
 static unsigned short FixedUnsigned16( float value, float scale )

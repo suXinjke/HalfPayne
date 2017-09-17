@@ -1428,6 +1428,8 @@ extern cvar_t *g_host_framerate;
 extern cvar_t *g_sys_timescale;
 extern bool using_sys_timescale;
 
+extern int gmsgOnSound;
+
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
 						   int flags, int pitch, BOOL ignoreSlowmotion)
 {
@@ -1446,16 +1448,38 @@ void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volu
 		}
 	}
 
+	CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
+
 	if (sample && *sample == '!')
 	{
 		char name[32];
-		if (SENTENCEG_Lookup(sample, name) >= 0)
-				EMIT_SOUND_DYN2(entity, channel, name, volume, attenuation, flags, pitch);
+		if (SENTENCEG_Lookup(sample, name) >= 0) {
+			if ( gmsgOnSound ) {
+				MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
+					WRITE_STRING( sample );
+					WRITE_BYTE( ignoreSlowmotion );
+					WRITE_COORD( entity->v.origin.x );
+					WRITE_COORD( entity->v.origin.y );
+					WRITE_COORD( entity->v.origin.z );
+				MESSAGE_END();
+			}
+			EMIT_SOUND_DYN2(entity, channel, name, volume, attenuation, flags, pitch);
+		}
 		else
 			ALERT( at_aiconsole, "Unable to find %s in sentences.txt\n", sample );
 	}
-	else
+	else { 
+		if ( gmsgOnSound  && pPlayer ) {
+			MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
+				WRITE_STRING( sample );
+				WRITE_BYTE( ignoreSlowmotion );
+				WRITE_COORD( entity->v.origin.x );
+				WRITE_COORD( entity->v.origin.y );
+				WRITE_COORD( entity->v.origin.z );
+			MESSAGE_END();
+		}
 		EMIT_SOUND_DYN2(entity, channel, sample, volume, attenuation, flags, pitch);
+	}
 }
 
 // play a specific sentence over the HEV suit speaker - just pass player entity, and !sentencename

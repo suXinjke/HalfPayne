@@ -380,6 +380,8 @@ int gmsgAimCoords = 0;
 int gmsgSetSkin = 0;
 int gmsgAimOffset = 0;
 
+int gmsgOnSound = 0;
+int gmsgSubtClear = 0;
 
 void LinkUserMessages( void )
 {
@@ -399,6 +401,7 @@ void LinkUserMessages( void )
 	gmsgUpsideDown = REG_USER_MSG("UpsideDown", 1);
 	gmsgHealth = REG_USER_MSG( "Health", 6 );
 	gmsgSlowMotion = REG_USER_MSG( "SlowMotion", 1 );
+	gmsgOnSound = REG_USER_MSG( "OnSound", -1 );
 	gmsgPainkillerCount = REG_USER_MSG( "PillCount", 1 );
 	gmsgDamage = REG_USER_MSG( "Damage", 12 );
 	gmsgBattery = REG_USER_MSG( "Battery", 2);
@@ -441,6 +444,8 @@ void LinkUserMessages( void )
 	gmsgBassPlay = REG_USER_MSG( "BassPlay", -1 );
 	gmsgBassStop = REG_USER_MSG( "BassStop", -1 );
 	gmsgBassSlowmo = REG_USER_MSG( "BassSlowmo", 1 );
+
+	gmsgSubtClear = REG_USER_MSG( "SubtClear", 0 );
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );
@@ -2677,6 +2682,9 @@ void CBasePlayer::PreThink(void)
 			this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping );
 		}
 
+		MESSAGE_BEGIN( MSG_ALL, gmsgSubtClear );
+		MESSAGE_END();
+
 		musicGoingThroughChangeLevel = FALSE;
 		postRestoreDelay = 0.0f;
 	}
@@ -2693,6 +2701,9 @@ void CBasePlayer::PreThink(void)
 				WRITE_BYTE(0);
 			MESSAGE_END();
 		}
+
+		MESSAGE_BEGIN( MSG_ALL, gmsgSubtClear );
+		MESSAGE_END();
 
 		postSpawnDelay = 0.0f;
 	}
