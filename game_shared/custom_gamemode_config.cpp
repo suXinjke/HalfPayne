@@ -666,8 +666,18 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_BULLET_SELF_HARM,
 			"Bullet self harm",
-			"Bullets shot by player can harm back (ricochet mod is required).",
+			"Physical bullets shot by player can harm back (ricochet mod is required).",
 			[]( CBasePlayer *player ) { player->bulletSelfHarm = true; }
+		) );
+		return true;
+	}
+
+	if ( modName == "bullet_trail_constant" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_BULLET_TRAIL_CONSTANT,
+			"Bullet trail constant",
+			"Physical bullets always get a trail, regardless if slowmotion is present.",
+			[]( CBasePlayer *player ) { player->bulletTrailConstant = true; }
 		) );
 		return true;
 	}

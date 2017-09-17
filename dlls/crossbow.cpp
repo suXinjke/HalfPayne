@@ -440,7 +440,7 @@ void CCrossbow::FireBolt()
 	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 
 #ifndef CLIENT_DLL
-	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( m_pPlayer->slowMotionEnabled );
+	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( m_pPlayer->slowMotionEnabled || m_pPlayer->bulletTrailConstant );
 	pBolt->pev->origin = vecSrc;
 	pBolt->pev->angles = anglesAim;
 	pBolt->pev->owner = m_pPlayer->edict();
