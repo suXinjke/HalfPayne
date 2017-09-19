@@ -4004,37 +4004,53 @@ void CBasePlayer::Spawn( void )
 
 void CBasePlayer::SpawnSnarksAtRandomNode()
 {
-	Vector spawnPos;
-	bool decidedOnSpawnPos = false;
+	bool spawnPositionDecided = false;
 
-	for ( int i = 0 ; i < 4 ; i++ ) {
-		int randomNodeIndex = RANDOM_LONG( 0, WorldGraph.m_cNodes - 1 );
-		CNode node = WorldGraph.m_pNodes[randomNodeIndex];
-
-		CBaseEntity *list[1] = { NULL };
-		UTIL_MonstersInSphere( list, 1, node.m_vecOrigin, 32.0f );
+	do {
+		TraceResult tr;
+		char bottomTexture[256] = "(null)";
+		char upperTexture[256] = "(null)";
 		
-		if ( list[0] == NULL ) {
-			TraceResult tr;
-			UTIL_TraceLine( pev->origin, node.m_vecOrigin, dont_ignore_monsters, ignore_glass, ENT( pev ), &tr );
+		Vector randomPoint = Vector( RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ) );
+		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
+		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
 
-			if ( tr.flFraction != 1.0f ) {
-				spawnPos = node.m_vecOrigin;
-				decidedOnSpawnPos = true;
-				break;
-			}
+		if ( FStrEq( bottomTexture, "(null)" )  || FStrEq( bottomTexture, "sky" ) || FStrEq( upperTexture, "(null)" ) ) {
+			continue;
 		}
-	}
 
-	if ( !decidedOnSpawnPos ) {
-		return;
-	}
+		// Drop randomPoint on the floor
+		UTIL_TraceLine( randomPoint, randomPoint - gpGlobals->v_up * 8192, dont_ignore_monsters, ignore_glass, ENT( pev ), &tr );
+		if ( tr.fAllSolid ) {
+			continue;
+		}
 
-	int snarkCount = snarkInception ? 1 : RANDOM_LONG( 1, 4 );
-	for ( int i = 0 ; i < snarkCount ; i++ ) {	
-		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + Vector( 0, 0, 4 + i * ( snarkPenguins ? 32 : 16 ) ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
-		pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
-	}
+		randomPoint = tr.vecEndPos;
+
+		// Check there are no monsters around
+		CBaseEntity *list[1] = { NULL };
+		UTIL_MonstersInSphere( list, 1, randomPoint, 32.0f );
+		if ( list[0] != NULL ) {
+			continue;
+		}
+
+		// Prefer not to spawn near player
+		UTIL_TraceLine( pev->origin, randomPoint, dont_ignore_monsters, dont_ignore_glass, ENT( pev ), &tr );
+		if ( tr.flFraction >= 1.0f ) {
+			continue;
+		}
+
+		// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
+		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", randomPoint + Vector( 0, 0, 4 + snarkPenguins ? 32 : 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+		if ( DROP_TO_FLOOR( ENT( pSqueak->pev ) ) >= 1 ) {
+			pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
+			pSqueak->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
+			spawnPositionDecided = true;
+		} else {
+			g_engfuncs.pfnRemoveEntity( ENT( pSqueak->pev ) );
+		}
+
+	} while ( !spawnPositionDecided );
 }
 
 void CBasePlayer::SayRandomSwear()
