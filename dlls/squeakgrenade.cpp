@@ -42,39 +42,7 @@ enum squeak_e {
 
 #ifndef CLIENT_DLL
 
-class CSqueakGrenade : public CGrenade
-{
-	void Spawn( void );
-	void Precache( void );
-	int  Classify( void );
-	void EXPORT SuperBounceTouch( CBaseEntity *pOther );
-	void EXPORT HuntThink( void );
-	int  BloodColor( void );
-	void Killed( entvars_t *pevAttacker, int iGib );
-	void GibMonster( void );
-	virtual int IRelationship( CBaseEntity *pTarget );
 
-	virtual int		Save( CSave &save ); 
-	virtual int		Restore( CRestore &restore );
-	
-	static	TYPEDESCRIPTION m_SaveData[];
-
-	static float m_flNextBounceSoundTime;
-
-	// CBaseEntity *m_pTarget;
-	BOOL stayAlive;
-	float m_flDie;
-	Vector m_vecTarget;
-	float m_flNextHunt;
-	float m_flNextHit;
-	Vector m_posPrev;
-	EHANDLE m_hOwner;
-	int  m_iMyClass;
-	BOOL inception;
-	int inceptionDepth;
-	BOOL nuclear;
-	BOOL isPenguin;
-};
 
 float CSqueakGrenade::m_flNextBounceSoundTime = 0;
 
@@ -92,6 +60,8 @@ TYPEDESCRIPTION	CSqueakGrenade::m_SaveData[] =
 	DEFINE_FIELD( CSqueakGrenade, inception, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CSqueakGrenade, isPenguin, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CSqueakGrenade, nuclear, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CSqueakGrenade, isPanic, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CSqueakGrenade, isStill, FIELD_BOOLEAN ),
 };
 
 IMPLEMENT_SAVERESTORE( CSqueakGrenade, CGrenade );
@@ -148,6 +118,7 @@ void CSqueakGrenade :: Spawn( void )
 	inception = false;
 	inceptionDepth = 10;
 	nuclear = false;
+	isStill = false;
 	float health = gSkillData.snarkHealth;
 
 	SET_MODEL(ENT(pev), "models/w_squeak.mdl");
@@ -335,6 +306,14 @@ void CSqueakGrenade::HuntThink( void )
 		return;
 
 	m_flNextHunt = gpGlobals->time + 2.0;
+
+	if ( isStill ) {
+		return;
+	} else if ( isPanic ) {
+		pev->velocity = Vector( RANDOM_FLOAT( -1024, 1024 ), RANDOM_FLOAT( -1024, 1024 ), RANDOM_FLOAT( 0, 128 ) );
+		pev->angles = UTIL_VecToAngles( pev->velocity );
+		return;
+	}
 	
 	CBaseEntity *pOther = NULL;
 	Vector vecDir;
@@ -414,6 +393,10 @@ void CSqueakGrenade::HuntThink( void )
 
 void CSqueakGrenade::SuperBounceTouch( CBaseEntity *pOther )
 {
+	if ( isStill ) {
+		return;
+	}
+
 	float	flpitch;
 
 	TraceResult tr = UTIL_GetGlobalTrace( );

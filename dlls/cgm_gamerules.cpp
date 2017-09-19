@@ -442,6 +442,40 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 		CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
 		// after that, g_latestIntermission becomes undefined in PlayerSpawn function
 	}
+
+	if (
+		config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_PENGUINS ) && 
+		config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_FRIENDLY_TO_PLAYER ) && 
+		config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_FRIENDLY_TO_ALLIES ) &&
+		std::string( STRING( gpGlobals->mapname ) ) == "c1a0e"
+	) {
+		CBaseEntity *list[512];
+		int amount = UTIL_MonstersInSphere( list, 512, Vector( 0, 0, 0 ), 8192.0f );
+
+		if ( targetName == "se_motor_sound" ) {
+			
+			for ( int i = 0 ; i < amount ; i++ ) {
+				if ( CSqueakGrenade *penguin = dynamic_cast<CSqueakGrenade *>( list[i] ) ) {
+					if ( !penguin->isPanic ) {
+						penguin->pev->velocity = Vector( 0, 0, 0 );
+						penguin->pev->angles = UTIL_VecToAngles( activator->v.origin - penguin->pev->origin );
+						penguin->pev->angles[0] = 0;
+						penguin->pev->sequence = 1;
+						penguin->isStill = true;
+					}
+				}
+			}
+		} else if ( targetName == "speaker_ohno" ) {
+
+			for ( int i = 0 ; i < amount ; i++ ) {
+				if ( CSqueakGrenade *penguin = dynamic_cast<CSqueakGrenade *>( list[i] ) ) {
+					penguin->pev->sequence = 2;
+					penguin->isStill = false;
+					penguin->isPanic = true;
+				}
+			}
+		}
+	}
 }
 
 void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )

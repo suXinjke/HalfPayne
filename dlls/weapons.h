@@ -1092,5 +1092,43 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 };
 
+class CSqueakGrenade : public CGrenade
+{
+	void Spawn( void );
+	void Precache( void );
+	int  Classify( void );
+	void EXPORT SuperBounceTouch( CBaseEntity *pOther );
+	void EXPORT HuntThink( void );
+	int  BloodColor( void );
+	void Killed( entvars_t *pevAttacker, int iGib );
+	void GibMonster( void );
+	virtual int IRelationship( CBaseEntity *pTarget );
+
+	virtual int		Save( CSave &save ); 
+	virtual int		Restore( CRestore &restore );
+
+	static	TYPEDESCRIPTION m_SaveData[];
+
+	static float m_flNextBounceSoundTime;
+
+	// CBaseEntity *m_pTarget;
+	BOOL stayAlive;
+	float m_flDie;
+	Vector m_vecTarget;
+	float m_flNextHunt;
+	float m_flNextHit;
+	Vector m_posPrev;
+	EHANDLE m_hOwner;
+	int  m_iMyClass;
+	BOOL inception;
+	int inceptionDepth;
+	BOOL nuclear;
+	BOOL isPenguin;
+
+public:
+	BOOL isStill;
+	BOOL isPanic;
+};
+
 
 #endif // WEAPONS_H
