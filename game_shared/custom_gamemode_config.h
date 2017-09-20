@@ -316,6 +316,8 @@ public:
 
 	void InitConfigSections();
 
+	const std::string GetHash();
+
 	static std::string ConfigTypeToDirectoryName( CONFIG_TYPE configType );
 	static std::string ConfigTypeToGameModeCommand( CONFIG_TYPE configType );
 	static std::string ConfigTypeToGameModeName( CONFIG_TYPE configType, bool uppercase = false );

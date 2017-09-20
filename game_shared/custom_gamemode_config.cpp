@@ -2,6 +2,7 @@
 #include "string_aux.h"
 #include <fstream>
 #include <regex>
+#include <sstream>
 #include "sha1.h"
 #include "Windows.h"
 
@@ -540,7 +541,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 		}
 	}
 
-	sha1 = SHA1::from_file( filePath );
+	sha1 = GetHash();
 
 	const std::string recordDirectoryPath = GetGamePath() + "\\records\\";
 	const std::string recordFileName = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configName +  + "_" + sha1 + ".hpr";
@@ -549,6 +550,20 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	inp.close(); // TODO: find out if it's called automatically
 
 	return true;
+}
+
+const std::string CustomGameModeConfig::GetHash() {
+	std::ostringstream result;
+
+	for ( const auto &section : configSections ) {
+		for ( const auto &sectionData : section.second.data ) {
+			result << sectionData.line;
+		}
+	}
+
+	auto sha1 = SHA1::SHA1();
+	sha1.update( result.str() );
+	return sha1.final();
 }
 
 // This function is called in CHalfLifeRules constructor
