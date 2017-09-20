@@ -4,6 +4,22 @@
 #include "custom_gamemode_config.h"
 #include "gamerules.h"
 
+class EntityRandomSpawnerController {
+public:
+	EntityRandomSpawnerController( const EntityRandomSpawner &entityRandomSpawner );
+	void Think( CBasePlayer *pPlayer );
+	void ResetSpawnPeriod();
+
+private:
+	void Spawn( CBasePlayer *pPlayer );
+
+	std::string entityName;
+	int maxAmount;
+	float spawnPeriod;
+	float nextSpawn;
+	
+};
+
 // CCustomGameMode - Half-Life with additional mini-mods
 class CCustomGameModeRules : public CHalfLifeRules {
 
@@ -42,6 +58,8 @@ public:
 	bool monsterSpawnPrevented;
 
 	CustomGameModeConfig config;
+
+	std::vector<EntityRandomSpawnerController> entityRandomSpawnerControllers;
 
 protected:
 	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message );

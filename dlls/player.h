@@ -574,11 +574,7 @@ public:
 
 	BOOL usedCheat;
 
-	void SpawnSnarksAtRandomNode();
-	BOOL snarkParanoia;
 	BOOL snarkPenguins;
-	float nextSnarkSpawn;
-	float nextSnarkSpawnPeriod;
 
 	BOOL snarkInception;
 	int snarkInceptionDepth;

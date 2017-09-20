@@ -130,6 +130,14 @@ struct EntitySpawn
 	std::string targetName;
 };
 
+struct EntityRandomSpawner
+{
+	std::string mapName;
+	std::string entityName;
+	int maxAmount;
+	float spawnPeriod;
+};
+
 struct Intermission
 {
 	bool defined;
@@ -223,6 +231,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_ENTITY_SPAWN,
 	CONFIG_FILE_SECTION_ENTITY_USE,
 	CONFIG_FILE_SECTION_ENTITY_PREVENT,
+	CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER,
 	CONFIG_FILE_SECTION_SOUND,
 	CONFIG_FILE_SECTION_MUSIC,
 	CONFIG_FILE_SECTION_PLAYLIST,
@@ -337,6 +346,7 @@ public:
 
 	const std::vector<std::string> GetLoadout();
 	const std::vector<EntitySpawn> GetEntitySpawnsForMapOnce( const std::string &map );
+	const std::vector<EntityRandomSpawner> GetEntityRandomSpawners();
 	bool IsChangeLevelPrevented( const std::string &nextMap );
 
 	std::map< CONFIG_FILE_SECTION, ConfigSection> configSections;

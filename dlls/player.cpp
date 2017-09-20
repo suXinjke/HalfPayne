@@ -266,10 +266,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 
-	DEFINE_FIELD( CBasePlayer, snarkParanoia, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkPenguins, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, nextSnarkSpawn, FIELD_TIME ),
-	DEFINE_FIELD( CBasePlayer, nextSnarkSpawnPeriod, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkInceptionDepth, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
@@ -3928,10 +3925,7 @@ void CBasePlayer::Spawn( void )
 
 	usedCheat = false;
 
-	snarkParanoia = false;
 	snarkPenguins = false;
-	nextSnarkSpawn = 2.0f;
-	nextSnarkSpawnPeriod = 1.0f;
 
 	snarkInception = false;
 	snarkInceptionDepth = 10;
@@ -4000,57 +3994,6 @@ void CBasePlayer::Spawn( void )
 	frictionOverride = -1.0f;
 
 	g_pGameRules->PlayerSpawn( this );
-}
-
-void CBasePlayer::SpawnSnarksAtRandomNode()
-{
-	bool spawnPositionDecided = false;
-
-	do {
-		TraceResult tr;
-		char bottomTexture[256] = "(null)";
-		char upperTexture[256] = "(null)";
-		
-		Vector randomPoint = Vector( RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ) );
-		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
-		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
-
-		if ( FStrEq( bottomTexture, "(null)" )  || FStrEq( bottomTexture, "sky" ) || FStrEq( upperTexture, "(null)" ) ) {
-			continue;
-		}
-
-		// Drop randomPoint on the floor
-		UTIL_TraceLine( randomPoint, randomPoint - gpGlobals->v_up * 8192, dont_ignore_monsters, ignore_glass, ENT( pev ), &tr );
-		if ( tr.fAllSolid ) {
-			continue;
-		}
-
-		randomPoint = tr.vecEndPos;
-
-		// Check there are no monsters around
-		CBaseEntity *list[1] = { NULL };
-		UTIL_MonstersInSphere( list, 1, randomPoint, 32.0f );
-		if ( list[0] != NULL ) {
-			continue;
-		}
-
-		// Prefer not to spawn near player
-		UTIL_TraceLine( pev->origin, randomPoint, dont_ignore_monsters, dont_ignore_glass, ENT( pev ), &tr );
-		if ( tr.flFraction >= 1.0f ) {
-			continue;
-		}
-
-		// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
-		CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", randomPoint + Vector( 0, 0, 4 + snarkPenguins ? 32 : 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
-		if ( DROP_TO_FLOOR( ENT( pSqueak->pev ) ) >= 1 ) {
-			pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
-			pSqueak->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
-			spawnPositionDecided = true;
-		} else {
-			g_engfuncs.pfnRemoveEntity( ENT( pSqueak->pev ) );
-		}
-
-	} while ( !spawnPositionDecided );
 }
 
 void CBasePlayer::SayRandomSwear()
@@ -5586,11 +5529,6 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_BEGIN( MSG_ONE, gmsgBattery, NULL, pev );
 			WRITE_SHORT( (int)pev->armorvalue);
 		MESSAGE_END();
-	}
-
-	if ( snarkParanoia && gpGlobals->time > nextSnarkSpawn ) {
-		SpawnSnarksAtRandomNode();
-		nextSnarkSpawn = gpGlobals->time + nextSnarkSpawnPeriod;
 	}
 
 	if (pev->dmg_take || pev->dmg_save || m_bitsHUDDamage != m_bitsDamageType)

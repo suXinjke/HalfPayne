@@ -66,6 +66,11 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	musicSwitchDelay = 0.0f;
 
 	monsterSpawnPrevented = false;
+
+	auto entityRandomSpawners = config.GetEntityRandomSpawners();
+	for ( const auto &spawner : entityRandomSpawners ) {
+		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
+	}
 }
 
 void CCustomGameModeRules::RestartGame() {
@@ -290,6 +295,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		monsterSpawnPrevented = true;
 	}
 
+	for ( auto &spawner : entityRandomSpawnerControllers ) {
+		spawner.Think( pPlayer );
+	}
+
 	size_t musicPlaylistSize = config.musicPlaylist.size();
 	if (
 		musicPlaylistSize > 0 &&
@@ -498,6 +507,10 @@ void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 void CCustomGameModeRules::OnChangeLevel() {
 	CHalfLifeRules::OnChangeLevel();
 	musicSwitchDelay = 0.0f;
+
+	for ( auto &spawner : entityRandomSpawnerControllers ) {
+		spawner.ResetSpawnPeriod();
+	}
 }
 
 void CCustomGameModeRules::Precache() {
@@ -792,4 +805,90 @@ void CCustomGameModeRules::RefreshSkillData()
 		gSkillData.batteryCapacity = 15.0f;
 		gSkillData.healthchargerCapacity = 40.0f;
 	}
+}
+
+EntityRandomSpawnerController::EntityRandomSpawnerController( const EntityRandomSpawner &entityRandomSpawner ) :
+	entityName( entityRandomSpawner.entityName ),
+	maxAmount( entityRandomSpawner.maxAmount ),
+	spawnPeriod( entityRandomSpawner.spawnPeriod ),
+	nextSpawn( gpGlobals->time + entityRandomSpawner.spawnPeriod )
+{ }
+
+void EntityRandomSpawnerController::Think( CBasePlayer *pPlayer ) {
+	if ( gpGlobals->time > nextSpawn ) {
+		Spawn( pPlayer );
+		ResetSpawnPeriod();
+	}
+}
+
+void EntityRandomSpawnerController::ResetSpawnPeriod() {
+	nextSpawn = gpGlobals->time + spawnPeriod;
+}
+
+void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
+	CBaseEntity *list[1024] = { NULL };
+	int amountOfMonsters = UTIL_MonstersInSphere( list, 1024, Vector( 0, 0, 0 ), 8192.0f );
+	int amountOfMonstersOfThisType = 0;
+	for ( int i = 0 ; i < amountOfMonsters ; i++ ) {
+		CBaseEntity *entity = list[i];
+		if (
+			( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) &&
+		   !( entity->pev->deadflag & DEAD_DEAD ) &&
+			FStrEq( STRING( entity->pev->classname ), entityName.c_str() )
+		) {
+			amountOfMonstersOfThisType++;
+		}
+	}
+
+	if ( amountOfMonstersOfThisType >= maxAmount ) {
+		return;
+	}
+
+	bool spawnPositionDecided = false;
+
+	do {
+		TraceResult tr;
+		char bottomTexture[256] = "(null)";
+		char upperTexture[256] = "(null)";
+
+		Vector randomPoint = Vector( RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ) );
+		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
+		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
+
+		if ( FStrEq( bottomTexture, "(null)" )  || FStrEq( bottomTexture, "sky" ) || FStrEq( upperTexture, "(null)" ) ) {
+			continue;
+		}
+
+		// Drop randomPoint on the floor
+		UTIL_TraceLine( randomPoint, randomPoint - gpGlobals->v_up * 8192, dont_ignore_monsters, ignore_glass, pPlayer->edict(), &tr );
+		if ( tr.fAllSolid ) {
+			continue;
+		}
+
+		randomPoint = tr.vecEndPos;
+
+		// Check there are no monsters around
+		CBaseEntity *list[1] = { NULL };
+		UTIL_MonstersInSphere( list, 1, randomPoint, 32.0f );
+		if ( list[0] != NULL ) {
+			continue;
+		}
+
+		// Prefer not to spawn near player
+		UTIL_TraceLine( pPlayer->pev->origin, randomPoint, dont_ignore_monsters, dont_ignore_glass, pPlayer->edict(), &tr );
+		if ( tr.flFraction >= 1.0f ) {
+			continue;
+		}
+
+		// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
+		CBaseEntity *entity = CBaseEntity::Create( ( char * ) entityName.c_str(), randomPoint + Vector( 0, 0, 4 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+		if ( DROP_TO_FLOOR( ENT( entity->pev ) ) >= 1 && WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
+			entity->pev->spawnflags = SF_MONSTER_PRESERVE;
+			entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
+			spawnPositionDecided = true;
+		} else {
+			g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
+		}
+
+	} while ( !spawnPositionDecided );
 }

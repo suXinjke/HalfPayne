@@ -285,6 +285,39 @@ void CustomGameModeConfig::InitConfigSections() {
 			return std::string( "" );
 		}
 	);
+
+	configSections[CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER] = ConfigSection(
+		"entity_random_spawner", false,
+		[this]( ConfigSectionData &data ) {
+			for ( auto line : data.argsString ) {
+				if ( data.argsString.size() < 2 ) {
+					return std::string( "<map_name | everywhere> <entity_name> [max_amount] [spawn_period]" );
+				}
+
+				std::string entityName = data.argsString.at( 1 );
+				if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
+					return std::string( "incorrect entity name" );
+				}
+
+				for ( size_t i = 2 ; i < min( data.argsFloat.size(), 4 ) ; i++ ) {
+					float arg = data.argsFloat.at( i );
+					if ( std::isnan( arg ) ) {
+						char error[1024];
+						if ( i == 2 ) {
+							sprintf_s( error, "invalid max_amount value" );
+						}
+						if ( i == 3 ) {
+							sprintf_s( error, "invalid spawn_period value" );
+						}
+						return std::string( error );
+					}
+				}
+
+				entitiesToPrecache.insert( entityName );
+			}
+			return std::string( "" );
+		}
+	);
 }
 
 std::string CustomGameModeConfig::ValidateModelIndexSectionData( ConfigSectionData &data ) {
@@ -1281,31 +1314,6 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
-	if ( modName == "snark_paranoia" ) {
-		float nextSnarkSpawnPeriod = 1.0f;
-		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
-			if ( std::isnan( data.argsFloat.at( i ) ) ) {
-				continue;
-			}
-			if ( i == 1 ) {
-				nextSnarkSpawnPeriod = data.argsFloat.at( i );
-			}
-		}
-
-		mods.push_back( GameplayMod( 
-			GAMEPLAY_MOD_SNARK_PARANOIA,
-			"Snark paranoia",
-			"Snarks spawn randomly around the map, mostly out of your sight.\n"
-			"Spawn positions are determined by world graph.",
-			[nextSnarkSpawnPeriod]( CBasePlayer *player ) {
-				player->snarkParanoia = true;
-				player->nextSnarkSpawnPeriod = nextSnarkSpawnPeriod;
-			},
-			{ "Snark spawning period: " + std::to_string( nextSnarkSpawnPeriod ) + " sec \n" }
-		) );
-		return true;
-	}
-
 	if ( modName == "snark_penguins" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SNARK_PENGUINS,
@@ -1446,46 +1454,11 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 
 bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 
-	if ( sectionName == "start_map" ) {
-		currentFileSection = CONFIG_FILE_SECTION_START_MAP;
-	} else if ( sectionName == "end_map" ) {
-		currentFileSection = CONFIG_FILE_SECTION_END_MAP;
-	} else if ( sectionName == "loadout" ) {
-		currentFileSection = CONFIG_FILE_SECTION_LOADOUT;
-	} else if ( sectionName == "start_position" ) {
-		currentFileSection = CONFIG_FILE_SECTION_START_POSITION;
-	} else if ( sectionName == "name" ) {
-		currentFileSection = CONFIG_FILE_SECTION_NAME;
-	} else if ( sectionName == "description" ) {
-		currentFileSection = CONFIG_FILE_SECTION_DESCRIPTION;
-	} else if ( sectionName == "end_trigger" ) {
-		currentFileSection = CONFIG_FILE_SECTION_END_TRIGGER;
-	} else if ( sectionName == "change_level_prevent" ) {
-		currentFileSection = CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT;
-	} else if ( sectionName == "entity_spawn" ) {
-		currentFileSection = CONFIG_FILE_SECTION_ENTITY_SPAWN;
-	} else if ( sectionName == "entity_use" ) {
-		currentFileSection = CONFIG_FILE_SECTION_ENTITY_USE;
-	} else if ( sectionName == "mods" ) {
-		currentFileSection = CONFIG_FILE_SECTION_MODS;
-	} else if ( sectionName == "timer_pause" ) {
-		currentFileSection = CONFIG_FILE_SECTION_TIMER_PAUSE;
-	} else if ( sectionName == "timer_resume" ) {
-		currentFileSection = CONFIG_FILE_SECTION_TIMER_RESUME;
-	} else if ( sectionName == "sound" ) {
-		currentFileSection = CONFIG_FILE_SECTION_SOUND;
-	} else if ( sectionName == "music" ) {
-		currentFileSection = CONFIG_FILE_SECTION_MUSIC;
-	} else if ( sectionName == "playlist" ) {
-		currentFileSection = CONFIG_FILE_SECTION_PLAYLIST;
-	} else if ( sectionName == "max_commentary" ) {
-		currentFileSection = CONFIG_FILE_SECTION_MAX_COMMENTARY;
-	} else if ( sectionName == "sound_prevent" || sectionName == "entity_prevent" ) {
-		currentFileSection = CONFIG_FILE_SECTION_ENTITY_PREVENT;
-	} else if ( sectionName == "intermission" ) {
-		currentFileSection = CONFIG_FILE_SECTION_INTERMISSION;
-	} else {
-		return false;
+	for ( const auto &configSection : configSections ) {
+		if ( configSection.second.name == sectionName ) {
+			currentFileSection = configSection.first;
+			return true;
+		}
 	}
 
 	return true;
@@ -1579,6 +1552,20 @@ const std::vector<std::string> CustomGameModeConfig::GetLoadout() {
 	}
 
 	return loadout;
+}
+
+const std::vector<EntityRandomSpawner> CustomGameModeConfig::GetEntityRandomSpawners() {
+	std::vector<EntityRandomSpawner> result;
+	for ( auto line : configSections[CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER].data ) {
+		const std::string mapName = line.argsString.at( 0 );
+		const std::string entityName = line.argsString.at( 1 );
+		const int maxAmount = line.argsFloat.size() >= 3 ? line.argsFloat.at( 2 ) : 50;
+		const float spawnPeriod = line.argsFloat.size() >= 4 ? line.argsFloat.at( 3 ) : 2.0f;
+		
+		result.push_back( { mapName, entityName, maxAmount, spawnPeriod } );
+	}
+
+	return result;
 }
 
 const std::vector<EntitySpawn> CustomGameModeConfig::GetEntitySpawnsForMapOnce( const std::string &map ) {
