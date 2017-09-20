@@ -7,6 +7,7 @@
 #include "wrect.h"
 #include "cl_dll.h"
 #include "parsemsg.h"
+#include <random>
 
 #include <regex>
 
@@ -25,9 +26,6 @@ float slowmotion_pitch_desired_value = 0;
 
 extern int isPaused;
 int lastIsPaused = 1;
-
-extern bool inMainMenu;
-bool lastInMainMenu = true;
 
 cvar_t *MP3Volume = 0;
 float MP3Volume_last_value = 0.0f;
@@ -123,6 +121,38 @@ void SM_Play( const char *soundPath, bool looping ) {
 	}
 
 	loadedSoundPath = sanitizedSoundPath;
+}
+
+void SM_PlayRandomMainMenuMusic() {
+	std::vector<std::string> backgroundFolders;
+
+	WIN32_FIND_DATA fdFile;
+	HANDLE hFind = NULL;
+
+	const char *root = ".\\half_payne\\media\\menu";
+
+	char sPath[2048];
+	sprintf( sPath, "%s\\*.*", root );
+
+	if ( ( hFind = FindFirstFile( sPath, &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+		return;
+	}
+
+	do {
+		if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
+
+			sprintf( sPath, "%s\\%s", root, fdFile.cFileName );
+			backgroundFolders.push_back( sPath );
+		}
+	} while ( FindNextFile( hFind, &fdFile ) );
+
+	FindClose( hFind );
+
+	static std::random_device rd;
+	static std::mt19937 gen( rd() );
+	std::uniform_int_distribution<> dis( 0, backgroundFolders.size() - 1 );
+
+	SM_Play( backgroundFolders.at( dis( gen ) ).c_str() );
 }
 
 void SM_SetPaused( bool paused ) {
@@ -318,16 +348,6 @@ void SM_Think( double time ) {
 		if ( isPaused != lastIsPaused ) {
 			SM_SetPaused( isPaused > 0 );
 			lastIsPaused = isPaused;
-		}
-	}
-
-	// DISCONNECTED
-	{
-		if ( inMainMenu && !lastInMainMenu ) {
-			SM_Stop();
-			lastInMainMenu = true;
-		} else {
-			lastInMainMenu = false;
 		}
 	}
 

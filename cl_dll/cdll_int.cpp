@@ -343,6 +343,7 @@ Called by engine every frame that client .dll is loaded
 
 
 bool inMainMenu = true;
+bool lastInMainMenu = true;
 extern float isPausedLastUpdate;
 void CL_DLLEXPORT HUD_Frame( double time )
 {
@@ -351,6 +352,13 @@ void CL_DLLEXPORT HUD_Frame( double time )
 
 	GetClientVoiceMgr()->Frame(time);
 	inMainMenu = gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 1.0f;
+	if ( inMainMenu != lastInMainMenu ) {
+		if ( inMainMenu ) { // IF DISCONNECT
+			SM_Stop();
+			SM_PlayRandomMainMenuMusic();
+		}
+		lastInMainMenu = inMainMenu;
+	}
 	SM_Think( time );
 
 	static bool changedBackground = false;
