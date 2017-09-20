@@ -2254,12 +2254,15 @@ void CBasePlayer::Jump()
 	}
 
 	if ( vvvvvv ) {
-		reverseGravity = !reverseGravity;
-		upsideDown = !upsideDown;
-		upsideDownMessageSent = false;
-		pev->gravity *= -1.0f;
+		const char *texture = g_engfuncs.pfnTraceTexture( NULL, pev->origin, gpGlobals->v_up * 8192 );
+		if ( std::string( texture ) != "sky" ) {
+			reverseGravity = !reverseGravity;
+			upsideDown = !upsideDown;
+			upsideDownMessageSent = false;
+			pev->gravity *= -1.0f;
 
-		return;
+			return;
+		}
 	}
 
 // many features in this function use v_forward, so makevectors now.
