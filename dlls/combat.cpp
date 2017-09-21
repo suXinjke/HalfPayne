@@ -1730,7 +1730,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 		if ( player->shouldProducePhysicalBullets ) {
 			CBullet::BulletCreate(
-				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || player->bulletTrailConstant, edict(),
+				vecSrc, vecDir * ( player->bulletDelayOnSlowmotion && player->slowMotionEnabled ? 40 : 2000 ), iBulletType, player->slowMotionEnabled || player->bulletTrailConstant, edict(),
 				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct, player->bulletSelfHarm
 			);
 			bool lastShot = iShot == cShots;

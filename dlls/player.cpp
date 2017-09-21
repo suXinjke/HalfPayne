@@ -214,6 +214,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, bulletRicochetMaxDotProduct, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, bulletSelfHarm, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, bulletTrailConstant, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, bulletDelayOnSlowmotion, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, infiniteAmmoClip, FIELD_BOOLEAN ),
@@ -3827,6 +3828,7 @@ void CBasePlayer::Spawn( void )
 
 	bulletSelfHarm = false;
 	bulletTrailConstant = false;
+	bulletDelayOnSlowmotion = false;
 
 	bulletRicochetCount = 0;
 	bulletRicochetError = 5;
@@ -4804,6 +4806,22 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 	SetSlowMotion( false );
 
 	EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
+
+	if ( bulletDelayOnSlowmotion ) {
+		CBaseEntity *entity = NULL;
+		while ( ( entity = UTIL_FindEntityInSphere( entity, pev->origin, 8192.0f ) ) != NULL ) {
+
+			if (
+				FStrEq( STRING( entity->pev->classname ), "bullet" ) &&
+				entity->auxOwner == edict()
+			) {
+				if ( CBullet *bullet = dynamic_cast<CBullet *>( entity ) ) {
+					bullet->pev->velocity = bullet->pev->velocity.Normalize() * 2000;
+					bullet->ActivateTrail();
+				}
+			}
+		}
+	}
 
 	return true;
 }

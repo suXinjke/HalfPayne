@@ -189,6 +189,25 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 	pev->nextthink = gpGlobals->time + 0.01;
 }
 
+void CBullet::ActivateTrail( int life ) {
+	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+		WRITE_BYTE( TE_BEAMFOLLOW );
+		WRITE_SHORT( entindex() );	// entity
+		WRITE_SHORT( m_iTrail );	// model
+		WRITE_BYTE( life ); // life
+		WRITE_BYTE( 1 ); // width
+
+		WRITE_BYTE( 255 ); // r, g, b
+		WRITE_BYTE( 255 ); // r, g, b
+		WRITE_BYTE( 255 ); // r, g, b
+
+		WRITE_BYTE( 64 );	// brightness
+
+	MESSAGE_END();
+
+	activateTrail = false;
+}
+
 void CBullet::BubbleThink( void )
 {
 	pev->nextthink = gpGlobals->time + 0.01;
@@ -213,22 +232,8 @@ void CBullet::BubbleThink( void )
 	}
 
 	if ( activateTrail ) {
-		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
-			WRITE_BYTE( TE_BEAMFOLLOW );
-			WRITE_SHORT( entindex() );	// entity
-			WRITE_SHORT( m_iTrail );	// model
-			WRITE_BYTE( 2 ); // life
-			WRITE_BYTE( 1 ); // width
-
-			WRITE_BYTE( 255 ); // r, g, b
-			WRITE_BYTE( 255 ); // r, g, b
-			WRITE_BYTE( 255 ); // r, g, b
-
-			WRITE_BYTE( 64 );	// brightness
-
-		MESSAGE_END();
-
-		activateTrail = false;
+		bool longTrail = pev->velocity.Length() < 100;
+		ActivateTrail( longTrail ? 10 : 2 );
 	}
 
 	if (pev->waterlevel == 0)

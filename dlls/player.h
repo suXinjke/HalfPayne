@@ -514,6 +514,7 @@ public:
 	BOOL shouldProducePhysicalBullets;
 	BOOL bulletSelfHarm;
 	BOOL bulletTrailConstant;
+	BOOL bulletDelayOnSlowmotion;
 
 	int bulletRicochetCount;
 	int bulletRicochetError;

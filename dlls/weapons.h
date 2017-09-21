@@ -1090,6 +1090,7 @@ class CBullet : public CBaseEntity
 public:
 	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive = false, edict_t *owner = NULL, int ricochetCount = 0, int ricochetError = 5, float ricochetMaxDotProduct = 0.5, bool selfHarm = false );
 	static TYPEDESCRIPTION m_SaveData[];
+	void ActivateTrail( int life = 2 );
 };
 
 class CSqueakGrenade : public CGrenade

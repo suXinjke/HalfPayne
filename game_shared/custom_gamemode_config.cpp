@@ -638,6 +638,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "bullet_delay_on_slowmotion" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_BULLET_DELAY_ON_SLOWMOTION,
+			"Bullet delay on slowmotion.",
+			"When slowmotion is activated, physical bullets shot by you will move slowly until you turn off the slowmotion.",
+			[]( CBasePlayer *player ) { player->bulletDelayOnSlowmotion = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "bullet_physics_disabled" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_BULLET_PHYSICS_DISABLED,
