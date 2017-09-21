@@ -382,6 +382,7 @@ int gmsgAimOffset = 0;
 
 int gmsgOnSound = 0;
 int gmsgSubtClear = 0;
+int gmsgSubtRemove = 0;
 
 void LinkUserMessages( void )
 {
@@ -446,6 +447,7 @@ void LinkUserMessages( void )
 	gmsgBassSlowmo = REG_USER_MSG( "BassSlowmo", 1 );
 
 	gmsgSubtClear = REG_USER_MSG( "SubtClear", 0 );
+	gmsgSubtRemove = REG_USER_MSG( "SubtRemove", -1 );
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );
@@ -810,6 +812,9 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		if ( desperation == DESPERATION_NO && FStrEq( STRING( gpGlobals->mapname ), "c5a1" ) ) {
 			desperation = DESPERATION_REVENGE;
 			STOP_SOUND( victim->edict(), CHAN_VOICE, "!GM_FINAL" );
+			MESSAGE_BEGIN( MSG_ALL, gmsgSubtRemove );
+				WRITE_STRING( "!GM_FINAL" );
+			MESSAGE_END();
 		}
 
 		if ( desperation == DESPERATION_REVENGE ) {

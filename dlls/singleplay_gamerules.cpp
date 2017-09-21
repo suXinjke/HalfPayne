@@ -31,6 +31,7 @@ extern int gmsgDeathMsg;	// client dll messages
 extern int gmsgScoreInfo;
 extern int gmsgMOTD;
 
+extern int gmsgOnSound;
 int	gmsgEndCredits	= 0;
 
 //=========================================================
@@ -100,6 +101,16 @@ void CHalfLifeRules::OnEnd( CBasePlayer *pPlayer )
 {
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndCredits, NULL, pPlayer->pev );
 	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
+		WRITE_STRING( "HP_CREDITS" );
+		WRITE_BYTE( true );
+		WRITE_COORD( 0 );
+		WRITE_COORD( 0 );
+		WRITE_COORD( 0 );
+	MESSAGE_END();
+
+	pPlayer->SendPlayMusicMessage( "./half_payne/sound/music/credits.mp3" );
 }
 
 void CHalfLifeRules::OnChangeLevel()

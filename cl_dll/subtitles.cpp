@@ -17,6 +17,7 @@ std::map<std::string, std::vector<Subtitle>> subtitleMap;
 void Subtitles_Init() {
 	gEngfuncs.pfnHookUserMsg( "OnSound", Subtitles_OnSound );
 	gEngfuncs.pfnHookUserMsg( "SubtClear", Subtitles_SubtClear );
+	gEngfuncs.pfnHookUserMsg( "SubtRemove", Subtitles_SubtRemove );
 
 	std::ifstream inp( "half_payne/resource/subtitles_en.txt" );
 	if ( !inp.is_open( ) ) {
@@ -216,7 +217,7 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 	std::vector<std::string> lines = Wrap( text.c_str(), ScreenWidth / 2 );
 
 	for ( size_t i = 0 ; i < lines.size() ; i++ ) {
-		std::string actualKey = key + std::to_string( i );
+		std::string actualKey = key + "_" + std::to_string( i );
 
 		float startTime = gEngfuncs.GetClientTime() + delay;
 
@@ -300,6 +301,25 @@ int Subtitles_OnSound( const char *pszName,  int iSize, void *pbuf ) {
 int Subtitles_SubtClear( const char *pszName,  int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 	subtitlesToDraw.clear();
+
+	return 1;
+}
+
+int Subtitles_SubtRemove( const char *pszName,  int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+	std::string key = READ_STRING();
+
+	auto i = subtitlesToDraw.begin();
+	while ( i != subtitlesToDraw.end() ) {
+		auto subtitleKey = i->first;
+
+		if ( subtitleKey.find( key ) == 0 ) {
+			i = subtitlesToDraw.erase( i );
+			continue;
+		}
+
+		i++;
+	}
 
 	return 1;
 }

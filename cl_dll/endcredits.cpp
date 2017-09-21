@@ -151,7 +151,6 @@ int CHudEndCredits::MsgFunc_EndCredits( const char *pszName, int iSize, void *pb
 
 	BEGIN_READ( pbuf, iSize );
 
-	gEngfuncs.pfnPlaySoundByName( "music/credits.wav", 1.0f );
 	ended = true;
 	timeStart = gEngfuncs.GetAbsoluteTime();
 	

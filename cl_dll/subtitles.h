@@ -34,8 +34,9 @@ void Subtitles_Draw();
 bool Subtitle_IsFarAwayFromPlayer( const SubtitleOutput &subtitle );
 void Subtitles_Push( const std::string &key, bool ignoreLongDistances, const Vector &pos );
 void Subtitles_Push( const std::string &key, const std::string &text, float duration, const Vector &color, const Vector &pos, float delay = 0.0f, bool ignoreLongDistances = false );
-int Subtitles_OnSound( const char *pszName,  int iSize, void *pbuf );
-int Subtitles_SubtClear( const char *pszName,  int iSize, void *pbuf );
+int Subtitles_OnSound( const char *pszName, int iSize, void *pbuf );
+int Subtitles_SubtClear( const char *pszName, int iSize, void *pbuf );
+int Subtitles_SubtRemove( const char *pszName, int iSize, void *pbuf );
 const std::vector<Subtitle> Subtitles_GetByKey( const std::string &key );
 const SubtitleColor Subtitles_GetSubtitleColorByKey( const std::string &key );
 
