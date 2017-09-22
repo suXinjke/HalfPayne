@@ -1116,9 +1116,6 @@ void ClientPrecache( void )
 	}
 
 	if ( strcmp( STRING( gpGlobals->mapname ), "c5a1" ) == 0 ) {
-
-		PRECACHE_SOUND( "music/finale.wav" );
-		PRECACHE_SOUND( "music/finale2.wav" );
 		PRECACHE_SOUND( "comment/finalewon.wav" );
 		PRECACHE_SOUND( "comment/execute.wav" );
 		PRECACHE_SOUND( "comment/finalespeech.wav" );
