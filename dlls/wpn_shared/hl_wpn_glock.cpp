@@ -252,6 +252,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( );
 	Vector vecAiming;
+	Vector forward = m_pPlayer->GetAimForwardWithOffset();
 	
 	if ( fUseAutoAim )
 	{
@@ -259,7 +260,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	}
 	else
 	{
-		vecAiming = gpGlobals->v_forward;
+		vecAiming = forward;
 	}
 
 #ifndef CLIENT_DLL
@@ -267,7 +268,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 
 		float rightOffset = 8;
 
-		vecSrc = vecSrc + gpGlobals->v_forward * 5;
+		vecSrc = vecSrc + forward * 5;
 		if ( m_pPlayer->upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );

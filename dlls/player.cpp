@@ -5996,10 +5996,11 @@ Vector CBasePlayer::GetAimForwardWithOffset( bool degrees )
 //=========================================================
 Vector CBasePlayer :: GetAutoaimVector( float flDelta )
 {
+	Vector forward = GetAimForwardWithOffset();
 	if (g_iSkillLevel == SKILL_HARD)
 	{
 		UTIL_MakeVectors( pev->v_angle + pev->punchangle );
-		return gpGlobals->v_forward;
+		return forward;
 	}
 
 	Vector vecSrc = GetGunPosition( );
@@ -6072,7 +6073,7 @@ Vector CBasePlayer :: GetAutoaimVector( float flDelta )
 	// ALERT( at_console, "%f %f\n", angles.x, angles.y );
 
 	UTIL_MakeVectors( pev->v_angle + pev->punchangle + m_vecAutoAim );
-	return gpGlobals->v_forward;
+	return forward;
 }
 
 
