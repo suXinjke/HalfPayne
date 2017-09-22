@@ -294,6 +294,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, musicFile, FIELD_STRING ),
 	DEFINE_FIELD( CBasePlayer, musicPos, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, musicLooping, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, musicNoSlowmotionEffects, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, musicGoingThroughChangeLevel, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, currentMusicPlaylistIndex, FIELD_INTEGER ),
 	
@@ -2478,16 +2479,18 @@ void CBasePlayer::UpdateStatusBar()
 	}
 }
 
-void CBasePlayer::SendPlayMusicMessage( const std::string &filePath, float musicPos, BOOL looping )
+void CBasePlayer::SendPlayMusicMessage( const std::string &filePath, float musicPos, BOOL looping, BOOL noSlowmotionEffects )
 {
 	if ( !gmsgBassPlay ) {
 		return;
 	}
 
+	musicNoSlowmotionEffects = noSlowmotionEffects;
+
 	MESSAGE_BEGIN( MSG_ONE, gmsgBassPlay, NULL, this->pev );
 		WRITE_STRING( filePath.c_str() );
 		WRITE_FLOAT( musicPos );
-		WRITE_BYTE( slowMotionEnabled );
+		WRITE_BYTE( slowMotionEnabled && !musicNoSlowmotionEffects );
 		WRITE_BYTE( looping );
 	MESSAGE_END();
 }
@@ -2687,7 +2690,7 @@ void CBasePlayer::PreThink(void)
 		}
 
 		if ( strlen( STRING( musicFile ) ) > 0 && !musicGoingThroughChangeLevel ) {
-			this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping );
+			this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping, musicNoSlowmotionEffects );
 		}
 
 		MESSAGE_BEGIN( MSG_ALL, gmsgSubtClear );
@@ -3989,8 +3992,6 @@ void CBasePlayer::Spawn( void )
 	projectileKills = 0;
 	secondsInSlowmotion = 0.0f;
 
-	finalDesperationMusic = false;
-
 	crystalsDestroyed = 0;
 
 	latestMaxCommentaryTime = 0.0f;
@@ -3999,6 +4000,7 @@ void CBasePlayer::Spawn( void )
 	musicFile = 0;
 	musicPos = 0.0f;
 	musicLooping = 0;
+	musicNoSlowmotionEffects = 0;
 	musicGoingThroughChangeLevel = FALSE;
 
 	frictionOverride = -1.0f;
@@ -4075,6 +4077,9 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 				if ( slowmotionOnlyDiving ) {
 					SetSlowMotion( false );
 				}
+				if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+					singlePlayerRules->HookModelIndex( ENT( pev ), "final_battle_start" );
+				}
 
 				CBaseEntity *pEntity;
 				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
@@ -4150,11 +4155,6 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 		
 	}
 
-	if ( !finalDesperationMusic && desperation == DESPERATION_FIGHTING ) {
-		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale.wav", 1.0, ATTN_NORM, true );
-		finalDesperationMusic = true;
-	}
-
 	if ( ( desperation == DESPERATION_FIGHTING || desperation == DESPERATION_RELIEF ) && pev->origin.z < 1220 ) {
 		TakeDamage( pev, pev, 9999.9f, DMG_GENERIC );
 	}
@@ -4182,8 +4182,9 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 		RemoveAllItems( FALSE );
 		DeactivateSlowMotion( true );
 
-		STOP_SOUND( edict(), CHAN_STATIC, "music/finale.wav" );
-		EMIT_SOUND( edict(), CHAN_STATIC, "music/finale2.wav", 1.0, ATTN_NORM, true );
+		if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+			singlePlayerRules->HookModelIndex( ENT( pev ), "final_battle_won" );
+		}
 		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, false, true );
 	}
 }
@@ -4368,8 +4369,6 @@ int CBasePlayer::Restore( CRestore &restore )
 	rhetoricalQuestionHolder = NULL;
 
 	allowedToSwear = 0.0f;
-
-	finalDesperationMusic = false;
 
 	latestMaxCommentaryTime = 0.0f;
 	latestMaxCommentaryIsImportant = false;
@@ -4847,7 +4846,7 @@ void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 
 	if ( gmsgBassSlowmo ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgBassSlowmo, NULL, pev );
-			WRITE_BYTE( slowMotionEnabled );
+			WRITE_BYTE( slowMotionEnabled && !musicNoSlowmotionEffects );
 		MESSAGE_END();
 	}
 }

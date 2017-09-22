@@ -351,16 +351,7 @@ std::string CustomGameModeConfig::ValidateModelIndexWithSoundSectionData( Config
 std::string CustomGameModeConfig::ValidateModelIndexWithMusicSectionData( ConfigSectionData &data ) {
 
 	if ( data.argsString.size() < 3 ) {
-		return "<mapname> <modelindex | targetname> <sound_path> [delay] [initial_pos] [const] [looping] not specified";
-	}
-
-	if ( data.argsFloat.size() >= 4 ) {
-		for ( size_t i = 3 ; i < min( data.argsFloat.size(), 3 + 1 ) ; i++ ) {
-			float arg = data.argsFloat.at( i );
-			if ( std::isnan( arg ) ) {
-				return "delay or initial_pos incorrectly specified";
-			}
-		}
+		return "<mapname> <modelindex | targetname> <sound_path> [delay] [initial_pos] [const] [looping] [no_slowmotion_effects] not specified";
 	}
 
 	return "";
@@ -1676,12 +1667,10 @@ const std::vector<ConfigFileSound> CustomGameModeConfig::MarkModelIndexesWithSou
 		float delay = 0.0f;
 		if ( i->argsString.size() >= 4 ) {
 			for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
-				constant = !constant && i->argsString.at( arg ) == "const";
+				constant = constant || i->argsString.at( arg ) == "const";
 				delay = std::isnan( i->argsFloat.at( arg ) ) ? 0.0f : i->argsFloat.at( arg );
 			}
 		}
-
-
 
 		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
 			delay = 0.101f;
@@ -1721,17 +1710,17 @@ const std::vector<ConfigFileMusic> CustomGameModeConfig::MarkModelIndexesWithMus
 
 		bool constant = false;
 		bool looping = false;
+		bool noSlowmotionEffects = false;
 		float delay = NAN;
 		float initialPos = NAN;
-		if ( i->argsString.size() >= 4 ) {
-			for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
-				constant = !constant && i->argsString.at( arg ) == "const";
-				looping = !looping && i->argsString.at( arg ) == "looping";
-				if ( std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
-					delay = i->argsFloat.at( arg );
-				} else if ( !std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
-					initialPos = i->argsFloat.at( arg );
-				}
+		for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
+			constant = constant || i->argsString.at( arg ) == "const";
+			looping = looping || i->argsString.at( arg ) == "looping";
+			noSlowmotionEffects = noSlowmotionEffects || i->argsString.at( arg ) == "no_slowmotion_effects";
+			if ( std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
+				delay = i->argsFloat.at( arg );
+			} else if ( !std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
+				initialPos = i->argsFloat.at( arg );
 			}
 		}
 		if ( std::isnan( delay ) ) {
@@ -1745,7 +1734,7 @@ const std::vector<ConfigFileMusic> CustomGameModeConfig::MarkModelIndexesWithMus
 			delay = 0.101f;
 		}
 
-		result.push_back( { true, storedSoundPath, constant, looping, delay, initialPos } );
+		result.push_back( { true, storedSoundPath, constant, looping, noSlowmotionEffects, delay, initialPos } );
 
 		if ( !constant ) {
 			i = sectionData->erase( i );

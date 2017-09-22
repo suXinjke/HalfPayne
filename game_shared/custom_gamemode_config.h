@@ -114,6 +114,7 @@ struct ConfigFileMusic {
 	std::string musicPath;
 	bool constant;
 	bool looping;
+	bool noSlowmotionEffects;
 	float delay;
 	float initialPos;
 

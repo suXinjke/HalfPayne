@@ -110,7 +110,7 @@ void CHalfLifeRules::OnEnd( CBasePlayer *pPlayer )
 		WRITE_COORD( 0 );
 	MESSAGE_END();
 
-	pPlayer->SendPlayMusicMessage( "./half_payne/sound/music/credits.mp3" );
+	pPlayer->SendPlayMusicMessage( "./half_payne/sound/music/credits.mp3", 0.0f, 0.0f, TRUE );
 }
 
 void CHalfLifeRules::OnChangeLevel()
@@ -188,7 +188,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 			std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
 
 			if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-				pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping );
+				pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping, music.noSlowmotionEffects );
 				if ( !music.constant ) {
 					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
 				}

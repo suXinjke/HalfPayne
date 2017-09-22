@@ -447,7 +447,6 @@ public:
 		DESPERATION_OVER
 	};
 	DESPERATION_TYPE desperation;
-	bool finalDesperationMusic;
 	float untilNextDesperation;
 	void ThinkAboutFinalDesperation();
 
@@ -596,7 +595,7 @@ public:
 	float aimMaxOffsetY;
 	float aimOffsetChangeFreqency;
 
-	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE );
+	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE, BOOL noSlowmotionEffects = FALSE );
 
 	int PackGameplayMods() {
 		int bitmask = 0;
@@ -618,6 +617,7 @@ public:
 	string_t musicFile;
 	float	 musicPos;
 	BOOL	 musicLooping;
+	BOOL	 musicNoSlowmotionEffects;
 	BOOL	 musicGoingThroughChangeLevel;
 };
 
