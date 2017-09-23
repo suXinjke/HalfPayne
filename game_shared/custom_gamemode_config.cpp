@@ -839,7 +839,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			},
 			{
 				"Max horizontal wobble: " + std::to_string( aimMaxOffsetX ) + " deg\n",
-				"Max vertical wobble: " + std::to_string( aimMaxOffsetX ) + " deg\n",
+				"Max vertical wobble: " + std::to_string( aimMaxOffsetY ) + " deg\n",
 				"Wobble frequency: " + std::to_string( aimOffsetChangeFreqency ) + "\n",
 			}
 		) );
@@ -1193,7 +1193,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_NO_WALKING,
 			"No walking",
-			"Don't allow to walk, crouch, swim, dive, climb ladders.",
+			"Don't allow to walk, swim, dive, climb ladders.",
 			[]( CBasePlayer *player ) { player->noWalking = true; }
 		) );
 		return true;
