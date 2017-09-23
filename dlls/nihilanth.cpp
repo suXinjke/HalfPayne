@@ -442,11 +442,9 @@ void CNihilanth :: DyingThink( void )
 		Flight( );
 		
 		// Hook Nihilanth's death
-		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-			if ( CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
-				cgm->OnKilledEntityByPlayer( player, this, KILLED_ENTITY_NIHILANTH, false, false, false );
-			}
-		}	
+		if ( CHalfLifeRules *rules = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			rules->HookModelIndex( edict() );
+		}
 
 		if (fabs( pev->origin.z - m_flMaxZ ) < 16)
 		{

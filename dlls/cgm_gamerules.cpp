@@ -336,8 +336,6 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		pPlayer->headshotKills++;
 	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
 		pPlayer->projectileKills++;
-	} else if ( killedEntity == KILLED_ENTITY_NIHILANTH ) {
-		End( pPlayer );
 	}
 
 	HookModelIndex( victim->edict() );
