@@ -217,7 +217,7 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 			ImGui::NextColumn();
 
 			// CONFIG NAME
-			ImGui::Text( name.c_str() ); ImGui::NextColumn();
+			ImGui::Text( "%s", name.c_str() ); ImGui::NextColumn();
 
 			// CONFIG FILE INFO
 			{
