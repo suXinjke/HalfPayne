@@ -297,6 +297,12 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, musicNoSlowmotionEffects, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, musicGoingThroughChangeLevel, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, currentMusicPlaylistIndex, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayer, delayedMusicFilePath, FIELD_STRING ),
+	DEFINE_FIELD( CBasePlayer, delayedMusicStartTime, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, delayedMusicStartPos, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, delayedMusicLooping, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, delayedMusicNoSlowmotionEffects, FIELD_BOOLEAN ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -2479,6 +2485,18 @@ void CBasePlayer::UpdateStatusBar()
 	}
 }
 
+void CBasePlayer::PlayMusicDelayed( const std::string &filePath, float delay, float musicPos, BOOL looping, BOOL noSlowmotionEffects ) {
+	if ( delay <= 0.0f ) {
+		SendPlayMusicMessage( filePath, musicPos, looping, noSlowmotionEffects );
+	} else {
+		delayedMusicFilePath = ALLOC_STRING( filePath.c_str() ); // memory leak
+		delayedMusicStartTime = gpGlobals->time + delay;
+		delayedMusicStartPos = musicPos;
+		delayedMusicLooping = looping;
+		delayedMusicNoSlowmotionEffects = noSlowmotionEffects;
+	}
+}
+
 void CBasePlayer::SendPlayMusicMessage( const std::string &filePath, float musicPos, BOOL looping, BOOL noSlowmotionEffects )
 {
 	if ( !gmsgBassPlay ) {
@@ -3414,6 +3432,11 @@ void CBasePlayer::PostThink()
 
 	CheckSoundQueue();
 
+	if ( delayedMusicStartTime && gpGlobals->time >= delayedMusicStartTime ) {
+		SendPlayMusicMessage( STRING( delayedMusicFilePath ), delayedMusicStartPos, delayedMusicLooping, delayedMusicNoSlowmotionEffects );
+		delayedMusicStartTime = 0.0f;
+	}
+
 	shouldProducePhysicalBullets = ( bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ) ||
 								   ( slowMotionEnabled && bulletPhysicsMode == BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION );
 
@@ -4002,6 +4025,12 @@ void CBasePlayer::Spawn( void )
 	musicLooping = 0;
 	musicNoSlowmotionEffects = 0;
 	musicGoingThroughChangeLevel = FALSE;
+
+	delayedMusicFilePath = NULL;
+	delayedMusicStartTime = 0.0f;
+	delayedMusicStartPos = 0.0f;
+	delayedMusicLooping = false;
+	delayedMusicNoSlowmotionEffects = false;
 
 	frictionOverride = -1.0f;
 

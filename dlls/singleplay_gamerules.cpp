@@ -188,7 +188,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 			std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
 
 			if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-				pPlayer->SendPlayMusicMessage( music.musicPath, music.initialPos, music.looping, music.noSlowmotionEffects );
+				pPlayer->PlayMusicDelayed( music.musicPath, music.delay, music.initialPos, music.looping, music.noSlowmotionEffects );
 				if ( !music.constant ) {
 					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
 				}

@@ -595,6 +595,12 @@ public:
 	float aimMaxOffsetY;
 	float aimOffsetChangeFreqency;
 
+	string_t delayedMusicFilePath;
+	float delayedMusicStartTime;
+	float delayedMusicStartPos;
+	BOOL delayedMusicLooping;
+	BOOL delayedMusicNoSlowmotionEffects;
+	void PlayMusicDelayed( const std::string &filePath, float delay, float musicPos = 0.0f, BOOL looping = FALSE, BOOL noSlowmotionEffects = FALSE );
 	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE, BOOL noSlowmotionEffects = FALSE );
 
 	int PackGameplayMods() {
