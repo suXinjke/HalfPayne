@@ -211,7 +211,7 @@ void CustomGameModeConfig::InitConfigSections() {
 	configSections[CONFIG_FILE_SECTION_PLAYLIST] = ConfigSection(
 		"playlist", false,
 		[this]( ConfigSectionData &data ) {
-			for ( auto line : data.argsString ) {
+			for ( const auto &line : data.argsString ) {
 				if ( line == "shuffle" ) {
 					musicPlaylistShuffle = true;
 					continue;
@@ -269,7 +269,7 @@ void CustomGameModeConfig::InitConfigSections() {
 	configSections[CONFIG_FILE_SECTION_INTERMISSION] = ConfigSection(
 		"intermission", false,
 		[this]( ConfigSectionData &data ) {
-			for ( auto line : data.argsString ) {
+			for ( const auto &line : data.argsString ) {
 				if ( data.argsString.size() < 3 ) {
 					return std::string( "<map_name> <model_index | target_name | next_map_name> <real_next_map_name> [x] [y] [z] [angle] [stripped] not specified" );
 				}
@@ -290,7 +290,7 @@ void CustomGameModeConfig::InitConfigSections() {
 	configSections[CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER] = ConfigSection(
 		"entity_random_spawner", false,
 		[this]( ConfigSectionData &data ) {
-			for ( auto line : data.argsString ) {
+			for ( const auto &line : data.argsString ) {
 				if ( data.argsString.size() < 2 ) {
 					return std::string( "<map_name | everywhere> <entity_name> [max_amount] [spawn_period]" );
 				}
@@ -414,7 +414,7 @@ std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames() {
 
 std::vector<std::string> CustomGameModeConfig::GetAllFileNames( const char *path, const std::vector<std::string> &extensions, bool includeExtension ) {
 	std::vector<std::string> result;
-	for ( auto extension : extensions ) {
+	for ( const auto &extension : extensions ) {
 		auto extensionVector = GetAllFileNames( path, extension.c_str(), includeExtension );
 		result.insert( result.end(), extensionVector.begin(), extensionVector.end() );
 	}
@@ -1510,7 +1510,7 @@ const std::string CustomGameModeConfig::GetName() {
 const std::string CustomGameModeConfig::GetDescription() {
 	std::string result = "";
 	ConfigSection section = configSections[CONFIG_FILE_SECTION_DESCRIPTION];
-	for ( auto line : section.data ) {
+	for ( const auto &line : section.data ) {
 		result += line.line + "\n";
 	}
 
@@ -1548,7 +1548,7 @@ const Intermission CustomGameModeConfig::GetIntermission( const std::string &map
 		return { false, "", NAN, NAN, NAN, NAN, false };
 	}
 
-	for ( auto data : section.data ) {
+	for ( const auto &data : section.data ) {
 		std::string storedMapName = data.argsString.at( 0 );
 		int storedModelIndex = std::isnan( data.argsFloat.at( 1 ) ) ? -2 : data.argsFloat.at( 1 );
 		std::string storedTargetName = data.argsString.at( 1 );
@@ -1577,7 +1577,7 @@ const Intermission CustomGameModeConfig::GetIntermission( const std::string &map
 
 const std::vector<std::string> CustomGameModeConfig::GetLoadout() {
 	std::vector<std::string> loadout;
-	for ( auto data : configSections[CONFIG_FILE_SECTION_LOADOUT].data ) {
+	for ( const auto &data : configSections[CONFIG_FILE_SECTION_LOADOUT].data ) {
 		int itemCount = 1;
 
 		if ( data.argsFloat.size() >= 2 ) {
@@ -1594,7 +1594,7 @@ const std::vector<std::string> CustomGameModeConfig::GetLoadout() {
 
 const std::vector<EntityRandomSpawner> CustomGameModeConfig::GetEntityRandomSpawners() {
 	std::vector<EntityRandomSpawner> result;
-	for ( auto line : configSections[CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER].data ) {
+	for ( const auto &line : configSections[CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER].data ) {
 		const std::string mapName = line.argsString.at( 0 );
 		const std::string entityName = line.argsString.at( 1 );
 		const int maxAmount = line.argsFloat.size() >= 3 ? line.argsFloat.at( 2 ) : 50;
@@ -1769,7 +1769,7 @@ const std::vector<ConfigFileMusic> CustomGameModeConfig::MarkModelIndexesWithMus
 }
 
 bool CustomGameModeConfig::IsChangeLevelPrevented( const std::string &nextMap ) {
-	for ( auto data : configSections[CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT].data ) {
+	for ( const auto &data : configSections[CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT].data ) {
 		if ( data.line == nextMap ) {
 			return true;
 		}

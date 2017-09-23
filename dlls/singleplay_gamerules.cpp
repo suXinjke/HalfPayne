@@ -66,7 +66,7 @@ bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
 		std::string mapName = STRING( gpGlobals->mapname );
 
 		bool willBePrevented = false;
-		for ( auto config : configs ) {
+		for ( const auto &config : configs ) {
 			willBePrevented = willBePrevented ||
 				config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_PREVENT, mapName, modelIndex, targetName ) ||
 				config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_PREVENT, mapName, modelIndex, className );
@@ -157,11 +157,11 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName 
 
 void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
-	for ( auto config : configs ) {
+	for ( const auto &config : configs ) {
 		CONFIG_FILE_SECTION sections[2] = { CONFIG_FILE_SECTION_SOUND, CONFIG_FILE_SECTION_MAX_COMMENTARY };
-		for ( auto section : sections ) {
+		for ( const auto &section : sections ) {
 			auto sounds = config->MarkModelIndexesWithSound( section, STRING( gpGlobals->mapname ), modelIndex, targetName );
-			for ( auto sound : sounds ) {
+			for ( const auto &sound : sounds ) {
 				if ( !sound.valid ) {
 					continue;
 				}
@@ -183,7 +183,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 		}
 
 		auto musicPieces = config->MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
-		for ( auto music : musicPieces ) {
+		for ( const auto &music : musicPieces ) {
 
 			std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
 
@@ -198,7 +198,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 }
 void CHalfLifeRules::Precache()
 {
-	for ( auto config : configs ) {
+	for ( const auto &config : configs ) {
 		// I'm very sorry for this memory leak for now
 		for ( std::string sound : config->soundsToPrecache ) {
 			PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
@@ -334,7 +334,7 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 	}
 
 	if ( !entitiesUsed ) {
-		for ( auto config : configs ) {
+		for ( const auto &config : configs ) {
 			if ( config->configSections[CONFIG_FILE_SECTION_ENTITY_USE].data.size() > 0 ) {
 				for ( int i = 0 ; i < 1024 ; i++ ) {
 					edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );

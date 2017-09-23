@@ -22,7 +22,7 @@ void GameModeGUI_Init() {
 
 int GetAmountOfCompletedConfigs( const std::vector< CustomGameModeConfig > &configs ) {
 	int result = 0;
-	for ( auto config : configs ) {
+	for ( const auto &config : configs ) {
 		if ( config.gameFinishedOnce ) {
 			result++;
 		}
@@ -48,7 +48,7 @@ void GameModeGUI_RefreshConfigFileList( CONFIG_TYPE configType ) {
 	CustomGameModeConfig dumbConfig = CustomGameModeConfig( configType );
 	std::vector<std::string> files = dumbConfig.GetAllConfigFileNames();
 
-	for ( auto file : files ) {
+	for ( const auto &file : files ) {
 		CustomGameModeConfig config( configType );
 		config.ReadFile( file.c_str() );
 
@@ -251,7 +251,7 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 						for ( const GameplayMod &mod : config.mods ) {
 							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
 							ImGui::Text( mod.description.c_str() );
-							for ( auto argDescription : mod.argDescriptions ) {
+							for ( const auto &argDescription : mod.argDescriptions ) {
 								ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
 								ImGui::Text( argDescription.c_str() );
 							}

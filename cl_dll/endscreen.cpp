@@ -64,7 +64,7 @@ int CHudEndScreen::Draw( float flTime )
 	gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, 0, 0, 0, 255 );
 
 	// Title Messages
-	for ( auto titleLine : titleLines ) {
+	for ( const auto &titleLine : titleLines ) {
 		gHUD.DrawHudStringKeepCenter( x, y, 200, titleLine.c_str(), r, g, b );
 		y += gHUD.m_scrinfo.iCharHeight - 2;
 	}
@@ -93,7 +93,7 @@ int CHudEndScreen::Draw( float flTime )
 
 	// Statistics
 	x = ScreenWidth / 2;
-	for ( auto statLine : statLines ) {
+	for ( const auto &statLine : statLines ) {
 		gHUD.DrawHudString( x - 140, y, 160, statLine.key.c_str(), r, g, b );
 		gHUD.DrawHudStringKeepRight( x + 140, y, 160, statLine.value.c_str(), r, g, b );
 		y += gHUD.m_scrinfo.iCharHeight - 2;
@@ -117,7 +117,7 @@ int CHudEndScreen::MsgFunc_EndActiv( const char *pszName, int iSize, void *pbuf 
 	cheated = READ_BYTE();
 	m_iFlags |= HUD_ACTIVE;
 
-	for ( auto &animationLine : animationLines ) {
+	for ( const auto &animationLine : animationLines ) {
 		animationLine.value->StartRunning();
 		animationLine.recordValue->StartRunning();
 	}

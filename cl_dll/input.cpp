@@ -1077,7 +1077,7 @@ void ShowGameModeConfigs( CONFIG_TYPE configType ) {
 	CustomGameModeConfig config( configType );
 	std::vector<std::string> files = config.GetAllConfigFileNames();
 	gEngfuncs.Con_Printf( "Command | Start map | Config name\n" );
-	for ( auto file : files ) {
+	for ( const auto &file : files ) {
 		if ( !config.ReadFile( file.c_str() ) ) {
 			continue;
 		};

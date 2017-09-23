@@ -490,7 +490,7 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
 {
 	auto entitySpawns = config.GetEntitySpawnsForMapOnce( std::string( mapName ) );
-	for ( auto entitySpawn : entitySpawns ) {
+	for ( const auto &entitySpawn : entitySpawns ) {
 		CBaseEntity *entity = CBaseEntity::Create(
 			allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entityName.c_str() )],
 			Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),

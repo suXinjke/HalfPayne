@@ -188,7 +188,7 @@ void Subtitles_Draw() {
 	ImGui::SetNextWindowSize( ImVec2( FrameWidth + 14, FrameHeight + 18 ) );
 
 	ImGui::Begin( "Subtitles", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
-	for ( auto pair : subtitlesToDraw ) {
+	for ( const auto &pair : subtitlesToDraw ) {
 		auto subtitle = pair.second;
 		if ( time < subtitle.delay ) {
 			continue;
