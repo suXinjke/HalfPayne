@@ -92,8 +92,12 @@ int CSqueakGrenade :: Classify ( void )
 
 int CSqueakGrenade::IRelationship( CBaseEntity *pTarget ) {
 	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		if ( pPlayer->snarkFriendlyToPlayer && FStrEq( "player", STRING( pTarget->pev->classname ) ) ) {
-			return R_AL;
+		if ( pPlayer->snarkFriendlyToPlayer ) {
+			if ( FStrEq( "player", STRING( pTarget->pev->classname ) ) ) {
+				return R_AL;
+			} else if ( FStrEq( "monster_bullchicken", STRING( pTarget->pev->classname ) ) ) {
+				return R_DL;
+			}
 		}
 
 		if ( pPlayer->snarkFriendlyToAllies &&
