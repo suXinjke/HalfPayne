@@ -482,6 +482,8 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
 
 	int lineCount = 0;
+	int sectionDataLines = -1;
+	std::string lastSection;
 
 	std::ifstream inp( filePath );
 	if ( !inp.is_open( ) ) {
@@ -517,19 +519,39 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 				char errorCString[1024];
 				sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: unknown section [%s]\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName, lineCount, sectionName.str( 1 ).c_str() );
 				OnError( std::string( errorCString ) );
+				break;
+
+			} else {
+				if ( sectionDataLines == 0 ) {
+					char errorCString[1024];
+					sprintf_s( errorCString, "Error parsing %s\\%s.txt, line %d: tried to parse new section [%s], but section [%s] has no data defined\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName, lineCount, sectionName.str( 1 ).c_str(), lastSection.c_str() );
+					OnError( std::string( errorCString ) );
+					break;
+				}
+				sectionDataLines = 0;
+				lastSection = sectionName.str( 1 );
 			};
 		} else {
 			std::string error = configSections[currentFileSection].OnSectionData( configName, line, lineCount, configType );
+			sectionDataLines++;
 			if ( error.size() > 0 ) {
 				OnError( error );
-				return false;
+				break;
 			}
 		}
 
-		if ( error.size() > 0 ) {
-			inp.close();
-			return false;
-		}
+	}
+
+	const std::string startMap = GetStartMap();
+	if ( startMap.size() == 0 ) {
+		char errorCString[1024];
+		sprintf_s( errorCString, "Error parsing %s\\%s.txt: [start_map] section must be defined\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName );
+		OnError( std::string( errorCString ) );
+	}
+
+	if ( error.size() > 0 ) {
+		inp.close();
+		return false;
 	}
 
 	sha1 = GetHash();
@@ -538,7 +560,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	const std::string recordFileName = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configName +  + "_" + sha1 + ".hpr";
 	gameFinishedOnce = record.Read( recordDirectoryPath, recordFileName );
 
-	inp.close(); // TODO: find out if it's called automatically
+	inp.close();
 
 	return true;
 }
@@ -1477,7 +1499,7 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 		}
 	}
 
-	return true;
+	return false;
 }
 
 const std::string CustomGameModeConfig::GetName() {
