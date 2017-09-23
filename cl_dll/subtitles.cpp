@@ -125,7 +125,7 @@ bool Subtitle_IsFarAwayFromPlayer( const SubtitleOutput &subtitle ) {
 	Vector playerOrigin = gEngfuncs.GetLocalPlayer()->origin;
 	float distance = ( subtitle.pos - playerOrigin ).Length();
 
-	return distance >= 512;
+	return distance >= 768;
 }
 
 void Subtitles_Draw() {
