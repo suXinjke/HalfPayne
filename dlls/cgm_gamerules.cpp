@@ -858,6 +858,11 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 			continue;
 		}
 
+		// Player should not be out of bounds
+		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, pPlayer->pev->origin, randomPoint - gpGlobals->v_up * 8192 ) );
+		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, pPlayer->pev->origin, randomPoint + gpGlobals->v_up * 8192 ) );
+		bool playerIsOutOfBounds = FStrEq( bottomTexture, "(null)" ) || FStrEq( upperTexture, "(null)" );
+
 		// Drop randomPoint on the floor
 		UTIL_TraceLine( randomPoint, randomPoint - gpGlobals->v_up * 8192, dont_ignore_monsters, ignore_glass, pPlayer->edict(), &tr );
 		if ( tr.fAllSolid ) {
@@ -875,7 +880,7 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 
 		// Prefer not to spawn near player
 		UTIL_TraceLine( pPlayer->pev->origin, randomPoint, dont_ignore_monsters, dont_ignore_glass, pPlayer->edict(), &tr );
-		if ( tr.flFraction >= 1.0f ) {
+		if ( tr.flFraction >= 1.0f && !playerIsOutOfBounds ) {
 			continue;
 		}
 
