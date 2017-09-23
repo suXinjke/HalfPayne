@@ -194,7 +194,7 @@ void CustomGameModeConfig::InitConfigSections() {
 	);
 
 	configSections[CONFIG_FILE_SECTION_ENTITY_PREVENT] = ConfigSection(
-		"sound_prevent", false,
+		"entity_prevent", false,
 		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
 	);
 
