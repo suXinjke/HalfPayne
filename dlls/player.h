@@ -434,6 +434,7 @@ public:
 	int crystalsDestroyed;
 
 	BOOL showCredits;
+	BOOL loadoutReceived;
 
 	enum DESPERATION_TYPE {
 		DESPERATION_NO,

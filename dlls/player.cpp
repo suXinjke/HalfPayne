@@ -172,6 +172,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowmotionOnlyDiving, FIELD_BOOLEAN ),
 
+	DEFINE_FIELD( CBasePlayer, loadoutReceived, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noFallDamage, FIELD_BOOLEAN ),
@@ -3821,6 +3823,8 @@ void CBasePlayer::Spawn( void )
 	noSaving = false;
 
 	gameTitleShown = false;
+
+	loadoutReceived = false;
 
 	weaponPushBack = false;
 	weaponPushBackMultiplier = 1.0f;

@@ -145,6 +145,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
+	pPlayer->loadoutReceived = true;
 
 	if ( !config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ) {
 		pPlayer->TakeSlowmotionCharge( 100 );
@@ -208,7 +209,7 @@ BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerI
 		return CHalfLifeRules::CanHavePlayerItem( pPlayer, pWeapon );
 	}
 
-	if ( !pPlayer->HasWeapons() ) {
+	if ( !pPlayer->HasWeapons() || !pPlayer->loadoutReceived ) {
 		return CHalfLifeRules::CanHavePlayerItem( pPlayer, pWeapon );
 	}
 
