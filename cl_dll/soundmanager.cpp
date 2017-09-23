@@ -115,6 +115,8 @@ void SM_Play( const char *soundPath, bool looping ) {
 		return;
 	}
 
+	BASS_ChannelSetAttribute( stream, BASS_ATTRIB_VOL, MP3Volume->value );
+
 	if ( !BASS_ChannelPlay( stream, false ) ) {
 		SM_CheckError();
 		return;
