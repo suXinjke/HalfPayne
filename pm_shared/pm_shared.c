@@ -1055,9 +1055,6 @@ Only used by players.  Moves along the ground when player is a MOVETYPE_WALK.
 */
 void PM_WalkMove ()
 {
-	if ( g_noWalking ) {
-		return;
-	}
 
 	int			clip;
 	int			oldonground;
@@ -2054,10 +2051,6 @@ void PM_UnDuck( void )
 
 void PM_Duck( void )
 {
-	if ( g_noWalking ) {
-		return;
-	}
-
 	int i;
 	float time;
 	float duckFraction;
@@ -3633,6 +3626,13 @@ and client.  This will ensure that prediction behaves appropriately.
 void PM_Move ( struct playermove_s *ppmove, int server )
 {
 	assert( pm_shared_initialized );
+
+	if ( g_noWalking ) {
+		pmove->cmd.buttons &= ~( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT );
+		pmove->cmd.forwardmove = 0.0f;
+		pmove->cmd.sidemove = 0.0f;
+		pmove->cmd.upmove = 0.0f;
+	}
 
 	pmove = ppmove;
 	
