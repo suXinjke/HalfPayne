@@ -11,6 +11,7 @@ void GameModeGUI_Init();
 void GameModeGUI_DrawMainWindow();
 void GameModeGUI_RefreshConfigFileList( CONFIG_TYPE configType );
 void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType );
+void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config );
 std::vector<CustomGameModeConfig> *GameModeGUI_GameModeConfigVectorFromType( CONFIG_TYPE configType );
 void GameModeGUI_RunCustomGameMode( const CustomGameModeConfig &config );
 void GameModeGUI_SelectableButton( bool isSelected );

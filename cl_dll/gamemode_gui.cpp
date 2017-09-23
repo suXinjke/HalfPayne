@@ -180,8 +180,6 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 
 			const char *file = config.configName.c_str();
 			const std::string name = config.GetName();
-			const std::string description = config.GetDescription();
-			const std::string startMap = config.GetStartMap();
 			
 			// COMPLETED?
 			ImGui::TextColored( ImVec4( 1.0, 1.0, 1.0, config.gameFinishedOnce ? 1.0 : 0.0 ), "%s", ICON_FA_CHECK );
@@ -227,39 +225,22 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 				if ( ImGui::IsItemHovered() ) {
 					ImGui::BeginTooltip();
 
-					if ( config.error.length() > 0 ) {
-						ImGui::PushTextWrapPos(300.0f);
-						ImGui::Text( config.error.c_str() );
-						ImGui::PopTextWrapPos();
-					} else {
-						ImGui::Text( "Start map\n" );
-						ImGui::Text( startMap.c_str() );
-
-						if ( description.size() > 0 ) {
-							ImGui::Text( "\nDescription\n" );
-							ImGui::Text( description.c_str() );
-						}
-
-						if ( config.configType == CONFIG_TYPE_BMM ) {
-							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
-							ImGui::Text( "Time-based game mode - rush against a minute, kill enemies to get more time.\n" );
-						} else if ( config.configType == CONFIG_TYPE_SAGM ) {
-							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nScore Attack\n" );
-							ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
-						}
-
-						for ( const GameplayMod &mod : config.mods ) {
-							ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
-							ImGui::Text( mod.description.c_str() );
-							for ( const auto &argDescription : mod.argDescriptions ) {
-								ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
-								ImGui::Text( argDescription.c_str() );
-							}
-						}
-
-					}
+					GameModeGUI_DrawConfigFileInfo( config );
 
 					ImGui::EndTooltip();
+				}
+
+				const std::string modalKey = name.length() > 0 ? name : std::string( file ) + std::to_string( i );
+				if ( ImGui::IsItemClicked() ) {
+					ImGui::OpenPopup( modalKey.c_str() );
+				}
+				if ( ImGui::BeginPopupModal( modalKey.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize ) ) {
+					GameModeGUI_DrawConfigFileInfo( config );
+
+					if ( ImGui::Button( "Close", ImVec2( -1, 0 ) ) ) {
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
 				}
 			}
 
@@ -283,6 +264,43 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 			ImGui::NextColumn();
 
 		}
+	}
+}
+
+void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
+	const std::string description = config.GetDescription();
+	const std::string startMap = config.GetStartMap();
+	
+	if ( config.error.length() > 0 ) {
+		ImGui::PushTextWrapPos(300.0f);
+		ImGui::Text( config.error.c_str() );
+		ImGui::PopTextWrapPos();
+	} else {
+		ImGui::Text( "Start map\n" );
+		ImGui::Text( startMap.c_str() );
+
+		if ( description.size() > 0 ) {
+			ImGui::Text( "\nDescription\n" );
+			ImGui::Text( description.c_str() );
+		}
+
+		if ( config.configType == CONFIG_TYPE_BMM ) {
+			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
+			ImGui::Text( "Time-based game mode - rush against a minute, kill enemies to get more time.\n" );
+		} else if ( config.configType == CONFIG_TYPE_SAGM ) {
+			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nScore Attack\n" );
+			ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
+		}
+
+		for ( const GameplayMod &mod : config.mods ) {
+			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
+			ImGui::Text( mod.description.c_str() );
+			for ( const auto &argDescription : mod.argDescriptions ) {
+				ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
+				ImGui::Text( argDescription.c_str() );
+			}
+		}
+
 	}
 }
 
