@@ -102,6 +102,14 @@ void HL_ImGUI_Init() {
 	Subtitles_Init();
 }
 
+void HL_ImGUI_Deinit() {
+	if ( !window ) {
+		return;
+	}
+
+	SDL_DelEventWatch( HL_ImGUI_ProcessEvent, NULL );
+}
+
 void HL_ImGUI_Draw() {
 
 	ImGui_ImplSdl_NewFrame( window );

@@ -401,6 +401,9 @@ void CL_DLLEXPORT HUD_DirectorMessage( int iSize, void *pbuf )
 
 void CL_UnloadParticleMan( void )
 {
+	// Not doing this will result in post-quit crash, and I didn't find an alternative to GameQuit event
+	HL_ImGUI_Deinit();
+
 	Sys_UnloadModule( g_hParticleManModule );
 
 	g_pParticleMan = NULL;
