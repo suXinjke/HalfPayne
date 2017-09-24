@@ -211,26 +211,26 @@ void CustomGameModeConfig::InitConfigSections() {
 	configSections[CONFIG_FILE_SECTION_PLAYLIST] = ConfigSection(
 		"playlist", false,
 		[this]( ConfigSectionData &data ) {
-			for ( const auto &line : data.argsString ) {
-				if ( line == "shuffle" ) {
-					musicPlaylistShuffle = true;
-					continue;
-				}
+			const std::string &line = data.line;
 
-				WIN32_FIND_DATA fdFile;
-				HANDLE hFind = NULL;
+			if ( line == "shuffle" ) {
+				musicPlaylistShuffle = true;
+				return "";
+			}
 
-				if ( ( hFind = FindFirstFile( line.c_str(), &fdFile ) ) == INVALID_HANDLE_VALUE ) {
-					continue;
-				}
+			WIN32_FIND_DATA fdFile;
+			HANDLE hFind = NULL;
 
-				if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
-					if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-						auto vec = GetAllFileNames( data.argsString.at( 0 ).c_str(), { ".wav", ".ogg", ".mp3" }, true );
-						musicPlaylist.insert( musicPlaylist.end(), vec.begin(), vec.end() );
-					} else {
-						musicPlaylist.push_back( line );
-					}
+			if ( ( hFind = FindFirstFile( line.c_str(), &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+				return "";
+			}
+
+			if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
+				if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
+					auto vec = GetAllFileNames( line.c_str(), { ".wav", ".ogg", ".mp3" }, true );
+					musicPlaylist.insert( musicPlaylist.end(), vec.begin(), vec.end() );
+				} else {
+					musicPlaylist.push_back( line );
 				}
 			}
 
