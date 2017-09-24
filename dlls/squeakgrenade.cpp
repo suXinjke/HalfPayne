@@ -95,7 +95,11 @@ int CSqueakGrenade::IRelationship( CBaseEntity *pTarget ) {
 		if ( pPlayer->snarkFriendlyToPlayer ) {
 			if ( FStrEq( "player", STRING( pTarget->pev->classname ) ) ) {
 				return R_AL;
-			} else if ( FStrEq( "monster_bullchicken", STRING( pTarget->pev->classname ) ) ) {
+			} else if (
+				FStrEq( "monster_bullchicken", STRING( pTarget->pev->classname ) ) ||
+				FStrEq( "monster_alien_grunt", STRING( pTarget->pev->classname ) ) ||
+				FStrEq( "monster_alien_slave", STRING( pTarget->pev->classname ) )
+			) {
 				return R_DL;
 			}
 		}
