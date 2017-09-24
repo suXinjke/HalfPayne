@@ -1644,7 +1644,6 @@ void V_CalcSpectatorRefdef ( struct ref_params_s * pparams )
 }
 
 int isPaused = true;
-float isPausedLastUpdate = 0.0f;
 
 void CL_DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 {
@@ -1665,7 +1664,6 @@ void CL_DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 	}
 
 	isPaused = pparams->paused;
-	isPausedLastUpdate = gEngfuncs.GetAbsoluteTime();
 
 /*
 // Example of how to overlay the whole screen with red at 50 % alpha
