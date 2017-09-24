@@ -486,7 +486,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	std::string lastSection;
 
 	std::ifstream inp( filePath );
-	if ( !inp.is_open( ) ) {
+	if ( !inp.is_open( ) && configType != CONFIG_TYPE_MAP ) {
 		char errorCString[1024];
 		sprintf_s( errorCString, "Config file %s\\%s.txt doesn't exist\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName );
 		OnError( std::string( errorCString ) );
@@ -543,7 +543,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	}
 
 	const std::string startMap = GetStartMap();
-	if ( startMap.size() == 0 ) {
+	if ( startMap.size() == 0 && configType != CONFIG_TYPE_MAP ) {
 		char errorCString[1024];
 		sprintf_s( errorCString, "Error parsing %s\\%s.txt: [start_map] section must be defined\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName );
 		OnError( std::string( errorCString ) );
