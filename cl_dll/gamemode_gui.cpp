@@ -105,7 +105,7 @@ void GameModeGUI_DrawMainWindow() {
 	SDL_GetWindowSize( window, &RENDERED_WIDTH, NULL );
 	ImGui::SetNextWindowPos( ImVec2( RENDERED_WIDTH - GAME_MODE_WINDOW_WIDTH, 0 ), ImGuiSetCond_FirstUseEver );
 	ImGui::SetNextWindowSize( ImVec2( GAME_MODE_WINDOW_WIDTH, GAME_MODE_WINDOW_HEIGHT ), ImGuiSetCond_FirstUseEver );
-	ImGui::Begin( "Custom game modes", &showGameModeWindow, ImGuiWindowFlags_NoTitleBar );
+	ImGui::Begin( "Custom Game Modes", &showGameModeWindow );
 
 	
 	{

@@ -89,6 +89,8 @@ void HL_ImGUI_Init() {
 	style->Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.70f, 0.70f, 0.70f, 0.00f);
 	style->Colors[ImGuiCol_PlotHistogram]         = ImVec4(1.00f, 1.00f, 1.00f, 0.35f);
 
+	style->WindowPadding = ImVec2( 8.0f, 4.0f );
+
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16 );
 	ImFontConfig config;
