@@ -344,13 +344,14 @@ Called by engine every frame that client .dll is loaded
 
 bool inMainMenu = true;
 bool lastInMainMenu = false;
+extern float isPausedLastUpdate;
 void CL_DLLEXPORT HUD_Frame( double time )
 {
 //	RecClHudFrame(time);
 	ServersThink( time );
 
 	GetClientVoiceMgr()->Frame(time);
-	inMainMenu = ( ( unsigned int ) gEngfuncs.GetLocalPlayer() ) <= 4098;
+	inMainMenu = ( ( unsigned int ) gEngfuncs.GetLocalPlayer() ) <= 4098 && gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 2.0f;
 	if ( inMainMenu != lastInMainMenu ) {
 		if ( inMainMenu ) { // IF DISCONNECT
 			SM_Stop();
