@@ -215,12 +215,7 @@ void CRpgRocket :: FollowThink( void  )
 
 	UTIL_MakeAimVectors( pev->angles );
 
-	Vector forward = gpGlobals->v_forward;
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		forward = pPlayer->GetAimForwardWithOffset();
-	}
-
-	vecTarget = forward;
+	vecTarget = gpGlobals->v_forward;
 	flMax = 4096;
 	
 	// Examine all entities within a reasonable radius
@@ -230,6 +225,11 @@ void CRpgRocket :: FollowThink( void  )
 		// ALERT( at_console, "%f\n", tr.flFraction );
 		if (tr.flFraction >= 0.90)
 		{
+			Vector forward = gpGlobals->v_forward;
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				forward = pPlayer->GetAimForwardWithOffset();
+			}
+
 			vecDir = pOther->pev->origin - pev->origin;
 			flDist = vecDir.Length( );
 			vecDir = vecDir.Normalize( );
