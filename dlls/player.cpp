@@ -637,7 +637,9 @@ void CBasePlayer::UsePainkiller()
 		return;
 	}
 
-	if ( TakeHealth( slowPainkillers ? 0 : 20, DMG_GENERIC ) && ( pev->health + painkillerEnergy ) < pev->max_health || ( isFadingOut && fade <= 180 ) ) {
+	if ( ( pev->health + painkillerEnergy ) < pev->max_health || ( isFadingOut && fade <= 180 ) ) {
+		TakeHealth( slowPainkillers ? 0 : 20, DMG_GENERIC );
+
 		painkillerCount--;
 		lastHealingTime = gpGlobals->time + bleedImmunityPeriod;
 		if ( slowPainkillers ) {
