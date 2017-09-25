@@ -117,7 +117,6 @@ void GameModeGUI_DrawMainWindow() {
 		ImGui::SameLine();
 
 		// REFRESH BUTTON
-		//ImGui::Columns( 1, "gamemode_refresh_button_column" );
 		if ( ImGui::Button( "Refresh", ImVec2( -1, 0 ) ) ) {
 			GameModeGUI_RefreshConfigFiles();
 		}
@@ -125,7 +124,7 @@ void GameModeGUI_DrawMainWindow() {
 
 	// TABLES
 	{
-		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, -1 ) );
+		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, -20 ) );
 		if ( ImGui::CollapsingHeader( "Custom Game Modes" ) ) {
 			GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE_CGM );
 			ImGui::Columns( 1 );
@@ -143,6 +142,10 @@ void GameModeGUI_DrawMainWindow() {
 
 		ImGui::EndChild();
 	}
+
+	const char *launchHint = "Check out half_payne/README_GAME_MODES.txt for customization\n";
+	ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - ImGui::CalcTextSize( launchHint ).x / 2.0f );
+	ImGui::Text( launchHint );
 
 	ImGui::End();
 }
@@ -276,7 +279,13 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 		ImGui::Text( config.error.c_str() );
 		ImGui::PopTextWrapPos();
 	} else {
-		ImGui::Text( "Start map\n" );
+		ImGui::Text( "Start map                   " );
+		ImGui::SameLine();
+
+		const std::string sha1 = config.sha1.substr( 0, 7 );
+		ImGui::SetCursorPosX( ImGui::GetWindowWidth() - ImGui::CalcTextSize( sha1.c_str() ).x - 12 );
+		ImGui::Text( sha1.c_str() );
+
 		ImGui::Text( startMap.c_str() );
 
 		if ( description.size() > 0 ) {
