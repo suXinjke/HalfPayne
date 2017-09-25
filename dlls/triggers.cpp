@@ -28,6 +28,7 @@
 #include "trains.h"			// trigger_camera has train functionality
 #include "gamerules.h"
 #include "cgm_gamerules.h"
+#include <algorithm>
 
 #define	SF_TRIGGER_PUSH_START_OFF	2//spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE	1// Only fire hurt target once
@@ -723,6 +724,39 @@ public:
 
 LINK_ENTITY_TO_CLASS( trigger_cdaudio, CTriggerCDAudio );
 
+bool cdTrackMapInitialised = false;
+std::vector<std::string> cdTrackMap {
+	"",
+	"",
+	"media\\Half-Life01.mp3",
+	"media\\Prospero01.mp3",
+	"media\\Half-Life12.mp3",
+	"media\\Half-Life07.mp3",
+	"media\\Half-Life10.mp3",
+	"media\\Suspense01.mp3",
+	"media\\Suspense03.mp3",
+	"media\\Half-Life09.mp3",
+	"media\\Half-Life02.mp3",
+	"media\\Half-Life13.mp3",
+	"media\\Half-Life04.mp3",
+	"media\\Half-Life15.mp3",
+	"media\\Half-Life14.mp3",
+	"media\\Half-Life16.mp3",
+	"media\\Suspense02.mp3",
+	"media\\Half-Life03.mp3",
+	"media\\Half-Life08.mp3",
+	"media\\Prospero02.mp3",
+	"media\\Half-Life05.mp3",
+	"media\\Prospero04.mp3",
+	"media\\Half-Life11.mp3",
+	"media\\Half-Life06.mp3", 
+	"media\\Prospero03.mp3",
+	"media\\Half-Life17.mp3",
+	"media\\Prospero05.mp3",
+	"media\\Suspense05.mp3",
+	"media\\Suspense07.mp3"
+};
+
 //
 // Changes tracks or stops CD when player touches
 //
@@ -739,6 +773,27 @@ void CTriggerCDAudio :: Touch ( CBaseEntity *pOther )
 
 void CTriggerCDAudio :: Spawn( void )
 {
+	if ( !cdTrackMapInitialised ) {
+		std::transform( cdTrackMap.begin(), cdTrackMap.end(), cdTrackMap.begin(), []( const std::string &track ) {
+			if ( track.size() == 0 ) {
+				return track;
+			} else {
+				std::vector<std::string> mod_directories = { "half_payne", "valve" };
+				for ( auto mod_directory : mod_directories ) {
+					const std::string potentialPath = mod_directory + "\\" + track;
+					HANDLE hFind = NULL;
+					WIN32_FIND_DATA fdFile;
+					if ( ( hFind = FindFirstFile( potentialPath.c_str(), &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+						continue;
+					} else {
+						return potentialPath;
+					}
+				}
+				return track;
+			}
+		} );
+		cdTrackMapInitialised = true;
+	}
 	InitTrigger();
 }
 
@@ -749,37 +804,6 @@ void CTriggerCDAudio::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 
 extern int gmsgBassPlay;
 extern int gmsgBassStop;
-std::vector<std::string> cdTrackMap {
-	"",
-	"",
-	"valve\\media\\Half-Life01.mp3",
-	"valve\\media\\Prospero01.mp3",
-	"valve\\media\\Half-Life12.mp3",
-	"valve\\media\\Half-Life07.mp3",
-	"valve\\media\\Half-Life10.mp3",
-	"valve\\media\\Suspense01.mp3",
-	"valve\\media\\Suspense03.mp3",
-	"valve\\media\\Half-Life09.mp3",
-	"valve\\media\\Half-Life02.mp3",
-	"valve\\media\\Half-Life13.mp3",
-	"valve\\media\\Half-Life04.mp3",
-	"valve\\media\\Half-Life15.mp3",
-	"valve\\media\\Half-Life14.mp3",
-	"valve\\media\\Half-Life16.mp3",
-	"valve\\media\\Suspense02.mp3",
-	"valve\\media\\Half-Life03.mp3",
-	"valve\\media\\Half-Life08.mp3",
-	"valve\\media\\Prospero02.mp3",
-	"valve\\media\\Half-Life05.mp3",
-	"valve\\media\\Prospero04.mp3",
-	"valve\\media\\Half-Life11.mp3",
-	"valve\\media\\Half-Life06.mp3", 
-	"valve\\media\\Prospero03.mp3",
-	"valve\\media\\Half-Life17.mp3",
-	"valve\\media\\Prospero05.mp3",
-	"valve\\media\\Suspense05.mp3",
-	"valve\\media\\Suspense07.mp3"
-};
 
 void PlayCDTrack( int iTrack )
 {
