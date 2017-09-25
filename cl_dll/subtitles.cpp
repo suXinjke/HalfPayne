@@ -185,7 +185,7 @@ void Subtitles_Draw() {
 	}
 
 	ImGui::SetNextWindowPos( ImVec2( ScreenWidth / 2.0f - FrameWidth / 2.0f, ScreenHeight / 1.3f ), 0 );
-	ImGui::SetNextWindowSize( ImVec2( FrameWidth + 14, FrameHeight + 18 ) );
+	ImGui::SetNextWindowSize( ImVec2( FrameWidth + 14, FrameHeight + 12 ) );
 
 	ImGui::Begin( "Subtitles", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
 	for ( const auto &pair : subtitlesToDraw ) {
