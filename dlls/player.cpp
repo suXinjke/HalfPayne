@@ -305,6 +305,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, delayedMusicStartPos, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, delayedMusicLooping, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, delayedMusicNoSlowmotionEffects, FIELD_BOOLEAN ),
+
+	DEFINE_FIELD( CBasePlayer, activeGameModeConfigHash, FIELD_STRING ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -4037,6 +4039,8 @@ void CBasePlayer::Spawn( void )
 	delayedMusicStartPos = 0.0f;
 	delayedMusicLooping = false;
 	delayedMusicNoSlowmotionEffects = false;
+
+	activeGameModeConfigHash = NULL;
 
 	frictionOverride = -1.0f;
 

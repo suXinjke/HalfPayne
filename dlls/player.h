@@ -626,6 +626,8 @@ public:
 	BOOL	 musicLooping;
 	BOOL	 musicNoSlowmotionEffects;
 	BOOL	 musicGoingThroughChangeLevel;
+
+	string_t activeGameModeConfigHash;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

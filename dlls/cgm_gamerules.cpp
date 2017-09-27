@@ -183,6 +183,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->noMapMusic = TRUE;
 	}
 
+	pPlayer->activeGameModeConfigHash = ALLOC_STRING( config.sha1.c_str() );
+
 	// Do not let player cheat by not starting at the [startmap]
 	const std::string startMap = config.GetStartMap();
 	const char *actualMap = STRING( gpGlobals->mapname );
@@ -356,13 +358,16 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 	if ( ( pPlayer->pev->flags & FL_GODMODE && !pPlayer->godConstant ) ||
 		 ( pPlayer->pev->flags & FL_NOTARGET && !pPlayer->noTargetConstant ) ||
 		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
-		 pPlayer->usedCheat ) {
+		 pPlayer->usedCheat ||
+		 STRING( pPlayer->activeGameModeConfigHash ) != config.sha1
+	) {
 		pPlayer->cheated = true;
 	}
 
 }
 
 void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
+	SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING - RESULTS WON'T BE SAVED" );
 	cheatedMessageSent = true;
 }
 
