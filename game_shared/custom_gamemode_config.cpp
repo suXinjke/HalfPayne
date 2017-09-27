@@ -774,7 +774,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_CROSSBOW_EXPLOSIVE_BOLTS,
 			"Crossbow explosive bolts",
-			"Crossbow bolts explode when then hit the wall.",
+			"Crossbow bolts explode when they hit the wall.",
 			[]( CBasePlayer *player ) {
 				player->crossbowExplosiveBolts = true;
 			}
