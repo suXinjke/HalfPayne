@@ -51,6 +51,7 @@ public:
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
 
 	bool cheatedMessageSent;
+	bool startMapDoesntMatch;
 
 	float timeDelta;
 	float musicSwitchDelay;

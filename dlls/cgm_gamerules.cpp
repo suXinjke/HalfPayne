@@ -61,6 +61,7 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	RefreshSkillData();
 
 	cheatedMessageSent = false;
+	startMapDoesntMatch = false;
 
 	timeDelta = 0.0f;
 	musicSwitchDelay = 0.0f;
@@ -188,9 +189,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	// Do not let player cheat by not starting at the [startmap]
 	const std::string startMap = config.GetStartMap();
 	const char *actualMap = STRING( gpGlobals->mapname );
-	if ( startMap != actualMap ) {
-		pPlayer->cheated = true;
-	}
+	startMapDoesntMatch = startMap != actualMap;
 
 }
 
@@ -358,16 +357,16 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 	if ( ( pPlayer->pev->flags & FL_GODMODE && !pPlayer->godConstant ) ||
 		 ( pPlayer->pev->flags & FL_NOTARGET && !pPlayer->noTargetConstant ) ||
 		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
-		 pPlayer->usedCheat ||
+		 pPlayer->usedCheat || startMapDoesntMatch ||
 		 STRING( pPlayer->activeGameModeConfigHash ) != config.sha1
 	) {
+		SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING - RESULTS WON'T BE SAVED" );
 		pPlayer->cheated = true;
 	}
 
 }
 
 void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
-	SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING - RESULTS WON'T BE SAVED" );
 	cheatedMessageSent = true;
 }
 
