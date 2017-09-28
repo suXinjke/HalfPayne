@@ -4111,8 +4111,8 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 			}
 
 			case DESPERATION_IMMINENT: {
-				GiveNamedItem( "weapon_9mmhandgun" );
-				GiveNamedItem( "weapon_9mmhandgun_twin" );
+				GiveNamedItem( "weapon_9mmhandgun", true );
+				GiveNamedItem( "weapon_9mmhandgun_twin", true );
 				if ( slowmotionOnlyDiving ) {
 					SetSlowMotion( false );
 				}
@@ -4158,7 +4158,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 			}
 
 			case DESPERATION_ALL_FOR_REVENGE: {
-				GiveNamedItem( "weapon_9mmhandgun" );
+				GiveNamedItem( "weapon_9mmhandgun", true );
 				gSkillData.plrDmg9MM = 9999.0f;
 				desperation = DESPERATION_REVENGE;
 				break;

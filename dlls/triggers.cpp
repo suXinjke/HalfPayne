@@ -407,7 +407,7 @@ void CMultiManager :: ManagerThink ( void )
 					pPlayer->untilNextDesperation = gpGlobals->time + 1.4f;
 					pPlayer->infiniteAmmo = true;
 					pPlayer->infiniteSlowMotion = true;
-					pPlayer->GiveNamedItem( "item_suit" );
+					pPlayer->GiveNamedItem( "item_suit", true );
 					if ( !pPlayer->noPills ) {
 						pPlayer->painkillerCount = 9;
 					}
