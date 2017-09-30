@@ -757,22 +757,7 @@ std::vector<std::string> cdTrackMap {
 	"media\\Suspense07.mp3"
 };
 
-//
-// Changes tracks or stops CD when player touches
-//
-// !!!HACK - overloaded HEALTH to avoid adding new field
-void CTriggerCDAudio :: Touch ( CBaseEntity *pOther )
-{
-	if ( !pOther->IsPlayer() )
-	{// only clients may trigger these events
-		return;
-	}
-
-	PlayTrack();
-}
-
-void CTriggerCDAudio :: Spawn( void )
-{
+void InitializeTracks() {
 	if ( !cdTrackMapInitialised ) {
 		std::transform( cdTrackMap.begin(), cdTrackMap.end(), cdTrackMap.begin(), []( const std::string &track ) {
 			if ( track.size() == 0 ) {
@@ -794,6 +779,25 @@ void CTriggerCDAudio :: Spawn( void )
 		} );
 		cdTrackMapInitialised = true;
 	}
+}
+
+//
+// Changes tracks or stops CD when player touches
+//
+// !!!HACK - overloaded HEALTH to avoid adding new field
+void CTriggerCDAudio :: Touch ( CBaseEntity *pOther )
+{
+	if ( !pOther->IsPlayer() )
+	{// only clients may trigger these events
+		return;
+	}
+
+	PlayTrack();
+}
+
+void CTriggerCDAudio :: Spawn( void )
+{
+	InitializeTracks();
 	InitTrigger();
 }
 
@@ -880,6 +884,8 @@ void CTargetCDAudio :: KeyValue( KeyValueData *pkvd )
 
 void CTargetCDAudio :: Spawn( void )
 {
+	InitializeTracks();
+
 	pev->solid = SOLID_NOT;
 	pev->movetype = MOVETYPE_NONE;
 
