@@ -2713,10 +2713,15 @@ void CBasePlayer::PreThink(void)
 			singlePlayerRules->OnHookedModelIndex( this, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
 		}
 
-		if ( strlen( STRING( musicFile ) ) > 0 && !musicGoingThroughChangeLevel ) {
-			this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping, musicNoSlowmotionEffects );
+		if ( !musicGoingThroughChangeLevel ) {
+			if ( strlen( STRING( musicFile ) ) > 0 ) {
+				this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping, musicNoSlowmotionEffects );
+			} else {
+				MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
+				MESSAGE_END();
+			}
 		}
-
+		
 		MESSAGE_BEGIN( MSG_ALL, gmsgSubtClear );
 		MESSAGE_END();
 
