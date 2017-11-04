@@ -5,6 +5,7 @@
 #include "FontAwesome.h"
 #include "gamemode_gui.h"
 #include "subtitles.h"
+#include "model_indexes.h"
 
 #include "hl_imgui.h"
 
@@ -102,6 +103,7 @@ void HL_ImGUI_Init() {
 
 	GameModeGUI_Init();
 	Subtitles_Init();
+	ModelIndexes_Init();
 }
 
 void HL_ImGUI_Deinit() {
@@ -112,6 +114,7 @@ void HL_ImGUI_Deinit() {
 	SDL_DelEventWatch( HL_ImGUI_ProcessEvent, NULL );
 }
 
+extern cvar_t  *printmodelindexes;
 void HL_ImGUI_Draw() {
 
 	ImGui_ImplSdl_NewFrame( window );
@@ -122,6 +125,10 @@ void HL_ImGUI_Draw() {
 	} else {
 		SDL_ShowCursor( 0 );
 		Subtitles_Draw();
+	}
+	
+	if ( printmodelindexes && printmodelindexes->value >= 2.0f ) {
+		ModelIndexes_Draw();
 	}
 
 	glViewport( 0, 0, ( int ) ImGui::GetIO().DisplaySize.x, ( int ) ImGui::GetIO().DisplaySize.y );

@@ -33,6 +33,7 @@ extern int gmsgMOTD;
 
 extern int gmsgOnSound;
 int	gmsgEndCredits	= 0;
+int gmsgOnModelIdx  = 0;
 
 //=========================================================
 //=========================================================
@@ -42,6 +43,7 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CONFIG_TYPE_MAP )
 
 	if ( !gmsgEndCredits ) {
 		gmsgEndCredits = REG_USER_MSG( "EndCredits", 0 );
+		gmsgOnModelIdx = REG_USER_MSG( "OnModelIdx", -1 );
 	}
 
 	ended = false;
@@ -146,7 +148,15 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName 
 	int modelIndex = activator->v.modelindex;
 	const char *className = STRING( activator->v.classname );
 
-	if ( CVAR_GET_FLOAT( "print_model_indexes" ) > 0.0f ) {
+	const float print_model_indexes = CVAR_GET_FLOAT( "print_model_indexes" );
+	if ( print_model_indexes >= 2.0f ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgOnModelIdx, NULL, pPlayer->pev );
+			WRITE_STRING( STRING( gpGlobals->mapname ) );
+			WRITE_LONG( modelIndex );
+			WRITE_STRING( targetName );
+			WRITE_STRING( className );
+		MESSAGE_END();
+	} else if ( print_model_indexes >= 1.0f ) {
 		char message[128];
 		sprintf( message, "[%s] Hooked model index: %d; target name: %s; class name: %s\n", STRING( gpGlobals->mapname ), modelIndex, targetName, className );
 		g_engfuncs.pfnServerPrint( message );
