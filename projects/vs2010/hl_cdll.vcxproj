@@ -158,6 +158,7 @@
     <ClCompile Include="..\..\cl_dll\message.cpp" />
     <ClCompile Include="..\..\cl_dll\model_indexes.cpp" />
     <ClCompile Include="..\..\cl_dll\painkiller.cpp" />
+    <ClCompile Include="..\..\cl_dll\player_info_window.cpp" />
     <ClCompile Include="..\..\cl_dll\saytext.cpp" />
     <ClCompile Include="..\..\cl_dll\score.cpp" />
     <ClCompile Include="..\..\cl_dll\slowmotion.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="..\..\cl_dll\in_defs.h" />
     <ClInclude Include="..\..\cl_dll\kbutton.h" />
     <ClInclude Include="..\..\cl_dll\model_indexes.h" />
+    <ClInclude Include="..\..\cl_dll\player_info_window.h" />
     <ClInclude Include="..\..\cl_dll\soundmanager.h" />
     <ClInclude Include="..\..\cl_dll\StudioModelRenderer.h" />
     <ClInclude Include="..\..\cl_dll\subtitles.h" />

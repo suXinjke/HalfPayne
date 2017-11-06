@@ -399,6 +399,7 @@ edict_t *aimLastEntity = 0;
 int gmsgOnAimNew = 0;
 int gmsgOnAimUpd = 0;
 int gmsgOnAimClear = 0;
+int gmsgOnPlyUpd = 0;
 
 void LinkUserMessages( void )
 {
@@ -468,6 +469,8 @@ void LinkUserMessages( void )
 	gmsgOnAimNew = REG_USER_MSG( "OnAimNew", -1 );
 	gmsgOnAimUpd = REG_USER_MSG( "OnAimUpd", 28 );
 	gmsgOnAimClear = REG_USER_MSG( "OnAimClear", 0 );
+
+	gmsgOnPlyUpd = REG_USER_MSG( "OnPlyUpd", 30 );
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );
@@ -5867,6 +5870,30 @@ void CBasePlayer :: UpdateClientData( void )
 	if ( !drunkMessageSent ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgConcuss, NULL, pev );
 			WRITE_BYTE( drunkiness );
+		MESSAGE_END();
+	}
+
+	if ( CVAR_GET_FLOAT( "print_player_info" ) >= 0.0f ) {
+		TraceResult tr;
+		UTIL_MakeVectors( pev->v_angle );
+		UTIL_TraceLine( pev->origin + pev->view_ofs, pev->origin + pev->view_ofs + gpGlobals->v_forward * 8192, dont_ignore_monsters, edict(), &tr );
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgOnPlyUpd, NULL, pev );
+			WRITE_COORD( tr.vecEndPos.x );
+			WRITE_COORD( tr.vecEndPos.y );
+			WRITE_COORD( tr.vecEndPos.z );
+			WRITE_COORD( pev->origin.x );
+			WRITE_COORD( pev->origin.y );
+			WRITE_COORD( pev->origin.z );
+			WRITE_COORD( pev->view_ofs.x );
+			WRITE_COORD( pev->view_ofs.y );
+			WRITE_COORD( pev->view_ofs.z );
+			WRITE_COORD( pev->v_angle.x );
+			WRITE_COORD( pev->v_angle.y );
+			WRITE_COORD( pev->v_angle.z );
+			WRITE_COORD( pev->velocity.x );
+			WRITE_COORD( pev->velocity.y );
+			WRITE_COORD( pev->velocity.z );
 		MESSAGE_END();
 	}
 

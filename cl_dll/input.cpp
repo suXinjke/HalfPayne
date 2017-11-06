@@ -86,6 +86,7 @@ cvar_t  *max_commentary_near_death;
 cvar_t  *print_aim_entity;
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
+cvar_t  *print_player_info;
 cvar_t  *hud_autoswitch;
 cvar_t  *print_subtitles;
 cvar_t  *subtitles_font_scale;
@@ -1216,6 +1217,7 @@ void InitInput (void)
 	print_aim_entity = gEngfuncs.pfnRegisterVariable( "print_aim_entity", "0", FCVAR_ARCHIVE );
 	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );
 	printaimcoordinates = gEngfuncs.pfnRegisterVariable( "print_aim_coordinates", "0", FCVAR_ARCHIVE );
+	print_player_info = gEngfuncs.pfnRegisterVariable( "print_player_info", "0", FCVAR_ARCHIVE );
 	hud_autoswitch	  = gEngfuncs.pfnRegisterVariable( "hud_autoswitch", "1", FCVAR_ARCHIVE );
 
 	print_subtitles = gEngfuncs.pfnRegisterVariable( "subtitles", "2", FCVAR_ARCHIVE );

@@ -381,6 +381,9 @@
     <ClCompile Include="..\..\cl_dll\aim_entity.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\player_info_window.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -562,6 +565,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\aim_entity.h">
       <Filter>Header Files\cl_dll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\player_info_window.h">
+      <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
