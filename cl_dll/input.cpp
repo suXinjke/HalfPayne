@@ -83,6 +83,7 @@ cvar_t  *max_commentary_no_ammo;
 cvar_t  *max_commentary_wasted_shots;
 cvar_t  *max_commentary_near_death;
 
+cvar_t  *print_aim_entity;
 cvar_t  *printmodelindexes;
 cvar_t  *printaimcoordinates;
 cvar_t  *hud_autoswitch;
@@ -1212,6 +1213,7 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand( "MP3Stop", MP3Stop );
 	gEngfuncs.pfnAddCommand( "MP3Seek", MP3Seek );
 
+	print_aim_entity = gEngfuncs.pfnRegisterVariable( "print_aim_entity", "0", FCVAR_ARCHIVE );
 	printmodelindexes = gEngfuncs.pfnRegisterVariable( "print_model_indexes", "0", FCVAR_ARCHIVE );
 	printaimcoordinates = gEngfuncs.pfnRegisterVariable( "print_aim_coordinates", "0", FCVAR_ARCHIVE );
 	hud_autoswitch	  = gEngfuncs.pfnRegisterVariable( "hud_autoswitch", "1", FCVAR_ARCHIVE );

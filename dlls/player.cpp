@@ -395,6 +395,11 @@ int gmsgOnSound = 0;
 int gmsgSubtClear = 0;
 int gmsgSubtRemove = 0;
 
+edict_t *aimLastEntity = 0;
+int gmsgOnAimNew = 0;
+int gmsgOnAimUpd = 0;
+int gmsgOnAimClear = 0;
+
 void LinkUserMessages( void )
 {
 	// Already taken care of?
@@ -459,6 +464,10 @@ void LinkUserMessages( void )
 
 	gmsgSubtClear = REG_USER_MSG( "SubtClear", 0 );
 	gmsgSubtRemove = REG_USER_MSG( "SubtRemove", -1 );
+
+	gmsgOnAimNew = REG_USER_MSG( "OnAimNew", -1 );
+	gmsgOnAimUpd = REG_USER_MSG( "OnAimUpd", 28 );
+	gmsgOnAimClear = REG_USER_MSG( "OnAimClear", 0 );
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );
@@ -2746,6 +2755,59 @@ void CBasePlayer::PreThink(void)
 		MESSAGE_END();
 
 		postSpawnDelay = 0.0f;
+	}
+
+	if ( CVAR_GET_FLOAT( "print_aim_entity" ) >= 1.0f ) {
+		TraceResult tr;
+		UTIL_TraceLine( pev->origin + pev->view_ofs, pev->origin + pev->view_ofs + gpGlobals->v_forward * 2048, dont_ignore_monsters, edict(), &tr );
+
+		edict_t *entity = tr.pHit;
+		if ( aimLastEntity != entity ) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgOnAimNew, NULL, pev );
+				WRITE_STRING( STRING( entity->v.classname ) );
+				WRITE_STRING( STRING( entity->v.target ) );
+				WRITE_STRING( STRING( entity->v.targetname ) );
+				WRITE_SHORT( entity->v.modelindex );
+
+				WRITE_COORD( entity->v.mins.x );
+				WRITE_COORD( entity->v.mins.y );
+				WRITE_COORD( entity->v.mins.z );
+
+				WRITE_COORD( entity->v.maxs.x );
+				WRITE_COORD( entity->v.maxs.y );
+				WRITE_COORD( entity->v.maxs.z );
+
+				WRITE_BYTE( entity->v.spawnflags );
+			MESSAGE_END();
+						
+			aimLastEntity = entity;
+		}
+
+		if ( entity ) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgOnAimUpd, NULL, pev );
+				WRITE_COORD( entity->v.origin.x );
+				WRITE_COORD( entity->v.origin.y );
+				WRITE_COORD( entity->v.origin.z );
+
+				WRITE_COORD( entity->v.angles.x );
+				WRITE_COORD( entity->v.angles.y );
+				WRITE_COORD( entity->v.angles.z );
+
+				WRITE_COORD( entity->v.velocity.x );
+				WRITE_COORD( entity->v.velocity.y );
+				WRITE_COORD( entity->v.velocity.z );
+
+				WRITE_FLOAT( entity->v.health );
+				WRITE_FLOAT( entity->v.max_health );
+
+				WRITE_BYTE( entity->v.flags );
+				WRITE_BYTE( entity->v.deadflag );
+			MESSAGE_END();
+		}
+	} else {
+		if ( aimLastEntity ) {
+			aimLastEntity = 0;
+		}
 	}
 }
 /* Time based Damage works as follows: 

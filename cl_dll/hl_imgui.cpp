@@ -6,6 +6,7 @@
 #include "gamemode_gui.h"
 #include "subtitles.h"
 #include "model_indexes.h"
+#include "aim_entity.h"
 
 #include "hl_imgui.h"
 
@@ -104,6 +105,7 @@ void HL_ImGUI_Init() {
 	GameModeGUI_Init();
 	Subtitles_Init();
 	ModelIndexes_Init();
+	AimEntity_Init();
 }
 
 void HL_ImGUI_Deinit() {
@@ -115,6 +117,7 @@ void HL_ImGUI_Deinit() {
 }
 
 extern cvar_t  *printmodelindexes;
+extern cvar_t  *print_aim_entity;
 void HL_ImGUI_Draw() {
 
 	ImGui_ImplSdl_NewFrame( window );
@@ -129,6 +132,10 @@ void HL_ImGUI_Draw() {
 	
 	if ( printmodelindexes && printmodelindexes->value >= 2.0f ) {
 		ModelIndexes_Draw();
+	}
+
+	if ( print_aim_entity && print_aim_entity->value >= 1.0f ) {
+		AimEntity_Draw();
 	}
 
 	glViewport( 0, 0, ( int ) ImGui::GetIO().DisplaySize.x, ( int ) ImGui::GetIO().DisplaySize.y );
