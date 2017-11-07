@@ -610,6 +610,16 @@ bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
 bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	std::string modName = data.argsString.at( 0 );
 
+	if ( modName == "always_gib" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_ALWAYS_GIB,
+			"Always gib",
+			"Kills will always try to result in gibbing.",
+			[]( CBasePlayer *player ) { player->alwaysGib = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "bleeding" ) {
 		int bleedHandicap = 20;
 		float bleedUpdatePeriod = 1.0f;

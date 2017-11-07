@@ -597,6 +597,12 @@ void CBaseMonster::BecomeDead( void )
 
 BOOL CBaseMonster::ShouldGibMonster( int iGib )
 {
+	if ( CBasePlayer *player = dynamic_cast<CBasePlayer*>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		if ( player->alwaysGib ) {
+			return TRUE;
+		}
+	}
+
 	if ( ( iGib == GIB_NORMAL && pev->health < GIB_HEALTH_VALUE ) || ( iGib == GIB_ALWAYS ) )
 		return TRUE;
 	

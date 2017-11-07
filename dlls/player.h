@@ -168,6 +168,8 @@ public:
 
 	BOOL				godConstant;
 	BOOL				noTargetConstant;
+	
+	BOOL				alwaysGib;
 
 	int					m_afButtonLast;
 	int					m_afButtonPressed;

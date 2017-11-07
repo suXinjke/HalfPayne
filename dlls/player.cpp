@@ -290,6 +290,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, godConstant, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noTargetConstant, FIELD_BOOLEAN ),
 
+	DEFINE_FIELD( CBasePlayer, alwaysGib, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, postRestoreDelay, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, postSpawnDelay, FIELD_TIME ),
 
@@ -3950,6 +3952,8 @@ void CBasePlayer::Spawn( void )
 
 	godConstant = false;
 	noTargetConstant = false;
+
+	alwaysGib = false;
 
 	postRestoreDelay = 0.0f;
 	postSpawnDelay = 0.1f;
