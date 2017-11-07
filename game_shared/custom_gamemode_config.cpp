@@ -1490,7 +1490,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_WEAPON_RESTRICTED,
 			"Weapon restricted",
-			"If you have no weapons - you can only have one.\n"
+			"If you have no weapons - you are allowed to pick only one.\n"
 			"You can have several weapons at once if they are specified in [loadout] section.\n"
 			"Weapon stripping doesn't affect you.",
 			[]( CBasePlayer *player ) { player->weaponRestricted = true; }
