@@ -1059,7 +1059,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 				continue;
 			}
 			if ( i == 1 ) {
-				regenerationMax = min( max( 0, data.argsFloat.at( i ) ), 100 );
+				regenerationMax = max( 0, data.argsFloat.at( i ) );
 			}
 			if ( i == 2 ) {
 				regenerationDelay = max( 0, data.argsFloat.at( i ) );
@@ -1074,6 +1074,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 			"Health regeneration",
 			"Allows for health regeneration options.",
 			[regenerationMax, regenerationDelay, regenerationFrequency]( CBasePlayer *player ) {
+				player->pev->max_health = regenerationMax;
 				player->regenerationMax = regenerationMax;
 				player->regenerationDelay = regenerationDelay;
 				player->regenerationFrequency = regenerationFrequency;
