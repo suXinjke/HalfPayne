@@ -355,7 +355,7 @@ public:
 
 	std::map< CONFIG_FILE_SECTION, ConfigSection> configSections;
 
-	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
+	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *isConstant = NULL );
 	const std::vector<ConfigFileSound> MarkModelIndexesWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
 	const std::vector<ConfigFileMusic> MarkModelIndexesWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
 

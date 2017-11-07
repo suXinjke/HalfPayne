@@ -163,18 +163,25 @@ void CBlackMesaMinute::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activa
 {
 	CCustomGameModeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
 
-	// Dumb hack to prevent timer pausing
-	if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
-		return;
-	}
+	bool wasConstant = false;
+	std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName;
+	bool modelIndexHasBeenHooked = pPlayer->ModelIndexHasBeenHooked( key.c_str() );
 
 	// Does timer_pauses section contain such index?
-	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_PAUSE, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
-		PauseTimer( pPlayer );
+	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_PAUSE, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName, &wasConstant ) ) {
+		if ( wasConstant || !modelIndexHasBeenHooked ) {
+			PauseTimer( pPlayer );
+		}
 	}
 
 	// Does timer_resume section contain such index?
-	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_RESUME, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
-		ResumeTimer( pPlayer );
+	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_TIMER_RESUME, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName, &wasConstant ) ) {
+		if ( wasConstant || !modelIndexHasBeenHooked ) {
+			ResumeTimer( pPlayer );
+		}
+	}
+
+	if ( !modelIndexHasBeenHooked ) {
+		pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
 	}
 }

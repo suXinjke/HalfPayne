@@ -1633,7 +1633,7 @@ const std::vector<EntitySpawn> CustomGameModeConfig::GetEntitySpawnsForMapOnce( 
 	return result;
 }
 
-bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
+bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *outIsConstant ) {
 	auto *sectionData = &configSections[fileSection].data;
 	auto i = sectionData->begin();
 	while ( i != sectionData->end() ) {
@@ -1657,6 +1657,10 @@ bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, cons
 
 		if ( !constant ) {
 			i = sectionData->erase( i );
+		}
+
+		if ( outIsConstant ) {
+			*outIsConstant = constant;
 		}
 
 		return true;
