@@ -15,9 +15,11 @@ TYPEDESCRIPTION	CBullet::m_SaveData[] =
 	DEFINE_FIELD( CBullet, ricochetError, FIELD_INTEGER ),
 	DEFINE_FIELD( CBullet, ricochetMaxDotProduct, FIELD_FLOAT ),
 	DEFINE_FIELD( CBullet, ricochetVelocity, FIELD_VECTOR ),
+	DEFINE_FIELD( CBullet, lastVelocity, FIELD_VECTOR ),
 	DEFINE_FIELD( CBullet, tryToRicochet, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBullet, ricochettedOnce, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBullet, selfHarm, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBullet, startTime, FIELD_TIME ),
 };
 IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
 
@@ -27,6 +29,7 @@ CBullet *CBullet::BulletCreate(
 ) {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;
+	bullet->lastVelocity = velocity;
 	bullet->bulletType = bulletType;
 	bullet->pev->owner = owner;
 	bullet->activateTrail = trailActive;
@@ -59,9 +62,10 @@ void CBullet::Spawn( )
 	tryToRicochet = FALSE;
 	ricochettedOnce = FALSE;
 	selfHarm = FALSE;
+	startTime = gpGlobals->time;
 
 	pev->movetype = MOVETYPE_FLY;
-	pev->solid = SOLID_BSP;
+	pev->solid = SOLID_NOT;
 
 	SET_MODEL(ENT(pev), "models/bullet_9mm.mdl");
 
@@ -87,14 +91,6 @@ int CBullet::Classify( void )
 
 void CBullet::BulletTouch( CBaseEntity *pOther )
 {
-	// Bullets mashing into each other should be destroyed
-	if ( FStrEq( "bullet", STRING( pOther->pev->classname ) ) ) {
-		SetTouch( NULL );
-		SetThink( &CBaseEntity::SUB_Remove );
-		pOther->Killed( pev, GIB_NEVER );
-		return;
-	}
-
 	Vector vecSrc = pev->origin;
 	Vector vecEnd = pev->origin + pev->velocity.Normalize() * 3;
 	TraceResult tr;
@@ -158,13 +154,8 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 		ApplyMultiDamage( pev, pevOwner ? pevOwner : pev );
 		pev->velocity = Vector( 0, 0, 0 );
 
-		if ( !g_pGameRules->IsMultiplayer() )
-		{
-			Killed( pev, GIB_NEVER );
-		}
+		Killed( pev, GIB_NEVER );
 
-		SetTouch( NULL );
-		SetThink( NULL );
 	} else if ( ricochetCount != 0 ) {
 		Vector normal = tr.vecPlaneNormal;
 		// TODO: add an error by utilising ricochetError correctly
@@ -177,15 +168,15 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 				ricochetCount--;
 			}
 		} else {
-			SetThink( &CBaseEntity::SUB_Remove );
+			Killed( pev, GIB_NEVER );
 		}
+	} else if ( FStrEq( "bullet", STRING( pOther->pev->classname ) ) ) {
+		// Try to go around other bullet
+		UTIL_SetOrigin( pev, pev->origin + Vector( RANDOM_LONG( -1, 1 ), RANDOM_LONG( -1, 1 ), RANDOM_LONG( -1, 1 ) ) );
 	} else {
-		SetThink( &CBaseEntity::SUB_Remove );
+		Killed( pev, GIB_NEVER );
 	}
 
-	if ( pev->velocity.Length() > 0 ) {
-		lastVelocity = pev->velocity;
-	}
 	pev->nextthink = gpGlobals->time + 0.01;
 }
 
@@ -211,7 +202,15 @@ void CBullet::ActivateTrail( int life ) {
 void CBullet::BubbleThink( void )
 {
 	pev->nextthink = gpGlobals->time + 0.01;
+	
+	if ( ( gpGlobals->time - startTime ) > 0.01 ) {
+		pev->solid = SOLID_BBOX;
+	}
 
+	if ( pev->velocity.Length() != lastVelocity.Length() ) {
+		pev->velocity = lastVelocity;
+	}
+	
 	if ( selfHarm && pev->owner != NULL ) {
 		CBaseEntity *potentialOwner = NULL;
 		while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
