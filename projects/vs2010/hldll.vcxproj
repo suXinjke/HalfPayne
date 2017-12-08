@@ -166,6 +166,8 @@
     <ClCompile Include="..\..\dlls\h_cycler.cpp" />
     <ClCompile Include="..\..\dlls\h_export.cpp" />
     <ClCompile Include="..\..\dlls\ichthyosaur.cpp" />
+    <ClCompile Include="..\..\dlls\ingram.cpp" />
+    <ClCompile Include="..\..\dlls\ingram_twin.cpp" />
     <ClCompile Include="..\..\dlls\islave.cpp" />
     <ClCompile Include="..\..\dlls\items.cpp" />
     <ClCompile Include="..\..\dlls\leech.cpp" />

@@ -43,7 +43,9 @@ static char *allowedItems[] = {
 	"ammo_rpgclip",
 	"weapon_satchel",
 	"weapon_snark",
-	"weapon_hornetgun"
+	"weapon_hornetgun",
+	"weapon_ingram",
+	"weapon_ingram_twin",
 };
 
 static char *allowedEntities[] {
@@ -73,6 +75,7 @@ static char *allowedEntities[] {
 	"weapon_satchel",
 	"weapon_snark",
 	"weapon_hornetgun",
+	"weapon_ingram",
 
 	"monster_alien_controller",
 	"monster_alien_grunt",

@@ -62,6 +62,9 @@ void EV_FireGlock2( struct event_args_s *args  );
 void EV_FireGlockTwin( struct event_args_s *args );
 void EV_FireShotGunSingle( struct event_args_s *args  );
 void EV_FireShotGunDouble( struct event_args_s *args  );
+void EV_FireIngram( struct event_args_s *args );
+void EV_FireIngramTwin( struct event_args_s *args );
+void EV_FireIngramTwinTracer( struct event_args_s *args );
 void EV_FireMP5( struct event_args_s *args  );
 void EV_FireMP52( struct event_args_s *args  );
 void EV_FirePython( struct event_args_s *args  );
@@ -93,6 +96,27 @@ void EV_TrainPitchAdjust( struct event_args_s *args );
 #define VECTOR_CONE_10DEGREES Vector( 0.08716, 0.08716, 0.08716 )
 #define VECTOR_CONE_15DEGREES Vector( 0.13053, 0.13053, 0.13053 )
 #define VECTOR_CONE_20DEGREES Vector( 0.17365, 0.17365, 0.17365 )
+
+// DUMBEST HACK to prevent double executing of the event
+// The root cause is client prediction - cl_lw 0 would fix the issue,
+// but I'd prefer not to change the default value
+// 0.011 - is approximation
+// also see: https://github.com/ValveSoftware/halflife/issues/1621
+float latestShoot = 0.0f;
+float latestTracer = 0.0f;
+float latestTracer2 = 0.0f;
+
+bool AllowedToFireRapidEvent( float &param ) {
+	bool allowed = true;
+
+	float currentAbsoluteTime = gEngfuncs.GetClientTime();
+	if ( fabs( currentAbsoluteTime - param ) < 0.011f ) {
+		allowed = false;
+	}
+	param = currentAbsoluteTime;
+
+	return allowed;
+}
 
 // Offset the source of trace to the right\left alittle, and then rotate the aim to the left\right according to the distance
 // ( function should be moved to UTIL? )
@@ -669,6 +693,190 @@ void EV_FireGlockTwin( event_args_t *args ) {
 //	  GLOCK TWIN END
 //======================
 
+void EV_FireIngram( event_args_t *args )
+{
+	if ( !AllowedToFireRapidEvent( latestShoot ) ) {
+		return;
+	}
+
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	ApplyAimOffset( angles );
+
+	// interpret iparam1 back as float
+	float stress = max( 0.4f, ( ( *( float * ) &args->iparam1 ) ) );
+
+	empty = args->bparam1;
+	int shouldProducePhysicalBullets = args->bparam2;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shell.mdl");// brass shell
+
+	if ( EV_IsLocal( idx ) )
+	{
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? INGRAM_SHOOT_EMPTY : ( INGRAM_SHOOT_1 + gEngfuncs.pfnRandomLong( 0, 2 ) ), 2 );
+
+		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -stress * 0.25f, stress * 0.25f ) * ( upsideDown ? -1 : 1 ) );
+	}
+
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+
+	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ingram_shot.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
+
+	if ( shouldProducePhysicalBullets ) {
+		return;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+
+	vecSrc = vecSrc + forward * 5;
+
+	float rightOffset = 8;
+	float upOffset = upsideDown ? -10 : 0;
+	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset + up * upOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+}
+
+void EV_FireIngramTwin( event_args_t *args ) {
+	if ( !AllowedToFireRapidEvent( latestShoot ) ) {
+		return;
+	}
+
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+	
+	ApplyAimOffset( angles );
+	
+	int empty = args->iparam1 & 1;
+	int empty2 = args->iparam1 & 2;
+
+	// interpret iparam2 back as float
+	float stress = max( 0.4f, ( ( *( float * ) &args->iparam2 ) ) );
+
+	int shouldProducePhysicalBullets = args->bparam1;
+	bool shootingBoth = args->bparam2 == 2;
+	bool shootingLeft = args->bparam2 == 1;
+	bool shootingRight = args->bparam2 == 0;
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/shell.mdl" );// brass shell
+
+	if ( EV_IsLocal( idx ) )
+	{
+		EV_MuzzleFlash();
+		int anim;
+
+		if ( shootingBoth ) {
+			if ( empty && empty2 ) {
+				anim = INGRAM_TWIN_SHOOT_BOTH_THEN_EMPTY;
+			} else if ( empty2 ) {
+				anim = INGRAM_TWIN_SHOOT_BOTH_THEN_LEFT_EMPTY;
+			} else {
+				anim = empty ? INGRAM_TWIN_SHOOT_BOTH_THEN_RIGHT_EMPTY : ( INGRAM_TWIN_SHOOT_BOTH_1 + gEngfuncs.pfnRandomLong( 0, 2 ) );
+			}
+
+		} else if ( shootingRight ) {
+			if ( empty ) {
+				anim = INGRAM_TWIN_SHOOT_RIGHT_THEN_EMPTY_WHEN_LEFT_EMPTY;
+			} else {
+				anim = INGRAM_TWIN_SHOOT_RIGHT_WHEN_LEFT_EMPTY_1 + gEngfuncs.pfnRandomLong( 0, 2 );
+			}
+		} else {
+			if ( empty2 ) {
+				anim = INGRAM_TWIN_SHOOT_LEFT_THEN_EMPTY_WHEN_RIGHT_EMPTY;
+			} else {
+				anim = INGRAM_TWIN_SHOOT_LEFT_WHEN_RIGHT_EMPTY_1 + gEngfuncs.pfnRandomLong( 0, 2 );
+			}
+		}
+
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( anim, 2 );
+		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -stress * 0.25f, stress * 0.25f ) * ( upsideDown ? -1 : 1 ) );
+	}
+
+	if ( !empty ) {
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+		EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+	}
+
+	if ( !empty2 ) {
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -3, -10 );
+		EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+	}
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ingram_shot.wav", gEngfuncs.pfnRandomFloat( 0.92, 1.0 ), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong( 0, 3 ) );
+
+	// Tracers are in function below
+	// Separate tracer event was made to ease up producing tracers with different destination vectors
+}
+
+void EV_FireIngramTwinTracer( event_args_t *args ) {
+	int shootingRight = args->bparam2;
+
+	if ( shootingRight && !AllowedToFireRapidEvent( latestTracer ) ) {
+		return;
+	}
+
+	if ( !shootingRight && !AllowedToFireRapidEvent( latestTracer2 ) ) {
+		return;
+	}
+
+	int idx = args->entindex;
+	vec3_t origin;
+	vec3_t angles;
+
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+
+	ApplyAimOffset( angles );
+
+	AngleVectors( angles, forward, right, up );
+	EV_GetGunPosition( args, vecSrc, origin );
+
+	vecSrc = vecSrc + forward * 5;
+
+	float upOffset = upsideDown ? -10 : 0;
+	
+
+	float rightOffset = shootingRight ? 8 : -8;
+	VectorSkew( vecSrc, angles, forward, vecAiming, rightOffset );
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc + right * rightOffset + up * upOffset, vecAiming, 8192, BULLET_PLAYER_9MM, 1, &tracerCount[idx-1], args->fparam1, args->fparam2 );
+}
+
 //======================
 //	  SHOTGUN START
 //======================
@@ -810,23 +1018,15 @@ void EV_FireShotGunSingle( event_args_t *args )
 //	   SHOTGUN END
 //======================
 
-float latestShoot = 0.0f;
 
 //======================
 //	    MP5 START
 //======================
 void EV_FireMP5( event_args_t *args )
 {
-	// DUMBEST HACK to prevent double executing of the event
-	// The root cause is client prediction - cl_lw 0 would fix the issue,
-	// but I'd prefer not to change the default value
-	// 0.011 - is approximation
-	// also see: https://github.com/ValveSoftware/halflife/issues/1621
-	float currentAbsoluteTime = gEngfuncs.GetClientTime();
-	if ( fabs( currentAbsoluteTime - latestShoot ) < 0.011f ) {
+	if ( !AllowedToFireRapidEvent( latestShoot ) ) {
 		return;
 	}
-	latestShoot = currentAbsoluteTime;
 
 	int idx;
 	vec3_t origin;

@@ -330,6 +330,10 @@ void W_Precache(void)
 	UTIL_PrecacheOtherWeapon( "weapon_9mmhandgun_twin" );
 	UTIL_PrecacheOther( "ammo_9mmclip" );
 
+	// ingram
+	UTIL_PrecacheOtherWeapon( "weapon_ingram" );
+	UTIL_PrecacheOtherWeapon( "weapon_ingram_twin" );
+
 	// mp5
 	UTIL_PrecacheOtherWeapon( "weapon_9mmAR" );
 	UTIL_PrecacheOther( "ammo_9mmAR" );
@@ -661,6 +665,10 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 			UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
 		} else if ( FClassnameIs( pev, "weapon_9mmhandgun_twin" ) ) {
 			UTIL_SetWeaponClip( WEAPON_GLOCK, m_iClip );
+		} else if ( FClassnameIs( pev, "weapon_ingram" ) ) {
+			UTIL_SetWeaponClip( WEAPON_INGRAM_TWIN, m_iClip );
+		} else if ( FClassnameIs( pev, "weapon_ingram_twin" ) ) {
+			UTIL_SetWeaponClip( WEAPON_INGRAM, m_iClip );
 		}
 
 		if ( iMaxClip2() != -1 ) {
@@ -991,6 +999,15 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 		UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
 	}
 
+	if ( m_iId == WEAPON_INGRAM_TWIN ) {
+		int singleIngramClip = UTIL_GetWeaponClip( WEAPON_INGRAM );
+		if ( singleIngramClip != -1 ) {
+			m_iClip = singleIngramClip;
+		}
+	} else if ( m_iId == WEAPON_INGRAM ) {
+		UTIL_SetWeaponClip( WEAPON_INGRAM_TWIN, m_iClip );
+	}
+
 	return iIdAmmo > 0 ? TRUE : FALSE;
 }
 
@@ -1128,6 +1145,8 @@ BOOL CBasePlayerWeapon :: PlayEmptySound( void )
 			m_pPlayer->ComplainAboutNoAmmo(
 				m_iId == WEAPON_GLOCK ||
 				m_iId == WEAPON_GLOCK_TWIN ||
+				m_iId == WEAPON_INGRAM ||
+				m_iId == WEAPON_INGRAM_TWIN ||
 				m_iId == WEAPON_PYTHON ||
 				m_iId == WEAPON_MP5 ||
 				m_iId == WEAPON_SHOTGUN

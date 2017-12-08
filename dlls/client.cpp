@@ -1975,6 +1975,10 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 					if ( pl->m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN ) {
 						cd->vuser2.z = ( ( CGlockTwin * ) pl->m_pActiveItem )->m_iClip2;
 					}
+
+					if ( pl->m_pActiveItem->m_iId == WEAPON_INGRAM_TWIN ) {
+						cd->vuser2.z = ( ( CIngramTwin * ) pl->m_pActiveItem )->m_iClip2;
+					}
 				}
 			}
 		}

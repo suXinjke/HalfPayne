@@ -711,6 +711,8 @@ void CBasePlayer::GiveAll( bool nonCheat ) {
 	GiveNamedItem( "weapon_crowbar", nonCheat );
 	GiveNamedItem( "weapon_9mmhandgun", nonCheat );
 	GiveNamedItem( "weapon_9mmhandgun", nonCheat ); // to give twin pistols
+	GiveNamedItem( "weapon_ingram", nonCheat );
+	GiveNamedItem( "weapon_ingram", nonCheat ); // to give twin ingrams
 	GiveNamedItem( "ammo_9mmclip", nonCheat );
 	GiveNamedItem( "weapon_shotgun", nonCheat );
 	GiveNamedItem( "ammo_buckshot", nonCheat );

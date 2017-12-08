@@ -67,6 +67,8 @@ CHandGrenade g_HandGren;
 CSatchel g_Satchel;
 CTripmine g_Tripmine;
 CSqueak g_Snark;
+CIngram g_Ingram;
+CIngramTwin g_IngramTwin;
 
 
 /*
@@ -631,6 +633,8 @@ void HUD_InitClientWeapons( void )
 	HUD_PrepEntity( &g_Satchel	, &player );
 	HUD_PrepEntity( &g_Tripmine	, &player );
 	HUD_PrepEntity( &g_Snark	, &player );
+	HUD_PrepEntity( &g_Ingram	, &player );
+	HUD_PrepEntity( &g_IngramTwin, &player );
 }
 
 /*
@@ -755,6 +759,14 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		case WEAPON_SNARK:
 			pWeapon = &g_Snark;
 			break;
+
+		case WEAPON_INGRAM:
+			pWeapon = &g_Ingram;
+			break;
+
+		case WEAPON_INGRAM_TWIN:
+			pWeapon = &g_IngramTwin;
+			break;
 	}
 
 	// Store pointer to our destination entity_state_t so we can get our origin, etc. from it
@@ -878,6 +890,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		( ( CGlockTwin * ) player.m_pActiveItem )->m_iClip2 = (int) from->client.vuser2[2];
 	}
 
+	if ( player.m_pActiveItem->m_iId == WEAPON_INGRAM_TWIN )
+	{
+		( ( CIngramTwin * ) player.m_pActiveItem )->m_iClip2 = (int) from->client.vuser2[2];
+	}
+
 	// Don't go firing anything if we have died or are spectating
 	// Or if we don't have a weapon model deployed
 	if ( ( player.pev->deadflag != ( DEAD_DISCARDBODY + 1 ) ) && 
@@ -951,6 +968,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	if ( player.m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN )
 	{
 		from->client.vuser2[2] = ( ( CGlockTwin * ) player.m_pActiveItem )->m_iClip2;
+	}
+
+	if ( player.m_pActiveItem->m_iId == WEAPON_INGRAM_TWIN )
+	{
+		from->client.vuser2[2] = ( ( CIngramTwin * ) player.m_pActiveItem )->m_iClip2;
 	}
 
 	// Make sure that weapon animation matches what the game .dll is telling us
