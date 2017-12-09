@@ -150,6 +150,9 @@ public:
 	BOOL				superHot;
 	float				superHotMultiplier;
 	float				nextSuperHotMultiplierUpdate;
+	float				superHotJumping;
+
+	BOOL				jumpedOnce;
 
 	BOOL				oneHitKO;
 	BOOL				oneHitKOFromPlayer;

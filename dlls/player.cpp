@@ -167,6 +167,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, superHot, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, superHotMultiplier, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, nextSuperHotMultiplierUpdate, FIELD_TIME ),
+	DEFINE_FIELD( CBasePlayer, superHotJumping, FIELD_TIME ),
+
+	DEFINE_FIELD( CBasePlayer, jumpedOnce, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
@@ -2321,6 +2324,11 @@ void CBasePlayer::Jump()
 	{
 		pev->velocity = pev->velocity + pev->basevelocity;
 	}
+
+	if ( superHot ) {
+		superHotJumping = gpGlobals->time + 0.15f;
+	}
+	jumpedOnce = TRUE;
 }
 
 
@@ -3935,6 +3943,8 @@ void CBasePlayer::Spawn( void )
 	superHot = FALSE;
 	superHotMultiplier = 0.0005f;
 	nextSuperHotMultiplierUpdate = 0.0f;
+	superHotJumping = 0.0f;
+	jumpedOnce = FALSE;
 
 	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
 	shouldProducePhysicalBullets = false;
@@ -5805,6 +5815,10 @@ void CBasePlayer :: UpdateClientData( void )
 		CVAR_SET_FLOAT( "gl_vsync", 0.0f );
 	}
 
+	if ( jumpedOnce && ( pev->flags & FL_ONGROUND ) ) {
+		jumpedOnce = FALSE;
+	}
+
 	if ( superHot ) {
 		float base = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 
@@ -5817,8 +5831,11 @@ void CBasePlayer :: UpdateClientData( void )
 			}
 
 			nextSuperHotMultiplierUpdate = using_sys_timescale ? 0.01 : superHotMultiplier + gpGlobals->time;
+			if ( superHotJumping && gpGlobals->time >= superHotJumping ) {
+				superHotJumping = 0.0f;
+			}
 
-			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT | IN_JUMP ) || afterMP5Fire ) {
+			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) || ( jumpedOnce && superHotJumping && gpGlobals->time < superHotJumping ) || afterMP5Fire ) {
 				superHotMultiplier += using_sys_timescale ? 0.05 : ( base / 40.0f );
 				if ( superHotMultiplier > base ) {
 					superHotMultiplier = base;
