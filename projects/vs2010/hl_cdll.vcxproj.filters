@@ -390,6 +390,9 @@
     <ClCompile Include="..\..\dlls\ingram_twin.cpp">
       <Filter>Source Files\_hl\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\flash.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -574,6 +577,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\player_info_window.h">
       <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\flash.h">
+      <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

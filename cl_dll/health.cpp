@@ -30,8 +30,6 @@
 
 DECLARE_MESSAGE(m_Health, Health )
 DECLARE_MESSAGE(m_Health, Damage )
-DECLARE_MESSAGE(m_Health, FadeOut )
-DECLARE_MESSAGE(m_Health, Flash )
 
 #define PAIN_NAME "sprites/%d_pain.spr"
 #define DAMAGE_NAME "sprites/%d_dmg.spr"
@@ -58,8 +56,6 @@ int CHudHealth::Init(void)
 {
 	HOOK_MESSAGE(Health);
 	HOOK_MESSAGE(Damage);
-	HOOK_MESSAGE(FadeOut);
-	HOOK_MESSAGE(Flash);
 	m_iHealth = 100;
 	painkillerEffect = 0;
 	m_fFade = 0;
@@ -68,8 +64,6 @@ int CHudHealth::Init(void)
 	m_fAttackFront = m_fAttackRear = m_fAttackRight = m_fAttackLeft = 0;
 	giDmgHeight = 0;
 	giDmgWidth = 0;
-	fadeOut = 0;
-	flash = 0;
 
 	memset(m_dmg, 0, sizeof(DAMAGE_IMAGE) * NUM_DMG_TYPES);
 
@@ -81,9 +75,6 @@ void CHudHealth::Reset( void )
 {
 	// make sure the pain compass is cleared when the player respawns
 	m_fAttackFront = m_fAttackRear = m_fAttackRight = m_fAttackLeft = 0;
-
-	fadeOut = 0;
-	flash = 0;
 
 	// force all the flashing damage icons to expire
 	m_bitsDamage = 0;
@@ -148,29 +139,6 @@ int CHudHealth:: MsgFunc_Damage(const char *pszName,  int iSize, void *pbuf )
 	return 1;
 }
 
-int CHudHealth:: MsgFunc_FadeOut(const char *pszName,  int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	int receivedFade = READ_BYTE();
-
-	fadeOut = 255 - receivedFade;
-	
-	return 1;
-}
-
-int CHudHealth:: MsgFunc_Flash(const char *pszName,  int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	flash = gEngfuncs.GetAbsoluteTime();
-	flashColorR = READ_BYTE();
-	flashColorG = READ_BYTE();
-	flashColorB = READ_BYTE();
-	flashColorAlpha = READ_BYTE();
-	flashEnd = READ_FLOAT();
-
-	return 1;
-}
-
 // Returns back a color from the
 // Green <-> Yellow <-> Red ramp
 void CHudHealth::GetPainColor( int &r, int &g, int &b )
@@ -201,25 +169,6 @@ void CHudHealth::GetPainColor( int &r, int &g, int &b )
 
 int CHudHealth::Draw(float flTime)
 {
-	gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, 0, 0, 0, fadeOut );
-
-	if ( flash ) {
-		float flashPosition = gEngfuncs.GetAbsoluteTime() - flash;
-
-		int alpha = flashColorAlpha * sin( ( flashPosition / flashEnd ) * 3.1415926535897932384626433832795f );
-		if ( alpha > flashColorAlpha ) {
-			alpha = flashColorAlpha;
-		}
-		if ( alpha < 0 ) {
-			alpha = 0;
-		}
-
-		gEngfuncs.pfnFillRGBABlend( 0, 0, ScreenWidth, ScreenHeight, flashColorR, flashColorG, flashColorB, alpha );
-
-		if ( flashPosition >= flashEnd ) {
-			flash = 0.0f;
-		}
-	}
 
 	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
 		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )

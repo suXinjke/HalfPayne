@@ -130,6 +130,7 @@
     <ClCompile Include="..\..\cl_dll\events.cpp" />
     <ClCompile Include="..\..\cl_dll\ev_common.cpp" />
     <ClCompile Include="..\..\cl_dll\ev_hldm.cpp" />
+    <ClCompile Include="..\..\cl_dll\flash.cpp" />
     <ClCompile Include="..\..\cl_dll\flashlight.cpp" />
     <ClCompile Include="..\..\cl_dll\gamemode_gui.cpp" />
     <ClCompile Include="..\..\cl_dll\GameStudioModelRenderer.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="..\..\cl_dll\demo.h" />
     <ClInclude Include="..\..\cl_dll\eventscripts.h" />
     <ClInclude Include="..\..\cl_dll\ev_hldm.h" />
+    <ClInclude Include="..\..\cl_dll\flash.h" />
     <ClInclude Include="..\..\cl_dll\gamemode_gui.h" />
     <ClInclude Include="..\..\cl_dll\GameStudioModelRenderer.h" />
     <ClInclude Include="..\..\cl_dll\health.h" />

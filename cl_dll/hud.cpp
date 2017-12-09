@@ -27,6 +27,7 @@
 #include "vgui_int.h"
 #include "vgui_TeamFortressViewport.h"
 #include "../common/event_api.h"
+#include "flash.h"
 
 #include "demo.h"
 #include "demo_api.h"
@@ -399,6 +400,7 @@ void CHud :: Init( void )
 	m_Menu.Init();
 	
 	ServersInit();
+	Flash_Init();
 
 	MsgFunc_ResetHUD(0, 0, NULL );
 }

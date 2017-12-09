@@ -20,6 +20,7 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "bench.h"
+#include "flash.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -174,6 +175,8 @@ int CHud :: Redraw( float flTime, int intermission )
 			pList = pList->pNext;
 		}
 	}
+
+	Flash_Draw();
 
 	// are we in demo mode? do we need to draw the logo in the top corner?
 	if (m_iLogo)

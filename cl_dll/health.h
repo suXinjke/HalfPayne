@@ -107,8 +107,6 @@ public:
 	virtual void Reset( void );
 	int MsgFunc_Health(const char *pszName,  int iSize, void *pbuf);
 	int MsgFunc_Damage(const char *pszName,  int iSize, void *pbuf);
-	int MsgFunc_FadeOut(const char *pszName,  int iSize, void *pbuf );
-	int MsgFunc_Flash(const char *pszName,  int iSize, void *pbuf );
 	int m_iHealth;
 	int painkillerEffect;
 	int m_HUD_dmg_bio;
@@ -118,12 +116,6 @@ public:
 	void GetPainColor( int &r, int &g, int &b );
 	float m_fFade;
 	int fadeOut;
-	float flash;
-	int flashColorR;
-	int flashColorG;
-	int flashColorB;
-	int flashColorAlpha;
-	float flashEnd;
 
 private:
 	SPRITE_HANDLE m_hSprite;
