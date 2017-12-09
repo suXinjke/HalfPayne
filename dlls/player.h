@@ -557,6 +557,9 @@ public:
 	BOOL instaGib;
 	BOOL crossbowExplosiveBolts;
 
+	BOOL healOnKill;
+	float healOnKillMultiplier;
+
 	BOOL edibleGibs;
 	BOOL garbageGibs;
 

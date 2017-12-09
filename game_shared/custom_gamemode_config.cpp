@@ -1098,6 +1098,33 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "heal_on_kill" ) {
+		float maxHealthTakenPercent = 25.0f;
+
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				maxHealthTakenPercent = min( max( 1, data.argsFloat.at( i ) ), 5000 );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_HEAL_ON_KILL,
+			"Heal on kill",
+			"Your health will be replenished after killing an enemy.",
+			[maxHealthTakenPercent]( CBasePlayer *player ) {
+				player->healOnKill = true;
+				player->healOnKillMultiplier = maxHealthTakenPercent / 100.0f;
+			},
+			{
+				"Victim's max health taken after kill: " + std::to_string( maxHealthTakenPercent ) + "%%\n",
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "no_fall_damage" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_NO_FALL_DAMAGE,

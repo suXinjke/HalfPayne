@@ -287,6 +287,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, drunkiness, FIELD_INTEGER ),
 
+	DEFINE_FIELD( CBasePlayer, healOnKill, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, healOnKillMultiplier, FIELD_FLOAT ),
+		
 	DEFINE_FIELD( CBasePlayer, vvvvvv, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
 
@@ -898,6 +901,10 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	if ( killedEntity != KILLED_ENTITY_UNDEFINED ) {
 		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 			cgm->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+		}
+
+		if ( healOnKill ) {
+			TakeHealth( max( 1, victim->pev->max_health * healOnKillMultiplier ), DMG_GENERIC );
 		}
 	}
 }
@@ -3958,6 +3965,9 @@ void CBasePlayer::Spawn( void )
 	bulletRicochetMaxDotProduct = 0.5;
 
 	desperation = DESPERATION_NO;
+
+	healOnKill = false;
+	healOnKillMultiplier = 0.25f;
 
 	vvvvvv = false;
 	reverseGravity = false;
