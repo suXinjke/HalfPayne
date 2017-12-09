@@ -84,7 +84,13 @@ BOOL CGameRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeap
 	if ( pPlayer->pev->deadflag != DEAD_NO )
 		return FALSE;
 
-	if ( pWeapon->pszAmmo1() )
+	// Are we picking the second gun?
+	if (
+		( FStrEq( STRING( pWeapon->pev->classname ), "weapon_9mmhandgun" ) && !pPlayer->HasNamedPlayerItem( "weapon_9mmhandgun_twin" ) ) ||
+		( FStrEq( STRING( pWeapon->pev->classname ), "weapon_ingram" ) && !pPlayer->HasNamedPlayerItem( "weapon_ingram_twin" ) )
+	) {
+		return TRUE;
+	} else if ( pWeapon->pszAmmo1() )
 	{
 		if ( !CanHaveAmmo( pPlayer, pWeapon->pszAmmo1(), pWeapon->iMaxAmmo1() ) )
 		{
