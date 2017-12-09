@@ -792,6 +792,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "detachable_tripmines" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_DETACHABLE_TRIPMINES,
+			"Detachable tripmines.",
+			"Pressing USE button on attached tripmines will detach them.",
+			[]( CBasePlayer *player ) { player->detachableTripmines = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "diving_allowed_without_slowmotion" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_DIVING_ALLOWED_WITHOUT_SLOWMOTION,

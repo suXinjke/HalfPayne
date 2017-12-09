@@ -169,6 +169,8 @@ public:
 	BOOL				vvvvvv;
 	BOOL				reverseGravity;
 
+	BOOL				detachableTripmines;
+
 	BOOL				godConstant;
 	BOOL				noTargetConstant;
 	

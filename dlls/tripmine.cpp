@@ -58,6 +58,11 @@ class CTripmineGrenade : public CGrenade
 	void EXPORT BeamBreakThink( void );
 	void EXPORT DelayDeathThink( void );
 	void Killed( entvars_t *pevAttacker, int iGib );
+	virtual int	ObjectCaps( void ) override
+	{
+		return CGrenade::ObjectCaps() | FCAP_IMPULSE_USE;
+	};
+	virtual void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 
 	void MakeBeam( void );
 	void KillBeam( void );
@@ -105,7 +110,7 @@ void CTripmineGrenade :: Spawn( void )
 	pev->sequence = TRIPMINE_WORLD;
 	ResetSequenceInfo( );
 	pev->framerate = 0;
-	
+
 	UTIL_SetSize(pev, Vector( -8, -8, -8), Vector(8, 8, 8));
 	UTIL_SetOrigin( pev, pev->origin );
 
@@ -142,6 +147,25 @@ void CTripmineGrenade :: Spawn( void )
 	m_vecEnd = pev->origin + m_vecDir * 2048;
 }
 
+void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) {
+
+	CBasePlayer *player = dynamic_cast<CBasePlayer *>( pActivator );
+	if ( !player ) {
+		return;
+	}
+
+	if ( !player->detachableTripmines ) {
+		return;
+	}
+
+	KillBeam();
+	SetThink( &CTripmineGrenade::SUB_Remove );
+	pev->nextthink = 0.01f;
+
+	UTIL_MakeVectors( pev->angles );
+	CBaseEntity *tripmine = CBaseEntity::Create( "weapon_tripmine", pev->origin - gpGlobals->v_up * 2 + gpGlobals->v_forward * 3, pev->angles );
+	tripmine->pev->velocity = gpGlobals->v_forward * 50;
+}
 
 void CTripmineGrenade :: Precache( void )
 {
@@ -370,14 +394,6 @@ void CTripmine::Spawn( )
 
 	m_iDefaultAmmo = TRIPMINE_DEFAULT_GIVE;
 
-#ifdef CLIENT_DLL
-	if ( !bIsMultiplayer() )
-#else
-	if ( !g_pGameRules->IsDeathmatch() )
-#endif
-	{
-		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 28) ); 
-	}
 }
 
 void CTripmine::Precache( void )
