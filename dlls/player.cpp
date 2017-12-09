@@ -5827,6 +5827,8 @@ void CBasePlayer :: UpdateClientData( void )
 			if ( CBasePlayerWeapon *weapon = dynamic_cast<CBasePlayerWeapon*>( m_pActiveItem ) ) {
 				if ( weapon->m_iId == WEAPON_MP5 && gpGlobals->time - weapon->m_flLastFireTime < 0.1 ) {
 					afterMP5Fire = true;
+				} else if ( ( weapon->m_iId == WEAPON_INGRAM || weapon->m_iId == WEAPON_INGRAM_TWIN ) && gpGlobals->time - weapon->m_flLastFireTime < 0.02 ) {
+					afterMP5Fire = true;
 				}
 			}
 
