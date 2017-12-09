@@ -516,6 +516,7 @@ public:
 	BOOL noSecondaryAttack;
 	BOOL noJumping;
 	BOOL noWalking;
+	BOOL slowmotionFastWalk;
 
 	BULLET_PHYSICS_MODE bulletPhysicsMode;
 	BOOL shouldProducePhysicalBullets;

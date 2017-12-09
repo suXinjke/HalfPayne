@@ -163,6 +163,7 @@ int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
 float g_frictionOverride = -1.0f;
+int g_doubleSpeed = 0;
 
 inline float GetFriction() {
 	return g_frictionOverride >= 0.0f ? g_frictionOverride : pmove->movevars->friction;
@@ -1101,6 +1102,10 @@ void PM_WalkMove ()
 		wishspeed = pmove->maxspeed;
 	}
 
+	if ( g_doubleSpeed ) {
+		wishspeed *= 2;
+	}
+
 	// When landing on the ground after diving
 	if ( pmove->flags & FL_DIVING ) {
 		if ( !landedAfterDiving ) {
@@ -1401,6 +1406,9 @@ void PM_WaterMove (void)
 		VectorScale (wishvel, pmove->maxspeed/wishspeed, wishvel);
 		wishspeed = pmove->maxspeed;
 	}
+	if ( g_doubleSpeed ) {
+		wishspeed *= 2;
+	}
 	// Slow us down a bit.
 	wishspeed *= 0.8;
 
@@ -1500,6 +1508,9 @@ void PM_AirMove (void)
 	{
 		VectorScale (wishvel, pmove->maxspeed/wishspeed, wishvel);
 		wishspeed = pmove->maxspeed;
+	}
+	if ( g_doubleSpeed ) {
+		wishspeed *= 2;
 	}
 	
 	PM_AirAccelerate (wishdir, wishspeed, pmove->movevars->airaccelerate);
@@ -2242,6 +2253,10 @@ void PM_LadderMove( physent_t *pLadder )
 		if ( flSpeed > pmove->maxspeed )
 		{
 			flSpeed = pmove->maxspeed;
+		}
+
+		if ( g_doubleSpeed ) {
+			flSpeed *= 2;
 		}
 
 		AngleVectors( pmove->angles, vpn, v_right, NULL );

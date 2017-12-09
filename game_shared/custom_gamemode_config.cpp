@@ -1279,6 +1279,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "slowmotion_fast_walk" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SLOWMOTION_FAST_WALK,
+			"Fast walk in slowmotion",
+			"You still walk and run almost as fast as when slowmotion is not active.",
+			[]( CBasePlayer *player ) { player->slowmotionFastWalk = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "slowmotion_on_damage" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SLOWMOTION_ON_DAMAGE,
