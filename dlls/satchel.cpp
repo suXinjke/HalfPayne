@@ -132,21 +132,6 @@ void CSatchelCharge :: SatchelThink( void )
 		return;
 	}
 
-	// After satchel stops touching it's owner, it must lose it 
-	// so it can be damaged by owner's bullets.
-	if ( pev->owner != NULL ) {
-		CBaseEntity *potentialOwner = NULL;
-		while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
-
-			if ( pev->owner == potentialOwner->edict() ) {
-				break;
-			}
-		}
-		if ( !potentialOwner ) {
-			pev->owner = NULL;
-		}
-	}
-
 	if (pev->waterlevel == 3)
 	{
 		pev->movetype = MOVETYPE_FLY;
@@ -157,6 +142,24 @@ void CSatchelCharge :: SatchelThink( void )
 	else if (pev->waterlevel == 0)
 	{
 		pev->movetype = MOVETYPE_BOUNCE;
+
+		// After satchel stops touching it's owner, it must lose it 
+		// so it can be damaged by owner's bullets.
+		if ( pev->velocity.Length() == 0.0f &&  pev->owner != NULL ) {
+			CBaseEntity *potentialOwner = NULL;
+			while ( ( potentialOwner = UTIL_FindEntityInSphere( potentialOwner, pev->origin, 48.0f ) ) != NULL ) {
+
+				if ( pev->owner == potentialOwner->edict() ) {
+					break;
+				}
+			}
+			if ( !potentialOwner ) {
+				pev->owner = NULL;
+
+				// Setting up an actual correct size is essential for damage detection
+				UTIL_SetSize( pev, Vector( -8, -4, -4 ), Vector( 16, 8, 8 ) );
+			}
+		}
 	}
 	else
 	{
@@ -442,9 +445,6 @@ void CSatchel::Throw( void )
 		// Allow satchel to receive damage so it can be destroyed by bullets and explosions
 		pSatchel->pev->takedamage = DAMAGE_YES;
 		pSatchel->pev->health = 1;
-
-		// Setting up an actual correct size is essential for damage detection
-		UTIL_SetSize( pSatchel->pev, Vector( -8, -4, -4 ), Vector( 8, 4, 4 ) );
 
 		// Satchels are always player owned, but we'll lose the owner soon,
 		// so we store the player in auxOwner that will be used for player kill counting
