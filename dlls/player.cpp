@@ -4189,6 +4189,8 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 			case DESPERATION_IMMINENT: {
 				GiveNamedItem( "weapon_9mmhandgun", true );
 				GiveNamedItem( "weapon_9mmhandgun_twin", true );
+				GiveNamedItem( "weapon_ingram", true );
+				GiveNamedItem( "weapon_ingram_twin", true );
 				if ( slowmotionOnlyDiving ) {
 					SetSlowMotion( false );
 				}
