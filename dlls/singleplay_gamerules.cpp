@@ -47,8 +47,6 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CONFIG_TYPE_MAP )
 	}
 
 	ended = false;
-	playerProcessed = false;
-	entitiesUsed = true;
 
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
@@ -121,12 +119,30 @@ void CHalfLifeRules::OnChangeLevel()
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
 	}
 
-	playerProcessed = false;
-}
+	tasks.push( [this]( CBasePlayer *pPlayer ) {
+		if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
+			pPlayer->AddVisitedMap( gpGlobals->mapname );
 
-void CHalfLifeRules::OnNewlyVisitedMap()
-{
-	entitiesUsed = false;
+			for ( const auto &config : configs ) {
+				if ( config->configSections[CONFIG_FILE_SECTION_ENTITY_USE].data.size() > 0 ) {
+					for ( int i = 0 ; i < 1024 ; i++ ) {
+						edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+						if ( !edict ) {
+							continue;
+						}
+
+						if ( config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_USE, STRING( gpGlobals->mapname ), edict->v.modelindex, STRING( edict->v.targetname ) ) ) {
+							if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+								entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+							}
+						}
+					}
+				}
+			}
+
+			OnNewlyVisitedMap();
+		}
+	} );
 }
 
 void CHalfLifeRules::HookModelIndex( edict_t *activator )
@@ -334,35 +350,12 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
-	if ( !playerProcessed ) {
-		if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
-			pPlayer->AddVisitedMap( gpGlobals->mapname );
-			OnNewlyVisitedMap();
-		}
-
-		playerProcessed = true;
+	while ( !tasks.empty() ) {
+		const auto &task = tasks.front();
+		task( pPlayer );
+		tasks.pop();
 	}
 
-	if ( !entitiesUsed ) {
-		for ( const auto &config : configs ) {
-			if ( config->configSections[CONFIG_FILE_SECTION_ENTITY_USE].data.size() > 0 ) {
-				for ( int i = 0 ; i < 1024 ; i++ ) {
-					edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
-					if ( !edict ) {
-						continue;
-					}
-
-					if ( config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_USE, STRING( gpGlobals->mapname ), edict->v.modelindex, STRING( edict->v.targetname ) ) ) {
-						if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
-							entity->Use( pPlayer, pPlayer, USE_SET, 1 );
-						}
-					}
-				}
-			}
-		}
-
-		entitiesUsed = true;
-	}
 }
 
 

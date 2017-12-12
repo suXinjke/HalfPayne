@@ -66,8 +66,6 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	timeDelta = 0.0f;
 	musicSwitchDelay = 0.0f;
 
-	monsterSpawnPrevented = false;
-
 	auto entityRandomSpawners = config.GetEntityRandomSpawners();
 	for ( const auto &spawner : entityRandomSpawners ) {
 		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
@@ -197,7 +195,47 @@ void CCustomGameModeRules::OnNewlyVisitedMap() {
 	CHalfLifeRules::OnNewlyVisitedMap();
 
 	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
-	monsterSpawnPrevented = false;
+	
+	if ( config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) ) {
+		
+		tasks.push( [this]( CBasePlayer *pPlayer ) {
+
+			for ( int i = 0 ; i < 1024 ; i++ ) {
+				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+				if ( !edict ) {
+					continue;
+				}
+
+				if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+					if ( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) {
+						continue;
+					}
+
+					if (
+						FStrEq( STRING( entity->pev->classname ), "monster_alien_controller" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_alien_grunt" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_alien_slave" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_apache" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_babycrab" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_bullchicken" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_headcrab" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_houndeye" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_human_assassin" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_human_grunt" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_ichthyosaur" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_miniturret" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_sentry" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_snark" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_zombie" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_barney" ) ||
+						FStrEq( STRING( entity->pev->classname ), "monster_scientist" )
+					) {
+						entity->pev->flags |= FL_KILLME;
+					}
+				}
+			}
+		} );
+	}
 }
 
 bool CCustomGameModeRules::ChangeLevelShouldBePrevented( const char *nextMap ) {
@@ -256,45 +294,6 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 
 		CheckForCheats( pPlayer );
-	}
-
-	if ( config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) && !monsterSpawnPrevented ) {
-		for ( int i = 0 ; i < 1024 ; i++ ) {
-			edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
-			if ( !edict ) {
-				continue;
-			}
-
-			if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
-				if ( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) {
-					continue;
-				}
-
-				if (
-					FStrEq( STRING( entity->pev->classname ), "monster_alien_controller" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_alien_grunt" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_alien_slave" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_apache" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_babycrab" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_bullchicken" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_headcrab" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_houndeye" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_human_assassin" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_human_grunt" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_ichthyosaur" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_miniturret" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_sentry" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_snark" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_zombie" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_barney" ) ||
-					FStrEq( STRING( entity->pev->classname ), "monster_scientist" )
-				) {
-					entity->pev->flags |= FL_KILLME;
-				}
-			}
-		}
-
-		monsterSpawnPrevented = true;
 	}
 
 	for ( auto &spawner : entityRandomSpawnerControllers ) {

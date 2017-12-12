@@ -22,6 +22,8 @@
 //#include "items.h"
 
 #include "custom_gamemode_config.h"
+#include <queue>
+#include <functional>
 
 class CBasePlayerItem;
 class CBasePlayer;
@@ -178,8 +180,9 @@ public:
 
 	CustomGameModeConfig mapConfig;
 	std::vector<CustomGameModeConfig *> configs;
-	bool				 playerProcessed;
-	bool				 entitiesUsed;
+
+	std::queue< std::function< void ( CBasePlayer * ) > > tasks;
+
 	int				     lastSkill;
 
 	bool EntityShouldBePrevented( edict_t *entity );
@@ -188,7 +191,7 @@ public:
 	virtual void End( CBasePlayer *pPlayer );
 
 	virtual void OnChangeLevel();
-	virtual void OnNewlyVisitedMap();
+	virtual void OnNewlyVisitedMap() {};
 	virtual void HookModelIndex( edict_t *activator );
 	virtual void HookModelIndex( edict_t *activator, const char *targetName );
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );

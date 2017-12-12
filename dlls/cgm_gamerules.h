@@ -28,7 +28,7 @@ public:
 
 	virtual void OnChangeLevel();
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
-	virtual void OnNewlyVisitedMap();
+	virtual void OnNewlyVisitedMap() override;
 	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );
 	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
@@ -55,8 +55,6 @@ public:
 
 	float timeDelta;
 	float musicSwitchDelay;
-
-	bool monsterSpawnPrevented;
 
 	CustomGameModeConfig config;
 
