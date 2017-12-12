@@ -412,6 +412,7 @@ int gmsgOnAimNew = 0;
 int gmsgOnAimUpd = 0;
 int gmsgOnAimClear = 0;
 int gmsgOnPlyUpd = 0;
+int gmsgKillConfirmed = 0;
 
 void LinkUserMessages( void )
 {
@@ -483,6 +484,8 @@ void LinkUserMessages( void )
 	gmsgOnAimClear = REG_USER_MSG( "OnAimClear", 0 );
 
 	gmsgOnPlyUpd = REG_USER_MSG( "OnPlyUpd", 30 );
+
+	gmsgKillConfirmed = REG_USER_MSG( "KillConf", 0 );
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );
@@ -910,6 +913,9 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		if ( healOnKill ) {
 			TakeHealth( max( 1, victim->pev->max_health * healOnKillMultiplier ), DMG_GENERIC );
 		}
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgKillConfirmed, NULL, pev );
+		MESSAGE_END();
 	}
 }
 

@@ -39,6 +39,8 @@ WeaponsResource gWR;
 
 int g_weaponselect = 0;
 
+extern cvar_t *crosshair_kill_confirmed;
+
 void WeaponsResource :: LoadAllWeaponSprites( void )
 {
 	for (int i = 0; i < MAX_WEAPONS; i++)
@@ -69,6 +71,7 @@ int WeaponsResource :: HasAmmo( WEAPON *p )
 		|| CountAmmo(p->iAmmo2Type) || ( p->iFlags & WEAPON_FLAGS_SELECTONEMPTY );
 }
 
+SPRITE_HANDLE globalCrosshair = NULL;
 
 void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 {
@@ -104,6 +107,8 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 
 	if (!pList)
 		return;
+
+	globalCrosshair = SPR_Load( "sprites/crosshairs.spr" );
 
 	client_sprite_t *p;
 	
@@ -245,6 +250,7 @@ DECLARE_MESSAGE(m_Ammo, WeapPickup);    // flashes a weapon pickup record
 DECLARE_MESSAGE(m_Ammo, HideWeapon);	// hides the weapon, ammo, and crosshair displays temporarily
 DECLARE_MESSAGE(m_Ammo, ItemPickup);
 DECLARE_MESSAGE(m_Ammo, AimCoords);
+DECLARE_MESSAGE(m_Ammo, KillConf);
 
 DECLARE_COMMAND(m_Ammo, Slot1);
 DECLARE_COMMAND(m_Ammo, Slot2);
@@ -278,6 +284,7 @@ int CHudAmmo::Init(void)
 	HOOK_MESSAGE(HideWeapon);
 	HOOK_MESSAGE(AimCoords);
 	HOOK_MESSAGE(AmmoX);
+	HOOK_MESSAGE(KillConf);
 
 	HOOK_COMMAND("slot1", Slot1);
 	HOOK_COMMAND("slot2", Slot2);
@@ -372,6 +379,11 @@ void CHudAmmo::Think(void)
 					gWR.DropWeapon( p );
 			}
 		}
+	}
+
+	if ( killConfirmedTime && gEngfuncs.GetAbsoluteTime() - killConfirmedTime > max( 0.0f, crosshair_kill_confirmed->value ) ) {
+		SetCurrentWeaponCrosshair( false );
+		killConfirmedTime = 0.0f;
 	}
 
 	if (!gpActiveSel)
@@ -680,6 +692,19 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 
 	m_pWeapon = pWeapon;
 
+	if ( !killConfirmedTime ) {
+		SetCurrentWeaponCrosshair( fOnTarget );
+	} else {
+		SetKillConfirmedCrosshair();
+	}
+
+	m_fFade = 200.0f; //!!!
+	m_iFlags |= HUD_ACTIVE;
+	
+	return 1;
+}
+
+void CHudAmmo::SetCurrentWeaponCrosshair( int fOnTarget ) {
 	if ( gHUD.m_iFOV >= 90 )
 	{ // normal crosshairs
 		if (fOnTarget && m_pWeapon->hAutoaim)
@@ -695,10 +720,28 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 			SetCrosshair(m_pWeapon->hZoomedCrosshair, m_pWeapon->rcZoomedCrosshair, 255, 255, 255);
 
 	}
+}
+void CHudAmmo::SetKillConfirmedCrosshair() {
+	wrect_t rc;
+	rc.top = 24;
+	rc.bottom = 48;
+	rc.left = 0;
+	rc.right = 24;
 
-	m_fFade = 200.0f; //!!!
-	m_iFlags |= HUD_ACTIVE;
+	SetCrosshair( globalCrosshair, rc, 255, 255, 255 );
+}
+
+
+int CHudAmmo::MsgFunc_KillConf( const char *pszName, int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+
+	if ( !crosshair_kill_confirmed->value ) {
+		return 1;
+	}
 	
+	killConfirmedTime = gEngfuncs.GetAbsoluteTime();
+	SetKillConfirmedCrosshair();
+
 	return 1;
 }
 

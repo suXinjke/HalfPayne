@@ -126,6 +126,10 @@ public:
 	int MsgFunc_ItemPickup( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_HideWeapon( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_AimCoords( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_KillConf( const char *pszName, int iSize, void *pbuf );
+
+	void SetCurrentWeaponCrosshair( int fOnTarget );
+	void SetKillConfirmedCrosshair();
 
 	void SlotInput( int iSlot );
 	void _cdecl UserCmd_Slot1( void );
@@ -154,6 +158,8 @@ private:
 	float aimCoordY;
 	float aimCoordZ;
 	float aimCoordAngle;
+
+	float killConfirmedTime;
 
 };
 

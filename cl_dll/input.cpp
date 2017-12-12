@@ -98,6 +98,8 @@ cvar_t  *slowmotion_negative_pitch;
 cvar_t  *sm_current_pos;
 cvar_t  *sm_current_file;
 cvar_t  *sm_looping;
+
+cvar_t  *crosshair_kill_confirmed;
 /*
 ===============================================================================
 
@@ -1222,6 +1224,8 @@ void InitInput (void)
 
 	print_subtitles = gEngfuncs.pfnRegisterVariable( "subtitles", "2", FCVAR_ARCHIVE );
 	subtitles_font_scale = gEngfuncs.pfnRegisterVariable( "subtitles_font_scale", "1", FCVAR_ARCHIVE );
+
+	crosshair_kill_confirmed = gEngfuncs.pfnRegisterVariable( "crosshair_kill_confirmed", "0.5", FCVAR_ARCHIVE );
 
 	slowmotion_effect_change_duration = gEngfuncs.pfnRegisterVariable( "slowmotion_effect_change_duration", "0.7", FCVAR_ARCHIVE );
 	slowmotion_low_pass_cutoff = gEngfuncs.pfnRegisterVariable( "slowmotion_low_pass_cutoff", "1200", FCVAR_ARCHIVE );
