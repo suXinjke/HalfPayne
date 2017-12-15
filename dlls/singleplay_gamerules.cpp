@@ -181,6 +181,7 @@ void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName 
 	OnHookedModelIndex( pPlayer, activator, modelIndex, std::string( targetName ) );
 }
 
+extern int gEvilImpulse101;
 void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
 {
 	for ( const auto &config : configs ) {
@@ -201,7 +202,10 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activato
 				// I'm very sorry for this memory leak for now
 				string_t soundPathAllocated = ALLOC_STRING( sound.soundPath.c_str() );
 
-				pPlayer->AddToSoundQueue( soundPathAllocated, sound.delay, section == CONFIG_FILE_SECTION_MAX_COMMENTARY, true );
+				if ( !( gEvilImpulse101 && targetName.find( "weapon_" ) == 0 ) ) {
+					pPlayer->AddToSoundQueue( soundPathAllocated, sound.delay, section == CONFIG_FILE_SECTION_MAX_COMMENTARY, true );
+				}
+
 				if ( !sound.constant ) {
 					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
 				}
