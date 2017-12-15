@@ -31,11 +31,27 @@ void HL_ImGUI_Init() {
 	// Last 4 bytes specify an offset from this address + 5 bytes of command itself
 	unsigned int origin = NULL;
 
-	// Offsets were found out by using Cheat Engine, let's hope Valve doesn't change the engine much
-	// But investing into figuring the exact command location would be great
+	// We're scanning 1 MB at the beginning of hw.dll for a certain sequence of bytes
+	// Based on location of that sequnce, the location of CALL command is calculated
 	MODULEINFO module_info;
 	if ( GetModuleInformation( GetCurrentProcess(), GetModuleHandle( "hw.dll" ), &module_info, sizeof( module_info ) ) ) {
-		origin = ( unsigned int ) module_info.lpBaseOfDll + 0xA9C40 + 0x2C;
+		origin = ( unsigned int ) module_info.lpBaseOfDll;
+		
+		const int MEGABYTE = 1024 * 1024;
+		char *slice = new char[MEGABYTE];
+		ReadProcessMemory( GetCurrentProcess(), ( const void * ) origin, slice, MEGABYTE, NULL );
+
+		char magic[] = { 0x8B, 0x4D, 0x08, 0x83, 0xC4, 0x08, 0x89, 0x01, 0x5D, 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0xA1 };
+
+		for ( unsigned int i = 0 ; i < MEGABYTE - 16; i++ ) {
+			bool sequenceIsMatching = memcmp( slice + i, magic, 16 ) == 0;
+			if ( sequenceIsMatching ) {
+				origin += i + 27;
+				break;
+			}
+		}
+
+		delete[] slice;
 
 		char opCode[1];
 		ReadProcessMemory( GetCurrentProcess(), ( const void * ) origin, opCode, 1, NULL );
