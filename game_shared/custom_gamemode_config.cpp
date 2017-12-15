@@ -793,11 +793,19 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	}
 
 	if ( modName == "detachable_tripmines" ) {
+		bool detachInstantly = false;
+		if ( data.argsString.size() > 1 && data.argsString.at( 1 ) == "instantly" ) {
+			detachInstantly = true;
+		}
+
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_DETACHABLE_TRIPMINES,
 			"Detachable tripmines.",
 			"Pressing USE button on attached tripmines will detach them.",
-			[]( CBasePlayer *player ) { player->detachableTripmines = true; }
+			[detachInstantly]( CBasePlayer *player ) {
+				player->detachableTripmines = true;
+				player->detachableTripminesInstantly = detachInstantly;
+			}
 		) );
 		return true;
 	}

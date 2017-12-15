@@ -163,8 +163,13 @@ void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	pev->nextthink = 0.01f;
 
 	UTIL_MakeVectors( pev->angles );
-	CBaseEntity *tripmine = CBaseEntity::Create( "weapon_tripmine", pev->origin - gpGlobals->v_up * 2 + gpGlobals->v_forward * 3, pev->angles );
-	tripmine->pev->velocity = gpGlobals->v_forward * 50;
+	CTripmine *tripmine = ( CTripmine * ) CBaseEntity::Create( "weapon_tripmine", pev->origin - gpGlobals->v_up * 2 + gpGlobals->v_forward * 3, pev->angles );
+
+	if ( player->detachableTripminesInstantly && tripmine->AddToPlayer( player ) ) {
+		UTIL_Remove( tripmine );
+	} else {
+		tripmine->pev->velocity = gpGlobals->v_forward * 50;
+	}
 }
 
 void CTripmineGrenade :: Precache( void )

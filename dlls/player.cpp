@@ -296,6 +296,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, detachableTripmines, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, detachableTripminesInstantly, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, godConstant, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, noTargetConstant, FIELD_BOOLEAN ),
@@ -3985,6 +3986,7 @@ void CBasePlayer::Spawn( void )
 	reverseGravity = false;
 
 	detachableTripmines = false;
+	detachableTripminesInstantly = false;
 
 	godConstant = false;
 	noTargetConstant = false;

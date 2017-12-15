@@ -170,6 +170,7 @@ public:
 	BOOL				reverseGravity;
 
 	BOOL				detachableTripmines;
+	BOOL				detachableTripminesInstantly;
 
 	BOOL				godConstant;
 	BOOL				noTargetConstant;
