@@ -3902,7 +3902,7 @@ void CBasePlayer::Spawn( void )
 	m_iFlashBattery = 99;
 	m_flFlashLightTime = 1; // force first message
 
-	slowMotionCharge = 0;
+	slowMotionCharge = 100;
 	slowMotionUpdateTime = 1;
 	infiniteSlowMotion = 0;
 	nextSmoothTimeScaleChange = 0.0f;
