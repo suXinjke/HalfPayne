@@ -547,8 +547,28 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 const std::string CustomGameModeConfig::GetHash() {
 	std::ostringstream result;
 
+	auto ignoredSections = std::vector<CONFIG_FILE_SECTION>( {
+		CONFIG_FILE_SECTION_NAME,
+		CONFIG_FILE_SECTION_DESCRIPTION,
+		CONFIG_FILE_SECTION_SOUND,
+		CONFIG_FILE_SECTION_MUSIC,
+		CONFIG_FILE_SECTION_PLAYLIST,
+		CONFIG_FILE_SECTION_MAX_COMMENTARY
+	} );
+
 	for ( const auto &section : configSections ) {
-		for ( const auto &sectionData : section.second.data ) {
+
+		// if contains ignored section
+		if ( std::find( ignoredSections.begin(), ignoredSections.end(), section.first ) != ignoredSections.end() ) {
+			continue;
+		}
+
+		auto sortedData = section.second.data;
+		std::sort( sortedData.begin(), sortedData.end(), []( const ConfigSectionData &data1, const ConfigSectionData &data2 ) {
+			return data1.line > data2.line;
+		} );
+
+		for ( const auto &sectionData : sortedData ) {
 			result << sectionData.line;
 		}
 	}
