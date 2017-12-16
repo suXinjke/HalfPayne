@@ -342,6 +342,7 @@ public:
 	const StartPosition GetStartPosition();
 	const Intermission GetIntermission( const std::string &mapName, int modelIndex, const std::string &targetName );
 
+	std::vector<std::string> configNameSeparated;
 	std::string configName;
 	std::string error;
 	std::string sha1;

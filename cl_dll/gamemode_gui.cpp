@@ -1,60 +1,62 @@
 ﻿#include "wrect.h"
 #include "cl_dll.h"
 #include "FontAwesome.h"
+#include <map>
 
 #include "gamemode_gui.h"
 
 extern SDL_Window *window;
 
-std::vector< CustomGameModeConfig > cgmConfigs;
-std::vector< CustomGameModeConfig > bmmConfigs;
-std::vector< CustomGameModeConfig > sagmConfigs;
+std::map<std::string, std::vector<CustomGameModeConfig>> configs;
 
 int configAmount;
 int configCompleted;
 float configCompletedPercent;
 
-int selectedGamemodeTab = CONFIG_TYPE_CGM;
-
 void GameModeGUI_Init() {
 	GameModeGUI_RefreshConfigFiles();
 }
 
-int GetAmountOfCompletedConfigs( const std::vector< CustomGameModeConfig > &configs ) {
-	int result = 0;
-	for ( const auto &config : configs ) {
-		if ( config.gameFinishedOnce ) {
-			result++;
+void GameModeGUI_RefreshConfigFiles() {
+
+	configs.clear();
+
+	configAmount = 0;
+	configCompleted = 0;
+
+	auto configTypes = std::vector<CONFIG_TYPE>( {
+		CONFIG_TYPE_CGM,
+		CONFIG_TYPE_BMM,
+		CONFIG_TYPE_SAGM
+	} );
+
+	for ( auto configType : configTypes ) {
+
+		std::vector<std::string> files = CustomGameModeConfig( configType ).GetAllConfigFileNames();
+
+		for ( const auto &file : files ) {
+			CustomGameModeConfig config( configType );
+			config.ReadFile( file.c_str() );
+
+			std::string sectionName =
+				config.configNameSeparated.size() > 1 ? config.configNameSeparated.at( 0 ) :
+				configType == CONFIG_TYPE_CGM  ? "Custom Game Modes" :
+				configType == CONFIG_TYPE_BMM  ? "Black Mesa Minute" :
+				configType == CONFIG_TYPE_SAGM ? "Score Attack" :
+				"ERROR";
+
+			configs[sectionName].push_back( config );
+
+			configAmount++;
+			if ( config.gameFinishedOnce ) {
+				configCompleted++;
+			}
 		}
 	}
 
-	return result;
-}
-
-void GameModeGUI_RefreshConfigFiles() {
-	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_CGM );
-	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_BMM );
-	GameModeGUI_RefreshConfigFileList( CONFIG_TYPE_SAGM );
-
-	configAmount = cgmConfigs.size() + bmmConfigs.size() + sagmConfigs.size();
-	configCompleted = GetAmountOfCompletedConfigs( cgmConfigs ) + GetAmountOfCompletedConfigs( bmmConfigs ) + GetAmountOfCompletedConfigs( sagmConfigs );
 	configCompletedPercent = ( ( ( float ) configCompleted ) / configAmount );
 }
 
-void GameModeGUI_RefreshConfigFileList( CONFIG_TYPE configType ) {
-	std::vector< CustomGameModeConfig > *configs = GameModeGUI_GameModeConfigVectorFromType( configType );
-	configs->clear();
-
-	CustomGameModeConfig dumbConfig = CustomGameModeConfig( configType );
-	std::vector<std::string> files = dumbConfig.GetAllConfigFileNames();
-
-	for ( const auto &file : files ) {
-		CustomGameModeConfig config( configType );
-		config.ReadFile( file.c_str() );
-
-		configs->push_back( config );
-	}
-}
 
 void GameModeGUI_RunCustomGameMode( CustomGameModeConfig &config ) {
 	if ( config.error.length() > 0 ) {
@@ -71,25 +73,6 @@ void GameModeGUI_RunCustomGameMode( CustomGameModeConfig &config ) {
 	char mapCmd[64];
 	sprintf( mapCmd, "map %s", startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
-}
-
-void GameModeGUI_SelectableButton( bool isSelected ) {
-	ImGui::PushStyleColor( ImGuiCol_Button, isSelected ? ImVec4( 0.4f, 0.4f, 1.0f, 1.0f ) : ImVec4( 1.0f, 0.4f, 0.4f, 1.0f ) );
-	ImGui::PushStyleColor( ImGuiCol_ButtonHovered, isSelected ? ImVec4( 0.6f, 0.6f, 1.0f, 1.0f ) : ImVec4( 1.0f, 0.6f, 0.6f, 1.0f ) );
-	ImGui::PushStyleColor( ImGuiCol_ButtonActive, isSelected ? ImVec4( 0.3f, 0.3f, 1.0f, 1.0f ) : ImVec4( 1.0f, 0.3f, 0.3f, 1.0f ) );
-}
-
-std::vector<CustomGameModeConfig> *GameModeGUI_GameModeConfigVectorFromType( CONFIG_TYPE configType ) {
-	switch ( configType ) {
-		case CONFIG_TYPE_CGM:
-			return &cgmConfigs;
-
-		case CONFIG_TYPE_BMM:
-			return &bmmConfigs;
-
-		case CONFIG_TYPE_SAGM:
-			return &sagmConfigs;
-	}
 }
 
 void GameModeGUI_DrawMainWindow() {
@@ -125,19 +108,12 @@ void GameModeGUI_DrawMainWindow() {
 	// TABLES
 	{
 		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, -20 ) );
-		if ( ImGui::CollapsingHeader( "Custom Game Modes" ) ) {
-			GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE_CGM );
-			ImGui::Columns( 1 );
-		}
 
-		if ( ImGui::CollapsingHeader( "Black Mesa Minute" ) ) {
-			GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE_BMM );
-			ImGui::Columns( 1 );
-		}
-
-		if ( ImGui::CollapsingHeader( "Score Attack" ) ) {
-			GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE_SAGM );
-			ImGui::Columns( 1 );
+		for ( const auto &configSection : configs ) {
+			if ( ImGui::CollapsingHeader( configSection.first.c_str() ) ) {
+				GameModeGUI_DrawGamemodeConfigTable( configSection.second );
+				ImGui::Columns( 1 );
+			}
 		}
 
 		ImGui::EndChild();
@@ -150,9 +126,9 @@ void GameModeGUI_DrawMainWindow() {
 	ImGui::End();
 }
 
-void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
+void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig> &configs ) {
 	
-	const std::vector<CustomGameModeConfig> *configs = GameModeGUI_GameModeConfigVectorFromType( configType );
+	//const std::vector<CustomGameModeConfig> *configs = GameModeGUI_GameModeConfigVectorFromType( configType );
 
 	{
 		ImGui::Columns( 1, "gamemode_hint_column" );
@@ -177,11 +153,11 @@ void GameModeGUI_DrawGamemodeConfigTable( CONFIG_TYPE configType ) {
 	// TABLE ITSELF
 	{
 
-		for ( int i = 0; i < configs->size(); i++ ) {
+		for ( int i = 0; i < configs.size(); i++ ) {
 
-			CustomGameModeConfig config = configs->at( i );
+			CustomGameModeConfig config = configs.at( i );
 
-			const char *file = config.configName.c_str();
+			const char *file = config.configNameSeparated.at( config.configNameSeparated.size() - 1 ).c_str();
 			const std::string name = config.GetName();
 			
 			// COMPLETED?

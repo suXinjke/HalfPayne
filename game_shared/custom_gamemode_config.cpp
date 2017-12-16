@@ -458,6 +458,8 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	Reset();
 
 	configName = fileName;
+	configNameSeparated = Split( fileName, '\\' );
+
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
 
 	int lineCount = 0;
@@ -587,6 +589,7 @@ void CustomGameModeConfig::Reset() {
 	}
 	
 	this->configName.clear();
+	this->configNameSeparated.clear();
 	this->error.clear();
 	this->musicPlaylist.clear();
 	musicPlaylistShuffle = false;
