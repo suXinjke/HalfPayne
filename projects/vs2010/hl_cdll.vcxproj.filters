@@ -393,6 +393,9 @@
     <ClCompile Include="..\..\cl_dll\flash.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\fs_aux.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -580,6 +583,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cl_dll\flash.h">
       <Filter>Header Files\cl_dll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\fs_aux.h">
+      <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

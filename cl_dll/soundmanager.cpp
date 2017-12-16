@@ -8,6 +8,7 @@
 #include "cl_dll.h"
 #include "parsemsg.h"
 #include <random>
+#include "fs_aux.h"
 
 #include <regex>
 
@@ -126,29 +127,7 @@ void SM_Play( const char *soundPath, bool looping ) {
 }
 
 void SM_PlayRandomMainMenuMusic() {
-	std::vector<std::string> backgroundFolders;
-
-	WIN32_FIND_DATA fdFile;
-	HANDLE hFind = NULL;
-
-	const char *root = ".\\half_payne\\media\\menu";
-
-	char sPath[2048];
-	sprintf( sPath, "%s\\*.*", root );
-
-	if ( ( hFind = FindFirstFile( sPath, &fdFile ) ) == INVALID_HANDLE_VALUE ) {
-		return;
-	}
-
-	do {
-		if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
-
-			sprintf( sPath, "%s\\%s", root, fdFile.cFileName );
-			backgroundFolders.push_back( sPath );
-		}
-	} while ( FindNextFile( hFind, &fdFile ) );
-
-	FindClose( hFind );
+	std::vector<std::string> backgroundFolders = FS_GetAllFilesInDirectory( ".\\half_payne\\media\\menu" );
 
 	static std::random_device rd;
 	static std::mt19937 gen( rd() );

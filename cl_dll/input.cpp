@@ -90,6 +90,7 @@ cvar_t  *print_player_info;
 cvar_t  *hud_autoswitch;
 cvar_t  *print_subtitles;
 cvar_t  *subtitles_font_scale;
+cvar_t  *subtitles_language;
 
 cvar_t  *slowmotion_effect_change_duration;
 cvar_t  *slowmotion_low_pass_cutoff;
@@ -1224,6 +1225,7 @@ void InitInput (void)
 
 	print_subtitles = gEngfuncs.pfnRegisterVariable( "subtitles", "2", FCVAR_ARCHIVE );
 	subtitles_font_scale = gEngfuncs.pfnRegisterVariable( "subtitles_font_scale", "1", FCVAR_ARCHIVE );
+	subtitles_language = gEngfuncs.pfnRegisterVariable( "subtitles_language", "en", FCVAR_ARCHIVE );
 
 	crosshair_kill_confirmed = gEngfuncs.pfnRegisterVariable( "crosshair_kill_confirmed", "0.5", FCVAR_ARCHIVE );
 

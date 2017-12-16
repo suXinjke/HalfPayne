@@ -207,6 +207,7 @@
     <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp" />
     <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp" />
     <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp" />
+    <ClCompile Include="..\..\game_shared\fs_aux.cpp" />
     <ClCompile Include="..\..\game_shared\sha1.cpp" />
     <ClCompile Include="..\..\game_shared\string_aux.cpp" />
     <ClCompile Include="..\..\game_shared\vgui_checkbutton2.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="..\..\game_shared\custom_gamemode_config.h" />
     <ClInclude Include="..\..\game_shared\custom_gamemode_record.h" />
     <ClInclude Include="..\..\game_shared\FontAwesome.h" />
+    <ClInclude Include="..\..\game_shared\fs_aux.h" />
     <ClInclude Include="..\..\game_shared\sha1.h" />
     <ClInclude Include="..\..\game_shared\string_aux.h" />
     <ClInclude Include="..\..\game_shared\vgui_scrollbar2.h" />

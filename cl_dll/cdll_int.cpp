@@ -25,8 +25,10 @@
 #include "../public/interface.h"
 //#include "vgui_schememanager.h"
 #include "soundmanager.h"
-#include <Windows.h>
+#include "fs_aux.h"
+
 #include <random>
+#include <algorithm>
 
 extern "C"
 {
@@ -149,39 +151,20 @@ void CL_DLLEXPORT HUD_PlayerMove( struct playermove_s *ppmove, int server )
 // Checks resource 'half_payne/resource' directory for directory names
 // that start with 'background' but not exact 'background'.
 // One of these random directories will be copied to 'half_payne/resource/background'
-
-// The function is very ugly mostly because of WinAPI usage
 void ShuffleMainMenuBackground() {
-	std::vector<std::string> backgroundFolders;
 
-	WIN32_FIND_DATA fdFile;
-	HANDLE hFind = NULL;
+	std::string backgroundDir = ".\\half_payne\\resource";
 
-	const char *root = ".\\half_payne\\resource";
-
-	char sPath[2048];
-	sprintf( sPath, "%s\\*.*", root );
-
-	if ( ( hFind = FindFirstFile( sPath, &fdFile ) ) == INVALID_HANDLE_VALUE ) {
-		return;
-	}
-
-	do {
-		if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
-
-			sprintf( sPath, "%s\\%s", root, fdFile.cFileName );
-
-			if (
-				fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
-				std::string( fdFile.cFileName ) != "background" &&
-				std::string( fdFile.cFileName ).find( "background" ) == 0
-			) {
-				backgroundFolders.push_back( sPath );
-			}
+	std::vector<std::string> backgroundFolders = FS_GetAllFilesInDirectory( backgroundDir.c_str(), "*", true, true );
+	backgroundFolders.erase( std::remove_if( backgroundFolders.begin(), backgroundFolders.end(), [backgroundDir]( const std::string &folder ) {
+		std::string folderName = std::string( folder );
+		std::string::size_type pos = folderName.find( backgroundDir );
+		if ( pos != std::string::npos ) {
+			folderName.erase( pos, backgroundDir.length() );
 		}
-	} while ( FindNextFile( hFind, &fdFile ) );
 
-	FindClose( hFind );
+		return folderName == "\\background" || folderName.find( "\\background" ) != 0;
+	} ), backgroundFolders.end() );
 
 	if ( backgroundFolders.size() > 0 ) {
 		static std::random_device rd;
@@ -191,29 +174,8 @@ void ShuffleMainMenuBackground() {
 		std::string backgroundFolder = ".\\half_payne\\resource\\background";
 		std::string newBackground = backgroundFolders.at( dis( gen ) );
 
-		TCHAR backgroundFolderRaw[MAX_PATH];
-		strcpy(backgroundFolderRaw, backgroundFolder.c_str());
-		backgroundFolderRaw[backgroundFolder.size() + 1] = NULL;
-
-		TCHAR newBackgroundRaw[MAX_PATH];
-		strcpy(newBackgroundRaw, newBackground.c_str());
-		newBackgroundRaw[newBackground.size() + 1] = NULL;
-
-		SHFILEOPSTRUCT s = { 0 };
-		s.hwnd = NULL;
-		s.wFunc = FO_DELETE;
-		s.pFrom = backgroundFolderRaw;
-		s.pTo = "";
-		s.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
-		SHFileOperation(&s);
-
-		SHFILEOPSTRUCT s2 = { 0 };
-		s2.hwnd = NULL;
-		s2.wFunc = FO_COPY;
-		s2.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT | FOF_NOCONFIRMMKDIR;
-		s2.pFrom = newBackgroundRaw;
-		s2.pTo = backgroundFolderRaw;
-		SHFileOperation(&s2);
+		FS_RemoveDirectory( backgroundFolder );
+		FS_CopyDirectory( newBackground, backgroundFolder );
 	}
 }
 

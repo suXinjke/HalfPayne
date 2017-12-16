@@ -332,7 +332,7 @@ public:
 	static std::string ConfigTypeToGameModeName( CONFIG_TYPE configType, bool uppercase = false );
 
 	std::vector<std::string> GetAllConfigFileNames();
-	std::vector<std::string> GetAllFileNames( const char *path, const char *extension, bool includeExtension = false );
+	std::vector<std::string> GetAllFileNames( const char *path, const char *extension = "*", bool includeExtension = false );
 	std::vector<std::string> GetAllFileNames( const char *path, const std::vector<std::string> &extensions, bool includeExtension = false );
 
 	static std::string GetGamePath();

@@ -4,7 +4,7 @@
 #include <regex>
 #include <sstream>
 #include "sha1.h"
-#include "Windows.h"
+#include "fs_aux.h"
 
 int CustomGameModeConfig::GetAllowedItemIndex( const char *allowedItem ) {
 
@@ -227,7 +227,7 @@ void CustomGameModeConfig::InitConfigSections() {
 
 			if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
 				if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-					auto vec = GetAllFileNames( line.c_str(), { ".wav", ".ogg", ".mp3" }, true );
+					auto vec = GetAllFileNames( line.c_str(), { "wav", "ogg", "mp3" }, true );
 					musicPlaylist.insert( musicPlaylist.end(), vec.begin(), vec.end() );
 				} else {
 					musicPlaylist.push_back( line );
@@ -409,7 +409,7 @@ std::string CustomGameModeConfig::ConfigTypeToGameModeName( CONFIG_TYPE configTy
 }
 
 std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames() {
-	return GetAllFileNames( folderPath.c_str(), ".txt" );
+	return GetAllFileNames( folderPath.c_str(), "txt" );
 }
 
 std::vector<std::string> CustomGameModeConfig::GetAllFileNames( const char *path, const std::vector<std::string> &extensions, bool includeExtension ) {
@@ -426,49 +426,28 @@ std::vector<std::string> CustomGameModeConfig::GetAllFileNames( const char *path
 // http://stackoverflow.com/questions/2314542/listing-directory-contents-using-c-and-windows
 std::vector<std::string> CustomGameModeConfig::GetAllFileNames( const char *path, const char *extension, bool includeExtension ) {
 
-	std::vector<std::string> result;
+	std::vector<std::string> result = FS_GetAllFilesInDirectory( path, extension );
 
-	WIN32_FIND_DATA fdFile;
-	HANDLE hFind = NULL;
+	std::transform( result.begin(), result.end(), result.begin(), [this, extension, includeExtension]( std::string &path ){
+		
+		std::string pathSubstring = folderPath + "\\";
+		std::string extensionSubstring = "." + std::string( extension );
 
-	char sPath[2048];
-	sprintf( sPath, "%s\\*.*", path );
+		std::string::size_type pos = path.find( pathSubstring );
+		if ( pos != std::string::npos ) {
+			path.erase( pos, pathSubstring.length() );
+		}
 
-	if ( ( hFind = FindFirstFile( sPath, &fdFile ) ) == INVALID_HANDLE_VALUE ) {
-		return std::vector<std::string>();
-	}
+		pos = path.rfind( extensionSubstring );
+		if ( pos != std::string::npos ) {
 
-	do {
-		if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
-			
-			sprintf( sPath, "%s\\%s", path, fdFile.cFileName );
-
-			if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-				std::vector<std::string> sub = GetAllFileNames( sPath, extension, includeExtension );
-				result.insert( result.end(), sub.begin(), sub.end() );
-			} else {
-				std::string path = sPath;
-				std::string pathSubstring = folderPath + "\\";
-				std::string extensionSubstring = extension;
-
-				std::string::size_type pos = path.find( pathSubstring );
-				if ( pos != std::string::npos ) {
-					path.erase( pos, pathSubstring.length() );
-				}
-
-				pos = path.rfind( extensionSubstring );
-				if ( pos != std::string::npos ) {
-
-					if ( !includeExtension ) {
-						path.erase( pos, extensionSubstring.length() );
-					}
-					result.push_back( path );
-				}
+			if ( !includeExtension ) {
+				path.erase( pos, extensionSubstring.length() );
 			}
 		}
-	} while ( FindNextFile( hFind, &fdFile ) );
 
-	FindClose( hFind );
+		return path;
+	} );
 
 	return result;
 }

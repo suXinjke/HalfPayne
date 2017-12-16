@@ -221,6 +221,7 @@
     <ClCompile Include="..\..\dlls\zombie.cpp" />
     <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp" />
     <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp" />
+    <ClCompile Include="..\..\game_shared\fs_aux.cpp" />
     <ClCompile Include="..\..\game_shared\sha1.cpp" />
     <ClCompile Include="..\..\game_shared\string_aux.cpp" />
     <ClCompile Include="..\..\game_shared\voice_gamemgr.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="..\..\engine\eiface.h" />
     <ClInclude Include="..\..\game_shared\custom_gamemode_config.h" />
     <ClInclude Include="..\..\game_shared\custom_gamemode_record.h" />
+    <ClInclude Include="..\..\game_shared\fs_aux.h" />
     <ClInclude Include="..\..\game_shared\sha1.h" />
     <ClInclude Include="..\..\game_shared\string_aux.h" />
     <ClInclude Include="..\..\pm_shared\pm_debug.h" />

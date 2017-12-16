@@ -30,6 +30,7 @@ struct Subtitle {
 };
 
 void Subtitles_Init();
+void Subtitles_ParseSubtitles( const std::string &filePath, const std::string &language );
 void Subtitles_Draw();
 bool Subtitle_IsFarAwayFromPlayer( const SubtitleOutput &subtitle );
 void Subtitles_Push( const std::string &key, bool ignoreLongDistances, const Vector &pos );

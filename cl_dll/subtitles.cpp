@@ -1,14 +1,18 @@
 ﻿#include "wrect.h"
 #include "cl_dll.h"
 #include "parsemsg.h"
+#include "cvardef.h"
 
 #include "subtitles.h"
 #include "string_aux.h"
+#include "fs_aux.h"
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
 extern SDL_Window *window;
+extern cvar_t *subtitles_language;
 
 std::map<std::string, SubtitleOutput> subtitlesToDraw;
 std::map<std::string, SubtitleColor> colors;
@@ -19,9 +23,24 @@ void Subtitles_Init() {
 	gEngfuncs.pfnHookUserMsg( "SubtClear", Subtitles_SubtClear );
 	gEngfuncs.pfnHookUserMsg( "SubtRemove", Subtitles_SubtRemove );
 
-	std::ifstream inp( "half_payne/resource/subtitles_en.txt" );
+	std::vector<std::string> subtitleFiles = FS_GetAllFilesInDirectory( "half_payne/resource", "txt" );
+
+	for ( auto sub : subtitleFiles ) {
+		std::regex rgx( "subtitles_(\\w+)\\.txt" );
+		std::smatch match;
+		std::regex_search( sub, match, rgx );
+
+		if ( match.size() > 1 ) {
+			Subtitles_ParseSubtitles( sub, match.str( 1 ) );
+		}
+	}
+}
+
+void Subtitles_ParseSubtitles( const std::string &filePath, const std::string &language ) {
+
+	std::ifstream inp( filePath );
 	if ( !inp.is_open( ) ) {
-		gEngfuncs.Con_DPrintf( "SUBTITLE PARSER ERROR: failed to read resources/subtitles_en.txt file\n" );
+		gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR: failed to read file\n", filePath.c_str() );
 		return;
 	}
 
@@ -43,10 +62,10 @@ void Subtitles_Init() {
 
 		if ( parts.at( 0 ) == "SUBTITLE" ) {
 			if ( parts.size() < 6 ) {
-				gEngfuncs.Con_DPrintf( "SUBTITLE PARSER ERROR ON Line %d: insufficient subtitle data\n", lineCount );
+				gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR ON Line %d: insufficient subtitle data\n", filePath.c_str(), lineCount );
 				continue;
 			}
-			std::string subtitleKey = Uppercase( parts.at( 1 ) );
+			std::string subtitleKey = Uppercase( language + "_" + parts.at( 1 ) );
 			std::string colorKey = parts.at( 2 );
 			std::string text = parts.at( 5 );
 			float delay, duration;
@@ -61,12 +80,12 @@ void Subtitles_Init() {
 					text
 				} );
 			} catch ( std::invalid_argument e ) {
-				gEngfuncs.Con_DPrintf( "SUBTITLE PARSER ERROR ON Line %d: delay or duration is not a number\n", lineCount );
+				gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR ON Line %d: delay or duration is not a number\n", filePath.c_str(), lineCount );
 			}
 
 		} else if ( parts.at( 0 ) == "COLOR" ) {
 			if ( parts.size() < 5 ) {
-				gEngfuncs.Con_DPrintf( "SUBTITLE PARSER ERROR ON Line %d: insufficient color data\n", lineCount );
+				gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR ON Line %d: insufficient color data\n", filePath.c_str(), lineCount );
 				continue;
 			}
 			std::string colorKey = Uppercase( parts.at( 1 ) );
@@ -78,12 +97,22 @@ void Subtitles_Init() {
 
 				colors[colorKey] = { r, g, b };
 			} catch ( std::invalid_argument e ) {
-				gEngfuncs.Con_DPrintf( "SUBTITLE PARSER ERROR ON Line %d: some of color data is not a number\n", lineCount );
+				gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR ON Line %d: some of color data is not a number\n", filePath.c_str(), lineCount );
 			}
 
 		}
 	}
+}
 
+std::string GetSubtitleKeyWithLanguage( const std::string &key ) {
+	std::string language_to_use = std::string( subtitles_language->string );
+	auto subtitleKey = Uppercase( language_to_use + "_" + key ) ;
+
+	if ( subtitleMap.count( subtitleKey ) ) {
+		return subtitleKey;
+	} else {
+		return "EN_" + key;
+	}
 }
 
 // Based on https://www.rosettacode.org/wiki/Word_wrap#C.2B.2B
@@ -221,6 +250,8 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 
 		float startTime = gEngfuncs.GetClientTime() + delay;
 
+		actualKey = GetSubtitleKeyWithLanguage( actualKey );
+
 		subtitlesToDraw[actualKey] = {
 			startTime,
 			startTime + duration,
@@ -234,7 +265,6 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 
 const std::vector<Subtitle> Subtitles_GetByKey( const std::string &key ) {
 	std::string actualKey = Uppercase( key );
-	std::vector<Subtitle> result;
 
 	return subtitleMap.count( actualKey ) ?
 		subtitleMap[actualKey] :
@@ -257,7 +287,9 @@ void Subtitles_Push( const std::string &key, bool ignoreLongDistances, const Vec
 		return;
 	}
 
-	auto subtitles = Subtitles_GetByKey( key );
+	std::string actualKey = GetSubtitleKeyWithLanguage( key );
+
+	auto subtitles = Subtitles_GetByKey( actualKey );
 
 	for ( size_t i = 0 ; i < subtitles.size() ; i++ ) {
 		auto subtitle = subtitles.at( i );
@@ -268,7 +300,7 @@ void Subtitles_Push( const std::string &key, bool ignoreLongDistances, const Vec
 		}
 
 		Subtitles_Push(
-			key + std::to_string( i ),
+			actualKey + std::to_string( i ),
 			subtitle.text,
 			subtitle.duration,
 			Vector( color.r, color.g, color.b ),
@@ -311,7 +343,7 @@ int Subtitles_SubtRemove( const char *pszName,  int iSize, void *pbuf ) {
 
 	auto i = subtitlesToDraw.begin();
 	while ( i != subtitlesToDraw.end() ) {
-		auto subtitleKey = i->first;
+		auto subtitleKey = GetSubtitleKeyWithLanguage( key );
 
 		if ( subtitleKey.find( key ) == 0 ) {
 			i = subtitlesToDraw.erase( i );

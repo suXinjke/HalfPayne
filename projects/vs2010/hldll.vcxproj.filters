@@ -381,6 +381,9 @@
     <ClCompile Include="..\..\dlls\ingram_twin.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\fs_aux.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\doors.h">
@@ -537,6 +540,9 @@
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\game_shared\custom_gamemode_record.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\fs_aux.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>
