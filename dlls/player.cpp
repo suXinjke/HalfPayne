@@ -224,6 +224,7 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, bulletDelayOnSlowmotion, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, weaponImpact, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, automaticShotgun, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, infiniteAmmoClip, FIELD_BOOLEAN ),
@@ -3980,6 +3981,7 @@ void CBasePlayer::Spawn( void )
 	bulletRicochetMaxDotProduct = 0.5;
 
 	weaponImpact = 0.0f;
+	automaticShotgun = FALSE;
 
 	desperation = DESPERATION_NO;
 

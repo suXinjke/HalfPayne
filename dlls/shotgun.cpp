@@ -40,7 +40,9 @@ enum shotgun_e {
 	SHOTGUN_DRAW,
 	SHOTGUN_HOLSTER,
 	SHOTGUN_IDLE4,
-	SHOTGUN_IDLE_DEEP
+	SHOTGUN_IDLE_DEEP,
+	SHOTGUN_FIRE_NO_RELOAD,
+	SHOTGUN_FIRE_NO_RELOAD_FAST
 };
 
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CShotgun );
@@ -207,18 +209,20 @@ void CShotgun::PrimaryAttack()
 	}
 
 	m_pPlayer->pev->punchangle[0] -= 2.5f * ( m_pPlayer->upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, m_pPlayer->automaticShotgun );
 
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.25 : 0.5;
-	if (m_iClip != 0)
-		m_flPumpTime = gpGlobals->time + pumpDelay;
+	if ( !m_pPlayer->automaticShotgun ) {
+		float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.25 : 0.5;
+		if (m_iClip != 0)
+			m_flPumpTime = gpGlobals->time + pumpDelay;
+	}
 
-	float attackDelay = 0.75f;
+	float attackDelay = m_pPlayer->automaticShotgun ? 0.25 : 0.75f;
 	if ( m_pPlayer->slowMotionEnabled ) {
 		attackDelay /= 1.6f;
 	}
@@ -238,7 +242,7 @@ void CShotgun::PrimaryAttack()
 
 void CShotgun::SecondaryAttack( void )
 {
-	if ( shotSecondaryOnce || m_pPlayer->noSecondaryAttack ) {
+	if ( m_pPlayer->automaticShotgun || shotSecondaryOnce || m_pPlayer->noSecondaryAttack ) {
 		return;
 	}
 	// don't fire underwater

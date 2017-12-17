@@ -109,6 +109,7 @@ enum GAMEPLAY_MOD_PLAYER_BITMASK {
 	GAMEPLAY_MOD_PLAYER_BITMASK_SHOULD_PRODUCE_PHYSICAL_BULLETS	= 1 << 1,
 	GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK				= 1 << 2,
 	GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR				= 1 << 3,
+	GAMEPLAY_MOD_PLAYER_BITMASK_SHOTGUN_AUTOMATIC = 1 << 4
 };
 
 #define CHAT_INTERVAL 1.0f
@@ -529,6 +530,7 @@ public:
 	int bulletRicochetError;
 	float bulletRicochetMaxDotProduct;
 
+	BOOL automaticShotgun;
 	float weaponImpact;
 
 	// Statistics
@@ -628,6 +630,9 @@ public:
 		}
 		if ( noSecondaryAttack ) {
 			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK;
+		}
+		if ( automaticShotgun ) {
+			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_SHOTGUN_AUTOMATIC;
 		}
 		if ( snarkNuclear ) {
 			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR;

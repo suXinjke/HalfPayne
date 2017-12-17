@@ -966,6 +966,7 @@ void EV_FireShotGunSingle( event_args_t *args )
 	float flSpread = 0.01;
 
 	int shouldProducePhysicalBullets = args->bparam1;
+	int isAutomaticShotgun = args->bparam2;
 
 	idx = args->entindex;
 	VectorCopy( args->origin, origin );
@@ -978,9 +979,9 @@ void EV_FireShotGunSingle( event_args_t *args )
 
 	shell = gEngfuncs.pEventAPI->EV_FindModelIndex ("models/shotgunshell.mdl");// brass shell
 
-	int anim = SHOTGUN_FIRE;
+	int anim = isAutomaticShotgun ? SHOTGUN_FIRE_NO_RELOAD : SHOTGUN_FIRE;
 	if ( isSlowmotionEnabled() ) {
-		anim = SHOTGUN_FIRE_FAST;
+		anim++;
 	}
 
 	if ( EV_IsLocal( idx ) )

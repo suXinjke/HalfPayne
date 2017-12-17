@@ -1289,6 +1289,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "shotgun_automatic" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,
+			"Automatic shotgun",
+			"Shotgun only fires single shots and doesn't have to be reloaded after each shot.",
+			[]( CBasePlayer *player ) { player->automaticShotgun = true; }
+		) );
+		return true;
+	}
+
 	if ( modName == "slowmotion_fast_walk" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SLOWMOTION_FAST_WALK,
