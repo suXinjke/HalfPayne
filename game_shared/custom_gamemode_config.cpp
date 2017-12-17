@@ -1516,6 +1516,31 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "weapon_impact" ) {
+		float weaponImpact = 1.0f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				weaponImpact = max( 1.0f, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_WEAPON_PUSH_BACK,
+			"Weapon impact",
+			"Taking damage means to be pushed back",
+			[weaponImpact]( CBasePlayer *player ) {
+				player->weaponImpact = weaponImpact;
+			},
+			{
+				"Impact multiplier: " + std::to_string( weaponImpact ) + "\n",
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "weapon_push_back" ) {
 
 		float weaponPushBackMultiplier = 1.0f;

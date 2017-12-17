@@ -1002,8 +1002,9 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		PainSound();// "Ouch!"
 	}
 
+	CBasePlayer *player = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
 
-	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pevAttacker ) ) ) {
+	if ( player ) {
 		if ( player->oneHitKOFromPlayer ) {
 			flDamage = pev->health + 1;
 		}
@@ -1045,9 +1046,9 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 	}
 
 	// if this is a player, move him around!
-	if ( ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
+	if ( ( player && player->weaponImpact > 0.0f ) || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
 	{
-		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage );
+		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( player ? player->weaponImpact : 1.0f );
 	}
 
 	// do the damage

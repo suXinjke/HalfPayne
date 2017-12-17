@@ -529,6 +529,8 @@ public:
 	int bulletRicochetError;
 	float bulletRicochetMaxDotProduct;
 
+	float weaponImpact;
+
 	// Statistics
 	BOOL cheated;
 
