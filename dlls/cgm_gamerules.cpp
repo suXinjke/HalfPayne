@@ -244,7 +244,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	pPlayer->lastGlobalTime = gpGlobals->time;
 
-	if ( !pPlayer->timerPaused && !UTIL_IsPaused() && pPlayer->pev->deadflag == DEAD_NO ) {
+	if ( !pPlayer->timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
 
 		if ( fabs( timeDelta ) <= 0.1 ) {
 			if ( pPlayer->timerBackwards ) {
@@ -252,15 +252,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			} else {
 				pPlayer->time += timeDelta;
 			}
-		}
 
-		// Counting real time
-		float realTimeDetla = ( g_engfuncs.pfnTime() - pPlayer->lastRealTime );
-
-		pPlayer->lastRealTime = g_engfuncs.pfnTime();
-
-		if ( fabs( realTimeDetla ) <= 0.1 ) {
-			pPlayer->realTime += realTimeDetla;
+			pPlayer->realTime += timeDelta * ( pPlayer->slowMotionEnabled ? 4 : 1 );
 		}
 	}
 
