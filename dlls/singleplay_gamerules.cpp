@@ -24,6 +24,7 @@
 #include	"items.h"
 #include	"cgm_gamerules.h"
 #include	"monsters.h"
+#include	"triggers.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
@@ -201,7 +202,11 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 						( entityUse.isModelIndex && entity->pev->modelindex > 0 && ( std::to_string( entity->pev->modelindex ) == entityUse.entityName ) ) ||
 						( !entityUse.isModelIndex && ( ( STRING( entity->pev->targetname ) == entityUse.entityName ) || ( STRING( entity->pev->classname ) == entityUse.entityName ) ) )
 					) {
-						entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+						if ( CBaseTrigger *trigger = dynamic_cast<CBaseTrigger *>( entity ) ) {
+							trigger->ActivateMultiTrigger( pPlayer );
+						} else {
+							entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+						}
 					}
 				}
 			}

@@ -18,6 +18,4 @@ public:
 	virtual int	ObjectCaps( void ) { return CBaseToggle :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 };
 
-LINK_ENTITY_TO_CLASS( trigger, CBaseTrigger );
-
 #endif // TRIGGERS_H
