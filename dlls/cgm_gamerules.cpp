@@ -128,6 +128,20 @@ void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const 
 	MESSAGE_END();
 }
 
+void CCustomGameModeRules::ApplyStartPositionToEntity( CBaseEntity *entity, const StartPosition &startPosition ) {
+
+	if ( !std::isnan( startPosition.x ) ) {
+		entity->pev->origin.x = startPosition.x;
+		entity->pev->origin.y = std::isnan( startPosition.y ) ? 0 : startPosition.y;
+		entity->pev->origin.z = std::isnan( startPosition.z ) ? 0 : startPosition.z;
+	}
+
+	if ( !std::isnan( startPosition.angle ) ) {
+		entity->pev->angles[1] = startPosition.angle;
+	}
+
+}
+
 void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	if ( config.markedForRestart ) {
@@ -177,24 +191,11 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 
 	if ( config.startPosition.defined ) {
-		pPlayer->pev->origin.x = config.startPosition.x;
-		pPlayer->pev->origin.y = config.startPosition.y;
-		pPlayer->pev->origin.z = config.startPosition.z;
-		if ( !std::isnan( config.startPosition.angle ) ) {
-			pPlayer->pev->angles[1] = config.startPosition.angle;
-		}
+		ApplyStartPositionToEntity( pPlayer, config.startPosition );
 	}
 
 	if ( g_latestIntermission.startPos.defined ) {
-		if ( !std::isnan( g_latestIntermission.startPos.x ) ) {
-			pPlayer->pev->origin.x = g_latestIntermission.startPos.x;
-			pPlayer->pev->origin.y = std::isnan( g_latestIntermission.startPos.y ) ? 0 : g_latestIntermission.startPos.y;
-			pPlayer->pev->origin.z = std::isnan( g_latestIntermission.startPos.z ) ? 0 : g_latestIntermission.startPos.z;
-		}
-
-		if ( !std::isnan( g_latestIntermission.startPos.angle ) ) {
-			pPlayer->pev->angles[1] = g_latestIntermission.startPos.angle;
-		}
+		ApplyStartPositionToEntity( pPlayer, g_latestIntermission.startPos );
 
 		if ( g_latestIntermission.startPos.stripped ) {
 			pPlayer->RemoveAllItems( false );
@@ -647,6 +648,12 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 					}
 				}
 			}
+		}
+	}
+
+	for ( const auto &teleporterRedirect : config.teleports ) {
+		if ( teleporterRedirect.Fits( modelIndex, className, targetName, true ) ) {
+			ApplyStartPositionToEntity( pPlayer, teleporterRedirect.pos );
 		}
 	}
 

@@ -174,6 +174,10 @@ struct Intermission : HookableWithTarget {
 	StartPosition startPos;
 };
 
+struct Teleport : Hookable {
+	StartPosition pos;
+};
+
 struct EntityRandomSpawner
 {
 	std::string mapName;
@@ -281,10 +285,9 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_MAX_COMMENTARY,
 	CONFIG_FILE_SECTION_MODS,
 	CONFIG_FILE_SECTION_END_CONDITIONS,
-
-	// Black Mesa Minute
 	CONFIG_FILE_SECTION_TIMER_PAUSE,
 	CONFIG_FILE_SECTION_TIMER_RESUME,
+	CONFIG_FILE_SECTION_TELEPORT,
 
 	CONFIG_FILE_SECTION_AUX_END
 };
@@ -423,6 +426,7 @@ public:
 	std::vector<Sound> music;
 	std::vector<Sound> musicPlaylist;
 	std::vector<Intermission> intermissions;
+	std::vector<Teleport> teleports;
 
 	std::vector<Hookable> timerPauses;
 	std::vector<Hookable> timerResumes;

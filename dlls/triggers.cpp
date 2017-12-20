@@ -2113,6 +2113,10 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 
 	pevToucher->fixangle = TRUE;
 
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( this->edict() );
+	}
+
 	Vector newVelocity = pevToucher->basevelocity = g_vecZero;
 
 	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( pOther ) ) {
@@ -2124,10 +2128,6 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 	}
 
 	pevToucher->velocity = newVelocity;
-
-	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->HookModelIndex( this->edict() );
-	}
 
 	if ( strcmp( STRING( pev->target ), "loser" ) == 0 ) {
 		UTIL_Remove( this );

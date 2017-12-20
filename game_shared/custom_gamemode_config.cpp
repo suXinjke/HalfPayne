@@ -520,6 +520,44 @@ void CustomGameModeConfig::InitConfigSections() {
 			return std::string( "" );
 		}
 	);
+
+	configSections[CONFIG_FILE_SECTION_TELEPORT] = ConfigSection(
+		"teleport", false,
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 2 ) {
+				return std::string( "<map_name> <model_index | target_name> [x] [y] [z] [angle] not specified" );
+			}
+
+			bool defined = true;
+			float x = NAN;
+			float y = NAN;
+			float z = NAN;
+			float angle = NAN;
+
+			Teleport teleport;
+			FillHookable( teleport, data );
+
+			for ( size_t i = 2 ; i < min( data.argsFloat.size(), 6 ) ; i++ ) {
+				float arg = data.argsFloat.at( i );
+				if ( std::isnan( arg ) ) {
+					char error[1024];
+					sprintf_s( error, "invalid coordinate by index %d", i + 1 );
+					return std::string( error );
+				}
+
+				x		= i == 2 ? arg : x;
+				y		= i == 3 ? arg : y;
+				z		= i == 4 ? arg : z;
+				angle	= i == 5 ? arg : angle;
+			}
+
+			teleport.pos = { defined, x, y, z, angle, false };
+
+			teleports.push_back( teleport );
+
+			return std::string( "" );
+		}
+	);
 }
 
 std::string CustomGameModeConfig::ValidateModelIndexSectionData( ConfigSectionData &data ) {
@@ -793,6 +831,7 @@ void CustomGameModeConfig::Reset() {
 	timerResumes.clear();
 	entityRandomSpawners.clear();
 	endConditions.clear();
+	teleports.clear();
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
