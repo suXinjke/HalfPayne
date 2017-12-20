@@ -38,9 +38,7 @@ int CHudCounter::Draw( float flTime )
 		return 1;
 	}
 
-	int r = MESSAGE_BRIGHTENESS;
-	int g = !cheated ? MESSAGE_BRIGHTENESS : 0;
-	int b = !cheated ? MESSAGE_BRIGHTENESS : 0;
+
 
 	int y = CORNER_OFFSET + yOffset;
 
@@ -48,26 +46,42 @@ int CHudCounter::Draw( float flTime )
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
 
 	for ( const auto &value : values ) {
+		int r, g, b;
+
 		int x = ScreenWidth - CORNER_OFFSET;
+
+		if ( value.count >= value.maxCount ) {
+			r = !cheated ? 255 : 255;
+			g = !cheated ? 255 : 100;
+			b = 0;
+		} else {
+			r = MESSAGE_BRIGHTENESS;
+			g = !cheated ? MESSAGE_BRIGHTENESS : 0;
+			b = !cheated ? MESSAGE_BRIGHTENESS : 0;
+		}
 
 		gHUD.DrawHudStringKeepRight( x, y, 200, value.title.c_str(), r, g, b );
 		y += gHUD.m_scrinfo.iCharHeight + 2;
 
-		if ( value.maxCount ) {
-			int maxCountLength = std::to_string( value.maxCount ).length() * numberSpriteWidth;
-			gHUD.DrawFormattedNumber( value.maxCount, x - maxCountLength, y, r, g, b );
+		if ( value.maxCount > 1 ) {
 
-			x -= ( maxCountLength + 4 );
+			if ( value.maxCount ) {
+				int maxCountLength = std::to_string( value.maxCount ).length() * numberSpriteWidth;
+				gHUD.DrawFormattedNumber( value.maxCount, x - maxCountLength, y, r, g, b );
 
-			FillRGBA( x, y, 1, gHUD.m_iFontHeight, r, g, b, 255 );
+				x -= ( maxCountLength + 24 );
 
-			x -= 4;
+				FillRGBA( x, y, 1, gHUD.m_iFontHeight, r, g, b, 255 );
+
+				x -= 8;
+			}
+
+			int countLength = std::to_string( value.count ).length() * numberSpriteWidth;
+			gHUD.DrawFormattedNumber( value.count, x - countLength, y, r, g, b );
+
+			y += ( numberSpriteHeight + 4 );
+
 		}
-
-		int countLength = std::to_string( value.count ).length() * numberSpriteWidth;
-		gHUD.DrawFormattedNumber( value.count, x - countLength, y, r, g, b );
-
-		y += ( numberSpriteHeight + 4 );
 	}
 
 	return 1;
