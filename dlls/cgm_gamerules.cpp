@@ -246,6 +246,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	if ( !pPlayer->timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
 
+		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
+		// It was made to prevent timer messup during level changes, because each level has it's own local time
 		if ( fabs( timeDelta ) <= 0.1 ) {
 			if ( pPlayer->timerBackwards ) {
 				pPlayer->time -= timeDelta;
@@ -254,20 +256,13 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			}
 
 			pPlayer->realTime += timeDelta / pPlayer->desiredTimeScale;
-		}
-	}
 
-	if ( pPlayer->pev->deadflag == DEAD_NO ) {
-		
-		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
-		// It was made to prevent timer messup during level changes, because each level has it's own local time
-		if ( fabs( timeDelta ) <= 0.1 ) {
 			if ( pPlayer->slowMotionEnabled ) {
 				pPlayer->secondsInSlowmotion += timeDelta;
 			}
-		}
 
-		CheckForCheats( pPlayer );
+			CheckForCheats( pPlayer );
+		}
 	}
 
 	for ( auto &spawner : entityRandomSpawnerControllers ) {
