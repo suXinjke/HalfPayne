@@ -270,6 +270,21 @@ void CustomGameModeConfig::InitConfigSections() {
 		}
 	);
 
+	configSections[CONFIG_FILE_SECTION_ENTITY_REMOVE] = ConfigSection(
+		"entity_remove", false,
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 3 ) {
+				return "<mapname> <modelindex | targetname> <modelindex | targetname> not specified";
+			}
+
+			HookableWithTarget entityToRemove;
+			FillHookableWithTarget( entityToRemove, data );
+			entitiesToRemove.push_back( entityToRemove );
+
+			return "";
+		}
+	);
+
 	configSections[CONFIG_FILE_SECTION_SOUND] = ConfigSection(
 		"sound", false,
 		[this]( ConfigSectionData &data ) {
@@ -821,6 +836,7 @@ void CustomGameModeConfig::Reset() {
 	forbiddenLevels.clear();
 	loadout.clear();
 	entityUses.clear();
+	entitySpawns.clear();
 	entitiesPrevented.clear();
 	sounds.clear();
 	maxCommentary.clear();
@@ -832,6 +848,7 @@ void CustomGameModeConfig::Reset() {
 	entityRandomSpawners.clear();
 	endConditions.clear();
 	teleports.clear();
+	entitiesToRemove.clear();
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {

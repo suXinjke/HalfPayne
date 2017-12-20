@@ -129,6 +129,23 @@ struct HookableWithDelay : Hookable {
 struct HookableWithTarget : Hookable {
 	bool isModelIndex;
 	std::string entityName;
+
+	CBaseEntity* EdictFitsTarget( CBasePlayer *pPlayer, edict_t *edict ) const {
+		if ( !edict ) {
+			return NULL;
+		}
+
+		if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+			if (
+				( isModelIndex && entity->pev->modelindex > 0 && ( std::to_string( entity->pev->modelindex ) == entityName ) ) ||
+				( !isModelIndex && ( ( STRING( entity->pev->targetname ) == entityName ) || ( STRING( entity->pev->classname ) == entityName ) ) )
+			) {
+				return entity;
+			}
+		}
+
+		return NULL;
+	}
 };
 
 struct EntitySpawn : Hookable {
@@ -278,6 +295,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_ENTITY_SPAWN,
 	CONFIG_FILE_SECTION_ENTITY_USE,
 	CONFIG_FILE_SECTION_ENTITY_PREVENT,
+	CONFIG_FILE_SECTION_ENTITY_REMOVE,
 	CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER,
 	CONFIG_FILE_SECTION_SOUND,
 	CONFIG_FILE_SECTION_MUSIC,
@@ -432,6 +450,7 @@ public:
 	std::vector<Hookable> timerResumes;
 	std::vector<EntityRandomSpawner> entityRandomSpawners;
 	std::vector<EndCondition> endConditions;
+	std::vector<HookableWithTarget> entitiesToRemove;
 
 protected:
 	std::string folderPath;

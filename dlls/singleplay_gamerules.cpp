@@ -193,21 +193,25 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 
 			for ( int i = 0 ; i < 1024 ; i++ ) {
 				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
-				if ( !edict ) {
-					continue;
-				}
-
-				if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
-					if (
-						( entityUse.isModelIndex && entity->pev->modelindex > 0 && ( std::to_string( entity->pev->modelindex ) == entityUse.entityName ) ) ||
-						( !entityUse.isModelIndex && ( ( STRING( entity->pev->targetname ) == entityUse.entityName ) || ( STRING( entity->pev->classname ) == entityUse.entityName ) ) )
-					) {
-						if ( CBaseTrigger *trigger = dynamic_cast<CBaseTrigger *>( entity ) ) {
-							trigger->ActivateMultiTrigger( pPlayer );
-						} else {
-							entity->Use( pPlayer, pPlayer, USE_SET, 1 );
-						}
+				if ( CBaseEntity *entity = entityUse.EdictFitsTarget( pPlayer, edict ) ) {
+					if ( CBaseTrigger *trigger = dynamic_cast<CBaseTrigger *>( entity ) ) {
+						trigger->ActivateMultiTrigger( pPlayer );
+					} else {
+						entity->Use( pPlayer, pPlayer, USE_SET, 1 );
 					}
+				}
+			}
+		}
+
+		for ( const auto &entityRemove : config->entitiesToRemove ) {
+			if ( !entityRemove.Fits( modelIndex, className, targetName, firstTime ) ) {
+				continue;
+			}
+
+			for ( int i = 0 ; i < 1024 ; i++ ) {
+				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+				if ( CBaseEntity *entity = entityRemove.EdictFitsTarget( pPlayer, edict ) ) {
+					entity->pev->flags |= FL_KILLME;
 				}
 			}
 		}
