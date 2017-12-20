@@ -2,6 +2,7 @@
 #include "cl_dll.h"
 #include "FontAwesome.h"
 #include <map>
+#include <algorithm>
 
 #include "gamemode_gui.h"
 
@@ -63,10 +64,15 @@ void GameModeGUI_RunCustomGameMode( CustomGameModeConfig &config ) {
 		return;
 	}
 
+	std::string sanitizedConfigName = config.configName;
+	std::transform( sanitizedConfigName.begin(), sanitizedConfigName.end(), sanitizedConfigName.begin(), []( auto &letter ) {
+		return letter == '\\' ? '/' : letter;
+	} );
+
 	// Prepare game mode and try to launch [start_map]
 	// Launching the map then will execute CustomGameModeConfig constructor on server,
 	// where the file will be parsed again.
-	gEngfuncs.Cvar_Set( "gamemode_config", ( char * ) config.configName.c_str() );
+	gEngfuncs.Cvar_Set( "gamemode_config", ( char * ) sanitizedConfigName.c_str() );
 	gEngfuncs.Cvar_Set( "gamemode", ( char * ) CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ).c_str() );
 
 	char mapCmd[64];
