@@ -4934,7 +4934,7 @@ void CBasePlayer::ToggleSlowMotion() {
 
 bool CBasePlayer::ActivateSlowMotion()
 {
-	if ( slowMotionEnabled || constantSlowmotion ) {
+	if ( slowMotionEnabled || constantSlowmotion || !( pev->weapons & ( 1 << WEAPON_SUIT ) ) ) {
 		return false;
 	}
 
