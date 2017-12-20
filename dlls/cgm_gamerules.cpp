@@ -253,7 +253,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				pPlayer->time += timeDelta;
 			}
 
-			pPlayer->realTime += timeDelta * ( pPlayer->slowMotionEnabled ? 4 : 1 );
+			pPlayer->realTime += timeDelta / pPlayer->desiredTimeScale;
 		}
 	}
 
