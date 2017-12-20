@@ -153,7 +153,13 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	CHalfLifeRules::PlayerSpawn( pPlayer );
 
 	pPlayer->activeGameMode = GAME_MODE_CUSTOM;
-	pPlayer->activeGameModeConfig = ALLOC_STRING( config.configName.c_str() );
+
+	// '\' slashes are getting eaten by ALLOC_STRING? must prevent this by replacing them with '/'
+	std::string sanitizedConfigName = config.configName;
+	std::transform( sanitizedConfigName.begin(), sanitizedConfigName.end(), sanitizedConfigName.begin(), []( auto &letter ) {
+		return letter == '\\' ? '/' : letter;
+	} );
+	pPlayer->activeGameModeConfig = ALLOC_STRING( sanitizedConfigName.c_str() );
 
 	for ( const GameplayMod &mod : config.mods ) {
 		mod.init( pPlayer );
