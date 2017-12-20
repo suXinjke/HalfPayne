@@ -92,40 +92,46 @@ static char *allowedEntities[] {
 	"monster_snark",
 	"monster_zombie",
 
+	"end_marker"
 };
 
-struct StartPosition {
-	bool defined;
-	float x;
-	float y;
-	float z;
-	float angle;
+struct Hookable {
+	std::string map = "";
+	int modelIndex = -3;
+	std::string targetName = "";
+	bool constant = false;
+
+	virtual bool Fits( int modelIndex, const std::string &className, const std::string &targetName, bool firstTime ) const {
+		return (
+			( STRING( gpGlobals->mapname ) == this->map || this->map == "everywhere" ) &&
+			( ( modelIndex == this->modelIndex ) || ( !this->targetName.empty() && ( this->targetName == targetName || this->targetName == className ) ) ) &&
+			( constant || ( !constant && firstTime ) )
+		);
+	}
+
+	virtual void Reset() {
+		map = "";
+		modelIndex = -3;
+		targetName = "";
+		constant = false;
+	}
 };
 
-struct ConfigFileSound {
+struct HookableWithDelay : Hookable {
+	float delay = 0.0f;
 
-	bool valid;
-	std::string soundPath;
-	bool constant;
-	float delay;
-
+	void Reset() override {
+		Hookable::Reset();
+		delay = 0.0f;
+	}
 };
 
-struct ConfigFileMusic {
-
-	bool valid;
-	std::string musicPath;
-	bool constant;
-	bool looping;
-	bool noSlowmotionEffects;
-	float delay;
-	float initialPos;
-
+struct HookableWithTarget : Hookable {
+	bool isModelIndex;
+	std::string entityName;
 };
 
-
-struct EntitySpawn
-{
+struct EntitySpawn : Hookable {
 	std::string entityName;
 	float		x;
 	float		y;
@@ -134,24 +140,46 @@ struct EntitySpawn
 	std::string targetName;
 };
 
+struct EndCondition : Hookable {
+	int activations;
+	int activationsRequired;
+
+	std::string objective;
+};
+
+struct StartPosition {
+	bool defined;
+	float x;
+	float y;
+	float z;
+	float angle;
+	bool stripped;
+};
+
+struct LoadoutItem {
+	std::string name = "";
+	int amount = 1;
+};
+
+struct Sound : Hookable {
+
+	std::string path;
+	float delay = 0.01;
+	float initialPos = 0.0f;
+	bool looping = false;
+	bool noSlowmotionEffects = false;
+};
+
+struct Intermission : HookableWithTarget {
+	StartPosition startPos;
+};
+
 struct EntityRandomSpawner
 {
 	std::string mapName;
 	std::string entityName;
 	int maxAmount;
 	float spawnPeriod;
-};
-
-struct Intermission
-{
-	bool defined;
-	
-	std::string toMap;
-	float x;
-	float y;
-	float z;
-	float angle;
-	bool strip;
 };
 
 enum GAMEPLAY_MOD {
@@ -203,6 +231,8 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_ONE_HIT_KO_FROM_PLAYER,
 	GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN,
 	GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,
+	GAMEPLAY_MOD_SHOW_TIMER,
+	GAMEPLAY_MOD_SHOW_TIMER_REAL_TIME,
 	GAMEPLAY_MOD_SLOWMOTION_FAST_WALK,
 	GAMEPLAY_MOD_SLOWMOTION_ON_DAMAGE,
 	GAMEPLAY_MOD_SLOWMOTION_ONLY_DIVING,
@@ -220,6 +250,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_SUPERHOT,
 	GAMEPLAY_MOD_SWEAR_ON_KILL,
 	GAMEPLAY_MOD_UPSIDE_DOWN,
+	GAMEPLAY_MOD_TIME_RESTRICTION,
 	GAMEPLAY_MOD_TOTALLY_SPIES,
 	GAMEPLAY_MOD_VVVVVV,
 	GAMEPLAY_MOD_WEAPON_IMPACT,
@@ -248,6 +279,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_PLAYLIST,
 	CONFIG_FILE_SECTION_MAX_COMMENTARY,
 	CONFIG_FILE_SECTION_MODS,
+	CONFIG_FILE_SECTION_END_CONDITIONS,
 
 	// Black Mesa Minute
 	CONFIG_FILE_SECTION_TIMER_PAUSE,
@@ -288,7 +320,6 @@ struct GameplayMod
 		id( id ), name( name ), description( description ), init( initFunction ), argDescriptions( argDescriptions )
 	{}
 };
-
 
 class CustomGameModeConfig {
 
@@ -341,9 +372,6 @@ public:
 	static int GetAllowedItemIndex( const char *allowedItem );
 	static int GetAllowedEntityIndex( const char *allowedEntity );
 
-	const StartPosition GetStartPosition();
-	const Intermission GetIntermission( const std::string &mapName, int modelIndex, const std::string &targetName );
-
 	std::vector<std::string> configNameSeparated;
 	std::string configName;
 	std::string error;
@@ -352,36 +380,53 @@ public:
 	bool gameFinishedOnce;
 
 	bool		markedForRestart;
-
-	const std::string GetName();
-	const std::string GetDescription();
-	const std::string GetStartMap();
-	const std::string GetEndMap();
-
-	const std::vector<std::string> GetLoadout();
-	const std::vector<EntitySpawn> GetEntitySpawnsForMapOnce( const std::string &map );
-	const std::vector<EntityRandomSpawner> GetEntityRandomSpawners();
-	bool IsChangeLevelPrevented( const std::string &nextMap );
-
+	
 	std::map< CONFIG_FILE_SECTION, ConfigSection> configSections;
 
-	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *isConstant = NULL );
-	const std::vector<ConfigFileSound> MarkModelIndexesWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
-	const std::vector<ConfigFileMusic> MarkModelIndexesWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName );
+	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *isConstant = NULL, ConfigSectionData *outData = NULL );
 
 	std::set<std::string>		 entitiesToPrecache;
 	std::set<std::string>		 soundsToPrecache;
 
 	std::string ValidateModelIndexSectionData( ConfigSectionData &data );
-	std::string ValidateModelIndexWithSoundSectionData( ConfigSectionData &data );
-	std::string ValidateModelIndexWithMusicSectionData( ConfigSectionData &data );
 
 	std::vector<GameplayMod> mods;
 	bool IsGameplayModActive( GAMEPLAY_MOD mod );
 	bool AddGameplayMod( ConfigSectionData &modName );
 
-	std::vector<std::string> musicPlaylist;
 	bool musicPlaylistShuffle;
+	
+	bool hasEndMarkers;
+
+	void FillHookable( Hookable &hookable, const ConfigSectionData &data );
+	void FillHookableWithDelay( HookableWithDelay &hookableWithDelays, const ConfigSectionData &data );
+	void FillHookableWithTarget( HookableWithTarget &hookableWithTarget, const ConfigSectionData &data );
+	void FillHookableSound( Sound &hookableSound, const ConfigSectionData &data );
+	void FillEntitySpawn( EntitySpawn &entitySpawn, const ConfigSectionData &data );
+
+	std::string name;
+	std::string description;
+	std::string startMap;
+	std::string endMap;
+
+	StartPosition startPosition;
+	Hookable endTrigger;
+	std::set<std::string> forbiddenLevels;
+	std::vector<LoadoutItem> loadout;
+	std::vector<EntitySpawn> entitySpawns;
+	std::vector<HookableWithTarget> entityUses;
+	std::vector<Hookable> entitiesPrevented;
+
+	std::vector<Sound> sounds;
+	std::vector<Sound> maxCommentary;
+	std::vector<Sound> music;
+	std::vector<Sound> musicPlaylist;
+	std::vector<Intermission> intermissions;
+
+	std::vector<Hookable> timerPauses;
+	std::vector<Hookable> timerResumes;
+	std::vector<EntityRandomSpawner> entityRandomSpawners;
+	std::vector<EndCondition> endConditions;
 
 protected:
 	std::string folderPath;

@@ -1655,31 +1655,34 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
-	g_latestIntermission.defined = false;
+	g_latestIntermission.startPos.defined = false;
 
-	// Are we changing to the map that should end Custom Game Mode session?
 	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( cgm && cgm->ChangeLevelShouldBePrevented( st_szNextMap ) ) {
+		if ( cgm->config.forbiddenLevels.count( st_szNextMap ) ) {
 			return;
 		}
 
-		const std::string endMap = cgm->config.GetEndMap();
-		if ( player && endMap == st_szNextMap ) {
+		if ( player && st_szNextMap == cgm->config.endMap ) {
 			cgm->End( player );
 			return;
 		}
 
-		g_latestIntermission = cgm->config.GetIntermission( STRING( gpGlobals->mapname ), pev->modelindex, st_szNextMap );
+		for ( const auto &intermission : cgm->config.intermissions ) {
+			if ( intermission.Fits( pev->modelindex, st_szNextMap, st_szNextMap, true ) ) {
+				g_latestIntermission = intermission;
+				break;
+			}
+		}
 	}
 
 	if ( player ) {
 		player->ClearSoundQueue();
 	}
 	ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-	if ( !g_latestIntermission.defined ) {
+	if ( !g_latestIntermission.startPos.defined ) {
 		CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 	} else {
-		CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
+		CHANGE_LEVEL( ( char * ) g_latestIntermission.entityName.c_str(), NULL );
 	}
 }
 
@@ -2233,24 +2236,28 @@ void CTriggerEndSection::EndSectionTouch( CBaseEntity *pOther )
 
 	if (pev->message)
 	{
-		g_latestIntermission.defined = false;
+		g_latestIntermission.startPos.defined = false;
 
 		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 			CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-			const std::string endMap = cgm->config.GetEndMap();
-			if ( player && endMap == st_szNextMap ) {
+			if ( player && st_szNextMap == cgm->config.endMap ) {
 				cgm->End( player );
 				return;
 			}
 
-			g_latestIntermission = cgm->config.GetIntermission( STRING( gpGlobals->mapname ), pev->modelindex, st_szNextMap );
+			for ( const auto &intermission : cgm->config.intermissions ) {
+				if ( intermission.Fits( pev->modelindex, st_szNextMap, st_szNextMap, true ) ) {
+					g_latestIntermission = intermission;
+					break;
+				}
+			}
 		}
 
 		ALERT( at_console, "CHANGE LEVEL: %s %s\n", st_szNextMap, st_szNextSpot );
-		if ( !g_latestIntermission.defined ) {
+		if ( !g_latestIntermission.startPos.defined ) {
 			CHANGE_LEVEL( st_szNextMap, st_szNextSpot );
 		} else {
-			CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
+			CHANGE_LEVEL( ( char * ) g_latestIntermission.entityName.c_str(), NULL );
 		}
 	}
 	UTIL_Remove( this );

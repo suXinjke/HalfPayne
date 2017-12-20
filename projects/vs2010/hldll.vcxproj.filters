@@ -384,6 +384,9 @@
     <ClCompile Include="..\..\game_shared\fs_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dlls\end_marker.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\doors.h">
@@ -544,6 +547,9 @@
     </ClInclude>
     <ClInclude Include="..\..\game_shared\fs_aux.h">
       <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlls\end_marker.h">
+      <Filter>Header Files\dlls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

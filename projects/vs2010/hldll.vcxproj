@@ -140,6 +140,7 @@
     <ClCompile Include="..\..\dlls\doors.cpp" />
     <ClCompile Include="..\..\dlls\effects.cpp" />
     <ClCompile Include="..\..\dlls\egon.cpp" />
+    <ClCompile Include="..\..\dlls\end_marker.cpp" />
     <ClCompile Include="..\..\dlls\explode.cpp" />
     <ClCompile Include="..\..\dlls\flyingmonster.cpp" />
     <ClCompile Include="..\..\dlls\func_break.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="..\..\dlls\defaultai.h" />
     <ClInclude Include="..\..\dlls\doors.h" />
     <ClInclude Include="..\..\dlls\effects.h" />
+    <ClInclude Include="..\..\dlls\end_marker.h" />
     <ClInclude Include="..\..\dlls\enginecallback.h" />
     <ClInclude Include="..\..\dlls\explode.h" />
     <ClInclude Include="..\..\dlls\extdll.h" />

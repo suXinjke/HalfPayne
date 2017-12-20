@@ -168,6 +168,10 @@ public:
 
 extern CGameRules *InstallGameRules( void );
 
+struct Task {
+	float delay;
+	std::function< void ( CBasePlayer * ) > task;
+};
 
 //=========================================================
 // CHalfLifeRules - rules for the single player Half-Life 
@@ -181,7 +185,7 @@ public:
 	CustomGameModeConfig mapConfig;
 	std::vector<CustomGameModeConfig *> configs;
 
-	std::queue< std::function< void ( CBasePlayer * ) > > tasks;
+	std::deque<Task> tasks;
 
 	int				     lastSkill;
 
@@ -192,9 +196,10 @@ public:
 
 	virtual void OnChangeLevel();
 	virtual void OnNewlyVisitedMap() {};
+	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 	virtual void HookModelIndex( edict_t *activator );
-	virtual void HookModelIndex( edict_t *activator, const char *targetName );
-	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
+	virtual void HookModelIndex( CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName );
+	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime );
 	virtual void Precache();
 
 // GR_Think

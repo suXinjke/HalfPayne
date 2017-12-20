@@ -25,6 +25,8 @@ void CHudGameLog::Reset( void )
 {
 	m_iFlags = 0;
 
+	yOffset = 0;
+
 	messages.clear();
 }
 
@@ -41,7 +43,7 @@ int CHudGameLog::Draw( float flTime )
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
 
 	int x = ScreenWidth - CORNER_OFFSET;
-	int y = CORNER_OFFSET + numberSpriteHeight;
+	int y = CORNER_OFFSET + yOffset;
 
 	for ( int i = messages.size() - 1; i >= 0; i-- ) {
 		GameLogMessage timerMessage = messages.at( i );
@@ -74,6 +76,7 @@ int CHudGameLog::MsgFunc_GLogMsg( const char *pszName, int iSize, void *pbuf )
 
 	BEGIN_READ( pbuf, iSize );
 	const char *message = READ_STRING();
+	yOffset = READ_LONG();
 	
 	messages.push_back( GameLogMessage( message, gEngfuncs.GetAbsoluteTime() + TIMER_MESSAGE_REMOVAL_TIME ) );
 

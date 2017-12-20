@@ -396,6 +396,9 @@
     <ClCompile Include="..\..\game_shared\fs_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\counter.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">

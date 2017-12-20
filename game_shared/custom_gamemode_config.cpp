@@ -71,13 +71,13 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_NAME] = ConfigSection(
 		"name", true,
-		[]( ConfigSectionData &data ) {
-			std::string sanitizedName = data.argsString.at( 0 );
+		[this]( ConfigSectionData &data ) {
+			std::string sanitizedName = data.line;
 			if ( sanitizedName.size() > 54 ) {
 				sanitizedName = sanitizedName.substr( 0, 53 );
 			}
 
-			data.argsString[0] = sanitizedName;
+			name = sanitizedName;
 
 			return "";
 		}
@@ -85,10 +85,12 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_DESCRIPTION] = ConfigSection(
 		"description", false,
-		[]( ConfigSectionData &data ) {
-			if ( data.argsString.size() == 0 ) {
+		[this]( ConfigSectionData &data ) {
+			if ( data.line.size() == 0 ) {
 				return "description not provided";
 			}
+
+			description = data.line;
 
 			return "";
 		}
@@ -96,12 +98,20 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_START_MAP] = ConfigSection(
 		"start_map", true,
-		[]( ConfigSectionData &data ) { return ""; }
+		[this]( ConfigSectionData &data ) {
+			if ( data.line.size() == 0 ) {
+				return "start map not provided";
+			}
+
+			startMap = data.line;
+			
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_START_POSITION] = ConfigSection(
 		"start_position", true,
-		[]( ConfigSectionData &data ) {
+		[this]( ConfigSectionData &data ) {
 
 			if ( data.argsFloat.size() < 3 ) {
 				return std::string( "not enough coordinates provided" );
@@ -116,32 +126,56 @@ void CustomGameModeConfig::InitConfigSections() {
 				}
 			}
 
+			float x = data.argsFloat.at( 0 );
+			float y = data.argsFloat.at( 1 );
+			float z = data.argsFloat.at( 2 );
+			float angle = data.argsFloat.size() > 3 ? data.argsFloat.at( 3 ) : NAN;
+
+			startPosition = { true, x, y, z, angle, false };
+
 			return std::string( "" );
 		}
 	);
 
-
-
 	configSections[CONFIG_FILE_SECTION_END_MAP] = ConfigSection(
 		"end_map", true,
-		[]( ConfigSectionData &data ) { return ""; }
+		[this]( ConfigSectionData &data ) {
+			if ( data.line.size() == 0 ) {
+				return "end map not provided";
+			}
+
+			endMap = data.line;
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_END_TRIGGER] = ConfigSection(
 		"end_trigger", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 2 ) {
+				return "<mapname> <modelindex | targetname> not specified";
+			}
+
+			FillHookable( endTrigger, data );
+
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT] = ConfigSection(
 		"change_level_prevent", false,
-		[this]( ConfigSectionData &data ) { return ""; }
+		[this]( ConfigSectionData &data ) {
+			forbiddenLevels.insert( data.line );
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_LOADOUT] = ConfigSection(
 		"loadout", false,
-		[]( ConfigSectionData &data ) {
+		[this]( ConfigSectionData &data ) {
 			
 			std::string itemName = data.argsString.at( 0 );
+			int amount = 1;
 			if ( GetAllowedItemIndex( itemName.c_str() ) == -1 ) {
 				char error[1024];
 				sprintf_s( error, "incorrect loadout item name: %s", itemName.c_str() );
@@ -149,11 +183,19 @@ void CustomGameModeConfig::InitConfigSections() {
 			}
 
 			if ( data.argsFloat.size() >= 2 ) {
-				float arg = data.argsFloat.at( 1 );
-				if ( std::isnan( arg ) ) {
+				if ( std::isnan( data.argsFloat.at( 1 ) ) ) {
 					return std::string( "loadout item count incorrectly specified" );
+				} else {
+					amount = max( 1.0f, data.argsFloat.at( 1 ) );
 				}
 			}
+
+			// for some reason initializer list doesn't work here
+			LoadoutItem item;
+			item.name = itemName;
+			item.amount = amount;
+
+			loadout.push_back( item );
 
 			return std::string( "" );
 		}
@@ -162,27 +204,37 @@ void CustomGameModeConfig::InitConfigSections() {
 	configSections[CONFIG_FILE_SECTION_ENTITY_SPAWN] = ConfigSection(
 		"entity_spawn", false,
 		[this]( ConfigSectionData &data ) {
-			if ( data.argsString.size() < 5 ) {
-				return std::string( "<map_name> <entity_name> <x> <y> <z> [angle] [target_name] not specified" );
+
+			if ( data.argsString.size() < 6 ) {
+				return std::string( "<mapname> <modelindex | targetname> <entity_name> <x> <y> <z> [angle] [target_name] [const] not specified" );
 			}
 
-			std::string entityName = data.argsString.at( 1 );
+			std::string entityName = data.argsString.at( 2 );
+
 			if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
 				char errorCString[1024];
 				sprintf_s( errorCString, "incorrect entity name" );
 				return std::string( errorCString );
 			}
 
-			for ( size_t i = 2 ; i < min( data.argsFloat.size(), 5 ) ; i++ ) {
+			if ( entityName == "end_marker" ) {
+				hasEndMarkers = true;
+			}
+
+			for ( size_t i = 3 ; i < min( max( 5, data.argsFloat.size() ), 6 ); i++ ) {
 				float arg = data.argsFloat.at( i );
 				if ( std::isnan( arg ) ) {
 					char error[1024];
-					sprintf_s( error, "invalid coordinate by index %d", i + 1 );
+					sprintf_s( error, "invalid coordinate by index %d", i - 2 );
 					return std::string( error );
 				}
 			}
 
 			entitiesToPrecache.insert( entityName );
+
+			EntitySpawn spawn;
+			FillEntitySpawn( spawn, data );
+			entitySpawns.push_back( spawn );
 
 			return std::string( "" );
 		}
@@ -190,22 +242,71 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_ENTITY_USE] = ConfigSection(
 		"entity_use", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 3 ) {
+				return "<mapname> <modelindex | targetname> <modelindex | targetname> not specified";
+			}
+
+			HookableWithTarget entityUse;
+			FillHookableWithTarget( entityUse, data );
+			entityUses.push_back( entityUse );
+
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_ENTITY_PREVENT] = ConfigSection(
 		"entity_prevent", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 2 ) {
+				return "<mapname> <modelindex | targetname> not specified";
+			}
+
+			Hookable entityPrevent;
+			FillHookable( entityPrevent, data );
+			entitiesPrevented.push_back( entityPrevent );
+
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_SOUND] = ConfigSection(
 		"sound", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithSoundSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 3 ) {
+				return "<mapname> <modelindex | targetname> <sound_path> [delay] [const] not specified";
+			}
+
+			if ( data.argsFloat.size() >= 4 ) {
+				float arg = data.argsFloat.at( 3 );
+				if ( std::isnan( arg ) ) {
+					return "delay incorrectly specified";
+				}
+			}
+
+			Sound sound;
+			FillHookableSound( sound, data );
+			sounds.push_back( sound );
+
+			soundsToPrecache.insert( sound.path );
+
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_MUSIC] = ConfigSection(
 		"music", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithMusicSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 3 ) {
+				return "<mapname> <modelindex | targetname> <sound_path> [delay] [initial_pos] [const] [looping] [no_slowmotion_effects] not specified";
+			}
+
+			Sound music;
+			FillHookableSound( music, data );
+			this->music.push_back( music );
+
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_PLAYLIST] = ConfigSection(
@@ -226,11 +327,18 @@ void CustomGameModeConfig::InitConfigSections() {
 			}
 
 			if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
+				std::vector<std::string> files;
 				if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-					auto vec = GetAllFileNames( line.c_str(), { "wav", "ogg", "mp3" }, true );
-					musicPlaylist.insert( musicPlaylist.end(), vec.begin(), vec.end() );
+					files = GetAllFileNames( line.c_str(), { "wav", "ogg", "mp3" }, true );
 				} else {
-					musicPlaylist.push_back( line );
+					files.push_back( line );
+				}
+
+				for ( const auto &file : files ) {
+					Sound music;
+					music.Reset();
+					music.path = file;
+					musicPlaylist.push_back( music );
 				}
 			}
 
@@ -240,7 +348,27 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_MAX_COMMENTARY] = ConfigSection(
 		"max_commentary", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexWithSoundSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 3 ) {
+				return "<mapname> <modelindex | targetname> <sound_path> [delay] [const] not specified";
+			}
+
+			if ( data.argsFloat.size() >= 4 ) {
+				float arg = data.argsFloat.at( 3 );
+				if ( std::isnan( arg ) ) {
+					return "delay incorrectly specified";
+				}
+			}
+
+			Sound commentary;
+			FillHookableSound( commentary, data );
+			commentary.noSlowmotionEffects = true;
+			maxCommentary.push_back( commentary );
+
+			soundsToPrecache.insert( commentary.path );
+
+			return "";
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_MODS] = ConfigSection(
@@ -258,31 +386,65 @@ void CustomGameModeConfig::InitConfigSections() {
 
 	configSections[CONFIG_FILE_SECTION_TIMER_PAUSE] = ConfigSection(
 		"timer_pause", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 2 ) {
+				return "<mapname> <modelindex | targetname> not specified";
+			}
+
+			Hookable timerPause;
+			FillHookable( timerPause, data );
+			timerPauses.push_back( timerPause );
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_TIMER_RESUME] = ConfigSection(
 		"timer_resume", false,
-		[this]( ConfigSectionData &data ) { return ValidateModelIndexSectionData( data ); }
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 2 ) {
+				return "<mapname> <modelindex | targetname> not specified";
+			}
+
+			Hookable timerResume;
+			FillHookable( timerResume, data );
+			timerResumes.push_back( timerResume );
+		}
 	);
 
 	configSections[CONFIG_FILE_SECTION_INTERMISSION] = ConfigSection(
 		"intermission", false,
 		[this]( ConfigSectionData &data ) {
-			for ( const auto &line : data.argsString ) {
-				if ( data.argsString.size() < 3 ) {
-					return std::string( "<map_name> <model_index | target_name | next_map_name> <real_next_map_name> [x] [y] [z] [angle] [stripped] not specified" );
+			if ( data.argsString.size() < 3 ) {
+				return std::string( "<map_name> <model_index | target_name | next_map_name> <real_next_map_name> [x] [y] [z] [angle] [stripped] not specified" );
+			}
+
+			bool defined = true;
+			float x = NAN;
+			float y = NAN;
+			float z = NAN;
+			float angle = NAN;
+			bool stripped = data.argsString.back() == "stripped";
+
+			Intermission intermission;
+			FillHookableWithTarget( intermission, data );
+
+			for ( size_t i = 3 ; i < min( data.argsFloat.size(), 6 ) ; i++ ) {
+				float arg = data.argsFloat.at( i );
+				if ( std::isnan( arg ) ) {
+					char error[1024];
+					sprintf_s( error, "invalid coordinate by index %d", i + 1 );
+					return std::string( error );
 				}
 
-				for ( size_t i = 3 ; i < min( data.argsFloat.size(), 6 ) ; i++ ) {
-					float arg = data.argsFloat.at( i );
-					if ( std::isnan( arg ) ) {
-						char error[1024];
-						sprintf_s( error, "invalid coordinate by index %d", i + 1 );
-						return std::string( error );
-					}
-				}
+				x		= i == 3 ? arg : x;
+				y		= i == 4 ? arg : y;
+				z		= i == 5 ? arg : z;
+				angle	= i == 6 ? arg : angle;
 			}
+
+			intermission.startPos = { defined, x, y, z, angle, stripped };
+
+			intermissions.push_back( intermission );
+
 			return std::string( "" );
 		}
 	);
@@ -296,6 +458,8 @@ void CustomGameModeConfig::InitConfigSections() {
 				}
 
 				std::string entityName = data.argsString.at( 1 );
+				int maxAmount = 50;
+				float spawnPeriod = 2.0f;
 				if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
 					return std::string( "incorrect entity name" );
 				}
@@ -312,10 +476,47 @@ void CustomGameModeConfig::InitConfigSections() {
 						}
 						return std::string( error );
 					}
+
+					maxAmount	= i == 2 ? arg : maxAmount;
+					spawnPeriod = i == 3 ? arg : spawnPeriod;
 				}
 
 				entitiesToPrecache.insert( entityName );
+
+				EntityRandomSpawner spawner;
+				spawner.mapName = data.argsString.at( 0 );
+				spawner.entityName = entityName;
+				spawner.maxAmount = maxAmount;
+				spawner.spawnPeriod = spawnPeriod;
+
+				entityRandomSpawners.push_back( spawner );
 			}
+			return std::string( "" );
+		}
+	);
+
+	configSections[CONFIG_FILE_SECTION_END_CONDITIONS] = ConfigSection(
+		"end_conditions", false,
+		[this]( ConfigSectionData &data ) {
+			for ( const auto &line : data.argsString ) {
+				if ( data.argsString.size() < 3 ) {
+					return std::string( "<map_name | everywhere> <model_index | target_name | class_name> <activations> not specified" );
+				}
+
+				if ( std::isnan( data.argsFloat.at( 2 ) ) ) {
+					return std::string( "invalid count value" );
+				}
+			}
+
+			EndCondition condition;
+			FillHookable( condition, data );
+			condition.activations = 0;
+			condition.activationsRequired = data.argsFloat.at( 2 );
+			condition.constant = true;
+			condition.objective = data.argsString.size() > 3 ? data.argsString.at( 3 ) : "COMPLETION";
+
+			endConditions.push_back( condition );
+
 			return std::string( "" );
 		}
 	);
@@ -325,33 +526,6 @@ std::string CustomGameModeConfig::ValidateModelIndexSectionData( ConfigSectionDa
 
 	if ( data.argsString.size() < 2 ) {
 		return "<mapname> <modelindex | targetname> [const] not specified";
-	}
-
-	return "";
-}
-
-std::string CustomGameModeConfig::ValidateModelIndexWithSoundSectionData( ConfigSectionData &data ) {
-
-	if ( data.argsString.size() < 3 ) {
-		return "<mapname> <modelindex | targetname> <sound_path> [delay] [const] not specified";
-	}
-
-	if ( data.argsFloat.size() >= 4 ) {
-		float arg = data.argsFloat.at( 3 );
-		if ( std::isnan( arg ) ) {
-			return "delay incorrectly specified";
-		}
-	}
-
-	soundsToPrecache.insert( data.argsString.at( 2 ) );
-
-	return "";
-}
-
-std::string CustomGameModeConfig::ValidateModelIndexWithMusicSectionData( ConfigSectionData &data ) {
-
-	if ( data.argsString.size() < 3 ) {
-		return "<mapname> <modelindex | targetname> <sound_path> [delay] [initial_pos] [const] [looping] [no_slowmotion_effects] not specified";
 	}
 
 	return "";
@@ -523,8 +697,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	}
 
-	const std::string startMap = GetStartMap();
-	if ( startMap.size() == 0 && configType != CONFIG_TYPE_MAP ) {
+	if ( startMap.empty() && configType != CONFIG_TYPE_MAP ) {
 		char errorCString[1024];
 		sprintf_s( errorCString, "Error parsing %s\\%s.txt: [start_map] section must be defined\n", ConfigTypeToDirectoryName( configType ).c_str(), fileName );
 		OnError( std::string( errorCString ) );
@@ -591,14 +764,35 @@ void CustomGameModeConfig::Reset() {
 	this->configName.clear();
 	this->configNameSeparated.clear();
 	this->error.clear();
-	this->musicPlaylist.clear();
 	musicPlaylistShuffle = false;
 	gameFinishedOnce = false;
 
 	this->markedForRestart = false;
+	this->hasEndMarkers = false;
 
 	this->entitiesToPrecache.clear();
 	this->soundsToPrecache.clear();
+
+	
+	name = "";
+	description = "";
+	startPosition = { false, NAN, NAN, NAN, NAN, false };
+	startMap = "";
+	endMap = "";
+	endTrigger.Reset();
+	forbiddenLevels.clear();
+	loadout.clear();
+	entityUses.clear();
+	entitiesPrevented.clear();
+	sounds.clear();
+	maxCommentary.clear();
+	music.clear();
+	musicPlaylist.clear();
+	intermissions.clear();
+	timerPauses.clear();
+	timerResumes.clear();
+	entityRandomSpawners.clear();
+	endConditions.clear();
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
@@ -1299,6 +1493,31 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "show_timer" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SHOW_TIMER,
+			"Show timer",
+			"Timer will be shown. Time is affected by slowmotion.",
+			[]( CBasePlayer *player ) {
+				player->timerShown = true;
+			}
+		) );
+		return true;
+	}
+
+	if ( modName == "show_timer_real_time" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_SHOW_TIMER_REAL_TIME,
+			"Show timer with real time",
+			"Time will be shown and it's not affected by slowmotion, which is useful for speedruns.",
+			[]( CBasePlayer *player ) {
+				player->timerShown = true;
+				player->timerShowReal = true;
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "slowmotion_fast_walk" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SLOWMOTION_FAST_WALK,
@@ -1515,6 +1734,36 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "time_restriction" ) {
+		float timeOut = 60;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				timeOut = data.argsFloat.at( i );
+				if ( timeOut <= 0 ) {
+					timeOut = 1;
+				}
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_TIME_RESTRICTION,
+			"Time restriction",
+			"You are killed if time runs out.",
+			[timeOut]( CBasePlayer *player ) {
+				player->timerShown = true;
+				player->timerBackwards = true;
+				player->time = timeOut;
+			},
+			{
+				std::to_string( timeOut ) + " seconds\n"
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "vvvvvv" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_VVVVVV,
@@ -1593,6 +1842,69 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	return false;
 }
 
+void CustomGameModeConfig::FillHookable( Hookable &hookable, const ConfigSectionData &data ) {
+	hookable.map = data.argsString.at( 0 );
+	if ( std::isnan( data.argsFloat.at( 1 ) ) ) {
+		hookable.targetName = data.argsString.at( 1 );
+	} else {
+		hookable.modelIndex = data.argsFloat.at( 1 );
+	}
+
+	if ( data.argsString.size() > 3 ) {
+		for ( size_t i = data.argsString.size() - 1 ; i >= 3 ; i-- ) {
+			if ( data.argsString.at( i ) == "const" ) {
+				hookable.constant = true;
+				break;
+			}
+		}
+	}
+}
+
+void CustomGameModeConfig::FillHookableWithDelay( HookableWithDelay &hookableWithDelay, const ConfigSectionData &data ) {
+	FillHookable( hookableWithDelay, data );
+
+	if ( data.argsFloat.size() > 2 ) {
+		if ( !std::isnan( data.argsFloat.at( 2 ) ) ) {
+			hookableWithDelay.delay = data.argsFloat.at( 2 );
+		}
+	}
+}
+
+void CustomGameModeConfig::FillHookableWithTarget( HookableWithTarget &hookableWithTarget, const ConfigSectionData &data ) {
+	FillHookable( hookableWithTarget, data );
+
+	if ( data.argsString.size() > 2 ) {
+		hookableWithTarget.isModelIndex = !std::isnan( data.argsFloat.at( 2 ) );
+		hookableWithTarget.entityName = data.argsString.at( 2 );
+	}
+}
+
+void CustomGameModeConfig::FillHookableSound( Sound &hookableSound, const ConfigSectionData &data ) {
+	FillHookable( hookableSound, data );
+
+	hookableSound.path = data.argsString.at( 2 );
+
+	for ( size_t arg = 3 ; arg < data.argsString.size() ; arg++ ) {
+		 
+		hookableSound.looping = hookableSound.looping || data.argsString.at( arg ) == "looping";
+		hookableSound.noSlowmotionEffects = hookableSound.noSlowmotionEffects || data.argsString.at( arg ) == "no_slowmotion_effects";
+
+		hookableSound.delay			= arg == 3 ? data.argsFloat.at( arg ) : hookableSound.delay;
+		hookableSound.initialPos	= arg == 4 ? data.argsFloat.at( arg ) : hookableSound.initialPos;
+	}
+}
+
+void CustomGameModeConfig::FillEntitySpawn( EntitySpawn &entitySpawn, const ConfigSectionData &data ) {
+	FillHookable( entitySpawn, data );
+
+	entitySpawn.entityName = data.argsString.at( 2 );
+	entitySpawn.x = data.argsFloat.at( 3 );
+	entitySpawn.y = data.argsFloat.at( 4 );
+	entitySpawn.z = data.argsFloat.at( 5 );
+	entitySpawn.angle = data.argsFloat.size() >= 7 ? data.argsFloat.at( 6 ) : 0.0f;
+	entitySpawn.targetName = data.argsFloat.size() >= 8 ? data.argsString.at( 7 ) : "";
+}
+
 bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 
 	for ( const auto &configSection : configSections ) {
@@ -1605,138 +1917,7 @@ bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {
 	return false;
 }
 
-const std::string CustomGameModeConfig::GetName() {
-	ConfigSection section = configSections[CONFIG_FILE_SECTION_NAME];
-	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
-}
-
-const std::string CustomGameModeConfig::GetDescription() {
-	std::string result = "";
-	ConfigSection section = configSections[CONFIG_FILE_SECTION_DESCRIPTION];
-	for ( const auto &line : section.data ) {
-		result += line.line + "\n";
-	}
-
-	return result;
-}
-
-const std::string CustomGameModeConfig::GetStartMap() {
-	ConfigSection section = configSections[CONFIG_FILE_SECTION_START_MAP];
-	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
-}
-
-const std::string CustomGameModeConfig::GetEndMap() {
-	ConfigSection section = configSections[CONFIG_FILE_SECTION_END_MAP];
-	return section.data.size() == 0 ? "" : section.data.at( 0 ).line;
-}
-
-const StartPosition CustomGameModeConfig::GetStartPosition() {
-	ConfigSection section = configSections[CONFIG_FILE_SECTION_START_POSITION];
-	if ( section.data.size() == 0 ) {
-		return { false, NAN, NAN, NAN, NAN };
-	}
-
-	std::vector<float> args = section.data.at( 0 ).argsFloat;
-	float x = args.at( 0 );
-	float y = args.at( 1 );
-	float z = args.at( 2 );
-	float angle = args.size() > 3 ? args.at( 3 ) : NAN;
-
-	return { true, x, y, z, angle };
-}
-
-const Intermission CustomGameModeConfig::GetIntermission( const std::string &mapName, int modelIndex, const std::string &targetName ) {
-	ConfigSection section = configSections[CONFIG_FILE_SECTION_INTERMISSION];
-	if ( section.data.size() == 0 ) {
-		return { false, "", NAN, NAN, NAN, NAN, false };
-	}
-
-	for ( const auto &data : section.data ) {
-		std::string storedMapName = data.argsString.at( 0 );
-		int storedModelIndex = std::isnan( data.argsFloat.at( 1 ) ) ? -2 : data.argsFloat.at( 1 );
-		std::string storedTargetName = data.argsString.at( 1 );
-		std::string storedToMap = data.argsString.at( 2 );
-
-		if ( 
-			mapName != storedMapName ||
-			modelIndex != storedModelIndex &&
-			( storedTargetName != targetName || storedTargetName.size() == 0 )
-		) {
-			continue;
-		}
-
-		float x = data.argsFloat.size() > 3 ? data.argsFloat.at( 3 ) : NAN;
-		float y = data.argsFloat.size() > 4 ? data.argsFloat.at( 4 ) : NAN;
-		float z = data.argsFloat.size() > 5 ? data.argsFloat.at( 5 ) : NAN;
-		float angle = data.argsFloat.size() > 6 ? data.argsFloat.at( 6 ) : NAN;
-
-		bool stripped = data.argsFloat.size() > 7 ? data.argsString.at( 7 ) == "strip" : false;
-
-		return { true, storedToMap, x, y, z, angle, stripped };
-	}
-
-	return { false, "", NAN, NAN, NAN, NAN, false };
-}
-
-const std::vector<std::string> CustomGameModeConfig::GetLoadout() {
-	std::vector<std::string> loadout;
-	for ( const auto &data : configSections[CONFIG_FILE_SECTION_LOADOUT].data ) {
-		int itemCount = 1;
-
-		if ( data.argsFloat.size() >= 2 ) {
-			itemCount = ceil( data.argsFloat.at( 1 ) );
-		}
-
-		for ( int i = 0 ; i < itemCount ; i++ ) {
-			loadout.push_back( data.argsString.at( 0 ) );
-		}
-	}
-
-	return loadout;
-}
-
-const std::vector<EntityRandomSpawner> CustomGameModeConfig::GetEntityRandomSpawners() {
-	std::vector<EntityRandomSpawner> result;
-	for ( const auto &line : configSections[CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER].data ) {
-		const std::string mapName = line.argsString.at( 0 );
-		const std::string entityName = line.argsString.at( 1 );
-		const int maxAmount = line.argsFloat.size() >= 3 ? line.argsFloat.at( 2 ) : 50;
-		const float spawnPeriod = line.argsFloat.size() >= 4 ? line.argsFloat.at( 3 ) : 2.0f;
-		
-		result.push_back( { mapName, entityName, maxAmount, spawnPeriod } );
-	}
-
-	return result;
-}
-
-const std::vector<EntitySpawn> CustomGameModeConfig::GetEntitySpawnsForMapOnce( const std::string &map ) {
-	std::vector<EntitySpawn> result;
-	auto *sectionData = &configSections[CONFIG_FILE_SECTION_ENTITY_SPAWN].data;
-
-	auto i = sectionData->begin();
-	while ( i != sectionData->end() ) {
-		const std::string storedMapName = i->argsString.at( 0 );
-		if ( storedMapName != map ) {
-			i++;
-			continue;
-		}
-
-		const std::string entityName = i->argsString.at( 1 );
-		const float x = i->argsFloat.at( 2 );
-		const float y = i->argsFloat.at( 3 );
-		const float z = i->argsFloat.at( 4 );
-		const float angle = i->argsFloat.size() >= 6 ? i->argsFloat.at( 5 ) : 0.0f;
-		const std::string targetName = i->argsFloat.size() >= 7 ? i->argsString.at( 6 ) : "";
-
-		result.push_back( { entityName, x, y, z, angle, targetName } );
-
-		i = sectionData->erase( i );
-	}
-
-	return result;
-}
-
-bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *outIsConstant ) {
+bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *outIsConstant, ConfigSectionData *outData ) {
 	auto *sectionData = &configSections[fileSection].data;
 	auto i = sectionData->begin();
 	while ( i != sectionData->end() ) {
@@ -1751,6 +1932,12 @@ bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, cons
 		) {
 			i++;
 			continue;
+		}
+
+		if ( outData ) {
+			outData->line = i->line;
+			outData->argsFloat = i->argsFloat;
+			outData->argsString = i->argsString;
 		}
 
 		bool constant = false;
@@ -1767,119 +1954,6 @@ bool CustomGameModeConfig::MarkModelIndex( CONFIG_FILE_SECTION fileSection, cons
 		}
 
 		return true;
-	}
-
-	return false;
-}
-
-const std::vector<ConfigFileSound> CustomGameModeConfig::MarkModelIndexesWithSound( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
-	std::vector<ConfigFileSound> result;
-	
-	auto *sectionData = &configSections[fileSection].data;
-	auto i = sectionData->begin();
-	while ( i != sectionData->end() ) {
-		std::string storedMapName = i->argsString.at( 0 );
-		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? -2 : i->argsFloat.at( 1 );
-		std::string storedTargetName = i->argsString.at( 1 );
-		std::string storedSoundPath = i->argsString.at( 2 );
-
-		if ( 
-			mapName != storedMapName ||
-			modelIndex != storedModelIndex &&
-			( storedTargetName != targetName || storedTargetName.size() == 0 )
-		) {
-			i++;
-			continue;
-		}
-
-		bool constant = false;
-		float delay = 0.0f;
-		if ( i->argsString.size() >= 4 ) {
-			for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
-				constant = constant || i->argsString.at( arg ) == "const";
-				delay = std::isnan( i->argsFloat.at( arg ) ) ? 0.0f : i->argsFloat.at( arg );
-			}
-		}
-
-		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
-			delay = 0.101f;
-		}
-
-		result.push_back( { true, storedSoundPath, constant, delay } );
-		
-		if ( !constant ) {
-			i = sectionData->erase( i );
-		} else {
-			i++;
-		}
-	}
-
-	return result;
-}
-
-const std::vector<ConfigFileMusic> CustomGameModeConfig::MarkModelIndexesWithMusic( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName ) {
-	std::vector<ConfigFileMusic> result;
-	
-	auto *sectionData = &configSections[fileSection].data;
-	auto i = sectionData->begin();
-	while ( i != sectionData->end() ) {
-		std::string storedMapName = i->argsString.at( 0 );
-		int storedModelIndex = std::isnan( i->argsFloat.at( 1 ) ) ? -2 : i->argsFloat.at( 1 );
-		std::string storedTargetName = i->argsString.at( 1 );
-		std::string storedSoundPath = i->argsString.at( 2 );
-
-		if ( 
-			mapName != storedMapName ||
-			modelIndex != storedModelIndex &&
-			( storedTargetName != targetName || storedTargetName.size() == 0 )
-		) {
-			i++;
-			continue;
-		}
-
-		bool constant = false;
-		bool looping = false;
-		bool noSlowmotionEffects = false;
-		float delay = NAN;
-		float initialPos = NAN;
-		for ( size_t arg = 3 ; arg < i->argsString.size() ; arg++ ) {
-			constant = constant || i->argsString.at( arg ) == "const";
-			looping = looping || i->argsString.at( arg ) == "looping";
-			noSlowmotionEffects = noSlowmotionEffects || i->argsString.at( arg ) == "no_slowmotion_effects";
-			if ( std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
-				delay = i->argsFloat.at( arg );
-			} else if ( !std::isnan( delay ) && !std::isnan( i->argsFloat.at( arg ) ) ) {
-				initialPos = i->argsFloat.at( arg );
-			}
-		}
-		if ( std::isnan( delay ) ) {
-			delay = 0.0f;
-		}
-		if ( std::isnan( initialPos ) ) {
-			initialPos = 0.0f;
-		}
-
-		if ( modelIndex == CHANGE_LEVEL_MODEL_INDEX && delay < 0.101f ) {
-			delay = 0.101f;
-		}
-
-		result.push_back( { true, storedSoundPath, constant, looping, noSlowmotionEffects, delay, initialPos } );
-
-		if ( !constant ) {
-			i = sectionData->erase( i );
-		} else {
-			i++;
-		}
-	}
-
-	return result;
-}
-
-bool CustomGameModeConfig::IsChangeLevelPrevented( const std::string &nextMap ) {
-	for ( const auto &data : configSections[CONFIG_FILE_SECTION_CHANGE_LEVEL_PREVENT].data ) {
-		if ( data.line == nextMap ) {
-			return true;
-		}
 	}
 
 	return false;
@@ -1906,7 +1980,8 @@ const std::string CustomGameModeConfig::ConfigSection::OnSectionData( const std:
 
 	ConfigSectionData sectionData;
 	sectionData.line = line;
-	sectionData.argsString = Split( line, ' ' );
+	sectionData.argsString = NaiveCommandLineParse( line );
+	
 	for ( const std::string &arg : sectionData.argsString ) {
 		float value;
 		try {

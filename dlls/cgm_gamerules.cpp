@@ -23,6 +23,17 @@ int	gmsgGLogMsg		= 0;
 int	gmsgGLogWDeact	= 0;
 int	gmsgGLogWMsg	= 0;
 int gmsgTimerPause  = 0;
+int gmsgTimerDeact = 0;
+int gmsgTimerValue = 0;
+int gmsgTimerCheat = 0;
+
+int gmsgCountDeact = 0;
+int gmsgCountValue = 0;
+int gmsgCountCheat = 0;
+
+int gmsgScoreDeact  = 0;
+int gmsgScoreValue	= 0;
+int gmsgScoreCheat	= 0;
 
 // CGameRules were recreated each level change and there were no built-in saving method,
 // that means we'd lose config file state on each level change.
@@ -50,6 +61,18 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 		gmsgGLogWDeact = REG_USER_MSG( "GLogWDeact", 0 );
 		gmsgGLogWMsg = REG_USER_MSG( "GLogWMsg", -1 );
 		gmsgTimerPause = REG_USER_MSG( "TimerPause", 1 );
+
+		gmsgTimerDeact = REG_USER_MSG( "TimerDeact", 0 );
+		gmsgTimerValue = REG_USER_MSG( "TimerValue", -1 );
+		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
+
+		gmsgCountDeact = REG_USER_MSG( "CountDeact", 0 );
+		gmsgCountValue = REG_USER_MSG( "CountValue", -1 );
+		gmsgCountCheat = REG_USER_MSG( "CountCheat", 0 );
+
+		gmsgScoreDeact = REG_USER_MSG( "ScoreDeact", 0 );
+		gmsgScoreValue = REG_USER_MSG( "ScoreValue", 16 );
+		gmsgScoreCheat = REG_USER_MSG( "ScoreCheat", 0 );
 	}
 
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
@@ -60,22 +83,25 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	config.ReadFile( configName );
 	RefreshSkillData();
 
+	endMarkersActive = false;
+
 	cheatedMessageSent = false;
 	startMapDoesntMatch = false;
 
 	timeDelta = 0.0f;
 	musicSwitchDelay = 0.0f;
 
-	auto entityRandomSpawners = config.GetEntityRandomSpawners();
-	for ( const auto &spawner : entityRandomSpawners ) {
+	yOffset = 0;
+	maxYOffset = 0;
+
+	for ( const auto &spawner : config.entityRandomSpawners ) {
 		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
 	}
 }
 
 void CCustomGameModeRules::RestartGame() {
-	const std::string startMap = config.GetStartMap();
 	char mapName[256];
-	sprintf( mapName, "%s", startMap.c_str() );
+	sprintf( mapName, "%s", config.startMap.c_str() );
 
 	// Change level to [startmap] and queue the 'restart' command
 	// for CCustomGameModeRules::PlayerSpawn.
@@ -87,6 +113,7 @@ void CCustomGameModeRules::RestartGame() {
 void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message ) {
 	MESSAGE_BEGIN( MSG_ONE, gmsgGLogMsg, NULL, pPlayer->pev );
 		WRITE_STRING( message.c_str() );
+		WRITE_LONG( maxYOffset );
 	MESSAGE_END();
 }
 
@@ -118,87 +145,86 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		mod.init( pPlayer );
 	}
 
-	// For first map
-	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
-
-	auto loadout = config.GetLoadout();
 	pPlayer->SetEvilImpulse101( true );
-	for ( std::string loadoutItem : loadout ) {
+	for ( const auto &item : config.loadout ) {
 
-		if ( loadoutItem == "all" ) {
-			pPlayer->GiveAll( true );
-			pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
-		}
-		else {
-			if ( loadoutItem == "item_healthkit" ) {
-				pPlayer->TakePainkiller();
-			} else if ( loadoutItem == "item_suit" ) {
-				pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
-			} else if ( loadoutItem == "item_longjump" ) {
-				pPlayer->m_fLongJump = TRUE;
-				g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict( ), "slj", "1" );
+		for ( int i = 0 ; i < item.amount ; i++ ) {
+			if ( item.name == "all" ) {
+				pPlayer->GiveAll( true );
+				pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
 			} else {
-				const char *item = allowedItems[CustomGameModeConfig::GetAllowedItemIndex( loadoutItem.c_str( ) )];
-				pPlayer->GiveNamedItem( item, true );
+				if ( item.name == "item_healthkit" ) {
+					pPlayer->TakePainkiller();
+				} else if ( item.name == "item_suit" ) {
+					pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
+				} else if ( item.name == "item_longjump" ) {
+					pPlayer->m_fLongJump = TRUE;
+					g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict( ), "slj", "1" );
+				} else {
+					pPlayer->GiveNamedItem( allowedItems[CustomGameModeConfig::GetAllowedItemIndex( item.name.c_str( ) )], true );
+				}
 			}
 		}
 	}
 	pPlayer->SetEvilImpulse101( false );
 	pPlayer->loadoutReceived = true;
 
-	if ( !config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ) {
-		pPlayer->TakeSlowmotionCharge( 100 );
+	if (
+		config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ||
+		config.IsGameplayModActive( GAMEPLAY_MOD_NO_SLOWMOTION )
+	) {
+		pPlayer->slowMotionCharge = 0;
 	}
 
-	StartPosition startPosition = config.GetStartPosition();
-	if ( startPosition.defined ) {
-		pPlayer->pev->origin.x = startPosition.x;
-		pPlayer->pev->origin.y = startPosition.y;
-		pPlayer->pev->origin.z = startPosition.z;
-		if ( !std::isnan( startPosition.angle ) ) {
-			pPlayer->pev->angles[1] = startPosition.angle;
+	if ( config.startPosition.defined ) {
+		pPlayer->pev->origin.x = config.startPosition.x;
+		pPlayer->pev->origin.y = config.startPosition.y;
+		pPlayer->pev->origin.z = config.startPosition.z;
+		if ( !std::isnan( config.startPosition.angle ) ) {
+			pPlayer->pev->angles[1] = config.startPosition.angle;
 		}
 	}
 
-	if ( g_latestIntermission.defined ) {
-		if ( !std::isnan( g_latestIntermission.x ) ) {
-			pPlayer->pev->origin.x = g_latestIntermission.x;
-			pPlayer->pev->origin.y = std::isnan( g_latestIntermission.y ) ? 0 : g_latestIntermission.y;
-			pPlayer->pev->origin.z = std::isnan( g_latestIntermission.z ) ? 0 : g_latestIntermission.z;
+	if ( g_latestIntermission.startPos.defined ) {
+		if ( !std::isnan( g_latestIntermission.startPos.x ) ) {
+			pPlayer->pev->origin.x = g_latestIntermission.startPos.x;
+			pPlayer->pev->origin.y = std::isnan( g_latestIntermission.startPos.y ) ? 0 : g_latestIntermission.startPos.y;
+			pPlayer->pev->origin.z = std::isnan( g_latestIntermission.startPos.z ) ? 0 : g_latestIntermission.startPos.z;
 		}
 
-		if ( !std::isnan( g_latestIntermission.angle ) ) {
-			pPlayer->pev->angles[1] = g_latestIntermission.angle;
+		if ( !std::isnan( g_latestIntermission.startPos.angle ) ) {
+			pPlayer->pev->angles[1] = g_latestIntermission.startPos.angle;
 		}
 
-		if ( g_latestIntermission.strip ) {
+		if ( g_latestIntermission.startPos.stripped ) {
 			pPlayer->RemoveAllItems( false );
 		}
 
-		g_latestIntermission.defined = false;
+		g_latestIntermission.startPos.defined = false;
 	}
 
 	if ( config.musicPlaylist.size() > 0 ) {
 		pPlayer->noMapMusic = TRUE;
 	}
 
+	if ( config.hasEndMarkers ) {
+		pPlayer->noSaving = TRUE;
+	}
+
 	pPlayer->activeGameModeConfigHash = ALLOC_STRING( config.sha1.c_str() );
 
 	// Do not let player cheat by not starting at the [startmap]
-	const std::string startMap = config.GetStartMap();
 	const char *actualMap = STRING( gpGlobals->mapname );
-	startMapDoesntMatch = startMap != actualMap;
+	startMapDoesntMatch = config.startMap != actualMap;
 
 }
 
 void CCustomGameModeRules::OnNewlyVisitedMap() {
 	CHalfLifeRules::OnNewlyVisitedMap();
-
-	SpawnEnemiesByConfig( STRING( gpGlobals->mapname ) );
 	
 	if ( config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) ) {
 		
-		tasks.push( [this]( CBasePlayer *pPlayer ) {
+		tasks.push_back( { 0.0f, [this]( CBasePlayer *pPlayer ) {
 
 			for ( int i = 0 ; i < 1024 ; i++ ) {
 				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
@@ -234,12 +260,8 @@ void CCustomGameModeRules::OnNewlyVisitedMap() {
 					}
 				}
 			}
-		} );
+		} } );
 	}
-}
-
-bool CCustomGameModeRules::ChangeLevelShouldBePrevented( const char *nextMap ) {
-	return config.IsChangeLevelPrevented( nextMap );
 }
 
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
@@ -318,11 +340,58 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			musicIndexToPlay = 0;
 		}
 		
-		pPlayer->SendPlayMusicMessage( config.musicPlaylist.at( musicIndexToPlay ) );
+		pPlayer->SendPlayMusicMessage( config.musicPlaylist.at( musicIndexToPlay ).path );
 		pPlayer->currentMusicPlaylistIndex = musicIndexToPlay;
 
 		musicSwitchDelay = gpGlobals->time + 0.2f;
 	}
+
+	const int SPACING = 56;
+	yOffset = 0;
+
+	if ( pPlayer->timerShown ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
+			WRITE_STRING(
+				pPlayer->timerShowReal ? "REAL TIME" :
+				pPlayer->timerBackwards ? "TIME LEFT" :
+				"TIME"
+			);
+			WRITE_FLOAT( pPlayer->timerShowReal ? pPlayer->realTime : pPlayer->time );
+			WRITE_LONG( yOffset );
+		MESSAGE_END();
+
+		yOffset += SPACING;
+
+		if ( pPlayer->timerBackwards && pPlayer->time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+			ClientKill( ENT( pPlayer->pev ) );
+		}
+	}
+
+	if ( pPlayer->activeGameMode == GAME_MODE_SCORE_ATTACK ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
+			WRITE_LONG( pPlayer->score );
+			WRITE_LONG( pPlayer->comboMultiplier );
+			WRITE_FLOAT( pPlayer->comboMultiplierReset );
+			WRITE_LONG( yOffset );
+		MESSAGE_END();
+
+		yOffset += SPACING;
+	}
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
+	WRITE_SHORT( config.endConditions.size() );
+
+	for ( const auto &condition : config.endConditions ) {
+		WRITE_LONG( condition.activations );
+		WRITE_LONG( condition.activationsRequired );
+
+		WRITE_STRING( condition.objective.c_str() );
+	}
+	WRITE_LONG( yOffset );
+	MESSAGE_END();
+
+	yOffset += SPACING * config.endConditions.size();
+	maxYOffset = max( yOffset, maxYOffset );
 }
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
@@ -339,7 +408,26 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		pPlayer->projectileKills++;
 	}
 
-	HookModelIndex( victim->edict() );
+	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+}
+
+void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {
+	if ( !endMarkersActive ) {
+		endMarkersActive = true;
+		if ( pPlayer ) {
+			EMIT_SOUND( ENT( pPlayer->pev ), CHAN_STATIC, "var/end_marker.wav", 1, ATTN_NORM, true );
+			SendGameLogMessage( pPlayer, "HEAD TO THE GOAL" );
+		}
+	}
+
+	tasks.push_back( { 0.0f, []( CBasePlayer *pPlayer ) {
+		CBaseEntity *pEntity = NULL;
+		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, Vector( 0, 0, 0 ), 8192 ) ) != NULL ) {
+			if ( FStrEq( STRING( pEntity->pev->classname ), "end_marker" ) ) {
+				pEntity->Use( NULL, NULL, USE_ON, 0.0f );
+			}
+		}
+	} } );
 }
 
 void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
@@ -367,12 +455,20 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 	cheatedMessageSent = true;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerCheat, NULL, pPlayer->pev );
+	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgCountCheat, NULL, pPlayer->pev );
+	MESSAGE_END();
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	PauseTimer( pPlayer );
 
-	const std::string configName = config.GetName();
+	if ( !config.gameFinishedOnce && pPlayer->timerBackwards ) {
+		config.record.time = 0.0f;
+	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgGLogDeact, NULL, pPlayer->pev );
 	MESSAGE_END();
@@ -386,11 +482,38 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTitle, NULL, pPlayer->pev );
 		WRITE_STRING(
-			config.GetName().size() > 0 ?
-			( config.GetName() + " - COMPLETE" ).c_str() :
-			"LEVEL COMPLETE"
+			config.name.empty() ?
+			"LEVEL COMPLETE" :
+			( config.name + " - COMPLETE" ).c_str()
 		);
 	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgTimerDeact, NULL, pPlayer->pev );
+	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
+		WRITE_STRING( "TIME SCORE|PERSONAL BESTS" );
+		WRITE_FLOAT( pPlayer->time );
+		WRITE_FLOAT( config.record.time );
+		WRITE_BYTE( pPlayer->timerBackwards ? pPlayer->time > config.record.time : pPlayer->time < config.record.time  );
+	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
+		WRITE_STRING( "REAL TIME" );
+		WRITE_FLOAT( pPlayer->realTime );
+		WRITE_FLOAT( config.record.realTime );
+		WRITE_BYTE( pPlayer->realTime < config.record.realTime );
+	MESSAGE_END();
+
+	if ( pPlayer->timerBackwards ) {
+		float realTimeMinusTime = max( 0.0f, pPlayer->realTime - pPlayer->time );
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
+			WRITE_STRING( "REAL TIME MINUS SCORE" );
+			WRITE_FLOAT( realTimeMinusTime );
+			WRITE_FLOAT( config.record.realTimeMinusTime );
+			WRITE_BYTE( realTimeMinusTime < config.record.realTimeMinusTime );
+		MESSAGE_END();
+	}
 
 	int secondsInSlowmotion = ( int ) roundf( pPlayer->secondsInSlowmotion );
 	if ( secondsInSlowmotion > 0 ) {
@@ -438,20 +561,21 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	}
 }
 
-void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
+void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime )
 {
-	CHalfLifeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, targetName );
-
-	// Does end_trigger section contain such index?
-	if ( config.MarkModelIndex( CONFIG_FILE_SECTION_END_TRIGGER, std::string( STRING( gpGlobals->mapname ) ), modelIndex, targetName ) ) {
+	CHalfLifeRules::OnHookedModelIndex( pPlayer, activator, modelIndex, className, targetName, firstTime );
+	
+	if ( config.endTrigger.Fits( modelIndex, className, targetName, firstTime ) ) {
 		End( pPlayer );
 	}
 
-	Intermission potentialIntermission = config.GetIntermission( STRING( gpGlobals->mapname ), modelIndex, targetName );
-	if ( potentialIntermission.defined ) {
-		g_latestIntermission = potentialIntermission;
-		CHANGE_LEVEL( ( char * ) g_latestIntermission.toMap.c_str(), NULL );
-		// after that, g_latestIntermission becomes undefined in PlayerSpawn function
+	for ( const auto &potentialIntermission : config.intermissions ) {
+		if ( potentialIntermission.Fits( modelIndex, className, targetName, firstTime ) ) {
+			g_latestIntermission = potentialIntermission;
+			CHANGE_LEVEL( ( char * ) g_latestIntermission.entityName.c_str(), NULL );
+			// after that, g_latestIntermission becomes undefined in PlayerSpawn function
+			break;
+		}
 	}
 
 	if (
@@ -469,7 +593,7 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 				if ( CSqueakGrenade *penguin = dynamic_cast<CSqueakGrenade *>( list[i] ) ) {
 					if ( !penguin->isPanic ) {
 						penguin->pev->velocity = Vector( 0, 0, 0 );
-						penguin->pev->angles = UTIL_VecToAngles( activator->v.origin - penguin->pev->origin );
+						penguin->pev->angles = UTIL_VecToAngles( activator->pev->origin - penguin->pev->origin );
 						penguin->pev->angles[0] = 0;
 						penguin->pev->sequence = 1;
 						penguin->isStill = true;
@@ -487,23 +611,45 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *ac
 			}
 		}
 	}
-}
 
-void CCustomGameModeRules::SpawnEnemiesByConfig( const char *mapName )
-{
-	auto entitySpawns = config.GetEntitySpawnsForMapOnce( std::string( mapName ) );
-	for ( const auto &entitySpawn : entitySpawns ) {
-		CBaseEntity *entity = CBaseEntity::Create(
-			allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entityName.c_str() )],
-			Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),
-			Vector( 0, entitySpawn.angle, 0 )
-		);
-
-		entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
-		if ( entitySpawn.targetName.size() > 0 ) {
-			entity->pev->targetname = ALLOC_STRING( entitySpawn.targetName.c_str() ); // memory leak
+	for ( const auto &timerPause : config.timerPauses ) {
+		if ( timerPause.Fits( modelIndex, className, targetName, firstTime ) ) {
+			PauseTimer( pPlayer );
 		}
 	}
+
+	for ( const auto &timerResume : config.timerResumes ) {
+		if ( timerResume.Fits( modelIndex, className, targetName, firstTime ) ) {
+			ResumeTimer( pPlayer );
+		}
+	}
+
+	for ( auto &condition : config.endConditions ) {
+		if ( condition.Fits( modelIndex, className, targetName, firstTime ) ) {
+			condition.activations++;
+
+			if ( condition.activations >= condition.activationsRequired ) {
+
+				bool allComplete = true;
+
+				for ( const auto &condition : config.endConditions ) {
+					if ( condition.activations < condition.activationsRequired ) {
+						allComplete = false;
+						break;
+					}
+				}
+
+				if ( allComplete ) {
+					if ( config.hasEndMarkers ) {
+						ActivateEndMarkers( pPlayer );
+					} else {
+						End( pPlayer );
+					}
+				}
+			}
+		}
+	}
+
 }
 
 void CCustomGameModeRules::OnChangeLevel() {
@@ -512,6 +658,10 @@ void CCustomGameModeRules::OnChangeLevel() {
 
 	for ( auto &spawner : entityRandomSpawnerControllers ) {
 		spawner.ResetSpawnPeriod();
+	}
+
+	if ( endMarkersActive ) {
+		ActivateEndMarkers();
 	}
 }
 

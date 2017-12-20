@@ -544,8 +544,10 @@ public:
 	int comboMultiplier;
 	float comboMultiplierReset;
 
+	BOOL timerShown;
 	BOOL timerBackwards;
 	BOOL timerPaused;
+	BOOL timerShowReal;
 
 	int kills;
 	int headshotKills;

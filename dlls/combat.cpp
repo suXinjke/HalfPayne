@@ -704,10 +704,6 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 					player->OnKilledEntity( this );
 				}
 			}
-
-			if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-				rules->HookModelIndex( this->edict() );
-			}
 		}
 	}
 }

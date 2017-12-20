@@ -1025,9 +1025,8 @@ void RunCustomGameMode( CONFIG_TYPE configType ) {
 	gEngfuncs.Cvar_Set( "gamemode_config", configName );
 	gEngfuncs.Cvar_Set( "gamemode", ( char * ) CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ).c_str() );
 
-	const std::string startMap = config.GetStartMap();
 	char mapCmd[64];
-	sprintf( mapCmd, "map %s", startMap.c_str() );
+	sprintf( mapCmd, "map %s", config.startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
@@ -1087,9 +1086,9 @@ void ShowGameModeConfigs( CONFIG_TYPE configType ) {
 			continue;
 		};
 
-		std::string result = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + " " + file + " | " + config.GetStartMap();
-		if ( config.GetName().length() > 0 ) {
-			result += " | " + config.GetName();
+		std::string result = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + " " + file + " | " + config.startMap;
+		if ( config.name.length() > 0 ) {
+			result += " | " + config.name;
 		}
 		gEngfuncs.Con_Printf( "%s\n", result.c_str() );
 

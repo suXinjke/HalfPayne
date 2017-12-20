@@ -122,6 +122,7 @@
     <ClCompile Include="..\..\cl_dll\battery.cpp" />
     <ClCompile Include="..\..\cl_dll\cdll_int.cpp" />
     <ClCompile Include="..\..\cl_dll\com_weapons.cpp" />
+    <ClCompile Include="..\..\cl_dll\counter.cpp" />
     <ClCompile Include="..\..\cl_dll\death.cpp" />
     <ClCompile Include="..\..\cl_dll\demo.cpp" />
     <ClCompile Include="..\..\cl_dll\endcredits.cpp" />

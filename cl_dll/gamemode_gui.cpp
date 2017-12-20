@@ -69,9 +69,8 @@ void GameModeGUI_RunCustomGameMode( CustomGameModeConfig &config ) {
 	gEngfuncs.Cvar_Set( "gamemode_config", ( char * ) config.configName.c_str() );
 	gEngfuncs.Cvar_Set( "gamemode", ( char * ) CustomGameModeConfig::ConfigTypeToGameModeCommand( config.configType ).c_str() );
 
-	const std::string startMap = config.GetStartMap();
 	char mapCmd[64];
-	sprintf( mapCmd, "map %s", startMap.c_str() );
+	sprintf( mapCmd, "map %s", config.startMap.c_str() );
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
@@ -158,7 +157,6 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 			CustomGameModeConfig config = configs.at( i );
 
 			const char *file = config.configNameSeparated.at( config.configNameSeparated.size() - 1 ).c_str();
-			const std::string name = config.GetName();
 			
 			// COMPLETED?
 			ImGui::TextColored( ImVec4( 1.0, 1.0, 1.0, config.gameFinishedOnce ? 1.0 : 0.0 ), "%s", ICON_FA_CHECK );
@@ -196,7 +194,7 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 			ImGui::NextColumn();
 
 			// CONFIG NAME
-			ImGui::Text( "%s", name.c_str() ); ImGui::NextColumn();
+			ImGui::Text( "%s", config.name.c_str() ); ImGui::NextColumn();
 
 			// CONFIG FILE INFO
 			{
@@ -209,7 +207,7 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 					ImGui::EndTooltip();
 				}
 
-				const std::string modalKey = name.length() > 0 ? name : std::string( file ) + std::to_string( i );
+				const std::string modalKey = config.name.length() > 0 ? config.name : std::string( file ) + std::to_string( i );
 				if ( ImGui::IsItemClicked() ) {
 					ImGui::OpenPopup( modalKey.c_str() );
 				}
@@ -247,9 +245,7 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 }
 
 void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
-	const std::string description = config.GetDescription();
-	const std::string startMap = config.GetStartMap();
-	
+
 	if ( config.error.length() > 0 ) {
 		ImGui::PushTextWrapPos(300.0f);
 		ImGui::Text( config.error.c_str() );
@@ -262,11 +258,11 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 		ImGui::SetCursorPosX( ImGui::GetWindowWidth() - ImGui::CalcTextSize( sha1.c_str() ).x - 12 );
 		ImGui::Text( sha1.c_str() );
 
-		ImGui::Text( startMap.c_str() );
+		ImGui::Text( config.startMap.c_str() );
 
-		if ( description.size() > 0 ) {
+		if ( !config.description.empty() ) {
 			ImGui::Text( "\nDescription\n" );
-			ImGui::Text( description.c_str() );
+			ImGui::Text( config.description.c_str() );
 		}
 
 		if ( config.configType == CONFIG_TYPE_BMM ) {

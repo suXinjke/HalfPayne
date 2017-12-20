@@ -10,5 +10,6 @@ std::vector<std::string> Split( const std::string &text, char sep );
 std::deque<std::string> SplitDeque( const std::string &text, char sep );
 std::string Uppercase( std::string text );
 bool EndsWith( const std::string &fullString, const std::string &ending );
+std::vector<std::string> NaiveCommandLineParse( const std::string &input );
 
 #endif // STRING_AUX_H

@@ -10,21 +10,13 @@
 #include	"monsters.h"
 
 #define COMBO_MULTIPLIER_DECAY_TIME 8.0f;
-
-int gmsgScoreDeact  = 0;
-int gmsgScoreValue	= 0;
-int gmsgScoreCheat	= 0;
+extern int gmsgScoreCheat;
+extern int gmsgScoreDeact;
 
 extern int gmsgEndScore;
 
 CScoreAttack::CScoreAttack() : CCustomGameModeRules( CONFIG_TYPE_SAGM )
-{
-	if ( !gmsgScoreValue ) {
-		gmsgScoreDeact = REG_USER_MSG( "ScoreDeact", 0 );
-		gmsgScoreValue = REG_USER_MSG( "ScoreValue", 12 );
-		gmsgScoreCheat = REG_USER_MSG( "ScoreCheat", 0 );
-	}
-}
+{}
 
 void CScoreAttack::PlayerSpawn( CBasePlayer *pPlayer )
 {
@@ -42,12 +34,6 @@ void CScoreAttack::PlayerThink( CBasePlayer *pPlayer )
 		pPlayer->comboMultiplierReset = 0.0f;
 		pPlayer->comboMultiplier = 1;
 	}
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
-		WRITE_LONG( pPlayer->score );
-		WRITE_LONG( pPlayer->comboMultiplier );
-		WRITE_FLOAT( pPlayer->comboMultiplierReset );
-	MESSAGE_END();
 }
 
 void CScoreAttack::OnCheated( CBasePlayer *pPlayer ) {

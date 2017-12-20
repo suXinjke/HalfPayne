@@ -65,3 +65,59 @@ bool EndsWith( const std::string &fullString, const std::string &ending ) {
 		return false;
 	}
 }
+
+std::vector<std::string> NaiveCommandLineParse( const std::string &input ) {
+	std::vector<std::string> args;
+
+	std::string arg;
+
+	bool quotes = false;
+	bool writingWord = false;
+
+	for ( const auto &letter : input ) {
+		switch ( letter ) {
+			case '"': {
+				if ( writingWord ) {
+					if ( quotes ) {
+						quotes = false;
+						args.push_back( arg );
+						arg = "";
+					} else {
+						writingWord = true;
+						quotes = true;
+					}
+				} else {
+					quotes = true;
+				}
+
+				break;
+			}
+
+			case ' ': {
+				if ( quotes ) {
+					arg += letter;
+				} else if ( writingWord ) {
+					args.push_back( arg );
+					arg.clear();
+
+					writingWord = false;
+				}
+
+				break;
+			}
+
+			default: {
+				writingWord = true;
+				arg += letter;
+
+				break;
+			}
+		}
+	}
+
+	if ( !arg.empty() ) {
+		args.push_back( arg );
+	}
+
+	return args;
+}

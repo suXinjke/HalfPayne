@@ -29,6 +29,8 @@ void CHudScore::Reset( void )
 	currentScore = 0;
 	comboMultiplier = 1;
 	comboMultiplierReset = 0.0f;
+
+	yOffset = 0;
 }
 
 int CHudScore::Draw( float flTime )
@@ -38,15 +40,17 @@ int CHudScore::Draw( float flTime )
 	}
 
 	int r = MESSAGE_BRIGHTENESS;
-	int g = MESSAGE_BRIGHTENESS;
-	int b = MESSAGE_BRIGHTENESS;
+	int g = !cheated ? MESSAGE_BRIGHTENESS : 0;
+	int b = !cheated ? MESSAGE_BRIGHTENESS : 0;
 
 	int x = ScreenWidth - CORNER_OFFSET;
-	int y = 0;
+	int y = CORNER_OFFSET + yOffset;
 
 	std::string numberString = std::to_string( currentScore );
 	float formattedScoreSpriteWidth = gHUD.GetNumberSpriteWidth() * ( numberString.size() + ( ( numberString.size() - 1 ) / 3 ) / 2.0f );
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
+
+	gHUD.DrawHudStringKeepRight( x, y, 200, "SCORE", r, g, b );
 
 	if ( comboMultiplier > 1 ) {
 		int r2 = r;
@@ -58,15 +62,11 @@ int CHudScore::Draw( float flTime )
 		}
 
 		ScaleColors( r2, g2, b2, alpha );
-		gHUD.DrawHudStringKeepRight( x, y, 200, ( "x" + std::to_string( comboMultiplier ) ).c_str(), r2, g2, b2 );
+		gHUD.DrawHudStringKeepRight( x - gHUD.GetStringWidth( "SCORE" ) - 8, y, 200, ( "x" + std::to_string( comboMultiplier ) ).c_str(), r2, g2, b2 );
 	}
-	y += CORNER_OFFSET;
+	y += gHUD.m_scrinfo.iCharHeight + 2;
 
-	if ( cheated ) {
-		gHUD.DrawFormattedNumber( currentScore, x - formattedScoreSpriteWidth, y, r, 0, 0 );
-	} else {
-		gHUD.DrawFormattedNumber( currentScore, x - formattedScoreSpriteWidth, y, r, g, b );
-	}
+	gHUD.DrawFormattedNumber( currentScore, x - formattedScoreSpriteWidth, y, r, g, b );
 
 	return 1;
 }
@@ -77,6 +77,7 @@ int CHudScore::MsgFunc_ScoreValue( const char *pszName, int iSize, void *pbuf )
 	currentScore = READ_LONG();
 	comboMultiplier = READ_LONG();
 	comboMultiplierReset = READ_FLOAT();
+	yOffset = READ_LONG();
 
 	m_iFlags |= HUD_ACTIVE;
 

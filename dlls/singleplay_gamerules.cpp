@@ -21,9 +21,9 @@
 #include	"player.h"
 #include	"weapons.h"
 #include	"gamerules.h"
-#include	"skill.h"
 #include	"items.h"
 #include	"cgm_gamerules.h"
+#include	"monsters.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
@@ -59,20 +59,16 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CONFIG_TYPE_MAP )
 
 bool CHalfLifeRules::EntityShouldBePrevented( edict_t *entity )
 {
-	if ( entity ) {
-		int modelIndex = entity->v.modelindex;
-		std::string targetName = STRING( entity->v.targetname );
-		std::string className = STRING( entity->v.classname );
-		std::string mapName = STRING( gpGlobals->mapname );
+	int modelIndex = entity->v.modelindex;
+	std::string targetName = STRING( entity->v.targetname );
+	std::string className = STRING( entity->v.classname );
 
-		bool willBePrevented = false;
-		for ( const auto &config : configs ) {
-			willBePrevented = willBePrevented ||
-				config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_PREVENT, mapName, modelIndex, targetName ) ||
-				config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_PREVENT, mapName, modelIndex, className );
+	for ( const auto &config : configs ) {
+		for ( const auto &entityPrevent : config->entitiesPrevented ) {
+			if ( entityPrevent.Fits( modelIndex, className, targetName, true ) ) {
+				return true;
+			}
 		}
-
-		return willBePrevented;
 	}
 
 	return false;
@@ -118,109 +114,110 @@ void CHalfLifeRules::OnChangeLevel()
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
 	}
-
-	tasks.push( [this]( CBasePlayer *pPlayer ) {
-		if ( !pPlayer->HasVisitedMap( gpGlobals->mapname ) ) {
-			pPlayer->AddVisitedMap( gpGlobals->mapname );
-
-			for ( const auto &config : configs ) {
-				if ( config->configSections[CONFIG_FILE_SECTION_ENTITY_USE].data.size() > 0 ) {
-					for ( int i = 0 ; i < 1024 ; i++ ) {
-						edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
-						if ( !edict ) {
-							continue;
-						}
-
-						if ( config->MarkModelIndex( CONFIG_FILE_SECTION_ENTITY_USE, STRING( gpGlobals->mapname ), edict->v.modelindex, STRING( edict->v.targetname ) ) ) {
-							if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
-								entity->Use( pPlayer, pPlayer, USE_SET, 1 );
-							}
-						}
-					}
-				}
-			}
-
-			OnNewlyVisitedMap();
-		}
-	} );
+	tasks.push_back( { 0.0f, [this]( CBasePlayer *pPlayer ) {
+		HookModelIndex( NULL );
+	} } );
 }
 
-void CHalfLifeRules::HookModelIndex( edict_t *activator )
-{
-	HookModelIndex( activator, STRING( activator->v.targetname ) );
+void CHalfLifeRules::OnKilledEntityByPlayer( CBasePlayer * pPlayer, CBaseEntity * victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+	HookModelIndex( victim->edict() );
 }
 
-void CHalfLifeRules::HookModelIndex( edict_t *activator, const char *targetName )
-{
-	if ( !activator ) {
-		return;
-	}
+void CHalfLifeRules::HookModelIndex( edict_t *activator ) {
+	int modelIndex = activator ? activator->v.modelindex : -1;
+	std::string className = activator ? STRING( activator->v.classname ) : "";
+	std::string targetName = activator ? STRING( activator->v.targetname ) : "on_map_start";
 
-	CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
+	CBaseEntity *entity = activator ? CBaseEntity::Instance( activator ) : NULL;
+
+	HookModelIndex( entity, modelIndex, className, targetName );
+}
+
+void CHalfLifeRules::HookModelIndex( CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName ) {
+	CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
 	if ( !pPlayer ) {
 		return;
 	}
-
-	int modelIndex = activator->v.modelindex;
-	const char *className = STRING( activator->v.classname );
 
 	const float print_model_indexes = CVAR_GET_FLOAT( "print_model_indexes" );
 	if ( print_model_indexes >= 2.0f ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgOnModelIdx, NULL, pPlayer->pev );
 			WRITE_STRING( STRING( gpGlobals->mapname ) );
 			WRITE_LONG( modelIndex );
-			WRITE_STRING( targetName );
-			WRITE_STRING( className );
+			WRITE_STRING( targetName.c_str() );
+			WRITE_STRING( className.c_str() );
 		MESSAGE_END();
 	} else if ( print_model_indexes >= 1.0f ) {
 		char message[128];
-		sprintf( message, "[%s] Hooked model index: %d; target name: %s; class name: %s\n", STRING( gpGlobals->mapname ), modelIndex, targetName, className );
+		sprintf( message, "[%s] Hooked model index: %d; target name: %s; class name: %s\n", STRING( gpGlobals->mapname ), modelIndex, targetName.c_str(), className.c_str() );
 		g_engfuncs.pfnServerPrint( message );
 	}
 
-	OnHookedModelIndex( pPlayer, activator, modelIndex, std::string( targetName ) );
+	std::string key = std::string( STRING( gpGlobals->mapname ) ) + "_" + std::to_string( modelIndex ) + "_" + className + "_" + targetName;
+	bool firstTime = !pPlayer->ModelIndexHasBeenHooked( key.c_str() );
+	if ( firstTime ) {
+		pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // sorry for memory leak
+	}
+
+	OnHookedModelIndex( pPlayer, activator, modelIndex, className, targetName, firstTime );
 }
 
 extern int gEvilImpulse101;
-void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int modelIndex, const std::string &targetName )
+void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime )
 {
 	for ( const auto &config : configs ) {
-		CONFIG_FILE_SECTION sections[2] = { CONFIG_FILE_SECTION_SOUND, CONFIG_FILE_SECTION_MAX_COMMENTARY };
-		for ( const auto &section : sections ) {
-			auto sounds = config->MarkModelIndexesWithSound( section, STRING( gpGlobals->mapname ), modelIndex, targetName );
-			for ( const auto &sound : sounds ) {
-				if ( !sound.valid ) {
+
+		for ( const auto &sound : config->sounds ) {
+			if ( sound.Fits( modelIndex, className, targetName, firstTime ) ) {
+				pPlayer->AddToSoundQueue( ALLOC_STRING( sound.path.c_str() ), sound.delay, false, true );
+			}
+		}
+
+		for ( const auto &commentary : config->maxCommentary ) {
+			if ( commentary.Fits( modelIndex, className, targetName, firstTime ) ) {
+				pPlayer->AddToSoundQueue( ALLOC_STRING( commentary.path.c_str() ), commentary.delay, true, true );
+			}
+		}
+
+		for ( const auto &music : config->music ) {
+			if ( music.Fits( modelIndex, className, targetName, firstTime ) ) {
+				pPlayer->PlayMusicDelayed( music.path, music.delay, music.initialPos, music.looping, music.noSlowmotionEffects );
+			}
+		}
+
+		for ( const auto &entityUse : config->entityUses ) {
+			if ( !entityUse.Fits( modelIndex, className, targetName, firstTime ) ) {
+				continue;
+			}
+
+			for ( int i = 0 ; i < 1024 ; i++ ) {
+				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+				if ( !edict ) {
 					continue;
 				}
 
-				std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + sound.soundPath;
-
-				if ( pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-					continue;
-				}
-
-				// I'm very sorry for this memory leak for now
-				string_t soundPathAllocated = ALLOC_STRING( sound.soundPath.c_str() );
-
-				if ( !( gEvilImpulse101 && targetName.find( "weapon_" ) == 0 ) ) {
-					pPlayer->AddToSoundQueue( soundPathAllocated, sound.delay, section == CONFIG_FILE_SECTION_MAX_COMMENTARY, true );
-				}
-
-				if ( !sound.constant ) {
-					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+				if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+					if (
+						( entityUse.isModelIndex && entity->pev->modelindex > 0 && ( std::to_string( entity->pev->modelindex ) == entityUse.entityName ) ) ||
+						( !entityUse.isModelIndex && ( ( STRING( entity->pev->targetname ) == entityUse.entityName ) || ( STRING( entity->pev->classname ) == entityUse.entityName ) ) )
+					) {
+						entity->Use( pPlayer, pPlayer, USE_SET, 1 );
+					}
 				}
 			}
 		}
 
-		auto musicPieces = config->MarkModelIndexesWithMusic( CONFIG_FILE_SECTION_MUSIC, STRING( gpGlobals->mapname ), modelIndex, targetName );
-		for ( const auto &music : musicPieces ) {
+		for ( const auto &entitySpawn : config->entitySpawns ) {
+			if ( entitySpawn.Fits( modelIndex, className, targetName, firstTime ) ) {
+				CBaseEntity *entity = CBaseEntity::Create(
+					allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entityName.c_str() )],
+					Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),
+					Vector( 0, entitySpawn.angle, 0 )
+				);
 
-			std::string key = STRING( gpGlobals->mapname ) + std::to_string( modelIndex ) + targetName + music.musicPath;
-
-			if ( music.valid && !pPlayer->ModelIndexHasBeenHooked( key.c_str() ) ) {
-				pPlayer->PlayMusicDelayed( music.musicPath, music.delay, music.initialPos, music.looping, music.noSlowmotionEffects );
-				if ( !music.constant ) {
-					pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // memory leak
+				entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
+				if ( entitySpawn.targetName.size() > 0 ) {
+					entity->pev->targetname = ALLOC_STRING( entitySpawn.targetName.c_str() ); // memory leak
 				}
 			}
 		}
@@ -332,7 +329,7 @@ float CHalfLifeRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 //=========================================================
 void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 {
-	OnHookedModelIndex( pPlayer, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
+	HookModelIndex( NULL );
 }
 
 //=========================================================
@@ -354,12 +351,22 @@ void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
+	std::vector<Task> postponedTasks;
+
 	while ( !tasks.empty() ) {
 		const auto &task = tasks.front();
-		task( pPlayer );
-		tasks.pop();
+		if ( gpGlobals->time >= task.delay ) {
+			task.task( pPlayer );
+		} else {
+			postponedTasks.push_back( task );
+		}
+
+		tasks.pop_front();
 	}
 
+	for ( const auto &task : postponedTasks ) {
+		tasks.push_back( task );
+	}
 }
 
 
@@ -406,7 +413,7 @@ void CHalfLifeRules::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entv
 //=========================================================
 void CHalfLifeRules :: PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
-	HookModelIndex( pWeapon->edict(), STRING( pWeapon->pev->classname ) );
+	HookModelIndex( pWeapon->edict() );
 }
 
 //=========================================================
@@ -457,7 +464,7 @@ BOOL CHalfLifeRules::CanHaveItem( CBasePlayer *pPlayer, CItem *pItem )
 //=========================================================
 void CHalfLifeRules::PlayerGotItem( CBasePlayer *pPlayer, CItem *pItem )
 {
-	HookModelIndex( pItem->edict(), STRING( pItem->pev->classname ) );
+	HookModelIndex( pItem->edict() );
 }
 
 //=========================================================
@@ -496,7 +503,7 @@ BOOL CHalfLifeRules::IsAllowedToSpawn( CBaseEntity *pEntity )
 //=========================================================
 void CHalfLifeRules::PlayerGotAmmo( CBasePlayer *pPlayer, CBasePlayerAmmo *pAmmo )
 {
-	HookModelIndex( pAmmo->edict(), STRING( pAmmo->pev->classname ) );
+	HookModelIndex( pAmmo->edict() );
 }
 
 //=========================================================

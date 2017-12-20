@@ -618,6 +618,10 @@ public:
 	int MsgFunc_TimerCheat( const char *pszName, int iSize, void *pbuf );
 
 private:
+	int yOffset;
+
+	std::string title;
+
 	bool paused;
 	bool cheated;
 
@@ -625,6 +629,32 @@ private:
 	
 	bool blinked;
 	float nextTimerBlinkTime;
+};
+
+struct CounterValue {
+	int count;
+	int maxCount;
+
+	std::string title;
+};
+
+class CHudCounter : public CHudBase
+{
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_CountDeact( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_CountValue( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_CountCheat( const char *pszName, int iSize, void *pbuf );
+
+private:
+	int yOffset;
+
+	bool cheated;
+
+	std::vector<CounterValue> values;
 };
 
 class CHudScore : public CHudBase
@@ -639,6 +669,8 @@ public:
 	int MsgFunc_ScoreCheat( const char *pszName, int iSize, void *pbuf );
 
 private:
+	int yOffset;
+
 	bool cheated;
 
 	int currentScore;
@@ -659,6 +691,8 @@ public:
 	int MsgFunc_GLogMsg( const char *pszName, int iSize, void *pbuf );
 
 private:
+	int yOffset;
+
 	std::vector<GameLogMessage> messages;
 };
 
@@ -850,6 +884,7 @@ public:
 	CHudPainkiller  m_Painkiller;
 	CHudTimer		m_Timer;
 	CHudScore		m_Score;
+	CHudCounter		m_Counter;
 	CHudGameLog		m_GameLog;
 	CHudGameLogWorld m_GameLogWorld;
 	CHudEndScreen	m_EndScreen;

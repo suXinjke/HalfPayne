@@ -31,14 +31,11 @@ public:
 	virtual void OnNewlyVisitedMap() override;
 	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );
-	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
+	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) override;
 
-	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, edict_t *activator, int edictIndex, const std::string &targetName );
-
-	virtual void SpawnEnemiesByConfig( const char *mapName );
+	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime );
 
 	virtual BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
-	bool ChangeLevelShouldBePrevented( const char *nextMap );
 
 	virtual void CheckForCheats( CBasePlayer *pPlayer );
 	virtual void OnCheated( CBasePlayer *pPlayer );
@@ -50,11 +47,17 @@ public:
 	virtual void PauseTimer( CBasePlayer *pPlayer );
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
 
+	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );
+	bool endMarkersActive;
+
 	bool cheatedMessageSent;
 	bool startMapDoesntMatch;
 
 	float timeDelta;
 	float musicSwitchDelay;
+
+	int yOffset;
+	int maxYOffset;
 
 	CustomGameModeConfig config;
 

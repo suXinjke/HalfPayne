@@ -247,8 +247,10 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, score, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, comboMultiplier, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, comboMultiplierReset, FIELD_FLOAT ),
+	DEFINE_FIELD( CBasePlayer, timerShown, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, timerBackwards, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, timerPaused, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, timerShowReal, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
@@ -910,8 +912,8 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	BOOL killedByCrowbar = victim->killedByCrowbar;
 
 	if ( killedEntity != KILLED_ENTITY_UNDEFINED ) {
-		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-			cgm->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+		if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+			rules->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 		}
 
 		if ( healOnKill ) {
@@ -2755,7 +2757,7 @@ void CBasePlayer::PreThink(void)
 
 	if ( postRestoreDelay && gpGlobals->time >= postRestoreDelay ) {
 		if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-			singlePlayerRules->OnHookedModelIndex( this, NULL, CHANGE_LEVEL_MODEL_INDEX, "" );
+			singlePlayerRules->HookModelIndex( NULL );
 		}
 
 		if ( !musicGoingThroughChangeLevel ) {
@@ -4237,7 +4239,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 					SetSlowMotion( false );
 				}
 				if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-					singlePlayerRules->HookModelIndex( ENT( pev ), "final_battle_start" );
+					singlePlayerRules->HookModelIndex( this, -2, "", "final_battle_start" );
 				}
 
 				CBaseEntity *pEntity;
@@ -4342,7 +4344,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 		DeactivateSlowMotion( true );
 
 		if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-			singlePlayerRules->HookModelIndex( ENT( pev ), "final_battle_won" );
+			singlePlayerRules->HookModelIndex( this, -2, "", "final_battle_won" );
 		}
 		AddToSoundQueue( MAKE_STRING( "comment/finalewon.wav" ), 1.6, false, true );
 	}

@@ -33,6 +33,9 @@ void CHudTimer::Reset( void )
 	cheated = false;
 	blinked = false;
 	time = 0.0f;
+	title = "";
+
+	yOffset = 0;
 }
 
 int CHudTimer::Draw( float flTime )
@@ -43,14 +46,17 @@ int CHudTimer::Draw( float flTime )
 	}
 
 	int r = MESSAGE_BRIGHTENESS;
-	int g = MESSAGE_BRIGHTENESS;
-	int b = MESSAGE_BRIGHTENESS;
+	int g = !cheated ? MESSAGE_BRIGHTENESS : 0;
+	int b = !cheated ? MESSAGE_BRIGHTENESS : 0;
 
 	int x = ScreenWidth - CORNER_OFFSET;
-	int y = CORNER_OFFSET;
+	int y = CORNER_OFFSET + yOffset;
 
 	int formattedTimeSpriteWidth = gHUD.GetNumberSpriteWidth() * 8;
 	int numberSpriteHeight = gHUD.GetNumberSpriteHeight();
+
+	gHUD.DrawHudStringKeepRight( x, y, 200, title.c_str(), r, g, b );
+	y += gHUD.m_scrinfo.iCharHeight + 2;
 
 	if ( paused ) {
 		if ( !blinked ) {
@@ -62,11 +68,7 @@ int CHudTimer::Draw( float flTime )
 			nextTimerBlinkTime = gEngfuncs.GetAbsoluteTime() + TIMER_PAUSED_BLINK_TIME;
 		}
 	}
-	if ( cheated ) {
-		gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, 0, 0 );
-	} else {
-		gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
-	}
+	gHUD.DrawFormattedTime( time, x - formattedTimeSpriteWidth, y, r, g, b );
 
 	return 1;
 }
@@ -74,7 +76,9 @@ int CHudTimer::Draw( float flTime )
 int CHudTimer::MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ(pbuf, iSize);
+	title = READ_STRING();
 	time = READ_FLOAT();
+	yOffset = READ_LONG();
 
 	m_iFlags |= HUD_ACTIVE;
 
