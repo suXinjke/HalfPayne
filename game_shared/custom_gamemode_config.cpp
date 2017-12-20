@@ -1734,6 +1734,18 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "teleport_maintain_velocity" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_TELEPORT_MAINTAIN_VELOCITY,
+			"Teleport maintain velocity",
+			"Your velocity will be preserved after going through teleporters.",
+			[]( CBasePlayer *player ) {
+				player->teleportMaintainVelocity = true;
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "time_restriction" ) {
 		float timeOut = 60;
 		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {

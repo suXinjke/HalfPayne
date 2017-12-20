@@ -588,6 +588,8 @@ public:
 	BOOL isFadingOut;
 	float fadeOutTime;
 
+	BOOL teleportMaintainVelocity;
+
 	BOOL divingOnly;
 	BOOL divingAllowedWithoutSlowmotion;
 

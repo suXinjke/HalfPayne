@@ -289,6 +289,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, snarkFriendlyToPlayer, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, snarkFriendlyToAllies, FIELD_BOOLEAN ),
 
+	DEFINE_FIELD( CBasePlayer, teleportMaintainVelocity, FIELD_BOOLEAN ),
+
 	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, divingAllowedWithoutSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
@@ -4101,6 +4103,8 @@ void CBasePlayer::Spawn( void )
 	snarkFriendlyToPlayer = false;
 
 	garbageGibs = false;
+
+	teleportMaintainVelocity = false;
 
 	divingOnly = false;
 	divingAllowedWithoutSlowmotion = false;

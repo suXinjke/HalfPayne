@@ -2112,7 +2112,18 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 	}
 
 	pevToucher->fixangle = TRUE;
-	pevToucher->velocity = pevToucher->basevelocity = g_vecZero;
+
+	Vector newVelocity = pevToucher->basevelocity = g_vecZero;
+
+	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( pOther ) ) {
+		if ( player->teleportMaintainVelocity ) {
+			UTIL_MakeVectors( pevToucher->angles );
+			float original = pevToucher->velocity.Length();
+			newVelocity = gpGlobals->v_forward * original;
+		}
+	}
+
+	pevToucher->velocity = newVelocity;
 
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->HookModelIndex( this->edict() );
