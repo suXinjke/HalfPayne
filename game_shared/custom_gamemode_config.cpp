@@ -749,7 +749,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	sha1 = GetHash();
 
 	const std::string recordDirectoryPath = GetGamePath() + "\\records\\";
-	const std::string recordFileName = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configName +  + "_" + sha1 + ".hpr";
+	const std::string recordFileName = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configNameSeparated.back() +  + "_" + sha1 + ".hpr";
 	gameFinishedOnce = record.Read( recordDirectoryPath, recordFileName );
 
 	inp.close();
