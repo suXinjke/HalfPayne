@@ -194,6 +194,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		ApplyStartPositionToEntity( pPlayer, config.startPosition );
 	}
 
+	bool spawningAfterIntermission = false;
 	if ( g_latestIntermission.startPos.defined ) {
 		ApplyStartPositionToEntity( pPlayer, g_latestIntermission.startPos );
 
@@ -201,6 +202,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 			pPlayer->RemoveAllItems( false );
 		}
 
+		spawningAfterIntermission = true;
 		g_latestIntermission.startPos.defined = false;
 	}
 
@@ -213,11 +215,12 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 
 	pPlayer->activeGameModeConfigHash = ALLOC_STRING( config.sha1.c_str() );
-
+	
 	// Do not let player cheat by not starting at the [startmap]
-	const char *actualMap = STRING( gpGlobals->mapname );
-	startMapDoesntMatch = config.startMap != actualMap;
-
+	if ( !spawningAfterIntermission ) {
+		const char *actualMap = STRING( gpGlobals->mapname );
+		startMapDoesntMatch = config.startMap != actualMap;
+	}
 }
 
 void CCustomGameModeRules::OnNewlyVisitedMap() {
