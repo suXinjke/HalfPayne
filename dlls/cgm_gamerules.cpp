@@ -223,51 +223,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 }
 
-void CCustomGameModeRules::OnNewlyVisitedMap() {
-	CHalfLifeRules::OnNewlyVisitedMap();
-	
-	if ( config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) ) {
-		
-		tasks.push_back( { 0.0f, [this]( CBasePlayer *pPlayer ) {
-
-			for ( int i = 0 ; i < 1024 ; i++ ) {
-				edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
-				if ( !edict ) {
-					continue;
-				}
-
-				if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
-					if ( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) {
-						continue;
-					}
-
-					if (
-						FStrEq( STRING( entity->pev->classname ), "monster_alien_controller" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_alien_grunt" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_alien_slave" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_apache" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_babycrab" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_bullchicken" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_headcrab" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_houndeye" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_human_assassin" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_human_grunt" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_ichthyosaur" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_miniturret" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_sentry" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_snark" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_zombie" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_barney" ) ||
-						FStrEq( STRING( entity->pev->classname ), "monster_scientist" )
-					) {
-						entity->pev->flags |= FL_KILLME;
-					}
-				}
-			}
-		} } );
-	}
-}
-
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
 	if ( !pPlayer->weaponRestricted ) {
@@ -611,6 +566,26 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 					penguin->pev->sequence = 2;
 					penguin->isStill = false;
 					penguin->isPanic = true;
+				}
+			}
+		}
+	}
+
+	if ( targetName == "on_map_start" && config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) ) {
+
+		for ( int i = 0 ; i < 1024 ; i++ ) {
+			edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
+			if ( !edict ) {
+				continue;
+			}
+
+			if ( CBaseEntity *entity = CBaseEntity::Instance( edict ) ) {
+				if ( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) {
+					continue;
+				}
+
+				if ( std::string( STRING( entity->pev->classname ) ).find( "monster_" ) == 0 ) {
+					entity->pev->flags |= FL_KILLME;
 				}
 			}
 		}
