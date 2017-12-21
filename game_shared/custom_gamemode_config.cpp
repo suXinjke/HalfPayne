@@ -230,11 +230,11 @@ void CustomGameModeConfig::InitConfigSections() {
 				}
 			}
 
-			entitiesToPrecache.insert( entityName );
-
 			EntitySpawn spawn;
 			FillEntitySpawn( spawn, data );
 			entitySpawns.push_back( spawn );
+
+			entitiesToPrecache.insert( spawn.entity.name );
 
 			return std::string( "" );
 		}
@@ -496,13 +496,14 @@ void CustomGameModeConfig::InitConfigSections() {
 					spawnPeriod = i == 3 ? arg : spawnPeriod;
 				}
 
-				entitiesToPrecache.insert( entityName );
-
 				EntityRandomSpawner spawner;
 				spawner.mapName = data.argsString.at( 0 );
-				spawner.entityName = entityName;
+				spawner.entity.name = entityName;
 				spawner.maxAmount = maxAmount;
 				spawner.spawnPeriod = spawnPeriod;
+				FillEntitySpawnDataFlags( spawner.entity );
+
+				entitiesToPrecache.insert( spawner.entity.name );
 
 				entityRandomSpawners.push_back( spawner );
 			}
@@ -1967,15 +1968,30 @@ void CustomGameModeConfig::FillHookableSound( Sound &hookableSound, const Config
 	}
 }
 
+void CustomGameModeConfig::FillEntitySpawnDataFlags( EntitySpawnData &entitySpawn ) {
+	int weaponFlags = 0;
+	int spawnFlags = 0;
+	if ( entitySpawn.name == "monster_human_grunt_shotgun" ) {
+		entitySpawn.name = "monster_human_grunt";
+		entitySpawn.weaponFlags |= ( 1 << 3 ); // HGRUNT_SHOTGUN flag
+	} else if ( entitySpawn.name == "monster_human_grunt_grenade_launcher" ) {
+		entitySpawn.name = "monster_human_grunt";
+		entitySpawn.weaponFlags |= ( 1 | ( 1 << 2 ) ); // HGRUNT_9MMAR | HGRUNT_GRENADELAUNCHER flags
+	} else if ( entitySpawn.name == "monster_sentry" ) {
+		entitySpawn.spawnFlags |= 32; // SF_MONSTER_TURRET_AUTOACTIVATE flag
+	}
+}
+
 void CustomGameModeConfig::FillEntitySpawn( EntitySpawn &entitySpawn, const ConfigSectionData &data ) {
 	FillHookable( entitySpawn, data );
+	entitySpawn.entity.name = data.argsString.at( 2 );
+	entitySpawn.entity.x = data.argsFloat.at( 3 );
+	entitySpawn.entity.y = data.argsFloat.at( 4 );
+	entitySpawn.entity.z = data.argsFloat.at( 5 );
+	entitySpawn.entity.angle = data.argsFloat.size() >= 7 ? data.argsFloat.at( 6 ) : 0.0f;
+	entitySpawn.entity.targetName = data.argsFloat.size() >= 8 ? data.argsString.at( 7 ) : "";
 
-	entitySpawn.entityName = data.argsString.at( 2 );
-	entitySpawn.x = data.argsFloat.at( 3 );
-	entitySpawn.y = data.argsFloat.at( 4 );
-	entitySpawn.z = data.argsFloat.at( 5 );
-	entitySpawn.angle = data.argsFloat.size() >= 7 ? data.argsFloat.at( 6 ) : 0.0f;
-	entitySpawn.targetName = data.argsFloat.size() >= 8 ? data.argsString.at( 7 ) : "";
+	FillEntitySpawnDataFlags( entitySpawn.entity );
 }
 
 bool CustomGameModeConfig::OnNewSection( std::string sectionName ) {

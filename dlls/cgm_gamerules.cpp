@@ -939,7 +939,7 @@ void CCustomGameModeRules::RefreshSkillData()
 }
 
 EntityRandomSpawnerController::EntityRandomSpawnerController( const EntityRandomSpawner &entityRandomSpawner ) :
-	entityName( entityRandomSpawner.entityName ),
+	entityName( entityRandomSpawner.entity.name ),
 	maxAmount( entityRandomSpawner.maxAmount ),
 	spawnPeriod( entityRandomSpawner.spawnPeriod ),
 	nextSpawn( gpGlobals->time + entityRandomSpawner.spawnPeriod )

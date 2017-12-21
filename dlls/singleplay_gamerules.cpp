@@ -218,32 +218,18 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 
 		for ( const auto &entitySpawn : config->entitySpawns ) {
 			if ( entitySpawn.Fits( modelIndex, className, targetName, firstTime ) ) {
-				int weaponFlags = 0;
-				int spawnFlags = 0;
-				std::string entityName = entitySpawn.entityName;
-				if ( entityName == "monster_human_grunt_shotgun" ) {
-					entityName = "monster_human_grunt";
-					weaponFlags |= ( 1 << 3 ); // HGRUNT_SHOTGUN flag
-				} else if ( entityName == "monster_human_grunt_grenade_launcher" ) {
-					entityName = "monster_human_grunt";
-					weaponFlags |= ( 1 << 2 ); // HGRUNT_GRENADELAUNCHER flag
-				}
-				if ( entityName == "monster_sentry" ) {
-					spawnFlags |= SF_MONSTER_TURRET_AUTOACTIVATE;
-				}
-
 				CBaseEntity *entity = CBaseEntity::Create(
-					allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entityName.c_str() )],
-					Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),
-					Vector( 0, entitySpawn.angle, 0 ),
+					allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entity.name.c_str() )],
+					Vector( entitySpawn.entity.x, entitySpawn.entity.y, entitySpawn.entity.z ),
+					Vector( 0, entitySpawn.entity.angle, 0 ),
 					NULL,
-					weaponFlags,
-					spawnFlags
+					entitySpawn.entity.weaponFlags,
+					entitySpawn.entity.spawnFlags
 				);
 
 				entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
-				if ( entitySpawn.targetName.size() > 0 ) {
-					entity->pev->targetname = ALLOC_STRING( entitySpawn.targetName.c_str() ); // memory leak
+				if ( entitySpawn.entity.targetName.size() > 0 ) {
+					entity->pev->targetname = ALLOC_STRING( entitySpawn.entity.targetName.c_str() ); // memory leak
 				}
 			}
 		}

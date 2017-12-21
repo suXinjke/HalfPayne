@@ -152,13 +152,19 @@ struct HookableWithTarget : Hookable {
 	}
 };
 
-struct EntitySpawn : Hookable {
-	std::string entityName;
+struct EntitySpawnData {
+	std::string name;
+	std::string targetName;
 	float		x;
 	float		y;
 	float		z;
 	float		angle;
-	std::string targetName;
+	int spawnFlags = 0;
+	int weaponFlags = 0;
+};
+
+struct EntitySpawn : Hookable {
+	EntitySpawnData entity;
 };
 
 struct EndCondition : Hookable {
@@ -202,7 +208,7 @@ struct Teleport : Hookable {
 struct EntityRandomSpawner
 {
 	std::string mapName;
-	std::string entityName;
+	EntitySpawnData entity;
 	int maxAmount;
 	float spawnPeriod;
 };
@@ -429,6 +435,7 @@ public:
 	void FillHookableWithTarget( HookableWithTarget &hookableWithTarget, const ConfigSectionData &data );
 	void FillHookableSound( Sound &hookableSound, const ConfigSectionData &data );
 	void FillEntitySpawn( EntitySpawn &entitySpawn, const ConfigSectionData &data );
+	void FillEntitySpawnDataFlags( EntitySpawnData &entitySpawn );
 
 	std::string name;
 	std::string description;
