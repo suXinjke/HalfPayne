@@ -331,6 +331,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		yOffset += SPACING;
 	}
 
+	int conditionsHeight = 0;
+
 	MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
 	WRITE_SHORT( config.endConditions.size() );
 
@@ -339,11 +341,13 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		WRITE_LONG( condition.activationsRequired );
 
 		WRITE_STRING( condition.objective.c_str() );
+
+		conditionsHeight += condition.activationsRequired > 1 ? SPACING : SPACING - 34;
 	}
 	WRITE_LONG( yOffset );
 	MESSAGE_END();
 
-	yOffset += SPACING * config.endConditions.size();
+	yOffset += conditionsHeight;
 	maxYOffset = max( yOffset, maxYOffset );
 }
 
