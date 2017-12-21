@@ -1572,9 +1572,8 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 	if ( modName == "prevent_monster_drops" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_PREVENT_MONSTER_DROPS,
-			"Prevent monster spawn",
-			"Don't spawn predefined monsters (NPCs) when visiting a new map.\n"
-			"This doesn't affect dynamic monster_spawners.",
+			"Prevent monster drops",
+			"Monsters won't drop anything when dying.",
 			[]( CBasePlayer *player ) {
 				player->preventMonsterDrops = true;
 			}
