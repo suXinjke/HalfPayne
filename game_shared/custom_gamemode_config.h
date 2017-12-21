@@ -80,6 +80,7 @@ static char *allowedEntities[] {
 	"monster_alien_controller",
 	"monster_alien_grunt",
 	"monster_alien_slave",
+	"monster_barnacle",
 	"monster_bullchicken",
 	"monster_gargantua",
 	"monster_headcrab",
@@ -92,6 +93,7 @@ static char *allowedEntities[] {
 	"monster_miniturret",
 	"monster_sentry",
 	"monster_snark",
+	"monster_tripmine",
 	"monster_zombie",
 
 	"end_marker"

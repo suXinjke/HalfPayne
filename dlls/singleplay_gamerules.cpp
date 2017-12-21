@@ -219,6 +219,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 		for ( const auto &entitySpawn : config->entitySpawns ) {
 			if ( entitySpawn.Fits( modelIndex, className, targetName, firstTime ) ) {
 				int weaponFlags = 0;
+				int spawnFlags = 0;
 				std::string entityName = entitySpawn.entityName;
 				if ( entityName == "monster_human_grunt_shotgun" ) {
 					entityName = "monster_human_grunt";
@@ -227,13 +228,17 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 					entityName = "monster_human_grunt";
 					weaponFlags |= ( 1 << 2 ); // HGRUNT_GRENADELAUNCHER flag
 				}
+				if ( entityName == "monster_sentry" ) {
+					spawnFlags |= SF_MONSTER_TURRET_AUTOACTIVATE;
+				}
 
 				CBaseEntity *entity = CBaseEntity::Create(
 					allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entityName.c_str() )],
 					Vector( entitySpawn.x, entitySpawn.y, entitySpawn.z ),
 					Vector( 0, entitySpawn.angle, 0 ),
 					NULL,
-					weaponFlags
+					weaponFlags,
+					spawnFlags
 				);
 
 				entity->pev->spawnflags |= SF_MONSTER_PRESERVE;

@@ -824,7 +824,7 @@ int	CBaseEntity :: DamageDecal( int bitsDamageType )
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity
 // will keep a pointer to it after this call.
-CBaseEntity * CBaseEntity::Create( char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner, int weaponFlags )
+CBaseEntity * CBaseEntity::Create( char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner, int weaponFlags, int spawnFlags )
 {
 	edict_t	*pent;
 	CBaseEntity *pEntity;
@@ -840,6 +840,7 @@ CBaseEntity * CBaseEntity::Create( char *szName, const Vector &vecOrigin, const 
 	pEntity->pev->origin = vecOrigin;
 	pEntity->pev->angles = vecAngles;
 	pEntity->pev->weapons |= weaponFlags;
+	pEntity->pev->spawnflags |= spawnFlags;
 	DispatchSpawn( pEntity->edict() );
 	return pEntity;
 }
