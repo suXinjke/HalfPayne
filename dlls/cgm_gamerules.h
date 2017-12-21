@@ -41,8 +41,6 @@ public:
 	virtual void CheckForCheats( CBasePlayer *pPlayer );
 	virtual void OnCheated( CBasePlayer *pPlayer );
 
-	virtual void Precache();
-
 	virtual void RestartGame();
 
 	virtual void PauseTimer( CBasePlayer *pPlayer );

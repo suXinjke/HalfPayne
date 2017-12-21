@@ -417,8 +417,8 @@ public:
 
 	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *isConstant = NULL, ConfigSectionData *outData = NULL );
 
-	std::set<std::string>		 entitiesToPrecache;
-	std::set<std::string>		 soundsToPrecache;
+	std::set<std::string> GetSoundsToPrecacheForMap( const std::string &map );
+	std::set<std::string> GetEntitiesToPrecacheForMap( const std::string &map );
 
 	std::string ValidateModelIndexSectionData( ConfigSectionData &data );
 

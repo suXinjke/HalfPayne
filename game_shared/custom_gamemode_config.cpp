@@ -234,8 +234,6 @@ void CustomGameModeConfig::InitConfigSections() {
 			FillEntitySpawn( spawn, data );
 			entitySpawns.push_back( spawn );
 
-			entitiesToPrecache.insert( spawn.entity.name );
-
 			return std::string( "" );
 		}
 	);
@@ -302,8 +300,6 @@ void CustomGameModeConfig::InitConfigSections() {
 			Sound sound;
 			FillHookableSound( sound, data );
 			sounds.push_back( sound );
-
-			soundsToPrecache.insert( sound.path );
 
 			return "";
 		}
@@ -379,8 +375,6 @@ void CustomGameModeConfig::InitConfigSections() {
 			FillHookableSound( commentary, data );
 			commentary.noSlowmotionEffects = true;
 			maxCommentary.push_back( commentary );
-
-			soundsToPrecache.insert( commentary.path );
 
 			return "";
 		}
@@ -502,9 +496,7 @@ void CustomGameModeConfig::InitConfigSections() {
 				spawner.maxAmount = maxAmount;
 				spawner.spawnPeriod = spawnPeriod;
 				FillEntitySpawnDataFlags( spawner.entity );
-
-				entitiesToPrecache.insert( spawner.entity.name );
-
+				
 				entityRandomSpawners.push_back( spawner );
 			}
 			return std::string( "" );
@@ -574,6 +566,42 @@ void CustomGameModeConfig::InitConfigSections() {
 			return std::string( "" );
 		}
 	);
+}
+
+std::set<std::string> CustomGameModeConfig::GetSoundsToPrecacheForMap( const std::string &map ) {
+	std::set<std::string> soundsToPrecache;
+
+	for ( const auto &sound : sounds ) {
+		if ( sound.map == map ) {
+			soundsToPrecache.insert( sound.path );
+		}
+	}
+
+	for ( const auto &commentary : maxCommentary ) {
+		if ( commentary.map == map ) {
+			soundsToPrecache.insert( commentary.path );
+		}
+	}
+
+	return soundsToPrecache;
+}
+
+std::set<std::string> CustomGameModeConfig::GetEntitiesToPrecacheForMap( const std::string &map ) {
+	std::set<std::string> entitiesToPrecache;
+
+	for ( const auto &entitySpawn : entitySpawns ) {
+		if ( entitySpawn.map == map ) {
+			entitiesToPrecache.insert( entitySpawn.entity.name );
+		}
+	}
+
+	for ( const auto &entityRandomSpawner : entityRandomSpawners ) {
+		if ( entityRandomSpawner.mapName == map ) {
+			entitiesToPrecache.insert( entityRandomSpawner.entity.name );
+		}
+	}
+
+	return entitiesToPrecache;
 }
 
 std::string CustomGameModeConfig::ValidateModelIndexSectionData( ConfigSectionData &data ) {
@@ -828,11 +856,7 @@ void CustomGameModeConfig::Reset() {
 
 	this->markedForRestart = false;
 	this->hasEndMarkers = false;
-
-	this->entitiesToPrecache.clear();
-	this->soundsToPrecache.clear();
-
-	
+		
 	name = "";
 	description = "";
 	startPosition = { false, NAN, NAN, NAN, NAN, false };

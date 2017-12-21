@@ -644,14 +644,6 @@ void CCustomGameModeRules::OnChangeLevel() {
 	}
 }
 
-void CCustomGameModeRules::Precache() {
-	CHalfLifeRules::Precache();
-
-	for ( std::string spawn : config.entitiesToPrecache ) {
-		UTIL_PrecacheOther( spawn.c_str() );
-	}
-}
-
 void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
 {
 	if ( pPlayer->timerPaused ) {
