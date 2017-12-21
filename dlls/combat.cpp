@@ -661,49 +661,23 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 	// Check for MONSTERSTATE_DEAD flag so it won't be called during death animation
 	// because you can actually kill a dying monster again
 	if ( pevAttacker && m_IdealMonsterState != MONSTERSTATE_DEAD ) {
-		if ( strcmp( STRING( pevAttacker->classname ), "player" ) == 0 ) {
-			CBasePlayer *player = ( CBasePlayer* ) CBasePlayer::Instance( pevAttacker );
-			if ( player->m_pActiveItem ) {
-				const char *weaponUsed = STRING( player->m_pActiveItem->pev->classname );
-				if ( strcmp( weaponUsed, "weapon_crowbar" ) == 0 ) {
-					this->killedByCrowbar = true;
-				}
-			}
 
-			player->OnKilledEntity( this );
-		}
-
-		// Killed by player's bullet?
-		if ( strcmp( STRING( pevAttacker->classname ), "bullet" ) == 0 ) {
+		if ( CBaseEntity *attacker = dynamic_cast<CBaseEntity *>( CBaseEntity::Instance( pevAttacker ) ) ) {
+			
 			if ( CBasePlayer *player = dynamic_cast<CBasePlayer*>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				CBaseEntity *entity = CBaseEntity::Instance( pevAttacker );
-				if ( entity && entity->auxOwner == player->edict() ) {
+				if ( attacker == player ) {
+					this->killedByCrowbar = player->m_pActiveItem && std::string( STRING( player->m_pActiveItem->pev->classname ) ) == "weapon_crowbar";
+
 					player->OnKilledEntity( this );
-				}
-			}			
-		}
+				} else if ( attacker->killedOrCausedByPlayer || attacker->auxOwner == player->edict() ) {
+					this->killedByExplosion = attacker->killedOrCausedByPlayer;
 
-		// Killed by player caused explosion?
-		if ( strcmp( STRING( pevAttacker->classname ), "grenade" ) == 0 
-			|| strcmp( STRING( pevAttacker->classname ), "rpg_rocket" ) == 0
-			|| strcmp( STRING( pevAttacker->classname ), "env_explosion" ) == 0 
-			|| strcmp( STRING( pevAttacker->classname ), "monster_satchel" ) == 0
-			|| strcmp( STRING( pevAttacker->classname ), "monster_tripmine" ) == 0 ) {
-
-			// may produce NULL in rare cases when dying during animation sequences
-			// see this: https://www.youtube.com/watch?v=wGzLFJ9iijo
-			CBaseEntity *explosion = CBaseEntity::Instance( pevAttacker );
-			if ( !explosion ) {
-				return;
-			}
-
-			if ( explosion->killedOrCausedByPlayer ) { 
-				this->killedByExplosion = true;
-
-				if ( CBasePlayer *player = dynamic_cast<CBasePlayer*>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 					player->OnKilledEntity( this );
+				} else if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+					rules->HookModelIndex( edict() );
 				}
 			}
+			
 		}
 	}
 }
