@@ -1569,6 +1569,19 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "prevent_monster_drops" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_PREVENT_MONSTER_DROPS,
+			"Prevent monster spawn",
+			"Don't spawn predefined monsters (NPCs) when visiting a new map.\n"
+			"This doesn't affect dynamic monster_spawners.",
+			[]( CBasePlayer *player ) {
+				player->preventMonsterDrops = true;
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "shotgun_automatic" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,

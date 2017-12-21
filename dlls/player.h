@@ -460,6 +460,8 @@ public:
 	float untilNextDesperation;
 	void ThinkAboutFinalDesperation();
 
+	BOOL preventMonsterDrops;
+
 	BOOL swearOnKill;
 	float allowedToSwear;
 	void SayRandomSwear();
