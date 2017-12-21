@@ -685,7 +685,11 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	Reset();
 
 	configName = fileName;
-	configNameSeparated = Split( fileName, '\\' );
+
+	// DUMB heuristic hack because too lazy to ensure proper replacing of \\ to / EVERYWHERE and/or making Split function support regex or several chars at once
+	auto potentialConfigFileSeparated = Split( fileName, '\\' );
+	auto potentialConfigFileSeparated2 = Split( fileName, '/' );
+	configNameSeparated = potentialConfigFileSeparated2.size() >= potentialConfigFileSeparated.size() ? potentialConfigFileSeparated2 : potentialConfigFileSeparated;
 
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
 
@@ -765,6 +769,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 
 	const std::string recordDirectoryPath = GetGamePath() + "\\records\\";
 	const std::string recordFileName = CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ) + "_" + configNameSeparated.back() +  + "_" + sha1 + ".hpr";
+	
 	gameFinishedOnce = record.Read( recordDirectoryPath, recordFileName );
 
 	inp.close();
