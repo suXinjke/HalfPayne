@@ -86,6 +86,8 @@ static char *allowedEntities[] {
 	"monster_houndeye",
 	"monster_human_assassin",
 	"monster_human_grunt",
+	"monster_human_grunt_shotgun",
+	"monster_human_grunt_grenade_launcher",
 	"monster_ichthyosaur",
 	"monster_miniturret",
 	"monster_sentry",
