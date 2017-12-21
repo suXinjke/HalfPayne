@@ -176,7 +176,9 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 
 		for ( const auto &commentary : config->maxCommentary ) {
 			if ( commentary.Fits( modelIndex, className, targetName, firstTime ) ) {
-				pPlayer->AddToSoundQueue( ALLOC_STRING( commentary.path.c_str() ), commentary.delay, true, true );
+				if ( !( gEvilImpulse101 && className.find( "weapon_" ) == 0 ) ) {
+					pPlayer->AddToSoundQueue( ALLOC_STRING( commentary.path.c_str() ), commentary.delay, true, true );
+				}
 			}
 		}
 
