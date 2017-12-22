@@ -176,6 +176,8 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowmotionOnlyDiving, FIELD_BOOLEAN ),
 
+	DEFINE_FIELD( CBasePlayer, initialClipAmmo, FIELD_INTEGER ),
+
 	DEFINE_FIELD( CBasePlayer, loadoutReceived, FIELD_BOOLEAN ),
 
 	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
@@ -3917,6 +3919,8 @@ void CBasePlayer::Spawn( void )
 	slowMotionUpdateTime = 1;
 	infiniteSlowMotion = 0;
 	nextSmoothTimeScaleChange = 0.0f;
+
+	initialClipAmmo = 0;
 
 	slowmotionOnDamage = 0;
 	slowmotionOnlyDiving = 0;

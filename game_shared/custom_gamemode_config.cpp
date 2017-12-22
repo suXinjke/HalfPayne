@@ -1348,6 +1348,29 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "initial_clip_ammo" ) {
+		float initialClipAmmo = 4.0f;
+		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {
+			if ( std::isnan( data.argsFloat.at( i ) ) ) {
+				continue;
+			}
+			if ( i == 1 ) {
+				initialClipAmmo = max( 1, data.argsFloat.at( i ) );
+			}
+		}
+
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_INITIAL_CLIP_AMMO,
+			"Initial ammo clip",
+			"All weapons will have specified ammount of ammo in the clip when first picked up.",
+			[initialClipAmmo]( CBasePlayer *player ) {
+				player->initialClipAmmo = initialClipAmmo;
+			},
+			{ "Initial ammo in the clip: " + std::to_string( initialClipAmmo ) + "\n" }
+		) );
+		return true;
+	}
+
 	if ( modName == "instagib" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_INSTAGIB,

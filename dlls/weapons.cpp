@@ -938,7 +938,13 @@ void CBasePlayerWeapon::SendWeaponAnim( int iAnim, int skiplocal, int body )
 
 BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip, int iMaxClip2, int iMaxCarry )
 {
-	int iIdAmmo;
+	int iIdAmmo = 0;
+
+	bool firstWeaponPickup = !m_pPlayer->HasNamedPlayerItem( STRING( pev->classname ) );
+
+	if ( m_pPlayer->initialClipAmmo ) {
+		iCount = max( 1, m_pPlayer->initialClipAmmo );
+	}
 
 	if (iMaxClip < 1)
 	{
@@ -961,11 +967,15 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 			m_iClip2 += i2;
 		}
 
-		iIdAmmo = m_pPlayer->GiveAmmo( iCount - i - i2, szName, iMaxCarry );
+		if ( !firstWeaponPickup ) {
+			iIdAmmo = m_pPlayer->GiveAmmo( iCount - i - i2, szName, iMaxCarry );
+		}
 	}
 	else
 	{
-		iIdAmmo = m_pPlayer->GiveAmmo( iCount, szName, iMaxCarry );
+		if ( !firstWeaponPickup ) {
+			iIdAmmo = m_pPlayer->GiveAmmo( iCount, szName, iMaxCarry );
+		}
 	}
 	
 	// m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = iMaxCarry; // hack for testing

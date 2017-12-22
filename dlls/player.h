@@ -148,6 +148,8 @@ public:
 
 	BOOL				slowmotionOnDamage;
 
+	int					initialClipAmmo;
+
 	BOOL				superHot;
 	float				superHotMultiplier;
 	float				nextSuperHotMultiplierUpdate;
