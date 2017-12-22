@@ -114,19 +114,13 @@ void CTripmineGrenade :: Spawn( void )
 	UTIL_SetSize(pev, Vector( -8, -8, -8), Vector(8, 8, 8));
 	UTIL_SetOrigin( pev, pev->origin );
 
-	if (pev->spawnflags & 1)
-	{
-		// power up quickly
-		m_flPowerUp = gpGlobals->time + 1.0;
-	}
-	else
-	{
-		// power up in 2.5 seconds
-		m_flPowerUp = gpGlobals->time + 2.5;
-	}
+	m_flPowerUp =
+		!pev->owner ? gpGlobals->time :
+		( pev->spawnflags & 1 ) ? 1.0 :
+		2.5;
 
 	SetThink( &CTripmineGrenade::PowerupThink );
-	pev->nextthink = gpGlobals->time + 0.2;
+	pev->nextthink = gpGlobals->time + 0.01;
 
 	pev->takedamage = DAMAGE_YES;
 	pev->dmg = gSkillData.plrDmgTripmine;
