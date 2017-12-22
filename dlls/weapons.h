@@ -132,7 +132,7 @@ public:
 #define GLOCK_MAX_CLIP			17
 #define PYTHON_MAX_CLIP			7
 #define MP5_MAX_CLIP			50
-#define MP5_DEFAULT_AMMO		25
+#define MP5_DEFAULT_AMMO		50
 #define INGRAM_MAX_CLIP			32
 #define INGRAM_DEFAULT_AMMO		32
 #define SHOTGUN_MAX_CLIP		8
@@ -150,8 +150,7 @@ public:
 // the default amount of ammo that comes with each gun when it spawns
 #define GLOCK_DEFAULT_GIVE			17
 #define PYTHON_DEFAULT_GIVE			7
-#define MP5_DEFAULT_GIVE			25
-#define MP5_DEFAULT_AMMO			25
+#define MP5_DEFAULT_GIVE			50
 #define MP5_M203_DEFAULT_GIVE		0
 #define INGRAM_DEFAULT_GIVE			32
 #define INGRAM_DEFAULT_AMMO			32
