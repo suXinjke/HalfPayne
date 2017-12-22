@@ -461,6 +461,7 @@ public:
 	void ThinkAboutFinalDesperation();
 
 	BOOL preventMonsterDrops;
+	BOOL preventMonsterMovement;
 
 	BOOL swearOnKill;
 	float allowedToSwear;

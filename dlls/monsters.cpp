@@ -639,6 +639,12 @@ BOOL CBaseMonster :: FRouteClear ( void )
 //=========================================================
 BOOL CBaseMonster :: FRefreshRoute ( void )
 {
+	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		if ( pPlayer->preventMonsterMovement ) {
+			return FALSE;
+		}
+	}
+
 	CBaseEntity	*pPathCorner;
 	int			i;
 	BOOL		returnCode;

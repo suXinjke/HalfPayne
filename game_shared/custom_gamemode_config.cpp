@@ -1558,6 +1558,18 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "prevent_monster_movement" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_PREVENT_MONSTER_MOVEMENT,
+			"Prevent monster movement",
+			"Monsters will always stay at spawn spot.",
+			[]( CBasePlayer *player ) {
+				player->preventMonsterMovement = true;
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "prevent_monster_spawn" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN,
