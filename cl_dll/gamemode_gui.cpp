@@ -41,9 +41,9 @@ void GameModeGUI_RefreshConfigFiles() {
 
 			std::string sectionName =
 				config.configNameSeparated.size() > 1 ? config.configNameSeparated.at( 0 ) :
-				configType == CONFIG_TYPE_CGM  ? "Custom Game Modes" :
-				configType == CONFIG_TYPE_BMM  ? "Black Mesa Minute" :
-				configType == CONFIG_TYPE_SAGM ? "Score Attack" :
+				configType == CONFIG_TYPE_CGM  ? "Main Game - Variety" :
+				configType == CONFIG_TYPE_BMM  ? "Main Game - Black Mesa Minute" :
+				configType == CONFIG_TYPE_SAGM ? "Main Game - Score Attack" :
 				"ERROR";
 
 			configs[sectionName].push_back( config );
