@@ -115,7 +115,7 @@ void CTripmineGrenade :: Spawn( void )
 	UTIL_SetOrigin( pev, pev->origin );
 
 	m_flPowerUp = gpGlobals->time + (
-		!pev->owner ? 0.0 :
+		!pev->owner ? 0.1 :
 		( pev->spawnflags & 1 ) ? 1.0 :
 		2.5
 	);
@@ -151,6 +151,13 @@ void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 
 	if ( !player->detachableTripmines ) {
 		return;
+	}
+
+	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		if ( std::string( STRING( pev->targetname ) ).empty() ) {
+			pev->targetname = MAKE_STRING( "detached_tripmine" );
+		}
+		rules->HookModelIndex( edict() );
 	}
 
 	KillBeam();
@@ -374,6 +381,12 @@ void CTripmineGrenade::DelayDeathThink( void )
 	UTIL_TraceLine ( pev->origin + m_vecDir * 8, pev->origin - m_vecDir * 64,  dont_ignore_monsters, ENT(pev), & tr);
 
 	Explode( &tr, DMG_BLAST );
+	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		if ( std::string( STRING( pev->targetname ) ).empty() ) {
+			pev->targetname = MAKE_STRING( "destroyed_tripmine" );
+		}
+		rules->HookModelIndex( edict() );
+	}
 }
 #endif
 
