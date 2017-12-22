@@ -23,7 +23,7 @@ void CEndMarker::Spawn( void ) {
 	pev->movetype = MOVETYPE_NONE;
 	pev->solid = SOLID_TRIGGER;
 	UTIL_SetOrigin( pev, pev->origin );
-	UTIL_SetSize( pev, Vector( -16, -16, 0 ), Vector( 16, 16, 16 ) );
+	UTIL_SetSize( pev, Vector( -16, -16, 0 ), Vector( 16, 16, 72 ) );
 	SetTouch( &CEndMarker::OnTouch );
 	SetUse( &CEndMarker::OnUse );
 }
