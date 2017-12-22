@@ -1693,6 +1693,8 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 	for ( ULONG iShot = 1; iShot <= cShots; iShot++ )
 	{
+		player->ApplyWeaponPushback( iBulletType == BULLET_PLAYER_357 ? 260 : 190 );
+
 		//Use player's random seed.
 		// get circular gaussian spread
 		x = UTIL_SharedRandomFloat( shared_rand + iShot, -0.5, 0.5 ) + UTIL_SharedRandomFloat( shared_rand + ( 1 + iShot ) , -0.5, 0.5 );
@@ -1769,8 +1771,6 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		}
 		// make bullet trails
 		UTIL_BubbleTrail( vecSrc, tr.vecEndPos, (flDistance * tr.flFraction) / 64.0 );
-
-		player->ApplyWeaponPushback( iBulletType == BULLET_PLAYER_357 ? 260 : 190 );
 	}
 	ApplyMultiDamage(pev, pevAttacker);
 
