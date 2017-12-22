@@ -1569,6 +1569,16 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "prevent_monster_stuck_effect" ) {
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT,
+			"Prevent monster stuck effect",
+			"If monsters get stuck after spawning, they won't have the usual yellow particles effect.",
+			[]( CBasePlayer *player ) {}
+		) );
+		return true;
+	}
+
 	if ( modName == "prevent_monster_drops" ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_PREVENT_MONSTER_DROPS,
