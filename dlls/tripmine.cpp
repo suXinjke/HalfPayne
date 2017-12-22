@@ -114,10 +114,11 @@ void CTripmineGrenade :: Spawn( void )
 	UTIL_SetSize(pev, Vector( -8, -8, -8), Vector(8, 8, 8));
 	UTIL_SetOrigin( pev, pev->origin );
 
-	m_flPowerUp =
-		!pev->owner ? gpGlobals->time :
+	m_flPowerUp = gpGlobals->time + (
+		!pev->owner ? 0.0 :
 		( pev->spawnflags & 1 ) ? 1.0 :
-		2.5;
+		2.5
+	);
 
 	SetThink( &CTripmineGrenade::PowerupThink );
 	pev->nextthink = gpGlobals->time + 0.01;
