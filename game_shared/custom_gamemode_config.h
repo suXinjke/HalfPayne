@@ -191,7 +191,7 @@ struct LoadoutItem {
 struct Sound : Hookable {
 
 	std::string path;
-	float delay = 0.01;
+	float delay = 0.1;
 	float initialPos = 0.0f;
 	bool looping = false;
 	bool noSlowmotionEffects = false;

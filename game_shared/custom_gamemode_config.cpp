@@ -2044,7 +2044,7 @@ void CustomGameModeConfig::FillHookableSound( Sound &hookableSound, const Config
 		hookableSound.looping = hookableSound.looping || data.argsString.at( arg ) == "looping";
 		hookableSound.noSlowmotionEffects = hookableSound.noSlowmotionEffects || data.argsString.at( arg ) == "no_slowmotion_effects";
 
-		hookableSound.delay			= arg == 3 ? data.argsFloat.at( arg ) : hookableSound.delay;
+		hookableSound.delay			= max( 0.1, arg == 3 ? data.argsFloat.at( arg ) : hookableSound.delay );
 		hookableSound.initialPos	= arg == 4 ? data.argsFloat.at( arg ) : hookableSound.initialPos;
 	}
 }
