@@ -322,6 +322,10 @@ void CGameText::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	if ( !CanFireForActivator( pActivator ) )
 		return;
 
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( this->edict() );
+	}
+
 	if ( MessageToAll() )
 	{
 		UTIL_HudMessageAll( m_textParms, MessageGet() );
