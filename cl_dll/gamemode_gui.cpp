@@ -166,18 +166,17 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 			
 			// COMPLETED?
 			ImGui::TextColored( ImVec4( 1.0, 1.0, 1.0, config.gameFinishedOnce ? 1.0 : 0.0 ), "%s", ICON_FA_CHECK );
-			if (
-				config.gameFinishedOnce &&
-				( config.configType == CONFIG_TYPE_BMM || config.configType == CONFIG_TYPE_SAGM ) &&
-				ImGui::IsItemHovered()
-			) {
+			if ( config.gameFinishedOnce && ImGui::IsItemHovered() ) {
 				ImGui::BeginTooltip();
 
-				if ( config.configType == CONFIG_TYPE_BMM ) {
-					ImGui::Text( "Time score: %s", GameModeGUI_GetFormattedTime( config.record.time ).c_str() );
-					ImGui::Text( "Real time: %s", GameModeGUI_GetFormattedTime( config.record.realTime ).c_str() );
+				bool timerBackwards = config.configType == CONFIG_TYPE_BMM || config.IsGameplayModActive( GAMEPLAY_MOD_TIME_RESTRICTION );
+
+				ImGui::Text( timerBackwards ? "Time score: %s" : "Time: %s", GameModeGUI_GetFormattedTime( config.record.time ).c_str() );
+				ImGui::Text( "Real time: %s", GameModeGUI_GetFormattedTime( config.record.realTime ).c_str() );
+				if ( timerBackwards ) {
 					ImGui::Text( "Real time minus score: %s", GameModeGUI_GetFormattedTime( config.record.realTimeMinusTime ).c_str() );
-				} else if ( config.configType == CONFIG_TYPE_SAGM ) {
+				}
+				if ( config.configType == CONFIG_TYPE_SAGM ) {
 					ImGui::Text( "Score: %d", config.record.score );
 				}
 
