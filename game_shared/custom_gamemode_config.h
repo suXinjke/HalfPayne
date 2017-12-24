@@ -96,7 +96,8 @@ static char *allowedEntities[] {
 	"monster_tripmine",
 	"monster_zombie",
 
-	"end_marker"
+	"end_marker",
+	"kerotan"
 };
 
 struct Hookable {

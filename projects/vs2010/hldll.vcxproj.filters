@@ -387,6 +387,9 @@
     <ClCompile Include="..\..\dlls\end_marker.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dlls\kerotan.cpp">
+      <Filter>Source Files\dlls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\doors.h">
@@ -549,6 +552,9 @@
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\end_marker.h">
+      <Filter>Header Files\dlls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlls\kerotan.h">
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
   </ItemGroup>

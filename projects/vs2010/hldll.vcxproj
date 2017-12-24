@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\dlls\ingram_twin.cpp" />
     <ClCompile Include="..\..\dlls\islave.cpp" />
     <ClCompile Include="..\..\dlls\items.cpp" />
+    <ClCompile Include="..\..\dlls\kerotan.cpp" />
     <ClCompile Include="..\..\dlls\leech.cpp" />
     <ClCompile Include="..\..\dlls\lights.cpp" />
     <ClCompile Include="..\..\dlls\maprules.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="..\..\dlls\gamerules.h" />
     <ClInclude Include="..\..\dlls\hornet.h" />
     <ClInclude Include="..\..\dlls\items.h" />
+    <ClInclude Include="..\..\dlls\kerotan.h" />
     <ClInclude Include="..\..\dlls\monsterevent.h" />
     <ClInclude Include="..\..\dlls\monsters.h" />
     <ClInclude Include="..\..\dlls\nodes.h" />
