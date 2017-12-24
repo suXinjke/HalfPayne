@@ -157,7 +157,7 @@ void CSatchelCharge :: SatchelThink( void )
 				pev->owner = NULL;
 
 				// Setting up an actual correct size is essential for damage detection
-				UTIL_SetSize( pev, Vector( -8, -4, -4 ), Vector( 16, 8, 8 ) );
+				UTIL_SetSize( pev, Vector( -4, -4, -4 ), Vector( 4, 4, 4 ) );
 			}
 		}
 	}
