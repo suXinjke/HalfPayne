@@ -89,7 +89,7 @@ void CHalfLifeRules::End( CBasePlayer *pPlayer )
 	ended = true;
 
 	pPlayer->pev->movetype = MOVETYPE_NONE;
-	pPlayer->pev->flags |= FL_NOTARGET;
+	pPlayer->pev->flags |= FL_NOTARGET | FL_GODMODE;
 	pPlayer->RemoveAllItems( true );
 
 	OnEnd( pPlayer );
