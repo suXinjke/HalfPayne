@@ -39,7 +39,7 @@ void CKerotan::Spawn( void ) {
 	pev->takedamage = DAMAGE_YES;
 
 	UTIL_SetOrigin( pev, pev->origin );
-	UTIL_SetSize( pev, Vector( -2, -2, -2 ), Vector( 2, 2, 4 ) );
+	UTIL_SetSize( pev, Vector( -2, -2, -2 ), Vector( 2, 2, 2 ) );
 
 	SetThink( &CKerotan::OnThink );
 	pev->nextthink = gpGlobals->time + 0.01f;
@@ -68,6 +68,14 @@ int CKerotan::TakeDamage( entvars_t * pevInflictor, entvars_t * pevAttacker, flo
 				pev->targetname = MAKE_STRING( "kerotan_found" );
 			}
 			rules->HookModelIndex( edict() );
+		}
+		
+		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+			if ( RANDOM_LONG( 0, 100 ) > 50 ) {
+				char fileName[256];
+				sprintf_s( fileName, "max/weird_item/WEIRD_ITEM_%d.wav", RANDOM_LONG( 1, 16 ) );
+				pPlayer->TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
+			}
 		}
 
 		hasBeenFound = TRUE;

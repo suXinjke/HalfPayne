@@ -1083,6 +1083,23 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_19.wav" );
 	PRECACHE_SOUND( "max/no_ammo/NO_AMMO_20.wav" );
 
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_1.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_2.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_3.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_4.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_5.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_6.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_7.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_8.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_9.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_10.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_11.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_12.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_13.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_14.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_15.wav" );
+	PRECACHE_SOUND( "max/weird_item/WEIRD_ITEM_16.wav" );
+
 	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_1.wav" );
 	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_2.wav" );
 	PRECACHE_SOUND( "max/finale_swear/GENERAL_SWEAR_CMBT_ENEMY_3.wav" );
