@@ -530,7 +530,9 @@ int CBarney :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, floa
 			if ( (m_afMemory & bits_MEMORY_SUSPICIOUS) || IsFacing( pevAttacker, pev->origin ) )
 			{
 				// Alright, now I'm pissed!
-				PlaySentence( "BA_MAD", 4, VOL_NORM, ATTN_NORM );
+				if ( !( m_afMemory & bits_MEMORY_PROVOKED ) ) {
+					PlaySentence( "BA_MAD", 4, VOL_NORM, ATTN_NORM );
+				}
 
 				Remember( bits_MEMORY_PROVOKED );
 				StopFollowing( TRUE );

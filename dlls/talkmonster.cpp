@@ -45,6 +45,7 @@ TYPEDESCRIPTION	CTalkMonster::m_SaveData[] =
 	DEFINE_FIELD( CTalkMonster, m_flLastSaidSmelled, FIELD_TIME ),
 	DEFINE_FIELD( CTalkMonster, m_flStopTalkTime, FIELD_TIME ),
 	DEFINE_FIELD( CTalkMonster, m_hTalkTarget, FIELD_EHANDLE ),
+	DEFINE_FIELD( CTalkMonster, talkDelay, FIELD_TIME ),
 };
 
 IMPLEMENT_SAVERESTORE( CTalkMonster, CBaseMonster );
@@ -793,6 +794,7 @@ void CTalkMonster :: TalkInit( void )
 	CTalkMonster::g_talkWaitTime = 0;
 
 	m_voicePitch = 100;
+	talkDelay = 0.0f;
 }	
 //=========================================================
 // FindNearestFriend
@@ -1203,7 +1205,10 @@ int CTalkMonster :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker,
 			{
 				// only if not dead or dying!
 				CTalkMonster *pTalkMonster = (CTalkMonster *)pFriend;
-				pTalkMonster->ChangeSchedule( slIdleStopShooting );
+				if ( !pTalkMonster->talkDelay || gpGlobals->time > pTalkMonster->talkDelay ) {
+					pTalkMonster->ChangeSchedule( slIdleStopShooting );
+					pTalkMonster->talkDelay = gpGlobals->time + 5.0f;
+				}
 			}
 		}
 	}
