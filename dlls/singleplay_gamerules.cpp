@@ -240,7 +240,6 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 void CHalfLifeRules::Precache()
 {
 	std::string mapname = STRING( gpGlobals->mapname );
-	ALERT( at_notice, "PRECACHE FOR MAP: %s\n", mapname.c_str() );
 	for ( const auto &config : configs ) {
 
 		auto soundsToPrecache = config->GetSoundsToPrecacheForMap( mapname );
@@ -248,12 +247,10 @@ void CHalfLifeRules::Precache()
 
 		// I'm very sorry for this memory leak for now
 		for ( const auto &sound : soundsToPrecache ) {
-			ALERT( at_notice, "PRECACHE SOUND: %s\n", sound.c_str() );
 			PRECACHE_SOUND( ( char * ) STRING( ALLOC_STRING( sound.c_str() ) ) );
 		}
 
 		for ( const auto &spawn : entitiesToPrecache ) {
-			ALERT( at_notice, "PRECACHE entity: %s\n", spawn.c_str() );
 			UTIL_PrecacheOther( spawn.c_str() );
 		}
 	}
