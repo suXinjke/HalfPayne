@@ -901,6 +901,14 @@ void CTargetCDAudio::Think( void )
 
 void CTargetCDAudio::Play( void ) 
 { 
+	if ( CHalfLifeRules *rules = dynamic_cast<CHalfLifeRules *>( g_pGameRules ) ) {
+		if ( rules->EntityShouldBePrevented( edict() ) ) {
+			pev->flags |= FL_KILLME;
+			return;
+		} else {
+			rules->HookModelIndex( this->edict() );
+		}
+	}
 	PlayCDTrack( (int)pev->health );
 	UTIL_Remove(this); 
 }
