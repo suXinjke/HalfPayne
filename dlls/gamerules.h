@@ -186,6 +186,7 @@ public:
 	std::vector<CustomGameModeConfig *> configs;
 
 	std::deque<Task> tasks;
+	bool isSpawning;
 
 	int				     lastSkill;
 

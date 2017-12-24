@@ -48,6 +48,7 @@ CHalfLifeRules::CHalfLifeRules( void ) : mapConfig( CONFIG_TYPE_MAP )
 	}
 
 	ended = false;
+	isSpawning = false;
 
 	if ( !mapConfig.ReadFile( STRING( gpGlobals->mapname ) ) ) {
 		g_engfuncs.pfnServerPrint( mapConfig.error.c_str() );
@@ -166,6 +167,14 @@ void CHalfLifeRules::HookModelIndex( CBaseEntity *activator, int modelIndex, con
 extern int gEvilImpulse101;
 void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime )
 {
+	bool noPlaylists = true;
+	for ( const auto &config : configs ) {
+		if ( !config->musicPlaylist.empty() ) {
+			noPlaylists = false;
+			break;
+		}
+	}
+
 	for ( const auto &config : configs ) {
 
 		for ( const auto &sound : config->sounds ) {
@@ -182,9 +191,13 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 			}
 		}
 
-		for ( const auto &music : config->music ) {
-			if ( music.Fits( modelIndex, className, targetName, firstTime ) ) {
-				pPlayer->PlayMusicDelayed( music.path, music.delay, music.initialPos, music.looping, music.noSlowmotionEffects );
+		if ( noPlaylists ) {
+			for ( const auto &music : config->music ) {
+				if ( music.Fits( modelIndex, className, targetName, firstTime ) ) {
+					if ( isSpawning || std::string( CVAR_GET_STRING( "sm_current_file" ) ) != music.path ) {
+						pPlayer->PlayMusicDelayed( music.path, music.delay, music.initialPos, music.looping, music.noSlowmotionEffects );
+					}
+				}
 			}
 		}
 
@@ -352,7 +365,9 @@ float CHalfLifeRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 //=========================================================
 void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 {
+	isSpawning = true;
 	HookModelIndex( NULL );
+	isSpawning = false;
 }
 
 //=========================================================
