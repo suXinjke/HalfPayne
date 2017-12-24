@@ -115,7 +115,7 @@ void CTripmineGrenade :: Spawn( void )
 	UTIL_SetOrigin( pev, pev->origin );
 
 	m_flPowerUp = gpGlobals->time + (
-		!pev->owner ? 0.1 :
+		!pev->owner ? 0.11 :
 		( pev->spawnflags & 1 ) ? 1.0 :
 		2.5
 	);
