@@ -55,6 +55,7 @@ extern DLL_GLOBAL	BOOL	g_fDrawLines;
 int gEvilImpulse101;
 extern DLL_GLOBAL int		g_iSkillLevel, gDisplayTitle;
 
+extern "C" int				g_playerHasSuit;
 extern "C" int				g_slowMotionCharge;
 extern "C" int				g_divingAllowedWithoutSlowmotion;
 extern "C" float			g_frictionOverride;
@@ -2738,6 +2739,7 @@ void CBasePlayer::PreThink(void)
 	}
 
 	g_slowMotionCharge = slowMotionCharge;
+	g_playerHasSuit = pev->weapons & ( 1 << WEAPON_SUIT );
 	g_divingAllowedWithoutSlowmotion = divingAllowedWithoutSlowmotion;
 
 	CBaseEntity *pEntity = NULL;
