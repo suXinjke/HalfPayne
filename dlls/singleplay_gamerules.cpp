@@ -175,6 +175,14 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 		}
 	}
 
+	bool mapMusicAllowed = true;
+	for ( const auto &config : configs ) {
+		if ( config->IsGameplayModActive( GAMEPLAY_MOD_NO_MAP_MUSIC ) ) {
+			mapMusicAllowed = false;
+			break;
+		}
+	}
+
 	for ( const auto &config : configs ) {
 
 		for ( const auto &sound : config->sounds ) {
@@ -194,7 +202,10 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 		if ( noPlaylists ) {
 			for ( const auto &music : config->music ) {
 				if ( music.Fits( modelIndex, className, targetName, firstTime ) ) {
-					if ( isSpawning || std::string( CVAR_GET_STRING( "sm_current_file" ) ) != music.path ) {
+					if (
+						!( config->configType == CONFIG_TYPE_MAP && !mapMusicAllowed ) &&
+						( isSpawning || std::string( CVAR_GET_STRING( "sm_current_file" ) ) != music.path )
+					) {
 						pPlayer->PlayMusicDelayed( music.path, music.delay, music.initialPos, music.looping, music.noSlowmotionEffects );
 					}
 				}

@@ -1462,7 +1462,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_NO_MAP_MUSIC,
 			"No map music",
-			"Music which is defined by map will not be played.\nOnly the music defined in map and gameplay config files will play.",
+			"Music which is defined by map will not be played.\nOnly the music defined in gameplay config files will play.",
 			[]( CBasePlayer *player ) { player->noMapMusic = true; }
 		) );
 		return true;
