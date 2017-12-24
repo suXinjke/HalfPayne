@@ -216,7 +216,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->noMapMusic = TRUE;
 	}
 
-	if ( config.hasEndMarkers ) {
+	if ( config.hasEndMarkers || !config.endConditions.empty() ) {
 		pPlayer->noSaving = TRUE;
 	}
 
