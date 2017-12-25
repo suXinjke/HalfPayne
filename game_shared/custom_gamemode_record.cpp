@@ -1,6 +1,8 @@
 #include "custom_gamemode_record.h"
 #include <fstream>
 
+const int MAGIC_NUMBER_HEADER = 1;
+
 bool CustomGameModeRecord::Read( const std::string &directoryPath, const std::string &fileName ) {
 
 	this->directoryPath = directoryPath;
@@ -8,6 +10,13 @@ bool CustomGameModeRecord::Read( const std::string &directoryPath, const std::st
 
 	std::ifstream inp( filePath, std::ios::in | std::ios::binary );
 	if ( inp.is_open() ) {
+
+		int magicNumber;
+		inp.read( ( char * ) &magicNumber, sizeof( int ) );
+		if ( magicNumber != MAGIC_NUMBER_HEADER ) {
+			return false;
+		}
+
 		inp.read( ( char * ) &time, sizeof( float ) );
 		inp.read( ( char * ) &realTime, sizeof( float ) );
 		inp.read( ( char * ) &realTimeMinusTime, sizeof( float ) );
@@ -44,6 +53,7 @@ void CustomGameModeRecord::Save( CBasePlayer *player ) {
 
 		std::ofstream out( filePath, std::ios::out | std::ios::binary );
 
+		out.write( ( char * ) &MAGIC_NUMBER_HEADER, sizeof( int ) );
 		out.write( ( char * ) &time, sizeof( float ) );
 		out.write( ( char * ) &realTime, sizeof( float ) );
 		out.write( ( char * ) &realTimeMinusTime, sizeof( float ) );
