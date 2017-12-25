@@ -628,6 +628,7 @@ public:
 	BOOL delayedMusicNoSlowmotionEffects;
 	void PlayMusicDelayed( const std::string &filePath, float delay, float musicPos = 0.0f, BOOL looping = FALSE, BOOL noSlowmotionEffects = FALSE );
 	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE, BOOL noSlowmotionEffects = FALSE );
+	void SendStopMusicMessage( BOOL smooth = false );
 
 	int PackGameplayMods() {
 		int bitmask = 0;

@@ -210,6 +210,12 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 					}
 				}
 			}
+
+			for ( const auto &musicStop : config->musicStops ) {
+				if ( musicStop.Fits( modelIndex, className, targetName, firstTime ) ) {
+					pPlayer->SendStopMusicMessage( true );
+				}
+			}
 		}
 
 		for ( const auto &entityUse : config->entityUses ) {

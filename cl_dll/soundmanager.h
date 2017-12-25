@@ -7,6 +7,7 @@ void SM_Play( const char *soundPath, bool looping = false );
 void SM_PlayRandomMainMenuMusic();
 void SM_SetPaused( bool paused );
 bool SM_Stop();
+void SM_StopSmooth();
 void SM_Seek( double positionSeconds );
 void SM_SetPitch( float pitch );
 void SM_SetSlowmotion( bool slowmotion );

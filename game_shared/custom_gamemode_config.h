@@ -314,6 +314,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER,
 	CONFIG_FILE_SECTION_SOUND,
 	CONFIG_FILE_SECTION_MUSIC,
+	CONFIG_FILE_SECTION_MUSIC_STOP,
 	CONFIG_FILE_SECTION_PLAYLIST,
 	CONFIG_FILE_SECTION_MAX_COMMENTARY,
 	CONFIG_FILE_SECTION_MODS,
@@ -459,6 +460,7 @@ public:
 	std::vector<Sound> maxCommentary;
 	std::vector<Sound> music;
 	std::vector<Sound> musicPlaylist;
+	std::vector<Hookable> musicStops;
 	std::vector<Intermission> intermissions;
 	std::vector<Teleport> teleports;
 

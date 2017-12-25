@@ -320,6 +320,21 @@ void CustomGameModeConfig::InitConfigSections() {
 		}
 	);
 
+	configSections[CONFIG_FILE_SECTION_MUSIC_STOP] = ConfigSection(
+		"music_stop", false,
+		[this]( ConfigSectionData &data ) {
+			if ( data.argsString.size() < 2 ) {
+				return "<mapname> <modelindex | targetname> not specified";
+			}
+
+			Hookable musicStop;
+			FillHookable( musicStop, data );
+			musicStops.push_back( musicStop );//
+
+			return "";
+		}
+	);
+
 	configSections[CONFIG_FILE_SECTION_PLAYLIST] = ConfigSection(
 		"playlist", false,
 		[this]( ConfigSectionData &data ) {
@@ -872,6 +887,7 @@ void CustomGameModeConfig::Reset() {
 	maxCommentary.clear();
 	music.clear();
 	musicPlaylist.clear();
+	musicStops.clear();
 	intermissions.clear();
 	timerPauses.clear();
 	timerResumes.clear();
@@ -2005,8 +2021,8 @@ void CustomGameModeConfig::FillHookable( Hookable &hookable, const ConfigSection
 		hookable.modelIndex = data.argsFloat.at( 1 );
 	}
 
-	if ( data.argsString.size() > 3 ) {
-		for ( size_t i = data.argsString.size() - 1 ; i >= 3 ; i-- ) {
+	if ( data.argsString.size() > 2 ) {
+		for ( size_t i = data.argsString.size() - 1 ; i >= 2 ; i-- ) {
 			if ( data.argsString.at( i ) == "const" ) {
 				hookable.constant = true;
 				break;

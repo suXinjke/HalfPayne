@@ -39,6 +39,7 @@ std::string loadedSoundPath;
 
 HFX bqfEffect = 0;
 BASS_BFX_BQF bqfParams;
+bool sliding = false;
 
 void SM_Init() {
 	initialised = BASS_Init( -1, 44100, 0, NULL, NULL );
@@ -79,6 +80,7 @@ void SM_Play( const char *soundPath, bool looping ) {
 	}
 
 	stream = BASS_StreamCreateFile( false, sanitizedSoundPath.c_str(), 0, 0, BASS_STREAM_DECODE | BASS_STREAM_PRESCAN );
+	sliding = false;
 
 	if ( !stream ) {
 		SM_CheckError();
@@ -168,6 +170,17 @@ bool SM_Stop() {
 	return success > 0;
 }
 
+void SM_StopSmooth() {
+	if ( !stream || !initialised ) {
+		return;
+	}
+
+	BASS_ChannelSlideAttribute( stream, BASS_ATTRIB_VOL, -1.0f, 2000 );
+	sliding = true;
+
+	return;
+}
+
 void SM_Seek( double positionSeconds ) {
 	if ( !stream || !initialised ) {
 		return;
@@ -220,7 +233,12 @@ int SM_OnBassPlay( const char *pszName,  int iSize, void *pbuf ) {
 int SM_OnBassStop( const char *pszName,  int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 
-	SM_Stop();
+	int smooth = READ_BYTE();
+	if ( smooth ) {
+		SM_StopSmooth();
+	} else {
+		SM_Stop();
+	}
 
 	return 1;
 }
@@ -363,6 +381,14 @@ void SM_Think( double time ) {
 
 			BASS_ChannelSlideAttribute( stream, BASS_ATTRIB_VOL, appliedValue, 500 );
 			MP3Volume_last_value = appliedValue;
+		}
+	}
+
+	// AFTER FADE OUT
+	{
+		if ( sliding && !BASS_ChannelIsSliding( stream, BASS_ATTRIB_VOL ) ) {
+			sliding = false;
+			SM_Stop();
 		}
 	}
 }

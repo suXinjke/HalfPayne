@@ -408,6 +408,7 @@ int gmsgFadeOut = 0;
 int gmsgFlash = 0;
 int gmsgBassPlay = 0;
 int gmsgBassStop = 0;
+int gmsgBassStopSm = 0;
 int gmsgBassSlowmo = 0;
 
 int gmsgStatusText = 0;
@@ -487,7 +488,7 @@ void LinkUserMessages( void )
 	gmsgFlash = REG_USER_MSG( "Flash", 8 );
 
 	gmsgBassPlay = REG_USER_MSG( "BassPlay", -1 );
-	gmsgBassStop = REG_USER_MSG( "BassStop", -1 );
+	gmsgBassStop = REG_USER_MSG( "BassStop", 1 );
 	gmsgBassSlowmo = REG_USER_MSG( "BassSlowmo", 1 );
 
 	gmsgSubtClear = REG_USER_MSG( "SubtClear", 0 );
@@ -1628,8 +1629,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	pev->flags &= ~FL_DIVING;
 	FlashlightTurnOff();
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
-	MESSAGE_END();
+	SendStopMusicMessage();
 
 	SetSlowMotion( true );
 	SetThink(&CBasePlayer::PlayerDeathThink);
@@ -2574,6 +2574,16 @@ void CBasePlayer::SendPlayMusicMessage( const std::string &filePath, float music
 	MESSAGE_END();
 }
 
+void CBasePlayer::SendStopMusicMessage( BOOL smooth ) {
+	if ( !gmsgBassStop ) {
+		return;
+	}
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
+		WRITE_BYTE( smooth );
+	MESSAGE_END();
+}
+
 
 
 
@@ -2773,8 +2783,7 @@ void CBasePlayer::PreThink(void)
 			if ( strlen( STRING( musicFile ) ) > 0 ) {
 				this->SendPlayMusicMessage( STRING( musicFile ), musicPos, musicLooping, musicNoSlowmotionEffects );
 			} else {
-				MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
-				MESSAGE_END();
+				SendStopMusicMessage();
 			}
 		}
 		
@@ -2786,8 +2795,7 @@ void CBasePlayer::PreThink(void)
 	}
 
 	if ( postSpawnDelay && gpGlobals->time >= postSpawnDelay ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, this->pev );
-		MESSAGE_END();
+		SendStopMusicMessage();
 
 		if ( !HasWeapons() ) {
 			MESSAGE_BEGIN( MSG_ONE, gmsgCurWeapon, NULL, pev );
