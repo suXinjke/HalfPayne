@@ -105,6 +105,7 @@ void EV_TrainPitchAdjust( struct event_args_s *args );
 float latestShoot = 0.0f;
 float latestTracer = 0.0f;
 float latestTracer2 = 0.0f;
+float latestTracer3 = 0.0f;
 
 bool AllowedToFireRapidEvent( float &param ) {
 	bool allowed = true;
@@ -1246,6 +1247,10 @@ extern float g_flApplyVel;
 
 void EV_FireGauss( event_args_t *args )
 {
+	if ( !AllowedToFireRapidEvent( latestTracer3 ) ) {
+		return;
+	}
+
 	int idx;
 	vec3_t origin;
 	vec3_t angles;
