@@ -1275,6 +1275,10 @@ void CButtonTarget::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 		SUB_UseTargets( pActivator, USE_ON, 0 );
 	else
 		SUB_UseTargets( pActivator, USE_OFF, 0 );
+
+	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		singlePlayerRules->HookModelIndex( this->edict() );
+	}
 }
 
 
