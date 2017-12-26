@@ -940,8 +940,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		mods.push_back( GameplayMod( 
 			GAMEPLAY_MOD_BLEEDING,
 			"Bleeding",
-			"After your last painkiller take, you start to lose health.\n"
-			"Health regeneration is turned off.",
+			"After your last painkiller take, you start to lose health.",
 			[bleedHandicap, bleedUpdatePeriod, bleedImmunityPeriod]( CBasePlayer *player ) {
 				player->isBleeding = true;
 				player->bleedHandicap = bleedHandicap;
