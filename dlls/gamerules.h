@@ -201,6 +201,7 @@ public:
 	virtual void HookModelIndex( CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName );
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime );
 	virtual void Precache();
+	static CBaseEntity* SpawnBySpawnData( const EntitySpawnData &spawnData );
 
 // GR_Think
 	virtual void Think( void );

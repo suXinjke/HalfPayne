@@ -605,13 +605,13 @@ std::set<std::string> CustomGameModeConfig::GetEntitiesToPrecacheForMap( const s
 	std::set<std::string> entitiesToPrecache;
 
 	for ( const auto &entitySpawn : entitySpawns ) {
-		if ( entitySpawn.map == map ) {
+		if ( entitySpawn.map == map || entitySpawn.map == "everywhere" ) {
 			entitiesToPrecache.insert( entitySpawn.entity.name );
 		}
 	}
 
 	for ( const auto &entityRandomSpawner : entityRandomSpawners ) {
-		if ( entityRandomSpawner.mapName == map ) {
+		if ( entityRandomSpawner.mapName == map || entityRandomSpawner.mapName == "everywhere" ) {
 			entitiesToPrecache.insert( entityRandomSpawner.entity.name );
 		}
 	}

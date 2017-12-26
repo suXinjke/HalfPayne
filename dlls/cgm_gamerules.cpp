@@ -935,7 +935,7 @@ void CCustomGameModeRules::RefreshSkillData()
 }
 
 EntityRandomSpawnerController::EntityRandomSpawnerController( const EntityRandomSpawner &entityRandomSpawner ) :
-	entityName( entityRandomSpawner.entity.name ),
+	spawnData( entityRandomSpawner.entity ),
 	maxAmount( entityRandomSpawner.maxAmount ),
 	spawnPeriod( entityRandomSpawner.spawnPeriod ),
 	nextSpawn( gpGlobals->time + entityRandomSpawner.spawnPeriod )
@@ -961,7 +961,7 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 		if (
 			( entity->pev->spawnflags & SF_MONSTER_PRESERVE ) &&
 		   !( entity->pev->deadflag & DEAD_DEAD ) &&
-			FStrEq( STRING( entity->pev->classname ), entityName.c_str() )
+			FStrEq( STRING( entity->pev->classname ), spawnData.name.c_str() )
 		) {
 			amountOfMonstersOfThisType++;
 		}
@@ -1012,14 +1012,20 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 			continue;
 		}
 
-		// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
-		CBaseEntity *entity = CBaseEntity::Create( ( char * ) entityName.c_str(), randomPoint + Vector( 0, 0, 4 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
-		if ( DROP_TO_FLOOR( ENT( entity->pev ) ) >= 1 && WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
-			entity->pev->spawnflags = SF_MONSTER_PRESERVE;
-			entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
-			spawnPositionDecided = true;
-		} else {
-			g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
+		spawnData.x = randomPoint.x;
+		spawnData.y = randomPoint.y;
+		spawnData.z = randomPoint.z + 4;
+		spawnData.angle = RANDOM_LONG( 0, 360 );
+
+		CBaseEntity *entity = CCustomGameModeRules::SpawnBySpawnData( spawnData );
+		if ( entity ) {
+			// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
+			if ( DROP_TO_FLOOR( ENT( entity->pev ) ) >= 1 && WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
+				entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
+				spawnPositionDecided = true;
+			} else {
+				g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
+			}
 		}
 
 	} while ( !spawnPositionDecided );

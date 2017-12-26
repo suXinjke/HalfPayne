@@ -250,19 +250,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 
 		for ( const auto &entitySpawn : config->entitySpawns ) {
 			if ( entitySpawn.Fits( modelIndex, className, targetName, firstTime ) ) {
-				CBaseEntity *entity = CBaseEntity::Create(
-					allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( entitySpawn.entity.name.c_str() )],
-					Vector( entitySpawn.entity.x, entitySpawn.entity.y, entitySpawn.entity.z ),
-					Vector( 0, entitySpawn.entity.angle, 0 ),
-					NULL,
-					entitySpawn.entity.weaponFlags,
-					entitySpawn.entity.spawnFlags
-				);
-
-				entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
-				if ( entitySpawn.entity.targetName.size() > 0 ) {
-					entity->pev->targetname = ALLOC_STRING( entitySpawn.entity.targetName.c_str() ); // memory leak
-				}
+				SpawnBySpawnData( entitySpawn.entity );
 			}
 		}
 	}
@@ -284,6 +272,24 @@ void CHalfLifeRules::Precache()
 			UTIL_PrecacheOther( spawn.c_str() );
 		}
 	}
+}
+
+CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData ) {
+	CBaseEntity *entity = CBaseEntity::Create(
+		allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( spawnData.name.c_str() )],
+		Vector( spawnData.x, spawnData.y, spawnData.z ),
+		Vector( 0, spawnData.angle, 0 ),
+		NULL,
+		spawnData.weaponFlags,
+		spawnData.spawnFlags
+	);
+
+	entity->pev->spawnflags |= SF_MONSTER_PRESERVE;
+	if ( spawnData.targetName.size() > 0 ) {
+		entity->pev->targetname = ALLOC_STRING( spawnData.targetName.c_str() ); // memory leak
+	}
+
+	return entity;
 }
 
 //=========================================================
