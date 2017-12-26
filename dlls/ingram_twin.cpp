@@ -109,6 +109,12 @@ void CIngramTwin::ItemPostFrame( void ) {
 
 void CIngramTwin::PrimaryAttack( void )
 {
+	if ( m_pPlayer->pev->waterlevel == 3 ) {
+		PlayEmptySound();
+		m_flNextPrimaryAttack = 0.15;
+		return;
+	}
+
 	float delay = 0.048f;
 
 	if ( m_iClip <= 0 && m_iClip2 <= 0 )
