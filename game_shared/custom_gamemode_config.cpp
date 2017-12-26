@@ -1957,7 +1957,7 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		}
 
 		mods.push_back( GameplayMod( 
-			GAMEPLAY_MOD_WEAPON_PUSH_BACK,
+			GAMEPLAY_MOD_WEAPON_IMPACT,
 			"Weapon impact",
 			"Taking damage means to be pushed back",
 			[weaponImpact]( CBasePlayer *player ) {
