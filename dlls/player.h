@@ -172,6 +172,9 @@ public:
 	BOOL				vvvvvv;
 	BOOL				reverseGravity;
 
+	BOOL				teleportOnKill;
+	string_t			teleportOnKillWeapon;
+
 	BOOL				detachableTripmines;
 	BOOL				detachableTripminesInstantly;
 

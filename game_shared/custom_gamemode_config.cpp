@@ -1904,6 +1904,23 @@ bool CustomGameModeConfig::AddGameplayMod( ConfigSectionData &data ) {
 		return true;
 	}
 
+	if ( modName == "teleport_on_kill" ) {
+		std::string weapon = data.argsString.size() > 1 ? data.argsString.at( 1 ) : "";
+		mods.push_back( GameplayMod( 
+			GAMEPLAY_MOD_TELEPORT_ON_KILL,
+			"Teleport on kill",
+			"You will be teleported to the enemy you kill.",
+			[weapon]( CBasePlayer *player ) {
+				player->teleportOnKill = true;
+				player->teleportOnKillWeapon = weapon.empty() ? player->teleportOnKillWeapon : ALLOC_STRING( weapon.c_str() );
+			},
+			{
+				"Weapon that causes teleport: " + ( weapon.empty() ? "any" : weapon ) + "\n"
+			}
+		) );
+		return true;
+	}
+
 	if ( modName == "time_restriction" ) {
 		float timeOut = 60;
 		for ( size_t i = 1 ; i < data.argsFloat.size() ; i++ ) {

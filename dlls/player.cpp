@@ -319,6 +319,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, postRestoreDelay, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, postSpawnDelay, FIELD_TIME ),
 
+	DEFINE_FIELD( CBasePlayer, teleportOnKill, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, teleportOnKillWeapon, FIELD_STRING ),
+
 	DEFINE_FIELD( CBasePlayer, musicFile, FIELD_STRING ),
 	DEFINE_FIELD( CBasePlayer, musicPos, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, musicLooping, FIELD_BOOLEAN ),
@@ -4022,6 +4025,9 @@ void CBasePlayer::Spawn( void )
 
 	postRestoreDelay = 0.0f;
 	postSpawnDelay = 0.1f;
+
+	teleportOnKill = FALSE;
+	teleportOnKillWeapon = MAKE_STRING( "" );
 
 	aimOffsetX = 0.0f;
 	aimOffsetY = 0.0f;

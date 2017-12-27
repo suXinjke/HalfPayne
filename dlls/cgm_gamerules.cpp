@@ -365,6 +365,34 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		pPlayer->projectileKills++;
 	}
 
+	auto teleportOnKillWeapon = std::string( STRING( pPlayer->teleportOnKillWeapon ) );
+	auto activeItem = pPlayer->m_pActiveItem;
+	if (
+		pPlayer->teleportOnKill &&
+		( ( teleportOnKillWeapon.empty() ) || ( activeItem && STRING( activeItem->pev->classname ) == teleportOnKillWeapon ) )
+	) {
+
+		TraceResult tr;
+		bool canTeleport = false;
+		Vector destination = victim->pev->origin;
+		for ( int i = 0; i < 73 && !canTeleport; i++ ) {
+			UTIL_TraceHull( destination, destination, dont_ignore_monsters, human_hull, victim->edict(), &tr );
+			if ( tr.fAllSolid ) {
+				destination.z += 1.0f;
+			} else {
+				canTeleport = true;
+			}
+		}
+
+		if ( canTeleport ) {
+			UTIL_SetOrigin( pPlayer->pev, destination );
+			if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( victim ) ) {
+				monster->GibMonster();
+			}
+		}
+
+	}
+
 	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 }
 
