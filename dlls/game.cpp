@@ -16,6 +16,8 @@
 #include "eiface.h"
 #include "util.h"
 #include "game.h"
+#include <vector>
+#include <algorithm>
 
 cvar_t	displaysoundlist = {"displaysoundlist","0"};
 
@@ -453,6 +455,59 @@ cvar_t	sk_player_leg1	= { "sk_player_leg1","1" };
 cvar_t	sk_player_leg2	= { "sk_player_leg2","1" };
 cvar_t	sk_player_leg3	= { "sk_player_leg3","1" };
 
+std::vector<std::string> cdTrackMap {
+	"",
+	"",
+	"media\\Half-Life01.mp3",
+	"media\\Prospero01.mp3",
+	"media\\Half-Life12.mp3",
+	"media\\Half-Life07.mp3",
+	"media\\Half-Life10.mp3",
+	"media\\Suspense01.mp3",
+	"media\\Suspense03.mp3",
+	"media\\Half-Life09.mp3",
+	"media\\Half-Life02.mp3",
+	"media\\Half-Life13.mp3",
+	"media\\Half-Life04.mp3",
+	"media\\Half-Life15.mp3",
+	"media\\Half-Life14.mp3",
+	"media\\Half-Life16.mp3",
+	"media\\Suspense02.mp3",
+	"media\\Half-Life03.mp3",
+	"media\\Half-Life08.mp3",
+	"media\\Prospero02.mp3",
+	"media\\Half-Life05.mp3",
+	"media\\Prospero04.mp3",
+	"media\\Half-Life11.mp3",
+	"media\\Half-Life06.mp3", 
+	"media\\Prospero03.mp3",
+	"media\\Half-Life17.mp3",
+	"media\\Prospero05.mp3",
+	"media\\Suspense05.mp3",
+	"media\\Suspense07.mp3"
+};
+
+void InitializeTracks() {
+	std::transform( cdTrackMap.begin(), cdTrackMap.end(), cdTrackMap.begin(), []( const std::string &track ) {
+		if ( track.size() == 0 ) {
+			return track;
+		} else {
+			std::vector<std::string> mod_directories = { "half_payne", "valve" };
+			for ( auto mod_directory : mod_directories ) {
+				const std::string potentialPath = mod_directory + "\\" + track;
+				HANDLE hFind = NULL;
+				WIN32_FIND_DATA fdFile;
+				if ( ( hFind = FindFirstFile( potentialPath.c_str(), &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+					continue;
+				} else {
+					return potentialPath;
+				}
+			}
+			return track;
+		}
+	} );
+}
+
 // END Cvars for Skill Level settings
 
 // Register your console variables here
@@ -484,6 +539,8 @@ void GameDLLInit( void )
 	} else {
 		g_engfuncs.pfnServerPrint( "Failed to register sys_timescale cvar, falling back to old slowmotion implementation\n" );
 	}
+
+	InitializeTracks();
 
 	CVAR_REGISTER (&displaysoundlist);
 	CVAR_REGISTER( &allow_spectators );
