@@ -27,6 +27,7 @@ public:
 	CCustomGameModeRules( CONFIG_TYPE configType = CONFIG_TYPE_CGM );
 
 	virtual void OnChangeLevel();
+	virtual void OnSave( CBasePlayer *pPlayer ) override;
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );

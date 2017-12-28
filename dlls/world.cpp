@@ -386,6 +386,12 @@ int CGlobalState::Save( CSave &save )
 
 		pEntity = pEntity->pNext;
 	}
+
+	if ( CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+		if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+			singlePlayerRules->OnSave( pPlayer );
+		}
+	}
 	
 	return 1;
 }

@@ -676,6 +676,12 @@ void CCustomGameModeRules::OnChangeLevel() {
 	}
 }
 
+void CCustomGameModeRules::OnSave( CBasePlayer *pPlayer ) {
+	if ( pPlayer->noSaving ) {
+		SendGameLogMessage( pPlayer, "SAVING IS ACTUALLY DISABLED" );
+	}
+}
+
 void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
 {
 	if ( pPlayer->timerPaused ) {
