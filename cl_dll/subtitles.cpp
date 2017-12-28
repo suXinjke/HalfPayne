@@ -320,6 +320,10 @@ int Subtitles_OnSound( const char *pszName,  int iSize, void *pbuf ) {
 	float y = READ_COORD();
 	float z = READ_COORD();
 
+	if ( gEngfuncs.pfnGetCvarFloat( "subtitles_log_candidates" ) >= 1.0f ) {
+		gEngfuncs.Con_DPrintf( "RECEIVED SUBTITLE CANDIDATE: %s\n", key.c_str() );
+	}
+
 	// Dumb exception for Grunt cutscene, because player is actually far away from sound event
 	if ( key.find( "!HG_DRAG" ) == 0 ) {
 		ignoreLongDistances = true;
