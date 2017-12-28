@@ -751,6 +751,7 @@ public:
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
 	int AddDuplicate( CBasePlayerItem *pItem );
+	int	Restore( CRestore &restore ) override;
 
 	void ItemPostFrame(void);
 	void PrimaryAttack( void );
