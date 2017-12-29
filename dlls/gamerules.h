@@ -196,7 +196,7 @@ public:
 	virtual void End( CBasePlayer *pPlayer );
 
 	virtual void OnChangeLevel();
-	virtual void OnSave( CBasePlayer *pPlayer ) {};
+	virtual void OnSave( CBasePlayer *pPlayer );
 	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 	virtual void HookModelIndex( edict_t *activator );
 	virtual void HookModelIndex( CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName );

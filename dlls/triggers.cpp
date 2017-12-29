@@ -38,6 +38,7 @@
 #define SF_TRIGGER_HURT_CLIENTONLYTOUCH 32// only clients may touch this trigger.
 
 extern DLL_GLOBAL BOOL		g_fGameOver;
+int g_autoSaved = 0;
 
 extern void SetMovedir(entvars_t* pev);
 extern Vector VecBModelOrigin( entvars_t* pevBModel );
@@ -414,7 +415,9 @@ void CMultiManager :: ManagerThink ( void )
 					pPlayer->TakeHealth( pPlayer->pev->max_health, DMG_GENERIC );
 					pPlayer->SetSlowMotion( true );
 					pPlayer->pev->gravity = 0.6;
+
 					SERVER_COMMAND( "autosave\n" );
+					g_autoSaved = TRUE;
 				}
 			}
 
@@ -2117,6 +2120,7 @@ void CTriggerSave::SaveTouch( CBaseEntity *pOther )
 	SetTouch( NULL );
 	UTIL_Remove( this );
 	SERVER_COMMAND( "autosave\n" );
+	g_autoSaved = TRUE;
 }
 
 #define SF_ENDSECTION_USEONLY		0x0001
