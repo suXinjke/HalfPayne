@@ -110,7 +110,9 @@ int CIngram::AddDuplicate( CBasePlayerItem *pOriginal ) {
 
 int CIngram::Restore( CRestore &restore ) {
 	int result = CBasePlayerWeapon::Restore( restore );
-	SendWeaponAnim( m_iClip == 0 ? INGRAM_IDLE_NOSHOT : INGRAM_IDLE );
+	if ( m_pPlayer ) {
+		SendWeaponAnim( m_iClip == 0 ? INGRAM_IDLE_NOSHOT : INGRAM_IDLE );
+	}
 	return result;
 }
 
