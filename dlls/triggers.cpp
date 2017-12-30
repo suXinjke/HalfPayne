@@ -757,6 +757,7 @@ void PlayCDTrack( int iTrack )
 	if ( iTrack == -1 )
 	{
 		MESSAGE_BEGIN( MSG_ONE, gmsgBassStop, NULL, pClient );
+			WRITE_BYTE( FALSE );
 		MESSAGE_END();
 	}
 	else
