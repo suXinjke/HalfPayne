@@ -8,3 +8,5 @@ ipch/
 *.opensdf
 *.db
 *.opendb
+*.db-shm
+*.db-wal
