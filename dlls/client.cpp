@@ -155,7 +155,7 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 	}
 	else
 	{   
-		bool noSaving = false;
+		int noSaving = false;
 		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 			noSaving = pPlayer->noSaving;
 		}

@@ -148,7 +148,7 @@ void CGib :: SpawnHeadGib( entvars_t *pevVictim )
 {
 	CGib *pGib = GetClassPtr( (CGib *)NULL );
 
-	bool garbageGibs = false;
+	BOOL garbageGibs = false;
 	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 		garbageGibs = pPlayer->garbageGibs;
 	}
@@ -229,7 +229,7 @@ void CGib :: SpawnRandomGibs( entvars_t *pevVictim, int cGibs, int human )
 		}
 		else
 		{
-			bool garbageGibs = false;
+			BOOL garbageGibs = false;
 			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 				garbageGibs = pPlayer->garbageGibs;
 			}
@@ -1707,7 +1707,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 		if ( player->shouldProducePhysicalBullets ) {
 			CBullet::BulletCreate(
-				vecSrc, vecDir * ( player->bulletDelayOnSlowmotion && player->slowMotionEnabled ? 40 : 2000 ), iBulletType, player->slowMotionEnabled || player->bulletTrailConstant, edict(),
+				vecSrc, vecDir * ( player->bulletDelayOnSlowmotion && player->slowMotionEnabled ? 40 : 2000 ), iBulletType, ( BOOL ) ( player->slowMotionEnabled || player->bulletTrailConstant ), edict(),
 				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct, player->bulletSelfHarm
 			);
 			bool lastShot = iShot == cShots;

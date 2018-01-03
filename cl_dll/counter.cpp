@@ -90,8 +90,8 @@ int CHudCounter::Draw( float flTime )
 int CHudCounter::MsgFunc_CountValue( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ( pbuf, iSize );
-	int counterCount = READ_SHORT();
-	for ( int i = 0 ; i < counterCount ; i++ ) {
+	size_t counterCount = READ_SHORT();
+	for ( size_t i = 0 ; i < counterCount ; i++ ) {
 		CounterValue value = { READ_LONG(), READ_LONG(), READ_STRING() };
 		if ( i + 1 > values.size() ) {
 			values.push_back( value );

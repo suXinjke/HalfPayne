@@ -421,7 +421,7 @@ public:
 	void CheckSoundQueue();
 	void AddToSoundQueue( string_t string, float delay, bool isMaxCommentary, bool isImportant = false );
 	void ClearSoundQueue();
-	void TryToPlayMaxCommentary( string_t string, bool isImportant );
+	void TryToPlayMaxCommentary( string_t string, BOOL isImportant );
 
 	void AddVisitedMap( string_t mapName );
 	bool HasVisitedMap( string_t mapName );
@@ -430,7 +430,7 @@ public:
 
 	std::string latestMaxCommentary;
 	float latestMaxCommentaryTime;
-	bool latestMaxCommentaryIsImportant;
+	BOOL latestMaxCommentaryIsImportant;
 	
 	//Player ID
 	void InitStatusBar( void );

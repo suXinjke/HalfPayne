@@ -158,7 +158,7 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 	// TABLE ITSELF
 	{
 
-		for ( int i = 0; i < configs.size(); i++ ) {
+		for ( size_t i = 0; i < configs.size(); i++ ) {
 
 			CustomGameModeConfig config = configs.at( i );
 

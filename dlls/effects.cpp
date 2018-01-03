@@ -1458,7 +1458,7 @@ CGib *CGibShooter :: CreateGib ( void )
 	if ( CVAR_GET_FLOAT("violence_hgibs") == 0 )
 		return NULL;
 
-	bool garbageGibs = false;
+	BOOL garbageGibs = false;
 	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 		garbageGibs = pPlayer->garbageGibs;
 	}

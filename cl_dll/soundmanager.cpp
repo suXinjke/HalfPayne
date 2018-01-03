@@ -60,7 +60,7 @@ void SM_Init() {
 	lastIsPaused = isPaused;
 }
 
-void SM_Play( const char *soundPath, bool looping ) {
+void SM_Play( const char *soundPath, int looping ) {
 	if ( !initialised ) {
 		return;
 	}
@@ -163,7 +163,7 @@ bool SM_Stop() {
 
 	BASS_ChannelStop( stream );
 
-	BOOL success = BASS_StreamFree( stream );
+	int success = BASS_StreamFree( stream );
 	stream = 0;
 	loadedSoundPath = "";
 
@@ -252,12 +252,12 @@ int SM_OnBassSlowmo( const char *pszName,  int iSize, void *pbuf ) {
 		return 1;
 	}
 
-	SM_SetSlowmotion( ( bool ) slowmotion );
+	SM_SetSlowmotion( slowmotion );
 
 	return 1;
 }
 
-void SM_SetSlowmotion( bool slowmotion ) {
+void SM_SetSlowmotion( int slowmotion ) {
 	if ( slowmotion ) {
 		float value = slowmotion_negative_pitch->value;
 		if ( value > 0 ) {
@@ -313,7 +313,7 @@ void SM_ApplyPitchEffects() {
 	slowmotion_pitch_desired_last_value = slowmotion_pitch_desired_value;
 }
 
-void SM_SetConsoleVarState( double pos, const char *soundPath, bool looping ) {
+void SM_SetConsoleVarState( double pos, const char *soundPath, int looping ) {
 	gEngfuncs.Cvar_SetValue( "sm_current_pos", ( float ) pos );
 	gEngfuncs.Cvar_Set( "sm_current_file", ( char * ) soundPath );
 	gEngfuncs.Cvar_SetValue( "sm_looping", looping ? 1.0f : 0.0f );
@@ -330,7 +330,7 @@ void SM_Think( double time ) {
 	// CONSOLE VARS STATE
 	{
 		QWORD posInBytes = BASS_ChannelGetPosition( stream, BASS_POS_BYTE );
-		bool looping = BASS_ChannelFlags( stream, 0, 0 ) & BASS_SAMPLE_LOOP;
+		DWORD looping = BASS_ChannelFlags( stream, 0, 0 ) & BASS_SAMPLE_LOOP;
 		if ( posInBytes >= channelLength ) {
 			SM_SetConsoleVarState( 0, "", false );
 			if ( !looping ) {

@@ -25,7 +25,7 @@ IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
 
 CBullet *CBullet::BulletCreate(
 	Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive, edict_t *owner,
-	int ricochetCount, int ricochetError, float ricochetMaxDotProduct, bool selfHarm
+	int ricochetCount, int ricochetError, float ricochetMaxDotProduct, BOOL selfHarm
 ) {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;

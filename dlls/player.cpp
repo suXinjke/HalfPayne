@@ -3469,7 +3469,7 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 	//ALERT ( at_console, "%d/%d\n", iVolume, m_iTargetVolume );
 }
 
-void CBasePlayer::TryToPlayMaxCommentary( string_t string, bool isImportant )
+void CBasePlayer::TryToPlayMaxCommentary( string_t string, BOOL isImportant )
 {
 	bool isCommentaryPresent = latestMaxCommentaryTime && ( gpGlobals->time - latestMaxCommentaryTime < 10.0f );
 	if ( isImportant ) {
@@ -4246,7 +4246,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 
 		switch ( desperation ) {
 			case DESPERATION_PRE_IMMINENT: {
-				CBaseEntity *pEntity;
+				CBaseEntity *pEntity = NULL;
 				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
 					if (
 						( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
@@ -4272,7 +4272,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 					singlePlayerRules->HookModelIndex( this, -2, "", "final_battle_start" );
 				}
 
-				CBaseEntity *pEntity;
+				CBaseEntity *pEntity = NULL;
 				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
 					if (
 						( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
@@ -4351,7 +4351,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 	}
 
 	bool theyAreAlive = false;
-	CBaseEntity *pEntity;
+	CBaseEntity *pEntity = NULL;
 	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, this->pev->origin, 4610.0f ) ) != NULL ) {
 		if (
 			( strcmp( STRING( pEntity->pev->classname ), "monster_alien_grunt" ) == 0 || strcmp( STRING( pEntity->pev->classname ), "monster_alien_controller" ) == 0 ) &&
@@ -5908,7 +5908,7 @@ void CBasePlayer :: UpdateClientData( void )
 				}
 			} else {
 				superHotMultiplier -= using_sys_timescale ? 0.1 : base / 2.0f;
-				if ( superHotMultiplier < using_sys_timescale ? 0.1 : ( base / 20.0f ) ) {
+				if ( superHotMultiplier < ( using_sys_timescale ? 0.1 : ( base / 20.0f ) ) ) {
 					superHotMultiplier = using_sys_timescale ? 0.1 : ( base / 20.0f );
 				}
 			}
@@ -6807,7 +6807,7 @@ void CRevertSaved :: LoadThink( void )
 {
 	if ( !gpGlobals->deathmatch )
 	{
-		bool noSaving = false;
+		BOOL noSaving = false;
 		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 			noSaving = pPlayer->noSaving;
 		}

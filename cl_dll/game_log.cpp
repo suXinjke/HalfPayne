@@ -1,8 +1,6 @@
 #include "hud.h"
 #include "cl_util.h"
-#include "../common/event_api.h"
 #include "parsemsg.h"
-#include "triangleapi.h"
 
 DECLARE_MESSAGE( m_GameLog, GLogDeact )
 DECLARE_MESSAGE( m_GameLog, GLogMsg )
@@ -78,7 +76,7 @@ int CHudGameLog::MsgFunc_GLogMsg( const char *pszName, int iSize, void *pbuf )
 	const char *message = READ_STRING();
 	yOffset = READ_LONG();
 	
-	messages.push_back( GameLogMessage( message, gEngfuncs.GetAbsoluteTime() + TIMER_MESSAGE_REMOVAL_TIME ) );
+	messages.push_back( GameLogMessage( message, ( float ) gEngfuncs.GetAbsoluteTime() + TIMER_MESSAGE_REMOVAL_TIME ) );
 
 	return 1;
 }

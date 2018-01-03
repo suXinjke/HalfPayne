@@ -116,7 +116,7 @@ std::string GetSubtitleKeyWithLanguage( const std::string &key ) {
 }
 
 // Based on https://www.rosettacode.org/wiki/Word_wrap#C.2B.2B
-std::vector<std::string> Wrap( const char *text, size_t line_length = 72 )
+std::vector<std::string> Wrap( const char *text, float line_length = 72 )
 {
 	std::istringstream words( text );
 	std::ostringstream wrapped;
@@ -126,7 +126,7 @@ std::vector<std::string> Wrap( const char *text, size_t line_length = 72 )
 
 	if ( words >> word ) {
 		wrapped << word;
-		size_t space_left = line_length - ImGui::CalcTextSize( word.c_str() ).x;
+		float space_left = line_length - ImGui::CalcTextSize( word.c_str() ).x;
 		while ( words >> word ) {
 			float wordLength = ImGui::CalcTextSize( word.c_str() ).x;
 			if ( space_left < wordLength + 1 ) {
@@ -235,7 +235,7 @@ void Subtitles_Draw() {
 	ImGui::End();
 }
 
-void Subtitles_Push( const std::string &key, const std::string &text, float duration, const Vector &color, const Vector &pos, float delay, bool ignoreLongDistances ) {
+void Subtitles_Push( const std::string &key, const std::string &text, float duration, const Vector &color, const Vector &pos, float delay, int ignoreLongDistances ) {
 	if ( subtitlesToDraw.count( key ) ) {
 		return;
 	}
@@ -243,7 +243,7 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 	int ScreenWidth;
 	SDL_GetWindowSize( window, &ScreenWidth, NULL );
 
-	std::vector<std::string> lines = Wrap( text.c_str(), ScreenWidth / 2 );
+	std::vector<std::string> lines = Wrap( text.c_str(), ScreenWidth / 2.0f );
 
 	for ( size_t i = 0 ; i < lines.size() ; i++ ) {
 		std::string actualKey = key + "_" + std::to_string( i );
@@ -280,10 +280,10 @@ const SubtitleColor Subtitles_GetSubtitleColorByKey( const std::string &key ) {
 	return colors.count( key ) ? colors[key] : defaultColor;
 }
 
-void Subtitles_Push( const std::string &key, bool ignoreLongDistances, const Vector &pos ) {
+void Subtitles_Push( const std::string &key, int ignoreLongDistances, const Vector &pos ) {
 
-	int print_subtitles_cvar = gEngfuncs.pfnGetCvarFloat( "subtitles" );
-	if ( print_subtitles_cvar <= 0 ) {
+	float print_subtitles_cvar = gEngfuncs.pfnGetCvarFloat( "subtitles" );
+	if ( print_subtitles_cvar <= 0.0f ) {
 		return;
 	}
 
@@ -295,7 +295,7 @@ void Subtitles_Push( const std::string &key, bool ignoreLongDistances, const Vec
 		auto subtitle = subtitles.at( i );
 		auto color = Subtitles_GetSubtitleColorByKey( subtitle.colorKey );
 
-		if ( subtitle.colorKey != "PAYNE" && print_subtitles_cvar < 2 ) {
+		if ( subtitle.colorKey != "PAYNE" && print_subtitles_cvar < 2.0f ) {
 			continue;
 		}
 
@@ -315,7 +315,7 @@ int Subtitles_OnSound( const char *pszName,  int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 
 	std::string key = READ_STRING();
-	bool ignoreLongDistances = READ_BYTE();
+	int ignoreLongDistances = READ_BYTE();
 	float x = READ_COORD();
 	float y = READ_COORD();
 	float z = READ_COORD();

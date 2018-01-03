@@ -64,7 +64,9 @@ CBaseEntity
 #endif
 #endif
 
+#ifndef EXPORT
 #define EXPORT CBASE_DLLEXPORT
+#endif
 
 extern "C" CBASE_DLLEXPORT int GetEntityAPI( DLL_FUNCTIONS *pFunctionTable, int interfaceVersion );
 extern "C" CBASE_DLLEXPORT int GetEntityAPI2( DLL_FUNCTIONS *pFunctionTable, int *interfaceVersion );
@@ -622,7 +624,9 @@ public:
 #define DMG_ALWAYSGIB		(1 << 13)	// with this bit OR'd in, any damage type can be made to gib victims upon death.
 #define DMG_DROWN			(1 << 14)	// Drowning
 // time-based damage
+#ifndef DMG_TIMEBASED
 #define DMG_TIMEBASED		(~(0x3fff))	// mask for time-based damage
+#endif
 
 #define DMG_PARALYZE		(1 << 15)	// slows affected creature down
 #define DMG_NERVEGAS		(1 << 16)	// nerve toxins, very bad

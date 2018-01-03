@@ -281,7 +281,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		CVAR_GET_FLOAT( "sm_current_pos" ) == 0.0f &&
 		gpGlobals->time > musicSwitchDelay
 	) {
-		int musicIndexToPlay = pPlayer->currentMusicPlaylistIndex + 1;
+		size_t musicIndexToPlay = pPlayer->currentMusicPlaylistIndex + 1;
 		if ( config.musicPlaylistShuffle ) {
 			static std::random_device rd;
 			static std::mt19937 gen( rd() );

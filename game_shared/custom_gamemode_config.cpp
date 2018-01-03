@@ -418,6 +418,8 @@ void CustomGameModeConfig::InitConfigSections() {
 			Hookable timerPause;
 			FillHookable( timerPause, data );
 			timerPauses.push_back( timerPause );
+
+			return "";
 		}
 	);
 
@@ -431,6 +433,8 @@ void CustomGameModeConfig::InitConfigSections() {
 			Hookable timerResume;
 			FillHookable( timerResume, data );
 			timerResumes.push_back( timerResume );
+
+			return "";
 		}
 	);
 

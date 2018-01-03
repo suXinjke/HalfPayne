@@ -56,7 +56,9 @@ void CHANGE_LEVEL ( char *s1, char *s2 );
 #define TRACE_HULL		(*g_engfuncs.pfnTraceHull)
 #define GET_AIM_VECTOR	(*g_engfuncs.pfnGetAimVector)
 #define SERVER_COMMAND	(*g_engfuncs.pfnServerCommand)
+#ifndef SERVER_EXECUTE
 #define SERVER_EXECUTE	(*g_engfuncs.pfnServerExecute)
+#endif
 #define CLIENT_COMMAND	(*g_engfuncs.pfnClientCommand)
 #define PARTICLE_EFFECT	(*g_engfuncs.pfnParticleEffect)
 #define LIGHT_STYLE		(*g_engfuncs.pfnLightStyle)

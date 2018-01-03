@@ -35,7 +35,6 @@
 #include "cl_dll.h"
 #include "ammo.h"
 #include <vector>
-#include <utility>
 #include <memory>
 
 #define CORNER_OFFSET 20
@@ -760,7 +759,7 @@ struct EndScreenRunningAnimationLine {
 	std::string label;
 	std::unique_ptr<CHudRunningAnimation> value;
 
-	bool recordBeaten;
+	int recordBeaten;
 	std::string recordLabel;
 	std::unique_ptr<CHudRunningAnimation> recordValue;
 };
@@ -784,7 +783,7 @@ public:
 	int MsgFunc_EndStat( const char *pszName, int iSize, void *pbuf );
 
 private:
-	bool cheated;
+	int cheated;
 	std::vector< std::string> titleLines;
 
 	std::vector<EndScreenRunningAnimationLine> animationLines;
