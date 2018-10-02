@@ -369,11 +369,11 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		gameplayMods.projectileKills++;
 	}
 
-	auto teleportOnKillWeapon = std::string( STRING( gameplayMods.teleportOnKillWeapon ) );
+	auto teleportOnKillWeapon = std::string( gameplayMods.teleportOnKillWeapon );
 	auto activeItem = pPlayer->m_pActiveItem;
 	if (
 		gameplayMods.teleportOnKill &&
-		( ( teleportOnKillWeapon.empty() ) || ( activeItem && STRING( activeItem->pev->classname ) == teleportOnKillWeapon ) )
+		( ( teleportOnKillWeapon.empty() ) || ( activeItem && std::string( STRING( activeItem->pev->classname ) ) == teleportOnKillWeapon ) )
 	) {
 
 		TraceResult tr;
