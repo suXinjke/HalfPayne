@@ -40,8 +40,8 @@
 #include "netadr.h"
 #include "pm_shared.h"
 
-#include "bmm_gamerules.h"
-#include "sagm_gamerules.h"
+#include "cgm_gamerules.h"
+#include "gameplay_mod.h"
 
 #if !defined ( _WIN32 )
 #include <ctype.h>
@@ -155,12 +155,8 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 	}
 	else
 	{   
-		int noSaving = false;
-		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-			noSaving = pPlayer->noSaving;
-		}
 
-		if ( noSaving ) {
+		if ( gameplayMods.noSaving ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 				cgm->RestartGame();
 				return;
@@ -1932,7 +1928,6 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 	cd->weaponanim		= pev->weaponanim;
 
 	cd->pushmsec		= pev->pushmsec;
-	cd->iuser4			= pl->PackGameplayMods();
 
 	//Spectator mode
 	if ( pevOrg != NULL )

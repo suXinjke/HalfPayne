@@ -79,20 +79,6 @@ typedef enum
 	PLAYER_ATTACK1,
 } PLAYER_ANIM;
 
-enum GAME_MODE {
-	GAME_MODE_VANILLA,
-	GAME_MODE_CUSTOM,
-	GAME_MODE_BMM,
-	GAME_MODE_SCORE_ATTACK
-};
-
-enum BULLET_PHYSICS_MODE {
-	BULLET_PHYSICS_DISABLED,
-	BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION,
-	BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION,
-	BULLET_PHYSICS_CONSTANT
-};
-
 #define MAX_ID_RANGE 2048
 #define SBAR_STRING_SIZE 128
 
@@ -102,14 +88,6 @@ enum sbar_data
 	SBAR_ID_TARGETHEALTH,
 	SBAR_ID_TARGETARMOR,
 	SBAR_END,
-};
-
-enum GAMEPLAY_MOD_PLAYER_BITMASK {
-	GAMEPLAY_MOD_PLAYER_BITMASK_INSTAGIB							= 1 << 0,
-	GAMEPLAY_MOD_PLAYER_BITMASK_SHOULD_PRODUCE_PHYSICAL_BULLETS	= 1 << 1,
-	GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK				= 1 << 2,
-	GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR				= 1 << 3,
-	GAMEPLAY_MOD_PLAYER_BITMASK_SHOTGUN_AUTOMATIC = 1 << 4
 };
 
 #define CHAT_INTERVAL 1.0f
@@ -144,44 +122,18 @@ public:
 
 	float				slowMotionUpdateTime;
 	int					slowMotionCharge;
-	BOOL				infiniteSlowMotion;
 
-	BOOL				slowmotionOnDamage;
-
-	int					initialClipAmmo;
-
-	BOOL				superHot;
 	float				superHotMultiplier;
 	float				nextSuperHotMultiplierUpdate;
 	float				superHotJumping;
 
 	BOOL				jumpedOnce;
 
-	BOOL				oneHitKO;
-	BOOL				oneHitKOFromPlayer;
-	BOOL				noFallDamage;
-	BOOL				noMapMusic;
 	BOOL				currentMusicPlaylistIndex;
 
-	BOOL				upsideDown;
 	bool				upsideDownMessageSent;
 
 	bool				drunkMessageSent;
-	int					drunkiness;
-
-	BOOL				vvvvvv;
-	BOOL				reverseGravity;
-
-	BOOL				teleportOnKill;
-	string_t			teleportOnKillWeapon;
-
-	BOOL				detachableTripmines;
-	BOOL				detachableTripminesInstantly;
-
-	BOOL				godConstant;
-	BOOL				noTargetConstant;
-	
-	BOOL				alwaysGib;
 
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
@@ -271,10 +223,8 @@ public:
 	char m_szTeamName[TEAM_NAME_LENGTH];
 
 	Uint32 nextTime; // required for FPS cap
-	BOOL noSlowmotion;
-	BOOL constantSlowmotion;
+	
 	BOOL slowMotionEnabled;
-	BOOL slowmotionOnlyDiving;
 	float slowMotionNextHeartbeatSound;
 	float desiredTimeScale;
 	float nextSmoothTimeScaleChange;
@@ -443,8 +393,6 @@ public:
 	
 	float m_flNextChatTime;
 
-	float frictionOverride;
-
 	int crystalsDestroyed;
 
 	BOOL showCredits;
@@ -465,10 +413,6 @@ public:
 	float untilNextDesperation;
 	void ThinkAboutFinalDesperation();
 
-	BOOL preventMonsterDrops;
-	BOOL preventMonsterMovement;
-
-	BOOL swearOnKill;
 	float allowedToSwear;
 	void SayRandomSwear();
 	std::string lastSwearingLine;
@@ -478,7 +422,6 @@ public:
 	int painkillerCount;
 	int TakePainkiller();
 	void UsePainkiller();
-	BOOL slowPainkillers;
 	int painkillerEnergy;
 
 	// Death camera
@@ -487,9 +430,6 @@ public:
 	// Health charge
 	float lastDamageTime;
 	float healthChargeTime;
-	float regenerationMax;
-	float regenerationDelay;
-	float regenerationFrequency;
 
 	float allowedToReactOnPainkillerPickup;
 	float allowedToReactOnPainkillerTake;
@@ -514,115 +454,21 @@ public:
 
 	BOOL gameTitleShown;
 
-	BOOL weaponPushBack;
-	float weaponPushBackMultiplier;
-
-	GAME_MODE activeGameMode;
-	int activeGameModeConfig;
-	BOOL noSaving;
-
-	BOOL noPills;
-	BOOL noHealing;
-	BOOL noSecondaryAttack;
-	BOOL noJumping;
-	BOOL noWalking;
-	BOOL slowmotionFastWalk;
-
-	BULLET_PHYSICS_MODE bulletPhysicsMode;
-	BOOL shouldProducePhysicalBullets;
-	BOOL bulletSelfHarm;
-	BOOL bulletTrailConstant;
-	BOOL bulletDelayOnSlowmotion;
-
-	int bulletRicochetCount;
-	int bulletRicochetError;
-	float bulletRicochetMaxDotProduct;
-
-	BOOL automaticShotgun;
-	float weaponImpact;
-
-	// Statistics
-	BOOL cheated;
-
-	float time;
-	float realTime;
-	float lastGlobalTime;
-	float lastRealTime;
-	int score;
-	int comboMultiplier;
-	float comboMultiplierReset;
-
-	BOOL timerShown;
-	BOOL timerBackwards;
-	BOOL timerPaused;
-	BOOL timerShowReal;
-
-	int kills;
-	int headshotKills;
-	int explosiveKills;
-	int crowbarKills;
-	int projectileKills;
-	float secondsInSlowmotion;
-
 	void GiveAll( bool nonCheat = false ); // impulse 101
 	void SetEvilImpulse101( bool evilImpulse101 );
 
-	BOOL infiniteAmmo;
-	BOOL infiniteAmmoClip;
-	BOOL infinitePainkillers;
-	BOOL weaponRestricted;
-	BOOL noSmgGrenadePickup;
-	BOOL instaGib;
-	BOOL crossbowExplosiveBolts;
-
-	BOOL healOnKill;
-	float healOnKillMultiplier;
-
-	BOOL edibleGibs;
-	BOOL garbageGibs;
-
-	BOOL isBleeding;
 	float lastHealingTime;
 	float nextPainkillerEffectTime;
 	float nextPainkillerEffectTimePeriod;
 	float bleedTime;
-	float bleedUpdatePeriod;
-	float bleedHandicap;
-	float bleedImmunityPeriod;
 
-	int fade;
-	int fadeOutThreshold;
-	float fadeOutUpdatePeriod;
-	BOOL isFadingOut;
 	float fadeOutTime;
-
-	BOOL teleportMaintainVelocity;
-
-	BOOL divingOnly;
-	BOOL divingAllowedWithoutSlowmotion;
-
-	BOOL usedCheat;
-
-	BOOL snarkPenguins;
-
-	BOOL snarkInception;
-	int snarkInceptionDepth;
-	BOOL snarkNuclear;
-	BOOL snarkStayAlive;
-	BOOL snarkInfestation;
-	BOOL snarkFromExplosion;
-	BOOL snarkFriendlyToAllies;
-	BOOL snarkFriendlyToPlayer;
 
 	float postRestoreDelay;
 	float postSpawnDelay;
 	
 	float aimOffsetX;
 	float aimOffsetY;
-
-	float aimMaxOffsetX;
-	float aimMaxOffsetY;
-	float aimOffsetChangeFreqency;
 
 	string_t delayedMusicFilePath;
 	float delayedMusicStartTime;
@@ -633,33 +479,11 @@ public:
 	void SendPlayMusicMessage( const std::string &filePath, float musicPos = 0.0f, BOOL looping = FALSE, BOOL noSlowmotionEffects = FALSE );
 	void SendStopMusicMessage( BOOL smooth = false );
 
-	int PackGameplayMods() {
-		int bitmask = 0;
-		if ( instaGib ) {
-			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_INSTAGIB;
-		}
-		if ( shouldProducePhysicalBullets ) {
-			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_SHOULD_PRODUCE_PHYSICAL_BULLETS;
-		}
-		if ( noSecondaryAttack ) {
-			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK;
-		}
-		if ( automaticShotgun ) {
-			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_SHOTGUN_AUTOMATIC;
-		}
-		if ( snarkNuclear ) {
-			bitmask |= GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR;
-		}
-		return bitmask;
-	}
-
 	string_t musicFile;
 	float	 musicPos;
 	BOOL	 musicLooping;
 	BOOL	 musicNoSlowmotionEffects;
 	BOOL	 musicGoingThroughChangeLevel;
-
-	string_t activeGameModeConfigHash;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

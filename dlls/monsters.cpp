@@ -33,6 +33,7 @@
 #include "decals.h"
 #include "soundent.h"
 #include "cgm_gamerules.h"
+#include "gameplay_mod.h"
 
 #define MONSTER_CUT_CORNER_DIST		8 // 8 means the monster's bounding box is contained without the box of the node in WC
 
@@ -639,10 +640,8 @@ BOOL CBaseMonster :: FRouteClear ( void )
 //=========================================================
 BOOL CBaseMonster :: FRefreshRoute ( void )
 {
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		if ( pPlayer->preventMonsterMovement ) {
-			return FALSE;
-		}
+	if ( gameplayMods.preventMonsterMovement ) {
+		return FALSE;
 	}
 
 	CBaseEntity	*pPathCorner;
@@ -2115,7 +2114,7 @@ void CBaseMonster :: StartMonster ( void )
 			bool shouldApplyEffect = true;
 			
 			if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
-				shouldApplyEffect = !cgm->config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT );
+				shouldApplyEffect = !gameplayMods.preventMonsterStuckEffect;
 			}
 
 			if ( shouldApplyEffect ) {
@@ -3449,10 +3448,8 @@ CBaseEntity* CBaseMonster :: DropItem ( char *pszItemName, const Vector &vecPos,
 		return NULL;
 	}
 
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		if ( pPlayer->preventMonsterDrops ) {
-			return NULL;
-		}
+	if ( gameplayMods.preventMonsterDrops ) {
+		return NULL;
 	}
 
 	CBaseEntity *pItem = CBaseEntity::Create( pszItemName, vecPos, vecAng, edict() );

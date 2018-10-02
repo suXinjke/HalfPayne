@@ -1283,7 +1283,6 @@ class CSqueakGrenade : public CGrenade
 	static float m_flNextBounceSoundTime;
 
 	// CBaseEntity *m_pTarget;
-	BOOL stayAlive;
 	float m_flDie;
 	Vector m_vecTarget;
 	float m_flNextHunt;
@@ -1291,7 +1290,6 @@ class CSqueakGrenade : public CGrenade
 	Vector m_posPrev;
 	EHANDLE m_hOwner;
 	int  m_iMyClass;
-	BOOL inception;
 	int inceptionDepth;
 	BOOL nuclear;
 	BOOL isPenguin;

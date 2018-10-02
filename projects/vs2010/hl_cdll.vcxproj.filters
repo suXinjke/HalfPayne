@@ -61,6 +61,12 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{8b3f1d52-9e07-476b-bb98-abf43b559e0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\fmt">
+      <UniqueIdentifier>{71e70044-e921-48a0-acd0-340de5f7f574}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fmt">
+      <UniqueIdentifier>{95f2a920-e7a1-48e4-b143-7a75155935b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dlls\crossbow.cpp">
@@ -399,6 +405,21 @@
     <ClCompile Include="..\..\cl_dll\counter.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\gameplay_mod.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fmt\printf.cc">
+      <Filter>Source Files\fmt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fmt\posix.cc">
+      <Filter>Source Files\fmt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fmt\ostream.cc">
+      <Filter>Source Files\fmt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fmt\format.cc">
+      <Filter>Source Files\fmt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -589,6 +610,30 @@
     </ClInclude>
     <ClInclude Include="..\..\game_shared\fs_aux.h">
       <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\gameplay_mod.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\container.h">
+      <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\format.h">
+      <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\ostream.h">
+      <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\posix.h">
+      <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\printf.h">
+      <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\string.h">
+      <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fmt\time.h">
+      <Filter>Header Files\fmt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

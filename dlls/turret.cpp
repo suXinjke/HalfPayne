@@ -30,7 +30,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "effects.h"
-#include "player.h"
+#include "gameplay_mod.h"
 
 extern Vector VecBModelOrigin( entvars_t* pevBModel );
 
@@ -1016,10 +1016,8 @@ int CBaseTurret::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 	if (!m_iOn)
 		flDamage /= 10.0;
 
-	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pevAttacker ) ) ) {
-		if ( player->oneHitKOFromPlayer ) {
-			flDamage = pev->health + 1;
-		}
+	if ( gameplayMods.oneHitKOFromPlayer ) {
+		flDamage = pev->health + 1;
 	}
 
 	pev->health -= flDamage;
@@ -1218,10 +1216,8 @@ int CSentry::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float f
 		pev->nextthink = gpGlobals->time + 0.1;
 	}
 
-	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pevAttacker ) ) ) {
-		if ( player->oneHitKOFromPlayer ) {
-			flDamage = pev->health + 1;
-		}
+	if ( gameplayMods.oneHitKOFromPlayer ) {
+		flDamage = pev->health + 1;
 	}
 
 	pev->health -= flDamage;

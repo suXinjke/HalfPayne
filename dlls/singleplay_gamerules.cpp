@@ -25,6 +25,7 @@
 #include	"cgm_gamerules.h"
 #include	"monsters.h"
 #include	"triggers.h"
+#include	"gameplay_mod.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
@@ -359,11 +360,9 @@ BOOL CHalfLifeRules :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem 
 BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
 
-	if ( CBasePlayer *player = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( pEntity ) ) ) {
-		if ( player->noSaving ) {
-			g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
-			return FALSE;
-		}
+	if ( gameplayMods.noSaving ) {
+		g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
+		return FALSE;
 	}
 	
 	return TRUE;
@@ -409,7 +408,7 @@ BOOL CHalfLifeRules :: AllowAutoTargetCrosshair( void )
 //=========================================================
 void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 {
-	if ( pPlayer->activeGameMode == GAME_MODE_VANILLA ) {
+	if ( gameplayMods.activeGameMode == GAME_MODE_VANILLA ) {
 		int currentSkill = CVAR_GET_FLOAT( "skill" );
 		if ( currentSkill != lastSkill ) {
 			RefreshSkillData();

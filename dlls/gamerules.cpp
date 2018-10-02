@@ -27,6 +27,7 @@
 #include	"teamplay_gamerules.h"
 #include	"skill.h"
 #include	"game.h"
+#include	"gameplay_mod.h"
 
 extern edict_t *EntSelectSpawnPoint( CBaseEntity *pPlayer );
 

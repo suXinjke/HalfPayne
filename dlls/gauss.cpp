@@ -24,6 +24,7 @@
 #include "soundent.h"
 #include "shake.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 #define	GAUSS_PRIMARY_CHARGE_VOLUME	256// how loud gauss is while charging
 #define GAUSS_PRIMARY_FIRE_VOLUME	450// how loud gauss is when discharged
@@ -150,7 +151,7 @@ void CGauss::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = GAUSS_PRIMARY_FIRE_VOLUME;
 	m_fPrimaryFire = TRUE;
 
-	if ( !m_pPlayer->infiniteAmmo && !m_pPlayer->instaGib ) {
+	if ( !gameplayMods.infiniteAmmo && !gameplayMods.instaGib ) {
 		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 2;
 	}
 
@@ -158,7 +159,7 @@ void CGauss::PrimaryAttack()
 	m_fInAttack = 0;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
 	
-	if ( m_pPlayer->instaGib ) {
+	if ( gameplayMods.instaGib ) {
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	} else {
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.2;
@@ -169,7 +170,7 @@ void CGauss::PrimaryAttack()
 
 void CGauss::SecondaryAttack()
 {
-	if ( m_pPlayer->noSecondaryAttack ) {
+	if ( gameplayMods.noSecondaryAttack ) {
 		return;
 	}
 
@@ -202,7 +203,7 @@ void CGauss::SecondaryAttack()
 
 		m_fPrimaryFire = FALSE;
 
-		if ( !m_pPlayer->infiniteAmmo && !m_pPlayer->instaGib ) {
+		if ( !gameplayMods.infiniteAmmo && !gameplayMods.instaGib ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;// take one ammo just to start the spin
 		}
 		m_pPlayer->m_flNextAmmoBurn = UTIL_WeaponTimeBase();
@@ -244,7 +245,7 @@ void CGauss::SecondaryAttack()
 			}
 			else
 			{
-				if ( !m_pPlayer->infiniteAmmo ) {
+				if ( !gameplayMods.infiniteAmmo ) {
 					m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 				}
 				m_pPlayer->m_flNextAmmoBurn = UTIL_WeaponTimeBase() + 0.3;
@@ -354,7 +355,7 @@ void CGauss::StartFire( void )
 			m_pPlayer->ApplyWeaponPushback( 400 );
 		}
 
-		if ( !g_pGameRules->IsMultiplayer() && !m_pPlayer->weaponPushBack )
+		if ( !g_pGameRules->IsMultiplayer() && !gameplayMods.weaponPushBack )
 
 		{
 			// in deathmatch, gauss can pop you up into the air. Not in single play.
@@ -393,13 +394,13 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 #endif
 	
 	// The main firing event is sent unreliably so it won't be delayed.
-	PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usGaussFire, 0.0, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, flDamage, 0.0, m_pPlayer->instaGib, 0, m_fPrimaryFire ? 1 : 0, 0 );
+	PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usGaussFire, 0.0, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, flDamage, 0.0, gameplayMods.instaGib, 0, m_fPrimaryFire ? 1 : 0, 0 );
 
 	// This reliable event is used to stop the spinning sound
 	// It's delayed by a fraction of second to make sure it is delayed by 1 frame on the client
 	// It's sent reliably anyway, which could lead to other delays
 
-	PLAYBACK_EVENT_FULL( FEV_NOTHOST | FEV_RELIABLE, m_pPlayer->edict(), m_usGaussFire, 0.01, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, 0.0, 0.0, m_pPlayer->instaGib, 0, 0, 1 );
+	PLAYBACK_EVENT_FULL( FEV_NOTHOST | FEV_RELIABLE, m_pPlayer->edict(), m_usGaussFire, 0.01, (float *)&m_pPlayer->pev->origin, (float *)&m_pPlayer->pev->angles, 0.0, 0.0, gameplayMods.instaGib, 0, 0, 1 );
 
 	
 	/*ALERT( at_console, "%f %f %f\n%f %f %f\n", 
@@ -437,12 +438,12 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 		
 		if (pEntity->pev->takedamage)
 		{
-			if ( m_pPlayer->instaGib ) {
+			if ( gameplayMods.instaGib ) {
 				flDamage = 9999.0f;
 			}
 
 			ClearMultiDamage();
-			if ( m_pPlayer->instaGib ) {
+			if ( gameplayMods.instaGib ) {
 				// Allow instagib to destroy Gargantua
 				pEntity->TraceAttack( m_pPlayer->pev, flDamage, vecDir, &tr, DMG_BULLET | DMG_ENERGYBEAM );
 			} else {
@@ -451,7 +452,7 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 			ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 		}
 
-		if ( pEntity->ReflectGauss() && !m_pPlayer->instaGib )
+		if ( pEntity->ReflectGauss() && !gameplayMods.instaGib )
 		{
 			float n;
 
@@ -582,7 +583,7 @@ void CGauss::WeaponIdle( void )
 	if (m_fInAttack != 0)
 	{
 		StartFire();
-		if ( m_pPlayer->instaGib ) {
+		if ( gameplayMods.instaGib ) {
 			m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 		}
 		m_fInAttack = 0;

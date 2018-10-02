@@ -22,6 +22,7 @@
 #include "nodes.h"
 #include "player.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 enum satchel_e {
 	SATCHEL_IDLE1 = 0,
@@ -463,7 +464,7 @@ void CSatchel::Throw( void )
 
 		m_chargeReady = 1;
 		
-		if ( !m_pPlayer->infiniteAmmo ) {
+		if ( !gameplayMods.infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 		}
 

@@ -21,7 +21,7 @@
 #include "monsters.h"
 #include "player.h"
 #include "gamerules.h"
-
+#include "gameplay_mod.h"
 
 enum python_e {
 	PYTHON_IDLE1 = 0,
@@ -199,7 +199,7 @@ void CPython::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 
@@ -215,10 +215,10 @@ void CPython::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
 
 #ifndef CLIENT_DLL
-	if ( m_pPlayer->shouldProducePhysicalBullets ) {
+	if ( gameplayMods.bulletPhysical ) {
 		float rightOffset = 3;
 
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -241,8 +241,8 @@ void CPython::PrimaryAttack()
 
 	int empty = m_iClip == 0;
 
-	m_pPlayer->pev->punchangle[0] -= 5.0f * ( m_pPlayer->upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, m_pPlayer->shouldProducePhysicalBullets );
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods.upsideDown ? -1 : 1 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, gameplayMods.bulletPhysical );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition

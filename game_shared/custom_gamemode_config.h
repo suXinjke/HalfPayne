@@ -100,11 +100,72 @@ static char *allowedEntities[] {
 	"kerotan"
 };
 
+struct Argument {
+	std::string name;
+	std::string default;
+	std::string string;
+	std::string description;
+	float number = NAN;
+
+	bool isRequired = true;
+	bool isNumber = false;
+	bool mustBeNumber = false;
+	float min = NAN;
+	float max = NAN;
+
+	typedef std::function<std::string(const std::string &, float)> ArgumentDescriptionFunction;
+
+	ArgumentDescriptionFunction GetDescription = []( const std::string &string, float number ){
+		return "";
+	};
+
+	Argument( const std::string &name ) : name( name ) {};
+
+	Argument &IsOptional() {
+		isRequired = false;
+		return *this;
+	}
+	
+	Argument &IsNumber() {
+		isNumber = true;
+		mustBeNumber = true;
+		return *this;
+	}
+	
+	Argument &CanBeNumber() {
+		isNumber = true;
+		return *this;
+	}
+	
+	Argument &MinMax( float min, float max = NAN ) {
+		this->isNumber = true;
+		this->min = min;
+		this->max = max;
+		return *this;
+	}
+
+	Argument &Description( const ArgumentDescriptionFunction &description ) {
+		this->GetDescription = description;
+		return *this;
+	}
+
+	Argument &Default( const std::string &default ) {
+		this->default = default;
+		Init( default );
+		return *this;
+	}
+
+	std::string Init( const std::string &value );
+};
+
 struct Hookable {
-	std::string map = "";
-	int modelIndex = -3;
-	std::string targetName = "";
-	bool constant = false;
+	std::string map;
+	int modelIndex;
+	std::string targetName;
+	bool constant;
+
+	Hookable() : map( "" ), modelIndex( -3 ), targetName( "" ), constant( false ) {};
+	Hookable( const std::vector<Argument> &args );
 
 	virtual bool Fits( int modelIndex, const std::string &className, const std::string &targetName, bool firstTime ) const {
 		return (
@@ -113,27 +174,21 @@ struct Hookable {
 			( constant || ( !constant && firstTime ) )
 		);
 	}
-
-	virtual void Reset() {
-		map = "";
-		modelIndex = -3;
-		targetName = "";
-		constant = false;
-	}
 };
 
 struct HookableWithDelay : Hookable {
-	float delay = 0.0f;
+	float delay;
 
-	void Reset() override {
-		Hookable::Reset();
-		delay = 0.0f;
-	}
+	HookableWithDelay() : Hookable(), delay( 0.0f ) {};
+	HookableWithDelay( const std::vector<Argument> &args );
 };
 
 struct HookableWithTarget : Hookable {
 	bool isModelIndex;
 	std::string entityName;
+
+	HookableWithTarget() : Hookable(), isModelIndex( false ), entityName( "" ) {};
+	HookableWithTarget( const std::vector<Argument> &args );
 
 	CBaseEntity* EdictFitsTarget( CBasePlayer *pPlayer, edict_t *edict ) const {
 		if ( !edict ) {
@@ -162,10 +217,14 @@ struct EntitySpawnData {
 	float		angle;
 	int spawnFlags = 0;
 	int weaponFlags = 0;
+
+	void UpdateSpawnFlags();
 };
 
 struct EntitySpawn : Hookable {
 	EntitySpawnData entity;
+
+	EntitySpawn( const std::vector<Argument> &args );
 };
 
 struct EndCondition : Hookable {
@@ -173,6 +232,8 @@ struct EndCondition : Hookable {
 	int activationsRequired;
 
 	std::string objective;
+
+	EndCondition( const std::vector<Argument> &args );
 };
 
 struct StartPosition {
@@ -185,11 +246,16 @@ struct StartPosition {
 };
 
 struct LoadoutItem {
-	std::string name = "";
-	int amount = 1;
+	std::string name;
+	int amount;
+
+	LoadoutItem() : name( "" ), amount( 1 ) {};
+	LoadoutItem( const std::vector<Argument> &args );
 };
 
 struct Sound : Hookable {
+
+	Sound( const std::vector<Argument> &args );
 
 	std::string path;
 	float delay = 0.1;
@@ -200,10 +266,15 @@ struct Sound : Hookable {
 
 struct Intermission : HookableWithTarget {
 	StartPosition startPos;
+
+	Intermission() : HookableWithTarget() {};
+	Intermission( const std::vector<Argument> &args );
 };
 
 struct Teleport : Hookable {
 	StartPosition pos;
+
+	Teleport( const std::vector<Argument> &args );
 };
 
 struct EntityRandomSpawner
@@ -215,7 +286,6 @@ struct EntityRandomSpawner
 };
 
 enum GAMEPLAY_MOD {
-	GAMEPLAY_MOD_UNKNOWN,
 	GAMEPLAY_MOD_ALWAYS_GIB,
 	GAMEPLAY_MOD_BLEEDING,
 	GAMEPLAY_MOD_BULLET_DELAY_ON_SLOWMOTION,
@@ -334,29 +404,27 @@ enum CONFIG_TYPE {
 	CONFIG_TYPE_SAGM
 };
 
+
 struct GameplayMod
 {
-	GAMEPLAY_MOD id;
+	bool active;
+	std::string id;
 	std::string name;
 	std::string description;
-	std::vector<std::string> argDescriptions;
-	std::function<void(CBasePlayer*)> init;
 
-	GameplayMod() {
-		this->id = GAMEPLAY_MOD_UNKNOWN;
-		this->name = "UNKNOWN";
-		this->description = "This mod has not been accounted and you should never see this message";
-		this->init = []( CBasePlayer * ){};
-	}
+	std::vector<Argument> arguments;
 
+	std::function<void(CBasePlayer*, const std::vector<Argument> &)> init;
+
+	GameplayMod() {};
 	GameplayMod(
-		GAMEPLAY_MOD id,
+		const std::string &id,
 		const std::string &name,
 		const std::string description,
-		std::function<void(CBasePlayer*)> initFunction,
-		std::vector<std::string> argDescriptions = {}
+		std::vector<Argument> arguments = std::vector<Argument>(),
+		std::function<void(CBasePlayer*, const std::vector<Argument> &)> initFunction = []( CBasePlayer *, const std::vector<Argument> & ){}
 	) :
-		id( id ), name( name ), description( description ), init( initFunction ), argDescriptions( argDescriptions )
+		active( false ), id( id ), name( name ), description( description ), arguments( arguments ), init( initFunction )
 	{}
 };
 
@@ -364,24 +432,34 @@ class CustomGameModeConfig {
 
 public:
 
-	struct ConfigSectionData
-	{
-		std::string line;
-		std::vector<std::string> argsString;
-		std::vector<float> argsFloat;
-	};
-
 	struct ConfigSection
 	{
-		typedef std::function<std::string( ConfigSectionData &data )> ConfigSectionValidateFunction;
+		typedef std::function<std::string( const std::vector<Argument> &args, const std::string &line )> ConfigSectionInitFunction;
 
-		bool single;
 		std::string name;
-		std::vector<ConfigSectionData> data;
-		ConfigSectionValidateFunction Validate;
+		std::vector<std::string> lines;
+		std::vector<Argument> args;
+		ConfigSectionInitFunction Init;
+		
+		int requiredAmountOfArguments;
+		std::string argumentsString;
 
-		ConfigSection();
-		ConfigSection( const std::string &sectionName, bool single, ConfigSectionValidateFunction validateFunction );
+		ConfigSection() {};
+		ConfigSection( const std::string &name, const std::vector<Argument> args, ConfigSectionInitFunction init )
+			: name( name ), args( args ), Init( init ), requiredAmountOfArguments( 0 ) {
+
+			for ( const auto &arg : args ) {
+				if ( arg.isRequired ) {
+					requiredAmountOfArguments++;
+				}
+
+				argumentsString += arg.isRequired ?
+					( " <" + arg.name + ">" ) :
+					( " [" + arg.name + "]" );
+			}
+
+			argumentsString = Trim( argumentsString );
+		}
 
 		const std::string OnSectionData( const std::string &configName, const std::string &line, int lineCount, CONFIG_TYPE configType );
 	};
@@ -392,8 +470,6 @@ public:
 	bool ReadFile( const char *fileName );
 
 	void Reset();
-	bool OnNewSection( std::string sectionName );
-	void OnError( std::string );
 
 	void InitConfigSections();
 
@@ -422,27 +498,17 @@ public:
 	
 	std::map< CONFIG_FILE_SECTION, ConfigSection> configSections;
 
-	bool MarkModelIndex( CONFIG_FILE_SECTION fileSection, const std::string &mapName, int modelIndex, const std::string &targetName, bool *isConstant = NULL, ConfigSectionData *outData = NULL );
-
 	std::set<std::string> GetSoundsToPrecacheForMap( const std::string &map );
 	std::set<std::string> GetEntitiesToPrecacheForMap( const std::string &map );
 
-	std::string ValidateModelIndexSectionData( ConfigSectionData &data );
+	std::map<GAMEPLAY_MOD, GameplayMod> mods;
 
-	std::vector<GameplayMod> mods;
 	bool IsGameplayModActive( GAMEPLAY_MOD mod );
-	bool AddGameplayMod( ConfigSectionData &modName );
+	void InitGameplayMods();
 
 	bool musicPlaylistShuffle;
 	
 	bool hasEndMarkers;
-
-	void FillHookable( Hookable &hookable, const ConfigSectionData &data );
-	void FillHookableWithDelay( HookableWithDelay &hookableWithDelays, const ConfigSectionData &data );
-	void FillHookableWithTarget( HookableWithTarget &hookableWithTarget, const ConfigSectionData &data );
-	void FillHookableSound( Sound &hookableSound, const ConfigSectionData &data );
-	void FillEntitySpawn( EntitySpawn &entitySpawn, const ConfigSectionData &data );
-	void FillEntitySpawnDataFlags( EntitySpawnData &entitySpawn );
 
 	std::string name;
 	std::string description;
@@ -474,7 +540,6 @@ public:
 protected:
 	std::string folderPath;
 	std::string configFolderPath;
-	CONFIG_FILE_SECTION currentFileSection;
 
 };
 

@@ -31,6 +31,7 @@
 #include "func_break.h"
 #include "player.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 extern DLL_GLOBAL int			g_iSkillLevel;
@@ -57,11 +58,11 @@ void CGib :: LimitVelocity( void )
 void CGib::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	if ( CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( pActivator ) ) {
-		if ( !pPlayer->edibleGibs ) {
+		if ( !gameplayMods.gibsEdible ) {
 			return;
 		}
 
-		if ( pPlayer->garbageGibs ) {
+		if ( gameplayMods.gibsGarbage ) {
 			UTIL_ScreenFade( pPlayer, Vector( 255, 255, 255 ), 0.08, 0.08, 80.0, 0 );
 		} else {
 			UTIL_ScreenFade( pPlayer, Vector( 255, 0, 0 ), 0.08, 0.08, 120.0, 0 );
@@ -148,11 +149,6 @@ void CGib :: SpawnHeadGib( entvars_t *pevVictim )
 {
 	CGib *pGib = GetClassPtr( (CGib *)NULL );
 
-	BOOL garbageGibs = false;
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		garbageGibs = pPlayer->garbageGibs;
-	}
-
 	if ( g_Language == LANGUAGE_GERMAN )
 	{
 		pGib->Spawn( "models/germangibs.mdl" );// throw one head
@@ -160,7 +156,7 @@ void CGib :: SpawnHeadGib( entvars_t *pevVictim )
 	}
 	else
 	{
-		if ( !garbageGibs ) {
+		if ( !gameplayMods.gibsGarbage ) {
 			pGib->Spawn( "models/hgibs.mdl" );// throw one head
 			pGib->pev->body = 0;
 		} else {
@@ -229,12 +225,7 @@ void CGib :: SpawnRandomGibs( entvars_t *pevVictim, int cGibs, int human )
 		}
 		else
 		{
-			BOOL garbageGibs = false;
-			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				garbageGibs = pPlayer->garbageGibs;
-			}
-
-			if ( !garbageGibs ) {
+			if ( !gameplayMods.gibsGarbage ) {
 				if ( human )
 				{
 					// human pieces
@@ -354,18 +345,15 @@ void CBaseMonster :: GibMonster( void )
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
 
 	int gibCount = 4;
-	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
-	if ( player ) {
-		if ( player->instaGib ) {
-			gibCount *= 4;
-		}
+	if ( gameplayMods.instaGib ) {
+		gibCount *= 4;
+	}
 
-		if ( player->snarkInfestation ) {
-			int snarkCount = RANDOM_LONG( 1, 3 );
-			Vector spawnPos = pev->origin + gpGlobals->v_forward * RANDOM_LONG( -5, 5 ) + gpGlobals->v_right * RANDOM_LONG( -5, 5 );
-			for ( int i = 0 ; i < snarkCount ; i++ ) {
-				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_up * ( 2 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
-			}
+	if ( gameplayMods.snarkInfestation ) {
+		int snarkCount = RANDOM_LONG( 1, 3 );
+		Vector spawnPos = pev->origin + gpGlobals->v_forward * RANDOM_LONG( -5, 5 ) + gpGlobals->v_right * RANDOM_LONG( -5, 5 );
+		for ( int i = 0 ; i < snarkCount ; i++ ) {
+			CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_up * ( 2 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
 		}
 	}
 
@@ -597,10 +585,8 @@ void CBaseMonster::BecomeDead( void )
 
 BOOL CBaseMonster::ShouldGibMonster( int iGib )
 {
-	if ( CBasePlayer *player = dynamic_cast<CBasePlayer*>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		if ( player->alwaysGib ) {
-			return TRUE;
-		}
+	if ( gameplayMods.gibsAlways ) {
+		return TRUE;
 	}
 
 	if ( ( iGib == GIB_NORMAL && pev->health < GIB_HEALTH_VALUE ) || ( iGib == GIB_ALWAYS ) )
@@ -721,12 +707,10 @@ void CBaseMonster :: Killed( entvars_t *pevAttacker, int iGib )
 		BecomeDead();
 	}
 
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		if ( pPlayer->snarkInfestation ) {
-			if ( !FStrEq( STRING( pev->classname ), "monster_snark" ) ) {
-				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", pev->origin + Vector( 0, 0, 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
-				pSqueak->pev->velocity = gpGlobals->v_forward * 100 + gpGlobals->v_up * 50;
-			}
+	if ( gameplayMods.snarkInfestation ) {
+		if ( !FStrEq( STRING( pev->classname ), "monster_snark" ) ) {
+			CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", pev->origin + Vector( 0, 0, 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+			pSqueak->pev->velocity = gpGlobals->v_forward * 100 + gpGlobals->v_up * 50;
 		}
 	}
 	
@@ -972,12 +956,8 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		PainSound();// "Ouch!"
 	}
 
-	CBasePlayer *player = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
-
-	if ( player ) {
-		if ( player->oneHitKOFromPlayer ) {
-			flDamage = pev->health + 1;
-		}
+	if ( gameplayMods.oneHitKOFromPlayer ) {
+		flDamage = pev->health + 1;
 	}
 
 	//!!!LATER - make armor consideration here!
@@ -1016,9 +996,9 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 	}
 
 	// if this is a player, move him around!
-	if ( ( player && player->weaponImpact > 0.0f ) || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
+	if ( gameplayMods.weaponImpact > 0.0f || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
 	{
-		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( player ? player->weaponImpact : 1.0f );
+		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( max( 1.0f, gameplayMods.weaponImpact ) );
 	}
 
 	// do the damage
@@ -1237,26 +1217,24 @@ void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacke
 	}
 	
 	if ( explicitExplosion ) {
-		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-			if ( pPlayer->snarkFromExplosion ) {
-				for ( int i = 0 ; i < 3 ; i++ ) {	
-					bool ok = false;
-					Vector coords( 0, 0, 0 );
+		if ( gameplayMods.snarkFromExplosion ) {
+			for ( int i = 0 ; i < 3 ; i++ ) {	
+				bool ok = false;
+				Vector coords( 0, 0, 0 );
 
-					while ( !ok ) {
-						CBaseEntity *list[1] = { NULL };
-						UTIL_MonstersInSphere( list, 1, vecSrc + coords, 16.0f );
+				while ( !ok ) {
+					CBaseEntity *list[1] = { NULL };
+					UTIL_MonstersInSphere( list, 1, vecSrc + coords, 16.0f );
 
-						if ( list[0] != NULL ) {
-							coords = coords + Vector( RANDOM_LONG( 1, 4 ), RANDOM_LONG( 1, 4 ), 0 );
-						} else {
-							ok = true;
-						}
+					if ( list[0] != NULL ) {
+						coords = coords + Vector( RANDOM_LONG( 1, 4 ), RANDOM_LONG( 1, 4 ), 0 );
+					} else {
+						ok = true;
 					}
-
-					CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", vecSrc + coords, Vector( 0, 120 * i, 0 ), NULL );
-					pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
 				}
+
+				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", vecSrc + coords, Vector( 0, 120 * i, 0 ), NULL );
+				pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
 			}
 		}
 	} 
@@ -1553,12 +1531,12 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 						y * vecSpread.y * vecUp;
 
 
-		if ( player->bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
-			( player->slowMotionEnabled && player->bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) {
+		if ( gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
+			( player->slowMotionEnabled && gameplayMods.bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) {
 
 			CBullet::BulletCreate(
-				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || player->bulletTrailConstant, edict(),
-				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct, player->bulletSelfHarm
+				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || gameplayMods.bulletTrailConstant, edict(),
+				gameplayMods.bulletRicochetCount, gameplayMods.bulletRicochetError, gameplayMods.bulletRicochetMaxDotProduct, gameplayMods.bulletSelfHarm
 			);
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {
@@ -1705,10 +1683,10 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 						x * vecSpread.x * vecRight +
 						y * vecSpread.y * vecUp;
 
-		if ( player->shouldProducePhysicalBullets ) {
+		if ( gameplayMods.bulletPhysical ) {
 			CBullet::BulletCreate(
-				vecSrc, vecDir * ( player->bulletDelayOnSlowmotion && player->slowMotionEnabled ? 40 : 2000 ), iBulletType, ( BOOL ) ( player->slowMotionEnabled || player->bulletTrailConstant ), edict(),
-				player->bulletRicochetCount, player->bulletRicochetError, player->bulletRicochetMaxDotProduct, player->bulletSelfHarm
+				vecSrc, vecDir * ( gameplayMods.bulletDelayOnSlowmotion && player->slowMotionEnabled ? 40 : 2000 ), iBulletType, ( BOOL ) ( player->slowMotionEnabled || gameplayMods.bulletTrailConstant ), edict(),
+				gameplayMods.bulletRicochetCount, gameplayMods.bulletRicochetError, gameplayMods.bulletRicochetMaxDotProduct, gameplayMods.bulletSelfHarm
 			);
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {

@@ -29,6 +29,7 @@
 #include "gamerules.h"
 #include "cgm_gamerules.h"
 #include "triggers.h"
+#include "gameplay_mod.h"
 
 #define	SF_TRIGGER_PUSH_START_OFF	2//spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE	1// Only fire hurt target once
@@ -406,10 +407,10 @@ void CMultiManager :: ManagerThink ( void )
 				} else {
 					pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_PRE_IMMINENT;
 					pPlayer->untilNextDesperation = gpGlobals->time + 1.4f;
-					pPlayer->infiniteAmmo = true;
-					pPlayer->infiniteSlowMotion = true;
+					gameplayMods.infiniteAmmo = TRUE;
+					gameplayMods.slowmotionInfinite = true;
 					pPlayer->GiveNamedItem( "item_suit", true );
-					if ( !pPlayer->noPills ) {
+					if ( !gameplayMods.painkillersForbidden ) {
 						pPlayer->painkillerCount = 9;
 					}
 					pPlayer->TakeHealth( pPlayer->pev->max_health, DMG_GENERIC );
@@ -764,7 +765,7 @@ void PlayCDTrack( int iTrack )
 	{
 		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( pClient );
 
-		if ( !player || player->noMapMusic ) {
+		if ( !player || gameplayMods.noMapMusic ) {
 			return;
 		}
 
@@ -2002,7 +2003,7 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 	) {
 		CBasePlayer *player = ( CBasePlayer * ) pOther;
 		player->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_ALL_FOR_REVENGE;
-		player->constantSlowmotion = true;
+		gameplayMods.slowmotionConstant = true;
 		player->SetSlowMotion( true );
 		player->untilNextDesperation = gpGlobals->time + 1.6f;
 		player->pev->gravity = 1.0;
@@ -2054,12 +2055,10 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 
 	Vector newVelocity = pevToucher->basevelocity = g_vecZero;
 
-	if ( CBasePlayer *player = dynamic_cast<CBasePlayer *>( pOther ) ) {
-		if ( player->teleportMaintainVelocity ) {
-			UTIL_MakeVectors( pevToucher->angles );
-			float original = pevToucher->velocity.Length();
-			newVelocity = gpGlobals->v_forward * original;
-		}
+	if ( gameplayMods.teleportMaintainVelocity ) {
+		UTIL_MakeVectors( pevToucher->angles );
+		float original = pevToucher->velocity.Length();
+		newVelocity = gpGlobals->v_forward * original;
 	}
 
 	pevToucher->velocity = newVelocity;

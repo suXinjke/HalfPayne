@@ -8,6 +8,7 @@
 #include	<algorithm>
 #include <fstream>
 #include	"monsters.h"
+#include	"gameplay_mod.h"
 
 #define COMBO_MULTIPLIER_DECAY_TIME 8.0f;
 extern int gmsgScoreCheat;
@@ -22,17 +23,17 @@ void CScoreAttack::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerSpawn( pPlayer );
 
-	pPlayer->activeGameMode = GAME_MODE_SCORE_ATTACK;
+	gameplayMods.activeGameMode = GAME_MODE_SCORE_ATTACK;
 }
 
 void CScoreAttack::PlayerThink( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerThink( pPlayer );
 
-	pPlayer->comboMultiplierReset -= timeDelta;
-	if ( pPlayer->comboMultiplierReset < 0.0f ) {
-		pPlayer->comboMultiplierReset = 0.0f;
-		pPlayer->comboMultiplier = 1;
+	gameplayMods.comboMultiplierReset -= timeDelta;
+	if ( gameplayMods.comboMultiplierReset < 0.0f ) {
+		gameplayMods.comboMultiplierReset = 0.0f;
+		gameplayMods.comboMultiplier = 1;
 	}
 }
 
@@ -137,14 +138,14 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 			break;
 	}
 
-	pPlayer->score += scoreToAdd * ( pPlayer->comboMultiplier + additionalMultiplier );
+	gameplayMods.score += scoreToAdd * ( gameplayMods.comboMultiplier + additionalMultiplier );
 
 	if ( scoreToAdd != -1 ) {
 
 		if ( scoreToAdd > 0 ) {
 			SendGameLogMessage( pPlayer, message );
 
-			float comboMultiplier = pPlayer->comboMultiplier + additionalMultiplier;
+			float comboMultiplier = gameplayMods.comboMultiplier + additionalMultiplier;
 			bool comboMultiplierIsInteger = abs( comboMultiplier - std::lround( comboMultiplier ) ) < 0.00000001f;
 
 			char upperString[128];
@@ -165,11 +166,11 @@ void CScoreAttack::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *vi
 				break;
 
 			default:
-				pPlayer->comboMultiplier++;
+				gameplayMods.comboMultiplier++;
 				break;
 		}
 
-		pPlayer->comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
+		gameplayMods.comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
 	}
 
 	CCustomGameModeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
@@ -181,9 +182,9 @@ void CScoreAttack::OnEnd( CBasePlayer *pPlayer ) {
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndScore, NULL, pPlayer->pev );
 		WRITE_STRING( "SCORE|PERSONAL BEST" );
-		WRITE_LONG( pPlayer->score );
+		WRITE_LONG( gameplayMods.score );
 		WRITE_LONG( config.record.score );
-		WRITE_BYTE( pPlayer->score > config.record.score );
+		WRITE_BYTE( gameplayMods.score > config.record.score );
 	MESSAGE_END();
 
 	CCustomGameModeRules::OnEnd( pPlayer );

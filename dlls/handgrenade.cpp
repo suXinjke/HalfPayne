@@ -19,7 +19,7 @@
 #include "weapons.h"
 #include "nodes.h"
 #include "player.h"
-
+#include "gameplay_mod.h"
 
 #define	HANDGRENADE_PRIMARY_VOLUME		450
 
@@ -181,7 +181,7 @@ void CHandGrenade::WeaponIdle( void )
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
 
-		if ( !m_pPlayer->infiniteAmmo ) {
+		if ( !gameplayMods.infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 		}
 

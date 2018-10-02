@@ -26,6 +26,7 @@
 //#include "vgui_schememanager.h"
 #include "soundmanager.h"
 #include "fs_aux.h"
+#include "gameplay_mod.h"
 
 #include <random>
 #include <algorithm>
@@ -194,6 +195,8 @@ int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
 	CL_LoadParticleMan();
 
 	HL_ImGUI_Init();
+
+	gameplayMods.Init();
 
 	// get tracker interface, if any
 	return 1;

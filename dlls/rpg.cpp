@@ -22,7 +22,7 @@
 #include "nodes.h"
 #include "player.h"
 #include "gamerules.h"
-
+#include "gameplay_mod.h"
 
 
 
@@ -453,7 +453,7 @@ void CRpg::PrimaryAttack()
 		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 		int rightOffset = 8;
 		int upOffset = -8;
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			upOffset = 0;
 		}
@@ -482,7 +482,7 @@ void CRpg::PrimaryAttack()
 	flags = 0;
 #endif
 
-		m_pPlayer->pev->punchangle[0] -= 2.5f * ( m_pPlayer->upsideDown ? -1 : 1 );
+		m_pPlayer->pev->punchangle[0] -= 2.5f * ( gameplayMods.upsideDown ? -1 : 1 );
 		PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usRpg );
 
 		m_iClip--; 
@@ -502,7 +502,7 @@ void CRpg::PrimaryAttack()
 
 void CRpg::SecondaryAttack()
 {
-	if ( m_pPlayer->noSecondaryAttack ) {
+	if ( gameplayMods.noSecondaryAttack ) {
 		return;
 	}
 

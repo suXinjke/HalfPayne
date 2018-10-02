@@ -278,12 +278,21 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 			ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
 		}
 
-		for ( const GameplayMod &mod : config.mods ) {
+		for ( const auto &pair : config.mods ) {
+			const auto &mod = pair.second;
+			if ( !mod.active ) {
+				continue;
+			}
+
 			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
 			ImGui::Text( mod.description.c_str() );
-			for ( const auto &argDescription : mod.argDescriptions ) {
-				ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
-				ImGui::Text( argDescription.c_str() );
+
+			for ( const auto &arg : mod.arguments ) {
+				if ( !arg.description.empty() ) {
+					ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
+					ImGui::Text( arg.description.c_str() );
+
+				}
 			}
 		}
 

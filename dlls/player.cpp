@@ -41,6 +41,8 @@
 #include "client.h"
 #include "func_break.h"
 
+#include "gameplay_mod.h"
+
 extern cvar_t *g_gl_vsync;
 extern bool using_sys_timescale;
 extern int g_changeLevelOccured;
@@ -154,173 +156,46 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, aimOffsetX, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, aimOffsetY, FIELD_FLOAT ),
 
-	DEFINE_FIELD( CBasePlayer, aimMaxOffsetX, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, aimMaxOffsetY, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, aimOffsetChangeFreqency, FIELD_FLOAT ),
-
-	DEFINE_FIELD( CBasePlayer, noSlowmotion, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, constantSlowmotion, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionEnabled, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, slowMotionUpdateTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, slowMotionCharge, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, desiredTimeScale, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, nextSmoothTimeScaleChange, FIELD_TIME ),
 
-	DEFINE_FIELD( CBasePlayer, superHot, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, superHotMultiplier, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, nextSuperHotMultiplierUpdate, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, superHotJumping, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, jumpedOnce, FIELD_BOOLEAN ),
 
-	DEFINE_FIELD( CBasePlayer, infiniteSlowMotion, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, slowmotionOnDamage, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, slowmotionOnlyDiving, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, initialClipAmmo, FIELD_INTEGER ),
-
 	DEFINE_FIELD( CBasePlayer, loadoutReceived, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, oneHitKO, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, oneHitKOFromPlayer, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noFallDamage, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noMapMusic, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, frictionOverride, FIELD_FLOAT ),
 	
 	DEFINE_FIELD( CBasePlayer, painkillerCount, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, slowPainkillers, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, painkillerEnergy, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, nextPainkillerEffectTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, nextPainkillerEffectTimePeriod, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, lastDamageTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, healthChargeTime, FIELD_TIME ),
-	DEFINE_FIELD( CBasePlayer, regenerationMax, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, regenerationDelay, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, regenerationFrequency, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, showCredits, FIELD_BOOLEAN ),
 
-	DEFINE_FIELD( CBasePlayer, noSaving, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, activeGameMode, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, activeGameModeConfig, FIELD_STRING ),
-
 	DEFINE_FIELD( CBasePlayer, gameTitleShown, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, edibleGibs, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, garbageGibs, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, noPills, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noHealing, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noJumping, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noWalking, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, slowmotionFastWalk, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noSecondaryAttack, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, bulletPhysicsMode, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, bulletRicochetCount, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, bulletRicochetError, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, bulletRicochetMaxDotProduct, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, bulletSelfHarm, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, bulletTrailConstant, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, bulletDelayOnSlowmotion, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, weaponImpact, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, automaticShotgun, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, infiniteAmmo, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, infiniteAmmoClip, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, infinitePainkillers, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, weaponRestricted, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noSmgGrenadePickup, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, instaGib, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, preventMonsterDrops, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, preventMonsterMovement, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, swearOnKill, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, crossbowExplosiveBolts, FIELD_BOOLEAN ),
-	
-	DEFINE_FIELD( CBasePlayer, weaponPushBack, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, weaponPushBackMultiplier, FIELD_FLOAT ),
-		
-	DEFINE_FIELD( CBasePlayer, cheated, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, time, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, realTime, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, lastGlobalTime, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, lastRealTime, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, score, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, comboMultiplier, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, comboMultiplierReset, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, timerShown, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, timerBackwards, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, timerPaused, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, timerShowReal, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, kills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, headshotKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, explosiveKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, crowbarKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, projectileKills, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, secondsInSlowmotion, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, nextAttackSlowmotionOffset, FIELD_FLOAT ),
 
 	DEFINE_FIELD( CBasePlayer, desperation, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayer, untilNextDesperation, FIELD_TIME ),
 
-	DEFINE_FIELD( CBasePlayer, isBleeding, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, lastHealingTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, bleedTime, FIELD_TIME ),
-	DEFINE_FIELD( CBasePlayer, bleedUpdatePeriod, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, bleedHandicap, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, bleedImmunityPeriod, FIELD_FLOAT ),
 
-	DEFINE_FIELD( CBasePlayer, fade, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, fadeOutThreshold, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, fadeOutUpdatePeriod, FIELD_FLOAT ),
-	DEFINE_FIELD( CBasePlayer, isFadingOut, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, fadeOutTime, FIELD_TIME ),
 
 	DEFINE_FIELD( CBasePlayer, crystalsDestroyed, FIELD_INTEGER ),
 
-	DEFINE_FIELD( CBasePlayer, snarkPenguins, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkInception, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkInceptionDepth, FIELD_INTEGER ),
-	DEFINE_FIELD( CBasePlayer, snarkNuclear, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkStayAlive, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkInfestation, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkFromExplosion, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkFriendlyToPlayer, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, snarkFriendlyToAllies, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, teleportMaintainVelocity, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, divingOnly, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, divingAllowedWithoutSlowmotion, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, upsideDown, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, drunkiness, FIELD_INTEGER ),
-
-	DEFINE_FIELD( CBasePlayer, healOnKill, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, healOnKillMultiplier, FIELD_FLOAT ),
-		
-	DEFINE_FIELD( CBasePlayer, vvvvvv, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, reverseGravity, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, detachableTripmines, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, detachableTripminesInstantly, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, godConstant, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, noTargetConstant, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, alwaysGib, FIELD_BOOLEAN ),
-
 	DEFINE_FIELD( CBasePlayer, postRestoreDelay, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, postSpawnDelay, FIELD_TIME ),
-
-	DEFINE_FIELD( CBasePlayer, teleportOnKill, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CBasePlayer, teleportOnKillWeapon, FIELD_STRING ),
 
 	DEFINE_FIELD( CBasePlayer, musicFile, FIELD_STRING ),
 	DEFINE_FIELD( CBasePlayer, musicPos, FIELD_FLOAT ),
@@ -334,8 +209,6 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_FIELD( CBasePlayer, delayedMusicStartPos, FIELD_FLOAT ),
 	DEFINE_FIELD( CBasePlayer, delayedMusicLooping, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBasePlayer, delayedMusicNoSlowmotionEffects, FIELD_BOOLEAN ),
-
-	DEFINE_FIELD( CBasePlayer, activeGameModeConfigHash, FIELD_STRING ),
 	
 	//DEFINE_FIELD( CBasePlayer, m_fDeadTime, FIELD_FLOAT ), // only used in multiplayer games
 	//DEFINE_FIELD( CBasePlayer, m_fGameHUDInitialized, FIELD_INTEGER ), // only used in multiplayer games
@@ -642,7 +515,7 @@ void CBasePlayer :: DeathSound( void )
 
 int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 {
-	if ( noHealing ) {
+	if ( gameplayMods.noHealing ) {
 		return 0;
 	}
 
@@ -652,7 +525,7 @@ int CBasePlayer :: TakeHealth( float flHealth, int bitsDamageType )
 
 int CBasePlayer::TakePainkiller()
 {
-	if ( noPills || painkillerCount >= MAX_PAINKILLERS ) {
+	if ( gameplayMods.painkillersForbidden || painkillerCount >= MAX_PAINKILLERS ) {
 		return 0;
 	}
 	
@@ -684,17 +557,17 @@ void CBasePlayer::UsePainkiller()
 		return;
 	}
 
-	if ( ( pev->health + painkillerEnergy ) < pev->max_health || ( isFadingOut && fade <= 180 ) ) {
-		TakeHealth( slowPainkillers ? 0 : 20, DMG_GENERIC );
+	if ( ( pev->health + painkillerEnergy ) < pev->max_health || ( gameplayMods.fadeOut && gameplayMods.fade <= 180 ) ) {
+		TakeHealth( gameplayMods.painkillersSlow ? 0 : 20, DMG_GENERIC );
 
 		painkillerCount--;
-		lastHealingTime = gpGlobals->time + bleedImmunityPeriod;
-		if ( slowPainkillers ) {
+		lastHealingTime = gpGlobals->time + gameplayMods.bleedingImmunityPeriod;
+		if ( gameplayMods.painkillersSlow ) {
 			painkillerEnergy += min( 20, pev->max_health - ( pev->health + painkillerEnergy ) );
 		}
 
-		if ( isFadingOut ) {
-			fade = 255;
+		if ( gameplayMods.fadeOut ) {
+			gameplayMods.fade = 255;
 		}
 
 		// white screen flash
@@ -723,7 +596,7 @@ void CBasePlayer::UsePainkiller()
 
 void CBasePlayer::TakeSlowmotionCharge( int slowMotionCharge )
 {
-	if ( noSlowmotion ) {
+	if ( gameplayMods.slowmotionForbidden ) {
 		return;
 	}
 
@@ -907,7 +780,7 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		}
 	}
 
-	if ( ( maySwearAfterKill && swearOnKill ) || desperation == DESPERATION_FIGHTING ) {
+	if ( ( maySwearAfterKill && gameplayMods.swearOnKill ) || desperation == DESPERATION_FIGHTING ) {
 		SayRandomSwear();
 	}
 
@@ -928,8 +801,8 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 			rules->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 		}
 
-		if ( healOnKill ) {
-			TakeHealth( max( 1, victim->pev->max_health * healOnKillMultiplier ), DMG_GENERIC );
+		if ( gameplayMods.healOnKill ) {
+			TakeHealth( max( 1, victim->pev->max_health * gameplayMods.healOnKillMultiplier ), DMG_GENERIC );
 		}
 
 		MESSAGE_BEGIN( MSG_ONE, gmsgKillConfirmed, NULL, pev );
@@ -1039,7 +912,7 @@ void CBasePlayer :: TraceAttack( entvars_t *pevAttacker, float flDamage, Vector 
 
 int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType )
 {
-	if ( noHealing && flDamage < 0 ) {
+	if ( gameplayMods.noHealing && flDamage < 0 ) {
 		return 0;
 	}
 
@@ -1057,7 +930,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	flBonus = ARMOR_BONUS;
 	flRatio = ARMOR_RATIO;
 
-	if ( noFallDamage && ( bitsDamageType & DMG_FALL ) ) {
+	if ( gameplayMods.noFallDamage && ( bitsDamageType & DMG_FALL ) ) {
 		return 0;
 	}
 
@@ -1075,7 +948,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	
 	CBaseEntity *pAttacker = CBaseEntity::Instance(pevAttacker);
 
-	if ( oneHitKO ) {
+	if ( gameplayMods.oneHitKO ) {
 		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pAttacker ) ) {
 			flDamage = pev->health + 1;
 		}
@@ -1137,7 +1010,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	// keep track of amount of damage last sustained
 	m_lastDamageAmount = flDamage;
 
-	if ( slowmotionOnDamage ) {
+	if ( gameplayMods.slowmotionOnDamage ) {
 		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pAttacker ) ) {
 			if ( flDamage > 0 && ( bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_CLUB | DMG_SHOCK | DMG_SONIC | DMG_ENERGYBEAM ) ) ) {
 				TakeSlowmotionCharge( max( 1, flDamage / 2.0f ) );
@@ -1335,7 +1208,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 				SetSuitUpdate("!HEV_HLTH1", FALSE, SUIT_NEXT_IN_10MIN);	// health dropping
 		}
 
-	lastDamageTime = gpGlobals->time + regenerationDelay;
+	lastDamageTime = gpGlobals->time + gameplayMods.regenerationDelay;
 	return fTookDamage;
 }
 
@@ -1472,18 +1345,18 @@ void CBasePlayer::PackDeadPlayerItems( void )
 }
 
 void CBasePlayer::ApplyWeaponPushback( float impulse ) {
-	if ( !weaponPushBack ) {
+	if ( !gameplayMods.weaponPushBack ) {
 		return;
 	}
 
-	pev->velocity = pev->velocity - ( GetAimForwardWithOffset() * impulse * weaponPushBackMultiplier );
+	pev->velocity = pev->velocity - ( GetAimForwardWithOffset() * impulse * gameplayMods.weaponPushBackMultiplier );
 }
 
 void CBasePlayer::RemoveAllItems( BOOL removeSuit )
 {
 	painkillerCount = 0;
 
-	if ( weaponRestricted ) {
+	if ( gameplayMods.weaponRestricted ) {
 		return;
 	}
 
@@ -1550,7 +1423,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 {
 	CSound *pSound;
 
-	weaponRestricted = false;
+	gameplayMods.weaponRestricted = FALSE;
 
 	// Holster weapon immediately, to allow it to cleanup
 	if ( m_pActiveItem )
@@ -2325,11 +2198,11 @@ void CBasePlayer::Jump()
 		return;
 	}
 
-	if ( vvvvvv ) {
+	if ( gameplayMods.vvvvvv ) {
 		const char *texture = g_engfuncs.pfnTraceTexture( NULL, pev->origin, gpGlobals->v_up * 8192 );
 		if ( std::string( texture ) != "sky" ) {
-			reverseGravity = !reverseGravity;
-			upsideDown = !upsideDown;
+			gameplayMods.reverseGravity = !gameplayMods.reverseGravity;
+			gameplayMods.upsideDown = !gameplayMods.upsideDown;
 			upsideDownMessageSent = false;
 			pev->gravity *= -1.0f;
 
@@ -2359,7 +2232,7 @@ void CBasePlayer::Jump()
 		pev->velocity = pev->velocity + pev->basevelocity;
 	}
 
-	if ( superHot ) {
+	if ( gameplayMods.superHot ) {
 		superHotJumping = gpGlobals->time + 0.15f;
 	}
 	jumpedOnce = TRUE;
@@ -2650,11 +2523,11 @@ void CBasePlayer::PreThink(void)
 		return;
 	}
 
-	if ( godConstant ) {
+	if ( gameplayMods.godConstant ) {
 		pev->flags |= FL_GODMODE;
 	}
 
-	if ( noTargetConstant ) {
+	if ( gameplayMods.noTargetConstant ) {
 		pev->flags |= FL_NOTARGET;
 	}
 
@@ -2734,7 +2607,7 @@ void CBasePlayer::PreThink(void)
 
 	if ( !FBitSet ( pev->flags, FL_ONGROUND ) )
 	{
-		if ( !reverseGravity ) {
+		if ( !gameplayMods.reverseGravity ) {
 			m_flFallVelocity = -pev->velocity.z;
 		} else {
 			m_flFallVelocity = pev->velocity.z;
@@ -2753,7 +2626,7 @@ void CBasePlayer::PreThink(void)
 
 	g_slowMotionCharge = slowMotionCharge;
 	g_playerHasSuit = pev->weapons & ( 1 << WEAPON_SUIT );
-	g_divingAllowedWithoutSlowmotion = divingAllowedWithoutSlowmotion;
+	g_divingAllowedWithoutSlowmotion = gameplayMods.divingAllowedWithoutSlowmotion;
 
 	CBaseEntity *pEntity = NULL;
 	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, pev->origin, 48.0f ) ) != NULL ) {
@@ -2958,7 +2831,7 @@ void CBasePlayer::HandleSlowmotionFlags()
 
 		pev->flags &= ~FL_ACTIVATE_SLOWMOTION_REQUESTED;
 	} else if ( pev->flags & FL_DEACTIVATE_SLOWMOTION_REQUESTED ) {
-		if ( desperation != DESPERATION_IMMINENT && desperation != DESPERATION_FIGHTING || slowmotionOnlyDiving ) {
+		if ( desperation != DESPERATION_IMMINENT && desperation != DESPERATION_FIGHTING || gameplayMods.slowmotionOnlyDiving ) {
 			DeactivateSlowMotion( true );
 		}
 		pev->flags &= ~FL_DEACTIVATE_SLOWMOTION_REQUESTED;
@@ -3568,8 +3441,8 @@ void CBasePlayer::PostThink()
 		delayedMusicStartTime = 0.0f;
 	}
 
-	shouldProducePhysicalBullets = ( bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ) ||
-								   ( slowMotionEnabled && bulletPhysicsMode == BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION );
+	gameplayMods.bulletPhysical = ( gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ) ||
+												( slowMotionEnabled && gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION );
 
 // check to see if player landed hard enough to make a sound
 // falling farther than half of the maximum safe distance, but not as far a max safe distance will
@@ -3577,7 +3450,7 @@ void CBasePlayer::PostThink()
 // of maximum safe distance will make no sound. Falling farther than max safe distance will play a 
 // fallpain sound, and damage will be inflicted based on how far the player fell
 
-	if ( !noFallDamage && (FBitSet(pev->flags, FL_ONGROUND)) && (pev->health > 0) && m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD )
+	if ( !gameplayMods.noFallDamage && (FBitSet(pev->flags, FL_ONGROUND)) && (pev->health > 0) && m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD )
 	{
 		// ALERT ( at_console, "%f\n", m_flFallVelocity );
 
@@ -3707,16 +3580,16 @@ pt_end:
 	// Track button info so we can detect 'pressed' and 'released' buttons next frame
 	m_afButtonLast = pev->button;
 
-	g_frictionOverride = frictionOverride;
-	g_noJumping = noJumping;
-	g_noWalking = noWalking;
-	g_doubleSpeed = slowmotionFastWalk && slowMotionEnabled;
+	g_frictionOverride = gameplayMods.frictionOverride;
+	g_noJumping = gameplayMods.noJumping;
+	g_noWalking = gameplayMods.noWalking;
+	g_doubleSpeed = gameplayMods.slowmotionFastWalk && slowMotionEnabled;
 
-	if ( divingOnly ) {
+	if ( gameplayMods.divingOnly ) {
 		pev->fuser4 = 1.0f;
 	}
 
-	if ( reverseGravity ) {
+	if ( gameplayMods.reverseGravity ) {
 		pev->vuser3[1] = 1.0f;
 		pev->angles[2] = 180;
 	} else {
@@ -3728,10 +3601,10 @@ pt_end:
 		ThinkAboutFinalDesperation();
 	}
 
-	if ( aimMaxOffsetX > 0.0f || aimMaxOffsetY > 0.0f ) {
-		float phi = gpGlobals->time * aimOffsetChangeFreqency;
-		aimOffsetX = sin( phi ) * aimMaxOffsetX;
-		aimOffsetY = cos( phi ) * sin( phi ) * aimMaxOffsetY;
+	if ( gameplayMods.aimOffsetMaxX > 0.0f || gameplayMods.aimOffsetMaxY > 0.0f ) {
+		float phi = gpGlobals->time * gameplayMods.aimOffsetChangeFreqency;
+		aimOffsetX = sin( phi ) * gameplayMods.aimOffsetMaxX;
+		aimOffsetY = cos( phi ) * sin( phi ) * gameplayMods.aimOffsetMaxY;
 
 		MESSAGE_BEGIN( MSG_ONE, gmsgAimOffset, NULL, pev );
 			WRITE_FLOAT( aimOffsetX );
@@ -3930,43 +3803,18 @@ void CBasePlayer::Spawn( void )
 
 	slowMotionCharge = 100;
 	slowMotionUpdateTime = 1;
-	infiniteSlowMotion = 0;
 	nextSmoothTimeScaleChange = 0.0f;
 
-	initialClipAmmo = 0;
-
-	slowmotionOnDamage = 0;
-	slowmotionOnlyDiving = 0;
-
-	oneHitKO = 0;
-	oneHitKOFromPlayer = 0;
-	noFallDamage = 0;
-	noMapMusic = 0;
 	currentMusicPlaylistIndex = -1;
 
 	painkillerCount = 0;
-	slowPainkillers = 0;
 	painkillerEnergy = 0;
 	nextPainkillerEffectTime = 0.0f;
 	nextPainkillerEffectTimePeriod = 0.2f;
 
-	activeGameMode = GAME_MODE_VANILLA;
-	activeGameModeConfig = 0;
-	noSaving = false;
-
 	gameTitleShown = false;
 
 	loadoutReceived = false;
-
-	weaponPushBack = false;
-	weaponPushBackMultiplier = 1.0f;
-
-	noPills = false;
-	noHealing = false;
-	noSecondaryAttack = false;
-	noJumping = false;
-	noWalking = false;
-	slowmotionFastWalk = false;
 
 	allowedToReactOnPainkillerPickup = 0.0f;
 	allowedToReactOnPainkillerTake = 0.0f;
@@ -3984,57 +3832,20 @@ void CBasePlayer::Spawn( void )
 	allowedToSayAboutRhetoricalQuestion = 0.0f;
 	rhetoricalQuestionHolder = NULL;
 
-	swearOnKill = FALSE;
 	allowedToSwear = 0.0f;
 
-	superHot = FALSE;
 	superHotMultiplier = 0.0005f;
 	nextSuperHotMultiplierUpdate = 0.0f;
 	superHotJumping = 0.0f;
 	jumpedOnce = FALSE;
 
-	bulletPhysicsMode = BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION;
-	shouldProducePhysicalBullets = false;
-
-	bulletSelfHarm = false;
-	bulletTrailConstant = false;
-	bulletDelayOnSlowmotion = false;
-
-	bulletRicochetCount = 0;
-	bulletRicochetError = 5;
-	bulletRicochetMaxDotProduct = 0.5;
-
-	weaponImpact = 0.0f;
-	automaticShotgun = FALSE;
-
 	desperation = DESPERATION_NO;
-
-	healOnKill = false;
-	healOnKillMultiplier = 0.25f;
-
-	vvvvvv = false;
-	reverseGravity = false;
-
-	detachableTripmines = false;
-	detachableTripminesInstantly = false;
-
-	godConstant = false;
-	noTargetConstant = false;
-
-	alwaysGib = false;
 
 	postRestoreDelay = 0.0f;
 	postSpawnDelay = 0.1f;
 
-	teleportOnKill = FALSE;
-	teleportOnKillWeapon = MAKE_STRING( "" );
-
 	aimOffsetX = 0.0f;
 	aimOffsetY = 0.0f;
-
-	aimMaxOffsetX = 0.0f;
-	aimMaxOffsetY = 0.0f;
-	aimOffsetChangeFreqency = 0.0f;
 
 	deathCameraYaw = 0.0f;
 	CVAR_SET_FLOAT( "cam_idealyaw", 0.0f );
@@ -4090,8 +3901,6 @@ void CBasePlayer::Spawn( void )
 
 	showCredits = FALSE;
 	
-	noSlowmotion = false;
-	constantSlowmotion = false;
 	slowMotionEnabled = false;
 	slowMotionNextHeartbeatSound = 0;
 	desiredTimeScale = 1.0f;
@@ -4099,79 +3908,15 @@ void CBasePlayer::Spawn( void )
 
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
-	regenerationMax = 20.0f;
-	regenerationDelay = 3.0f;
-	regenerationFrequency = 0.2f;
 
-	infiniteAmmo = false;
-	infiniteAmmoClip = false;
-	infinitePainkillers = false;
-	weaponRestricted = false;
-	noSmgGrenadePickup = false;
-	instaGib = false;
-	swearOnKill = false;
-	crossbowExplosiveBolts = false;
-
-	preventMonsterDrops = false;
-	preventMonsterMovement= false;
-
-	usedCheat = false;
-
-	snarkPenguins = false;
-
-	snarkInception = false;
-	snarkInceptionDepth = 10;
-	snarkNuclear = false;
-	snarkStayAlive = false;
-	snarkInfestation = false;
-	snarkFromExplosion = false;
-	snarkFriendlyToAllies = false;
-	snarkFriendlyToPlayer = false;
-
-	garbageGibs = false;
-
-	teleportMaintainVelocity = false;
-
-	divingOnly = false;
-	divingAllowedWithoutSlowmotion = false;
-
-	upsideDown = false;
 	upsideDownMessageSent = false;
 	
 	drunkMessageSent = false;
-	drunkiness = 0;
 
-	isBleeding = false;
 	lastHealingTime = 0.0f;
 	bleedTime = 0.0f;
-	bleedUpdatePeriod = 1.0f;
-	bleedHandicap = 20.0f;
-	bleedImmunityPeriod = 10.0f;
 
-	isFadingOut = false;
 	fadeOutTime = 0.0f;
-	fade = 255;
-	fadeOutUpdatePeriod = 0.5f;
-	fadeOutThreshold = 25;
-
-	cheated = 0;
-	time = 0.0f;
-	realTime = 0.0f;
-	lastGlobalTime = 0.0f;
-	lastRealTime = 0.0f;
-	score = 0;
-	comboMultiplier = 1;
-	comboMultiplierReset = 0.0f;
-
-	timerBackwards = FALSE;
-	timerPaused = FALSE;
-
-	kills = 0;
-	headshotKills = 0;
-	explosiveKills = 0;
-	crowbarKills = 0;
-	projectileKills = 0;
-	secondsInSlowmotion = 0.0f;
 
 	crystalsDestroyed = 0;
 
@@ -4189,10 +3934,6 @@ void CBasePlayer::Spawn( void )
 	delayedMusicStartPos = 0.0f;
 	delayedMusicLooping = false;
 	delayedMusicNoSlowmotionEffects = false;
-
-	activeGameModeConfigHash = NULL;
-
-	frictionOverride = -1.0f;
 
 	g_pGameRules->PlayerSpawn( this );
 }
@@ -4265,7 +4006,7 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 				GiveNamedItem( "weapon_9mmhandgun_twin", true );
 				GiveNamedItem( "weapon_ingram", true );
 				GiveNamedItem( "weapon_ingram_twin", true );
-				if ( slowmotionOnlyDiving ) {
+				if ( gameplayMods.slowmotionOnlyDiving ) {
 					SetSlowMotion( false );
 				}
 				if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -4318,8 +4059,8 @@ void CBasePlayer::ThinkAboutFinalDesperation()
 
 			case DESPERATION_REVENGE: {
 				AddToSoundQueue( MAKE_STRING( "comment/finalespeech.wav" ), 3, false, true );
-				constantSlowmotion = 0;
-				infiniteSlowMotion = 0;
+				gameplayMods.slowmotionConstant = 0;
+				gameplayMods.slowmotionInfinite = 0;
 				DeactivateSlowMotion( true );
 				slowMotionCharge = 0;
 				desperation = DESPERATION_ALMOST_OVER;
@@ -4915,7 +4656,7 @@ void CBasePlayer::GiveNamedItem( const char *pszName, bool nonCheat )
 	DispatchTouch( pent, ENT( pev ) );
 
 	if ( !nonCheat ) {
-		usedCheat = true;
+		gameplayMods.usedCheat = true;
 	}
 }
 
@@ -4936,14 +4677,14 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-	if ( superHot ) {
+	if ( gameplayMods.superHot ) {
 		return;
 	}
 
 	if ( slowMotionEnabled ) {
 		DeactivateSlowMotion();
 	} else {
-		if ( !slowmotionOnlyDiving && ActivateSlowMotion() ) {
+		if ( !gameplayMods.slowmotionOnlyDiving && ActivateSlowMotion() ) {
 			if ( slowMotionEnabled ) {
 				MESSAGE_BEGIN( MSG_ONE, gmsgFlash, NULL, pev );
 					WRITE_BYTE( 0 );
@@ -4960,7 +4701,7 @@ void CBasePlayer::ToggleSlowMotion() {
 
 bool CBasePlayer::ActivateSlowMotion()
 {
-	if ( slowMotionEnabled || constantSlowmotion || !( pev->weapons & ( 1 << WEAPON_SUIT ) ) ) {
+	if ( slowMotionEnabled || gameplayMods.slowmotionConstant || !( pev->weapons & ( 1 << WEAPON_SUIT ) ) ) {
 		return false;
 	}
 
@@ -4981,7 +4722,7 @@ bool CBasePlayer::ActivateSlowMotion()
 
 bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 {
-	if ( !slowMotionEnabled || constantSlowmotion ) {
+	if ( !slowMotionEnabled || gameplayMods.slowmotionConstant ) {
 		return false;
 	}
 
@@ -5002,7 +4743,7 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 
 	EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_end.wav", 1, ATTN_NORM, true );
 
-	if ( bulletDelayOnSlowmotion ) {
+	if ( gameplayMods.bulletDelayOnSlowmotion ) {
 		CBaseEntity *entity = NULL;
 		while ( ( entity = UTIL_FindEntityInSphere( entity, pev->origin, 8192.0f ) ) != NULL ) {
 
@@ -5143,10 +4884,10 @@ void CBasePlayer::ImpulseCommands( )
 		UsePainkiller();
 		break;
 	case 24:
-		infiniteSlowMotion = !infiniteSlowMotion;
-		if ( infiniteSlowMotion ) {
+		gameplayMods.slowmotionInfinite = !gameplayMods.slowmotionInfinite;
+		if ( gameplayMods.slowmotionInfinite ) {
 			g_engfuncs.pfnServerPrint( "Infinite slowmotion ON\n" );
-			usedCheat = true;
+			gameplayMods.usedCheat = true;
 		}
 		else {
 			g_engfuncs.pfnServerPrint( "Infinite slowmotion OFF\n" );
@@ -5643,6 +5384,8 @@ void CBasePlayer :: UpdateClientData( void )
 		ApplyFPSCap( );
 	}
 
+	gameplayMods.SendToClient();
+
 	char com[256];
 	if ( using_sys_timescale ) {
 		sprintf_s( com, "sys_timescale %f\n", desiredTimeScale );
@@ -5814,11 +5557,11 @@ void CBasePlayer :: UpdateClientData( void )
 	// Regenerate health if you can
 	if ( lastDamageTime <= gpGlobals->time && healthChargeTime <= gpGlobals->time && pev->deadflag == DEAD_NO )
 	{
-		if ( pev->health < regenerationMax ) {
-			healthChargeTime = regenerationFrequency + gpGlobals->time;
+		if ( pev->health < gameplayMods.regenerationMax ) {
+			healthChargeTime = gameplayMods.regenerationFrequency + gpGlobals->time;
 			TakeHealth( 1, DMG_GENERIC );
 
-			if ( pev->health >= 20 && regenerationMax <= 30 ) {
+			if ( pev->health >= 20 && gameplayMods.regenerationMax <= 30 ) {
 				if (
 					CVAR_GET_FLOAT( "max_commentary_near_death" ) > 0.0f &&
 					RANDOM_LONG( 0, 100 ) < 50 &&
@@ -5838,9 +5581,9 @@ void CBasePlayer :: UpdateClientData( void )
 		}
 	}
 
-	if ( isBleeding && lastHealingTime <= gpGlobals->time && bleedTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
-		if ( pev->health > bleedHandicap ) {
-			bleedTime = bleedUpdatePeriod + gpGlobals->time;
+	if ( gameplayMods.bleeding && lastHealingTime <= gpGlobals->time && bleedTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
+		if ( pev->health > gameplayMods.bleedingHandicap ) {
+			bleedTime = gameplayMods.bleedingUpdatePeriod + gpGlobals->time;
 			pev->health--;
 			if ( pev->health <= 1.0f ) {
 				// Force proper dying
@@ -5855,17 +5598,17 @@ void CBasePlayer :: UpdateClientData( void )
 		nextPainkillerEffectTime = nextPainkillerEffectTimePeriod + gpGlobals->time;
 	}
 
-	if ( isFadingOut ) {
+	if ( gameplayMods.fadeOut ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgFadeOut, NULL, pev );
-			WRITE_BYTE( fade );
+			WRITE_BYTE( gameplayMods.fade );
 		MESSAGE_END();
 	}
 
-	if ( isFadingOut && lastHealingTime <= gpGlobals->time && fadeOutTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
-		fadeOutTime = fadeOutUpdatePeriod + gpGlobals->time;
-		fade--;
-		if ( fade < fadeOutThreshold ) {
-			fade = fadeOutThreshold;
+	if ( gameplayMods.fadeOut && lastHealingTime <= gpGlobals->time && fadeOutTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
+		fadeOutTime = gameplayMods.fadeOutUpdatePeriod + gpGlobals->time;
+		gameplayMods.fade--;
+		if ( gameplayMods.fade < gameplayMods.fadeOutThreshold ) {
+			gameplayMods.fade = gameplayMods.fadeOutThreshold;
 		}
 	}
 
@@ -5883,7 +5626,7 @@ void CBasePlayer :: UpdateClientData( void )
 		jumpedOnce = FALSE;
 	}
 
-	if ( superHot ) {
+	if ( gameplayMods.superHot ) {
 		float base = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 
 		if ( pev->deadflag == DEAD_NO ) {
@@ -5952,7 +5695,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 	if ( !upsideDownMessageSent ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgUpsideDown, NULL, pev );
-			WRITE_BYTE( upsideDown );
+			WRITE_BYTE( gameplayMods.upsideDown );
 		MESSAGE_END();
 
 		upsideDownMessageSent = true;
@@ -5960,7 +5703,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 	if ( !drunkMessageSent ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgConcuss, NULL, pev );
-			WRITE_BYTE( drunkiness );
+			WRITE_BYTE( gameplayMods.drunkiness );
 		MESSAGE_END();
 	}
 
@@ -6020,11 +5763,11 @@ void CBasePlayer :: UpdateClientData( void )
 		}
 	}
 	
-	if ( infiniteSlowMotion ) {
+	if ( gameplayMods.slowmotionInfinite ) {
 		slowMotionCharge = 100;
 	}
 
-	if ( infinitePainkillers ) {
+	if ( gameplayMods.painkillersInfinite ) {
 		painkillerCount = MAX_PAINKILLERS;
 	}
 
@@ -6089,7 +5832,7 @@ void CBasePlayer :: UpdateClientData( void )
 			else
 				pszName = II.pszName;
 
-			if ( II.iId == WEAPON_SNARK && snarkPenguins ) {
+			if ( II.iId == WEAPON_SNARK && gameplayMods.snarkPenguins ) {
 				II.iFlags |= 32;
 			}
 
@@ -6807,12 +6550,8 @@ void CRevertSaved :: LoadThink( void )
 {
 	if ( !gpGlobals->deathmatch )
 	{
-		BOOL noSaving = false;
-		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-			noSaving = pPlayer->noSaving;
-		}
 
-		if ( noSaving ) {
+		if ( gameplayMods.noSaving ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 				cgm->RestartGame();
 				return;

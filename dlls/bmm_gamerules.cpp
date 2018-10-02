@@ -8,6 +8,7 @@
 #include	<algorithm>
 #include <fstream>
 #include	"monsters.h"
+#include	"gameplay_mod.h"
 
 extern int gmsgTimerDeact;
 extern int gmsgTimerValue;
@@ -25,10 +26,10 @@ void CBlackMesaMinute::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	CCustomGameModeRules::PlayerSpawn( pPlayer );
 
-	pPlayer->activeGameMode = GAME_MODE_BMM;
-	pPlayer->timerShown = true;
-	pPlayer->time = 60.0f;
-	pPlayer->timerBackwards = true;
+	gameplayMods.activeGameMode = GAME_MODE_BMM;
+	gameplayMods.timerShown = true;
+	gameplayMods.time = 60.0f;
+	gameplayMods.timerBackwards = true;
 }
 
 void CBlackMesaMinute::OnCheated( CBasePlayer *pPlayer ) {
@@ -96,11 +97,11 @@ void CBlackMesaMinute::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity
 
 void CBlackMesaMinute::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message )
 {
-	if ( pPlayer->timerPaused || timeToAdd <= 0 ) {
+	if ( gameplayMods.timerPaused || timeToAdd <= 0 ) {
 		return;
 	}
 
-	pPlayer->time += timeToAdd;
+	gameplayMods.time += timeToAdd;
 
 	SendGameLogMessage( pPlayer, message );
 

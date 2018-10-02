@@ -20,6 +20,7 @@
 #include "weapons.h"
 #include "nodes.h"
 #include "player.h"
+#include "gameplay_mod.h"
 
 enum glock_e {
 	GLOCK_IDLE1 = 0,
@@ -219,7 +220,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		return;
 	}
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 	UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
@@ -264,12 +265,12 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	}
 
 #ifndef CLIENT_DLL
-	if ( m_pPlayer->shouldProducePhysicalBullets ) {
+	if ( gameplayMods.bulletPhysical ) {
 
 		float rightOffset = 8;
 
 		vecSrc = vecSrc + forward * 5;
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -282,7 +283,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	Vector vecDir;
 	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_2DEGREES * stress, 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), fUseAutoAim ? m_usFireGlock1 : m_usFireGlock2, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, ( m_iClip == 0 ) ? 1 : 0, m_pPlayer->shouldProducePhysicalBullets );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), fUseAutoAim ? m_usFireGlock1 : m_usFireGlock2, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, ( m_iClip == 0 ) ? 1 : 0, gameplayMods.bulletPhysical );
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(flCycleTime);
 	shotOnce = true;

@@ -5,6 +5,7 @@
 #include "weapons.h"
 #include "nodes.h"
 #include "player.h"
+#include "gameplay_mod.h"
 
 
 LINK_ENTITY_TO_CLASS( weapon_ingram, CIngram );
@@ -160,7 +161,7 @@ void CIngram::PrimaryAttack( void )
 		return;
 	}
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 
@@ -184,12 +185,12 @@ void CIngram::PrimaryAttack( void )
 	Vector forward = m_pPlayer->GetAimForwardWithOffset();
 
 #ifndef CLIENT_DLL
-	if ( m_pPlayer->shouldProducePhysicalBullets ) {
+	if ( gameplayMods.bulletPhysical ) {
 
 		float rightOffset = 8;
 
 		vecSrc = vecSrc + forward * 5;
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -204,7 +205,7 @@ void CIngram::PrimaryAttack( void )
 
 	// There's not enough room for float type, so it's interpreted as int
 	int stressPacked = *( int * ) &stress;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngram, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, ( m_iClip == 0 ) ? 1 : 0, m_pPlayer->shouldProducePhysicalBullets );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngram, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, ( m_iClip == 0 ) ? 1 : 0, gameplayMods.bulletPhysical );
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay( delay );
 

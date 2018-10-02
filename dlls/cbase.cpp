@@ -23,6 +23,7 @@
 #include	"bmm_gamerules.h"
 #include	"sagm_gamerules.h"
 #include	"game.h"
+#include	"gameplay_mod.h"
 
 void EntvarsKeyvalue( entvars_t *pev, KeyValueData *pkvd );
 
@@ -413,55 +414,52 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 	// If required, setup correct custom game mode and game mode config file after loading game world info
 	// This seems like a dumb place for this, but player has correct info and it's been loaded already,
 	// and you're allowed to Precache here
-	if ( CBasePlayer *player = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 
-		// Gotta initialize custom game mode if you're loading the game but didn't set it up
-		if (
-			player->activeGameMode == GAME_MODE_CUSTOM &&
-			( strcmp( CVAR_GET_STRING( "gamemode" ), "cgm" ) != 0 ||
-			strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 )
-		) {
+	// Gotta initialize custom game mode if you're loading the game but didn't set it up
+	if (
+		gameplayMods.activeGameMode == GAME_MODE_CUSTOM &&
+		( strcmp( CVAR_GET_STRING( "gamemode" ), "cgm" ) != 0 ||
+		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayMods.activeGameModeConfig ) != 0 )
+	) {
 
-			CVAR_SET_STRING( "gamemode", "cgm" );
-			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
+		CVAR_SET_STRING( "gamemode", "cgm" );
+		CVAR_SET_STRING( "gamemode_config", gameplayMods.activeGameModeConfig );
 
-			// Blatant replacement of gamerules here causes
-			// new CCustomGameModeRules instance to parse specified config file above
-			delete g_pGameRules;
-			g_pGameRules = new CCustomGameModeRules;
-		} else if (
-			player->activeGameMode == GAME_MODE_BMM &&
-			( strcmp( CVAR_GET_STRING( "gamemode" ), "bmm" ) != 0 ||
-			strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 )
-		) {
+		// Blatant replacement of gamerules here causes
+		// new CCustomGameModeRules instance to parse specified config file above
+		delete g_pGameRules;
+		g_pGameRules = new CCustomGameModeRules;
+	} else if (
+		gameplayMods.activeGameMode == GAME_MODE_BMM &&
+		( strcmp( CVAR_GET_STRING( "gamemode" ), "bmm" ) != 0 ||
+		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayMods.activeGameModeConfig ) != 0 )
+	) {
 
-			CVAR_SET_STRING( "gamemode", "bmm" );
-			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
+		CVAR_SET_STRING( "gamemode", "bmm" );
+		CVAR_SET_STRING( "gamemode_config", STRING( gameplayMods.activeGameModeConfig ) );
 
-			delete g_pGameRules;
-			g_pGameRules = new CBlackMesaMinute;
-		} else if (
-			player->activeGameMode == GAME_MODE_SCORE_ATTACK &&
-			( strcmp( CVAR_GET_STRING( "gamemode" ), "sagm" ) != 0 ||
-			strcmp( CVAR_GET_STRING( "gamemode_config" ), STRING( player->activeGameModeConfig ) ) != 0 )
-		) {
+		delete g_pGameRules;
+		g_pGameRules = new CBlackMesaMinute;
+	} else if (
+		gameplayMods.activeGameMode == GAME_MODE_SCORE_ATTACK &&
+		( strcmp( CVAR_GET_STRING( "gamemode" ), "sagm" ) != 0 ||
+		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayMods.activeGameModeConfig ) != 0 )
+	) {
 
-			CVAR_SET_STRING( "gamemode", "sagm" );
-			CVAR_SET_STRING( "gamemode_config", STRING( player->activeGameModeConfig ) );
+		CVAR_SET_STRING( "gamemode", "sagm" );
+		CVAR_SET_STRING( "gamemode_config", gameplayMods.activeGameModeConfig );
 
-			delete g_pGameRules;
-			g_pGameRules = new CScoreAttack;
-		} else if (
-			player->activeGameMode == GAME_MODE_VANILLA &&
-			( strcmp( CVAR_GET_STRING( "gamemode" ), "vanilla" ) != 0 )
-		) {
-			CVAR_SET_STRING( "gamemode", "vanilla" );
-			CVAR_SET_STRING( "gamemode_config", "" );
+		delete g_pGameRules;
+		g_pGameRules = new CScoreAttack;
+	} else if (
+		gameplayMods.activeGameMode == GAME_MODE_VANILLA &&
+		( strcmp( CVAR_GET_STRING( "gamemode" ), "vanilla" ) != 0 )
+	) {
+		CVAR_SET_STRING( "gamemode", "vanilla" );
+		CVAR_SET_STRING( "gamemode_config", "" );
 
-			delete g_pGameRules;
-			CHalfLifeRules *newRules = new CHalfLifeRules;
-			g_pGameRules = newRules;
-		}
+		delete g_pGameRules;
+		g_pGameRules = new CHalfLifeRules;
 	}
 
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {

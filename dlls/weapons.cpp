@@ -30,6 +30,7 @@
 #include "soundent.h"
 #include "decals.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 extern CGraph	WorldGraph;
 extern int gEvilImpulse101;
@@ -658,7 +659,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		int j = min( iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
 		m_iClip += j;
 
-		if ( !m_pPlayer->infiniteAmmo ) {
+		if ( !gameplayMods.infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
 		}
 		if ( FClassnameIs( pev, "weapon_9mmhandgun" ) ) {
@@ -674,7 +675,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		if ( iMaxClip2() != -1 ) {
 			int j2 = min( iMaxClip2() - m_iClip2, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] );
 			m_iClip2 += j2;
-			if ( !m_pPlayer->infiniteAmmo ) {
+			if ( !gameplayMods.infiniteAmmo ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j2;
 			}
 		}
@@ -841,13 +842,13 @@ int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 		m_iSecondaryAmmoType = pPlayer->GetAmmoIndex( pszAmmo2() );
 	}
 
-	if ( pPlayer->infiniteAmmo ) {
+	if ( gameplayMods.infiniteAmmo ) {
 		ItemInfo itemInfo;
 		this->GetItemInfo( &itemInfo );
 		if ( itemInfo.iMaxAmmo1 != -1 ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = itemInfo.iMaxAmmo1;
 		}
-		if ( itemInfo.iMaxAmmo2 != -1 && !m_pPlayer->noSmgGrenadePickup ) {
+		if ( itemInfo.iMaxAmmo2 != -1 && !gameplayMods.noSmgGrenadePickup ) {
 			m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = itemInfo.iMaxAmmo2;
 		}
 	}
@@ -942,8 +943,8 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 
 	bool firstWeaponPickup = !m_pPlayer->HasNamedPlayerItem( STRING( pev->classname ) );
 
-	if ( m_pPlayer->initialClipAmmo ) {
-		iCount = max( 1, m_pPlayer->initialClipAmmo );
+	if ( gameplayMods.initialClipAmmo ) {
+		iCount = max( 1, gameplayMods.initialClipAmmo );
 	}
 
 	if (iMaxClip < 1)

@@ -24,6 +24,7 @@
 #include "effects.h"
 #include "customentity.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 #define	EGON_PRIMARY_VOLUME		450
 #define EGON_BEAM_SPRITE		"sprites/xbeam1.spr"
@@ -144,7 +145,7 @@ void CEgon::UseAmmo( int count )
 {
 	if ( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] >= count ) {
 		m_pPlayer->ApplyWeaponPushback( 190 );
-		if ( !m_pPlayer->infiniteAmmo ) {
+		if ( !gameplayMods.infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= count;
 		}
 	}

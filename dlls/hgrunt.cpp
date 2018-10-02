@@ -43,6 +43,7 @@
 #include	"player.h"
 #include	"customentity.h"
 #include	"cgm_gamerules.h"
+#include	"gameplay_mod.h"
 
 int g_fGruntQuestion;				// true if an idle grunt asked a question. Cleared when someone answers.
 
@@ -816,8 +817,8 @@ void CHGrunt :: Shoot ( void )
 	EjectBrass ( vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL); 
 	Vector spread = VECTOR_CONE_10DEGREES;
 	if ( CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
-		if ( player->bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
-			( player->slowMotionEnabled && player->bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) { 
+		if ( gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
+			( player->slowMotionEnabled && gameplayMods.bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) { 
 			spread = VECTOR_CONE_3DEGREES;
 		}
 	}
@@ -1001,13 +1002,11 @@ void CHGrunt :: HandleAnimEvent( MonsterEvent_t *pEvent )
 //=========================================================
 void CHGrunt :: Spawn()
 {
-	if ( CCustomGameModeRules *rules = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
-		if ( rules->config.IsGameplayModActive( GAMEPLAY_MOD_TOTALLY_SPIES ) ) {
-			CBaseEntity *spy = CBaseEntity::Create( "monster_human_assassin", pev->origin, pev->angles, NULL );
-			spy->pev->target = pev->target;
-			spy->pev->targetname = pev->targetname;
-			return;
-		}
+	if ( gameplayMods.totallySpies ) {
+		CBaseEntity *spy = CBaseEntity::Create( "monster_human_assassin", pev->origin, pev->angles, NULL );
+		spy->pev->target = pev->target;
+		spy->pev->targetname = pev->targetname;
+		return;
 	}
 
 	Precache( );

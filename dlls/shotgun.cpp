@@ -21,6 +21,7 @@
 #include "nodes.h"
 #include "player.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 // special deathmatch shotgun spreads
 #define VECTOR_CONE_DM_SHOTGUN	Vector( 0.08716, 0.04362, 0.00  )// 10 degrees by 5 degrees
@@ -159,7 +160,7 @@ void CShotgun::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 
@@ -179,11 +180,11 @@ void CShotgun::PrimaryAttack()
 	Vector vecDir;
 
 #ifndef CLIENT_DLL
-	if ( m_pPlayer->shouldProducePhysicalBullets ) {
+	if ( gameplayMods.bulletPhysical ) {
 
 		float rightOffset = 2;
 
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -208,21 +209,21 @@ void CShotgun::PrimaryAttack()
 		vecDir = m_pPlayer->FireBulletsPlayer( 6, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 
-	m_pPlayer->pev->punchangle[0] -= 2.5f * ( m_pPlayer->upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, m_pPlayer->automaticShotgun );
+	m_pPlayer->pev->punchangle[0] -= 2.5f * ( gameplayMods.upsideDown ? -1 : 1 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, gameplayMods.bulletPhysical, gameplayMods.automaticShotgun );
 
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	if ( !m_pPlayer->automaticShotgun ) {
+	if ( !gameplayMods.automaticShotgun ) {
 		float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.25 : 0.5;
 		if (m_iClip != 0)
 			m_flPumpTime = gpGlobals->time + pumpDelay;
 	}
 
-	float attackDelay = m_pPlayer->automaticShotgun ? 0.25 : 0.75f;
+	float attackDelay = gameplayMods.automaticShotgun ? 0.25 : 0.75f;
 	if ( m_pPlayer->slowMotionEnabled ) {
 		attackDelay /= 1.6f;
 	}
@@ -242,7 +243,7 @@ void CShotgun::PrimaryAttack()
 
 void CShotgun::SecondaryAttack( void )
 {
-	if ( m_pPlayer->automaticShotgun || shotSecondaryOnce || m_pPlayer->noSecondaryAttack ) {
+	if ( gameplayMods.automaticShotgun || shotSecondaryOnce || gameplayMods.noSecondaryAttack ) {
 		return;
 	}
 	// don't fire underwater
@@ -263,7 +264,7 @@ void CShotgun::SecondaryAttack( void )
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip -= 2;
 	}
 
@@ -286,11 +287,11 @@ void CShotgun::SecondaryAttack( void )
 	Vector vecDir;
 
 #ifndef CLIENT_DLL
-	if ( m_pPlayer->shouldProducePhysicalBullets ) {
+	if ( gameplayMods.bulletPhysical ) {
 		
 		float rightOffset = 2;
 
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -317,8 +318,8 @@ void CShotgun::SecondaryAttack( void )
 		vecDir = m_pPlayer->FireBulletsPlayer( 12, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 		
-	m_pPlayer->pev->punchangle[0] -= 5.0f * ( m_pPlayer->upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods.upsideDown ? -1 : 1 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, gameplayMods.bulletPhysical, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
@@ -395,7 +396,7 @@ void CShotgun::Reload( void )
 	{
 		// Add them to the clip
 		m_iClip += 1;
-		if ( !m_pPlayer->infiniteAmmo ) {
+		if ( !gameplayMods.infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
 		}
 		m_fInSpecialReload = 1;

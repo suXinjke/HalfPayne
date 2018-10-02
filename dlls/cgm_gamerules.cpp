@@ -9,6 +9,7 @@
 #include	<algorithm>
 #include	<random>
 #include	"monsters.h"
+#include	"gameplay_mod.h"
 
 // Custom Game Mode Rules
 
@@ -152,17 +153,20 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 	CHalfLifeRules::PlayerSpawn( pPlayer );
 
-	pPlayer->activeGameMode = GAME_MODE_CUSTOM;
+	gameplayMods.activeGameMode = GAME_MODE_CUSTOM;
 
 	// '\' slashes are getting eaten by ALLOC_STRING? must prevent this by replacing them with '/'
 	std::string sanitizedConfigName = config.configName;
 	std::transform( sanitizedConfigName.begin(), sanitizedConfigName.end(), sanitizedConfigName.begin(), []( auto &letter ) {
 		return letter == '\\' ? '/' : letter;
 	} );
-	pPlayer->activeGameModeConfig = ALLOC_STRING( sanitizedConfigName.c_str() );
+	sprintf_s( gameplayMods.activeGameModeConfig, sanitizedConfigName.c_str() );
 
-	for ( const GameplayMod &mod : config.mods ) {
-		mod.init( pPlayer );
+	for ( const auto &pair : config.mods ) {
+		const auto &mod = pair.second;
+		if ( mod.active ) {
+			mod.init( pPlayer, mod.arguments );
+		}
 	}
 
 	pPlayer->SetEvilImpulse101( true );
@@ -213,14 +217,14 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 
 	if ( config.musicPlaylist.size() > 0 ) {
-		pPlayer->noMapMusic = TRUE;
+		gameplayMods.noMapMusic = TRUE;
 	}
 
 	if ( config.hasEndMarkers || !config.endConditions.empty() ) {
-		pPlayer->noSaving = TRUE;
+		gameplayMods.noSaving = TRUE;
 	}
 
-	pPlayer->activeGameModeConfigHash = ALLOC_STRING( config.sha1.c_str() );
+	sprintf_s( gameplayMods.activeGameModeConfigHash, config.sha1.c_str() );
 	
 	// Do not let player cheat by not starting at the [startmap]
 	if ( !spawningAfterIntermission ) {
@@ -231,7 +235,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
-	if ( !pPlayer->weaponRestricted ) {
+	if ( !gameplayMods.weaponRestricted ) {
 		return CHalfLifeRules::CanHavePlayerItem( pPlayer, pWeapon );
 	}
 
@@ -246,25 +250,25 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 {
 	CHalfLifeRules::PlayerThink( pPlayer );
 	
-	timeDelta = ( gpGlobals->time - pPlayer->lastGlobalTime );
+	timeDelta = ( gpGlobals->time - gameplayMods.lastGlobalTime );
 
-	pPlayer->lastGlobalTime = gpGlobals->time;
+	gameplayMods.lastGlobalTime = gpGlobals->time;
 
-	if ( !pPlayer->timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
+	if ( !gameplayMods.timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
 
 		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
 		// It was made to prevent timer messup during level changes, because each level has it's own local time
 		if ( fabs( timeDelta ) <= 0.1 ) {
-			if ( pPlayer->timerBackwards ) {
-				pPlayer->time -= timeDelta;
+			if ( gameplayMods.timerBackwards ) {
+				gameplayMods.time -= timeDelta;
 			} else {
-				pPlayer->time += timeDelta;
+				gameplayMods.time += timeDelta;
 			}
 
-			pPlayer->realTime += timeDelta / pPlayer->desiredTimeScale;
+			gameplayMods.realTime += timeDelta / pPlayer->desiredTimeScale;
 
 			if ( pPlayer->slowMotionEnabled ) {
-				pPlayer->secondsInSlowmotion += timeDelta;
+				gameplayMods.secondsInSlowmotion += timeDelta;
 			}
 
 			CheckForCheats( pPlayer );
@@ -302,29 +306,29 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	const int SPACING = 56;
 	yOffset = 0;
 
-	if ( pPlayer->timerShown ) {
+	if ( gameplayMods.timerShown ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
 			WRITE_STRING(
-				pPlayer->timerShowReal ? "REAL TIME" :
-				pPlayer->timerBackwards ? "TIME LEFT" :
+				gameplayMods.timerShowReal ? "REAL TIME" :
+				gameplayMods.timerBackwards ? "TIME LEFT" :
 				"TIME"
 			);
-			WRITE_FLOAT( pPlayer->timerShowReal ? pPlayer->realTime : pPlayer->time );
+			WRITE_FLOAT( gameplayMods.timerShowReal ? gameplayMods.realTime : gameplayMods.time );
 			WRITE_LONG( yOffset );
 		MESSAGE_END();
 
 		yOffset += SPACING;
 
-		if ( pPlayer->timerBackwards && pPlayer->time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+		if ( gameplayMods.timerBackwards && gameplayMods.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
 			ClientKill( ENT( pPlayer->pev ) );
 		}
 	}
 
-	if ( pPlayer->activeGameMode == GAME_MODE_SCORE_ATTACK ) {
+	if ( gameplayMods.activeGameMode == GAME_MODE_SCORE_ATTACK ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
-			WRITE_LONG( pPlayer->score );
-			WRITE_LONG( pPlayer->comboMultiplier );
-			WRITE_FLOAT( pPlayer->comboMultiplierReset );
+			WRITE_LONG( gameplayMods.score );
+			WRITE_LONG( gameplayMods.comboMultiplier );
+			WRITE_FLOAT( gameplayMods.comboMultiplierReset );
 			WRITE_LONG( yOffset );
 		MESSAGE_END();
 
@@ -353,22 +357,22 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
 
-	pPlayer->kills++;
+	gameplayMods.kills++;
 
 	if ( killedByExplosion ) {
-		pPlayer->explosiveKills++;
+		gameplayMods.explosiveKills++;
 	} else if ( killedByCrowbar ) {
-		pPlayer->crowbarKills++;
+		gameplayMods.crowbarKills++;
 	} else if ( isHeadshot ) {
-		pPlayer->headshotKills++;
+		gameplayMods.headshotKills++;
 	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
-		pPlayer->projectileKills++;
+		gameplayMods.projectileKills++;
 	}
 
-	auto teleportOnKillWeapon = std::string( STRING( pPlayer->teleportOnKillWeapon ) );
+	auto teleportOnKillWeapon = std::string( STRING( gameplayMods.teleportOnKillWeapon ) );
 	auto activeItem = pPlayer->m_pActiveItem;
 	if (
-		pPlayer->teleportOnKill &&
+		gameplayMods.teleportOnKill &&
 		( ( teleportOnKillWeapon.empty() ) || ( activeItem && STRING( activeItem->pev->classname ) == teleportOnKillWeapon ) )
 	) {
 
@@ -417,23 +421,23 @@ void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {
 
 void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 {
-	if ( pPlayer->cheated && cheatedMessageSent || ended ) {
+	if ( gameplayMods.cheated && cheatedMessageSent || ended ) {
 		return;
 	}
 
-	if ( pPlayer->cheated ) {
+	if ( gameplayMods.cheated ) {
 		OnCheated( pPlayer );
 		return;
 	}
 
-	if ( ( pPlayer->pev->flags & FL_GODMODE && !pPlayer->godConstant ) ||
-		 ( pPlayer->pev->flags & FL_NOTARGET && !pPlayer->noTargetConstant ) ||
+	if ( ( pPlayer->pev->flags & FL_GODMODE && !gameplayMods.godConstant ) ||
+		 ( pPlayer->pev->flags & FL_NOTARGET && !gameplayMods.noTargetConstant ) ||
 		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
-		 pPlayer->usedCheat || startMapDoesntMatch ||
-		 STRING( pPlayer->activeGameModeConfigHash ) != config.sha1
+		gameplayMods.usedCheat || startMapDoesntMatch ||
+		 std::string( gameplayMods.activeGameModeConfigHash ) != config.sha1
 	) {
 		SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING - RESULTS WON'T BE SAVED" );
-		pPlayer->cheated = true;
+		gameplayMods.cheated = true;
 	}
 
 }
@@ -451,7 +455,7 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	PauseTimer( pPlayer );
 
-	if ( !config.gameFinishedOnce && pPlayer->timerBackwards ) {
+	if ( !config.gameFinishedOnce && gameplayMods.timerBackwards ) {
 		config.record.time = 0.0f;
 	}
 
@@ -478,20 +482,20 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
 		WRITE_STRING( "TIME SCORE|PERSONAL BESTS" );
-		WRITE_FLOAT( pPlayer->time );
+		WRITE_FLOAT( gameplayMods.time );
 		WRITE_FLOAT( config.record.time );
-		WRITE_BYTE( pPlayer->timerBackwards ? pPlayer->time > config.record.time : pPlayer->time < config.record.time  );
+		WRITE_BYTE( gameplayMods.timerBackwards ? gameplayMods.time > config.record.time : gameplayMods.time < config.record.time  );
 	MESSAGE_END();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
 		WRITE_STRING( "REAL TIME" );
-		WRITE_FLOAT( pPlayer->realTime );
+		WRITE_FLOAT( gameplayMods.realTime );
 		WRITE_FLOAT( config.record.realTime );
-		WRITE_BYTE( pPlayer->realTime < config.record.realTime );
+		WRITE_BYTE( gameplayMods.realTime < config.record.realTime );
 	MESSAGE_END();
 
-	if ( pPlayer->timerBackwards ) {
-		float realTimeMinusTime = max( 0.0f, pPlayer->realTime - pPlayer->time );
+	if ( gameplayMods.timerBackwards ) {
+		float realTimeMinusTime = max( 0.0f, gameplayMods.realTime - gameplayMods.time );
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
 			WRITE_STRING( "REAL TIME MINUS SCORE" );
 			WRITE_FLOAT( realTimeMinusTime );
@@ -500,48 +504,48 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 		MESSAGE_END();
 	}
 
-	int secondsInSlowmotion = ( int ) roundf( pPlayer->secondsInSlowmotion );
+	int secondsInSlowmotion = ( int ) roundf( gameplayMods.secondsInSlowmotion );
 	if ( secondsInSlowmotion > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
 			WRITE_STRING( ( "SECONDS IN SLOWMOTION|" + std::to_string( secondsInSlowmotion ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( pPlayer->kills > 0 ) {
+	if ( gameplayMods.kills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "TOTAL KILLS|" + std::to_string( pPlayer->kills ) ).c_str() );
+			WRITE_STRING( ( "TOTAL KILLS|" + std::to_string( gameplayMods.kills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( pPlayer->headshotKills > 0 ) {
+	if ( gameplayMods.headshotKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "HEADSHOT KILLS|" + std::to_string( pPlayer->headshotKills ) ).c_str() );
+			WRITE_STRING( ( "HEADSHOT KILLS|" + std::to_string( gameplayMods.headshotKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( pPlayer->explosiveKills > 0 ) {
+	if ( gameplayMods.explosiveKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "EXPLOSION KILLS|" + std::to_string( pPlayer->explosiveKills ) ).c_str() );
+			WRITE_STRING( ( "EXPLOSION KILLS|" + std::to_string( gameplayMods.explosiveKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( pPlayer->crowbarKills > 0 ) {
+	if ( gameplayMods.crowbarKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "MELEE KILLS|" + std::to_string( pPlayer->crowbarKills ) ).c_str() );
+			WRITE_STRING( ( "MELEE KILLS|" + std::to_string( gameplayMods.crowbarKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( pPlayer->projectileKills > 0 ) {
+	if ( gameplayMods.projectileKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "PROJECTILES DESTROYED KILLS|" + std::to_string( pPlayer->projectileKills ) ).c_str() );
+			WRITE_STRING( ( "PROJECTILES DESTROYED KILLS|" + std::to_string( gameplayMods.projectileKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndActiv, NULL, pPlayer->pev );
-		WRITE_BYTE( pPlayer->cheated );
+		WRITE_BYTE( gameplayMods.cheated );
 	MESSAGE_END();
 
-	if ( !pPlayer->cheated ) {
+	if ( !gameplayMods.cheated ) {
 		config.record.Save( pPlayer );
 	}
 }
@@ -597,7 +601,7 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 		}
 	}
 
-	if ( targetName == "on_map_start" && config.IsGameplayModActive( GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN ) ) {
+	if ( targetName == "on_map_start" && gameplayMods.preventMonsterSpawn ) {
 
 		for ( int i = 0 ; i < 1024 ; i++ ) {
 			edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
@@ -678,7 +682,7 @@ void CCustomGameModeRules::OnChangeLevel() {
 
 extern int g_autoSaved;
 void CCustomGameModeRules::OnSave( CBasePlayer *pPlayer ) {
-	if ( pPlayer->noSaving && !g_autoSaved ) {
+	if ( gameplayMods.noSaving && !g_autoSaved ) {
 		SendGameLogMessage( pPlayer, "SAVING IS ACTUALLY DISABLED" );
 	}
 	CHalfLifeRules::OnSave( pPlayer );
@@ -686,11 +690,11 @@ void CCustomGameModeRules::OnSave( CBasePlayer *pPlayer ) {
 
 void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
 {
-	if ( pPlayer->timerPaused ) {
+	if ( gameplayMods.timerPaused ) {
 		return;
 	}
 
-	pPlayer->timerPaused = true;
+	gameplayMods.timerPaused = true;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
 		WRITE_BYTE( true );
@@ -699,11 +703,11 @@ void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::ResumeTimer( CBasePlayer *pPlayer )
 {
-	if ( !pPlayer->timerPaused ) {
+	if ( !gameplayMods.timerPaused ) {
 		return;
 	}
 
-	pPlayer->timerPaused = false;
+	gameplayMods.timerPaused = false;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
 		WRITE_BYTE( false );

@@ -22,7 +22,7 @@
 #include "decals.h"
 #include "func_break.h"
 #include "shake.h"
-#include "player.h"
+#include "gameplay_mod.h"
 
 #define	SF_GIBSHOOTER_REPEATABLE	1 // allows a gibshooter to be refired
 
@@ -1458,14 +1458,9 @@ CGib *CGibShooter :: CreateGib ( void )
 	if ( CVAR_GET_FLOAT("violence_hgibs") == 0 )
 		return NULL;
 
-	BOOL garbageGibs = false;
-	if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-		garbageGibs = pPlayer->garbageGibs;
-	}
-
 	CGib *pGib = GetClassPtr( (CGib *)NULL );
 
-	if ( !garbageGibs ) {
+	if ( !gameplayMods.gibsGarbage ) {
 		pGib->Spawn( "models/hgibs.mdl" );
 		pGib->m_bloodColor = BLOOD_COLOR_RED;
 

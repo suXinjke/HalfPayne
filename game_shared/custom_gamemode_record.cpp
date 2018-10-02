@@ -1,4 +1,5 @@
 #include "custom_gamemode_record.h"
+#include "gameplay_mod.h"
 #include <fstream>
 
 const int MAGIC_NUMBER_HEADER = 1;
@@ -40,16 +41,16 @@ void CustomGameModeRecord::Save( CBasePlayer *player ) {
 	// Create the directory if it's not there. Proceed only when directory exists
 	if ( CreateDirectory( directoryPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
 
-		float time = player->timerBackwards ?
-			( player->time > this->time ? player->time : this->time ) :
-			( player->time < this->time ? player->time : this->time );
-		float realTime = player->realTime < this->realTime ? player->realTime : this->realTime;
+		float time = gameplayMods.timerBackwards ?
+			( gameplayMods.time > this->time ? gameplayMods.time : this->time ) :
+			( gameplayMods.time < this->time ? gameplayMods.time : this->time );
+		float realTime = gameplayMods.realTime < this->realTime ? gameplayMods.realTime : this->realTime;
 		float realTimeMinusTime = max( 0.0f, realTime - time );
 		if ( realTimeMinusTime > this->realTimeMinusTime ) {
 			realTimeMinusTime = this->realTimeMinusTime;
 		}
 
-		int score = player->score > this->score ? player->score : this->score;
+		int score = gameplayMods.score > this->score ? gameplayMods.score : this->score;
 
 		std::ofstream out( filePath, std::ios::out | std::ios::binary );
 
@@ -59,12 +60,12 @@ void CustomGameModeRecord::Save( CBasePlayer *player ) {
 		out.write( ( char * ) &realTimeMinusTime, sizeof( float ) );
 		out.write( ( char * ) &score, sizeof( int ) );
 
-		out.write( ( char * ) &player->secondsInSlowmotion, sizeof( float ) );
-		out.write( ( char * ) &player->kills, sizeof( int ) );
-		out.write( ( char * ) &player->headshotKills, sizeof( int ) );
-		out.write( ( char * ) &player->explosiveKills, sizeof( int ) );
-		out.write( ( char * ) &player->crowbarKills, sizeof( int ) );
-		out.write( ( char * ) &player->projectileKills, sizeof( int ) );
+		out.write( ( char * ) &gameplayMods.secondsInSlowmotion, sizeof( float ) );
+		out.write( ( char * ) &gameplayMods.kills, sizeof( int ) );
+		out.write( ( char * ) &gameplayMods.headshotKills, sizeof( int ) );
+		out.write( ( char * ) &gameplayMods.explosiveKills, sizeof( int ) );
+		out.write( ( char * ) &gameplayMods.crowbarKills, sizeof( int ) );
+		out.write( ( char * ) &gameplayMods.projectileKills, sizeof( int ) );
 
 		out.close();
 	}

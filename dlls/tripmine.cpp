@@ -21,6 +21,7 @@
 #include "player.h"
 #include "effects.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 #define	TRIPMINE_PRIMARY_VOLUME		450
 
@@ -144,12 +145,12 @@ void CTripmineGrenade :: Spawn( void )
 
 void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) {
 
-	CBasePlayer *player = dynamic_cast<CBasePlayer *>( pActivator );
-	if ( !player ) {
+	if ( !gameplayMods.detachableTripmines ) {
 		return;
 	}
 
-	if ( !player->detachableTripmines ) {
+	CBasePlayer *player = dynamic_cast<CBasePlayer *>( pActivator );
+	if ( !player ) {
 		return;
 	}
 
@@ -167,7 +168,7 @@ void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	UTIL_MakeVectors( pev->angles );
 	CTripmine *tripmine = ( CTripmine * ) CBaseEntity::Create( "weapon_tripmine", pev->origin - gpGlobals->v_up * 2 + gpGlobals->v_forward * 3, pev->angles );
 
-	if ( player->detachableTripminesInstantly && tripmine->AddToPlayer( player ) ) {
+	if ( gameplayMods.detachableTripminesInstantly && tripmine->AddToPlayer( player ) ) {
 		UTIL_Remove( tripmine );
 	} else {
 		tripmine->pev->velocity = gpGlobals->v_forward * 50;
@@ -494,11 +495,11 @@ void CTripmine::PrimaryAttack( void )
 			CBaseEntity *pEnt = CBaseEntity::Create( "monster_tripmine", tr.vecEndPos + tr.vecPlaneNormal * 8, angles, m_pPlayer->edict() );
 			pEnt->auxOwner = m_pPlayer->edict();
 
-			if ( m_pPlayer->upsideDown ) {
+			if ( gameplayMods.upsideDown ) {
 				pEnt->pev->angles[2] = 180;
 			}
 
-			if ( !m_pPlayer->infiniteAmmo ) {
+			if ( !gameplayMods.infiniteAmmo ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 			}
 

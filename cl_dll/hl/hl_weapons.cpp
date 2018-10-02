@@ -856,13 +856,6 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	player.m_flNextAmmoBurn = from->client.fuser2;
 	player.m_flAmmoStartCharge = from->client.fuser3;
 
-	int gameplayModsBitmask = from->client.iuser4;
-	player.instaGib = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_INSTAGIB;
-	player.shouldProducePhysicalBullets = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_SHOULD_PRODUCE_PHYSICAL_BULLETS;
-	player.noSecondaryAttack = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_NO_SECONDARY_ATTACK;
-	player.snarkNuclear = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_SNARK_NUCLEAR;
-	player.automaticShotgun = gameplayModsBitmask & GAMEPLAY_MOD_PLAYER_BITMASK_SHOTGUN_AUTOMATIC;
-
 	//Stores all our ammo info, so the client side weapons can use them.
 	player.ammo_9mm			= (int)from->client.vuser1[0];
 	player.ammo_357			= (int)from->client.vuser1[1];
@@ -957,8 +950,6 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	to->client.ammo_cells				= player.ammo_uranium;
 	to->client.vuser2[0]				= player.ammo_hornets;
 	to->client.ammo_rockets				= player.ammo_rockets;
-
-	to->client.iuser4					= player.PackGameplayMods();
 
 	if ( player.m_pActiveItem->m_iId == WEAPON_RPG )
 	{

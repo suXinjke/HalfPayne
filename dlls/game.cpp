@@ -18,6 +18,7 @@
 #include "game.h"
 #include <vector>
 #include <algorithm>
+#include "gameplay_mod.h"
 
 cvar_t	displaysoundlist = {"displaysoundlist","0"};
 
@@ -539,6 +540,8 @@ void GameDLLInit( void )
 	} else {
 		g_engfuncs.pfnServerPrint( "Failed to register sys_timescale cvar, falling back to old slowmotion implementation\n" );
 	}
+
+	gameplayMods.Init();
 
 	InitializeTracks();
 

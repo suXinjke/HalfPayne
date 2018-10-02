@@ -22,6 +22,7 @@
 #include "nodes.h"
 #include "player.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 #ifndef CLIENT_DLL
 #define BOLT_AIR_VELOCITY	2000
@@ -166,10 +167,7 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		}
 	}
 
-	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( pev->owner ) );
-
-	if ( ( player && player->crossbowExplosiveBolts ) || g_pGameRules->IsMultiplayer() )
-	{
+	if ( gameplayMods.crossbowExplosiveBolts || g_pGameRules->IsMultiplayer() ) {
 		SetThink( &CCrossbowBolt::ExplodeThink );
 		pev->nextthink = gpGlobals->time + 0.1;
 	}
@@ -363,7 +361,7 @@ void CCrossbow::FireSniperBolt()
 	TraceResult tr;
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 
@@ -408,7 +406,7 @@ void CCrossbow::FireBolt()
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 
@@ -432,7 +430,7 @@ void CCrossbow::FireBolt()
 	Vector vecDir	 = m_pPlayer->GetAimForwardWithOffset();
 
 	float rightOffset = 4;
-	if ( m_pPlayer->upsideDown ) {
+	if ( gameplayMods.upsideDown ) {
 		rightOffset *= -1;
 		vecSrc = vecSrc + Vector( 0, 0, 12 );
 	}
@@ -440,7 +438,7 @@ void CCrossbow::FireBolt()
 	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 
 #ifndef CLIENT_DLL
-	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( m_pPlayer->slowMotionEnabled || m_pPlayer->bulletTrailConstant );
+	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( m_pPlayer->slowMotionEnabled || gameplayMods.bulletTrailConstant );
 	pBolt->pev->origin = vecSrc;
 	pBolt->pev->angles = anglesAim;
 	pBolt->pev->owner = m_pPlayer->edict();
@@ -475,7 +473,7 @@ void CCrossbow::FireBolt()
 
 void CCrossbow::SecondaryAttack()
 {
-	if ( m_pPlayer->noSecondaryAttack ) {
+	if ( gameplayMods.noSecondaryAttack ) {
 		return;
 	}
 

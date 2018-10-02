@@ -22,6 +22,7 @@
 #include "player.h"
 #include "soundent.h"
 #include "gamerules.h"
+#include "gameplay_mod.h"
 
 enum mp5_e
 {
@@ -161,7 +162,7 @@ void CMP5::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	if ( !m_pPlayer->infiniteAmmoClip ) {
+	if ( !gameplayMods.infiniteAmmoClip ) {
 		m_iClip--;
 	}
 
@@ -179,10 +180,10 @@ void CMP5::PrimaryAttack()
 	Vector vecBullet = VECTOR_CONE_2DEGREES * stress;
 
 #ifndef CLIENT_DLL
-	if ( m_pPlayer->shouldProducePhysicalBullets ) {
+	if ( gameplayMods.bulletPhysical ) {
 
 		float rightOffset = 2;
-		if ( m_pPlayer->upsideDown ) {
+		if ( gameplayMods.upsideDown ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -218,7 +219,7 @@ void CMP5::PrimaryAttack()
 	// There's not enough room for float type, so it's interpreted as int
 	int stressPacked = *( int * ) &stress;
 
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usMP5, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, m_pPlayer->shouldProducePhysicalBullets, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usMP5, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, gameplayMods.bulletPhysical, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
@@ -244,7 +245,7 @@ void CMP5::PrimaryAttack()
 
 void CMP5::SecondaryAttack( void )
 {
-	if ( m_pPlayer->noSecondaryAttack ) {
+	if ( gameplayMods.noSecondaryAttack ) {
 		return;
 	}
 	// don't fire underwater
@@ -267,7 +268,7 @@ void CMP5::SecondaryAttack( void )
 	m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
 	m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
 			
-	if ( !m_pPlayer->infiniteAmmo ) {
+	if ( !gameplayMods.infiniteAmmo ) {
 		m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
 	}
 
@@ -292,7 +293,7 @@ void CMP5::SecondaryAttack( void )
 	flags = 0;
 #endif
 
-	m_pPlayer->pev->punchangle[0] -= 5.0f * ( m_pPlayer->upsideDown ? -1 : 1 );
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods.upsideDown ? -1 : 1 );
 	PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usMP52 );
 	
 	m_flNextPrimaryAttack = GetNextAttackDelay(1);
@@ -414,10 +415,8 @@ class CMP5AmmoGrenade : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo( CBaseEntity *pOther ) 
 	{ 
-		if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( pOther ) ) {
-			if ( pPlayer->noSmgGrenadePickup ) {
-				return FALSE;
-			}
+		if ( gameplayMods.noSmgGrenadePickup ) {
+			return FALSE;
 		}
 
 		int bResult = (pOther->GiveAmmo( AMMO_M203BOX_GIVE, "ARgrenades", M203_GRENADE_MAX_CARRY ) != -1);
