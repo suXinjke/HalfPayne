@@ -287,6 +287,7 @@ struct EntityRandomSpawner
 
 enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_ALWAYS_GIB,
+	GAMEPLAY_MOD_BLACK_MESA_MINUTE,
 	GAMEPLAY_MOD_BLEEDING,
 	GAMEPLAY_MOD_BULLET_DELAY_ON_SLOWMOTION,
 	GAMEPLAY_MOD_BULLET_PHYSICS_CONSTANT,
@@ -336,6 +337,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_PREVENT_MONSTER_MOVEMENT,
 	GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN,
 	GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT,
+	GAMEPLAY_MOD_SCORE_ATTACK,
 	GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,
 	GAMEPLAY_MOD_SHOW_TIMER,
 	GAMEPLAY_MOD_SHOW_TIMER_REAL_TIME,
@@ -399,9 +401,7 @@ enum CONFIG_FILE_SECTION {
 
 enum CONFIG_TYPE {
 	CONFIG_TYPE_MAP,
-	CONFIG_TYPE_CGM,
-	CONFIG_TYPE_BMM,
-	CONFIG_TYPE_SAGM
+	CONFIG_TYPE_CGM
 };
 
 
@@ -477,7 +477,7 @@ public:
 
 	static std::string ConfigTypeToDirectoryName( CONFIG_TYPE configType );
 	static std::string ConfigTypeToGameModeCommand( CONFIG_TYPE configType );
-	static std::string ConfigTypeToGameModeName( CONFIG_TYPE configType, bool uppercase = false );
+	std::string ConfigTypeToGameModeName( bool uppercase = false );
 
 	std::vector<std::string> GetAllConfigFileNames();
 	std::vector<std::string> GetAllFileNames( const char *path, const char *extension = "*", bool includeExtension = false );

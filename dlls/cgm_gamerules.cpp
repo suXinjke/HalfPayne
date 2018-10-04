@@ -45,6 +45,8 @@ int gmsgScoreCheat	= 0;
 extern int g_changeLevelOccured;
 extern Intermission g_latestIntermission;
 
+#define COMBO_MULTIPLIER_DECAY_TIME 8.0f;
+
 CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( configType )
 {
 	configs.push_back( &config );
@@ -97,6 +99,10 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 
 	for ( const auto &spawner : config.entityRandomSpawners ) {
 		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
+	}
+
+	if ( config.record.time == DEFAULT_TIME ) {
+		config.record.time = 0.0f;
 	}
 }
 
@@ -324,7 +330,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
-	if ( gameplayMods.activeGameMode == GAME_MODE_SCORE_ATTACK ) {
+	if ( gameplayMods.scoreAttack ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
 			WRITE_LONG( gameplayMods.score );
 			WRITE_LONG( gameplayMods.comboMultiplier );
@@ -353,6 +359,14 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	yOffset += conditionsHeight;
 	maxYOffset = max( yOffset, maxYOffset );
+
+	if ( gameplayMods.scoreAttack ) {
+		gameplayMods.comboMultiplierReset -= timeDelta;
+		if ( gameplayMods.comboMultiplierReset < 0.0f ) {
+			gameplayMods.comboMultiplierReset = 0.0f;
+			gameplayMods.comboMultiplier = 1;
+		}
+	}
 }
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
@@ -397,7 +411,197 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 
 	}
 
+	if ( gameplayMods.blackMesaMinute ) {
+		CalculateScoreForBlackMesaMinute( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+	}
+
+	if ( gameplayMods.scoreAttack && pPlayer->pev->deadflag == DEAD_NO ) {
+		CalculateScoreForScoreAttack( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+	}
+
 	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+}
+
+void CCustomGameModeRules::CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+	int timeToAdd = 0;
+	std::string message;
+
+	if ( killedByExplosion ) {
+		timeToAdd = 10;
+		message = "EXPLOSION BONUS";
+	} else if ( killedByCrowbar ) {
+		timeToAdd = 10;
+		message = "MELEE BONUS";
+	} else if ( isHeadshot ) {
+		timeToAdd = 6;
+		message = "HEADSHOT BONUS";
+	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
+		timeToAdd = 1;
+		message = "PROJECTILE BONUS";
+	} else {
+		timeToAdd = 5;
+		message = "TIME BONUS";
+	}
+
+	Vector deathPos = victim->pev->origin;
+	deathPos.z += victim->pev->size.z + 5.0f;
+
+	switch ( killedEntity ) {
+		case KILLED_ENTITY_SENTRY:
+			deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
+			break;
+
+		case KILLED_ENTITY_SNIPER:
+			deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+			break;
+
+		case KILLED_ENTITY_NIHILANTH_CRYSTAL:
+			deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+			timeToAdd = 10;
+			break;
+
+		case KILLED_ENTITY_GONARCH_SACK:
+			timeToAdd = 10;
+			break;
+
+		case KILLED_ENTITY_SCIENTIST:
+		case KILLED_ENTITY_BARNEY:
+			timeToAdd = 0;
+
+		default:
+			break;
+	}
+
+	IncreaseTime( pPlayer, deathPos, timeToAdd, message.c_str() );
+}
+
+void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+	int scoreToAdd = -1;
+	float additionalMultiplier = 0.0f;
+
+	switch ( killedEntity ) {
+		case KILLED_ENTITY_BIG_MOMMA:
+		case KILLED_ENTITY_GARGANTUA:
+		case KILLED_ENTITY_ARMORED_VEHICLE:
+		case KILLED_ENTITY_ICHTYOSAUR:
+		case KILLED_ENTITY_NIHILANTH_CRYSTAL:
+		case KILLED_ENTITY_GONARCH_SACK:
+			scoreToAdd = 1000;
+			break;
+
+		case KILLED_ENTITY_ALIEN_CONTROLLER:
+		case KILLED_ENTITY_ALIEN_GRUNT:
+		case KILLED_ENTITY_HUMAN_ASSASSIN:
+		case KILLED_ENTITY_HUMAN_GRUNT:
+		case KILLED_ENTITY_SNIPER:
+		case KILLED_ENTITY_ALIEN_SLAVE:
+			scoreToAdd = 100;
+			break;
+
+		case KILLED_ENTITY_MINITURRET:
+		case KILLED_ENTITY_SENTRY:
+			scoreToAdd = 50;
+			break;
+
+		case KILLED_ENTITY_BULLSQUID:
+		case KILLED_ENTITY_ZOMBIE:
+			scoreToAdd = 30;
+			break;
+
+		case KILLED_ENTITY_HEADCRAB:
+		case KILLED_ENTITY_HOUNDEYE:
+		case KILLED_ENTITY_SNARK:
+			scoreToAdd = 20;
+			break;
+
+		case KILLED_ENTITY_BARNACLE:
+			scoreToAdd = 5;
+			break;
+
+		case KILLED_ENTITY_BABYCRAB:
+		case KILLED_ENTITY_GRENADE:
+			scoreToAdd = 0;
+			break;
+
+		default:
+			return;
+	}
+
+	std::string message;
+
+	if ( killedByExplosion ) {
+		message = "EXPLOSION BONUS";
+		additionalMultiplier = 1.0f;
+	} else if ( killedByCrowbar ) {
+		message = "MELEE BONUS";
+		additionalMultiplier = 1.0f;
+	} else if ( isHeadshot ) {
+		message = "HEADSHOT BONUS";
+		additionalMultiplier = 0.5f;
+	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
+		message = "PROJECTILE BONUS";
+	} else {
+		message = "SCORE BONUS";
+	}
+
+	Vector deathPos = victim->pev->origin;
+	deathPos.z += victim->pev->size.z + 5.0f;
+
+	switch ( killedEntity ) {
+	case KILLED_ENTITY_SENTRY:
+		deathPos = victim->EyePosition() + Vector( 0, 0, 20 );
+		break;
+
+	case KILLED_ENTITY_SNIPER:
+		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+		break;
+
+	case KILLED_ENTITY_NIHILANTH_CRYSTAL:
+		deathPos = victim->pev->origin + ( victim->pev->mins + victim->pev->maxs ) * 0.5;
+		break;
+
+	default:
+		break;
+	}
+
+	gameplayMods.score += scoreToAdd * ( gameplayMods.comboMultiplier + additionalMultiplier );
+
+	if ( scoreToAdd != -1 ) {
+
+		if ( scoreToAdd > 0 ) {
+			SendGameLogMessage( pPlayer, message );
+
+			float comboMultiplier = gameplayMods.comboMultiplier + additionalMultiplier;
+			bool comboMultiplierIsInteger = abs( comboMultiplier - std::lround( comboMultiplier ) ) < 0.00000001f;
+
+			char upperString[128];
+			if ( comboMultiplierIsInteger ) {
+				std::sprintf( upperString, "%d x%.0f", scoreToAdd, comboMultiplier );
+			} else {
+				std::sprintf( upperString, "%d x%.1f", scoreToAdd, comboMultiplier );
+			}
+
+			if ( gameplayMods.blackMesaMinute ) {
+				SendGameLogWorldMessage( pPlayer, deathPos, "", std::string( upperString ) + " / " + std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ) );
+			} else {
+				SendGameLogWorldMessage( pPlayer, deathPos, std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ), upperString );
+			}
+		}
+
+		switch ( killedEntity ) {
+			case KILLED_ENTITY_BABYCRAB:
+			case KILLED_ENTITY_BARNACLE:
+			case KILLED_ENTITY_GRENADE:
+				// don't add to combo multiplier
+				break;
+
+			default:
+				gameplayMods.comboMultiplier++;
+				break;
+		}
+
+		gameplayMods.comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
+	}
 }
 
 void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {
@@ -450,6 +654,9 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgCountCheat, NULL, pPlayer->pev );
 	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgScoreCheat, NULL, pPlayer->pev );
+	MESSAGE_END();
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
@@ -466,7 +673,7 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTitle, NULL, pPlayer->pev );
-		WRITE_STRING( CustomGameModeConfig::ConfigTypeToGameModeName( config.configType, true ).c_str() );
+		WRITE_STRING( config.ConfigTypeToGameModeName( true ).c_str() );
 	MESSAGE_END();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTitle, NULL, pPlayer->pev );
@@ -538,6 +745,18 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	if ( gameplayMods.projectileKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
 			WRITE_STRING( ( "PROJECTILES DESTROYED KILLS|" + std::to_string( gameplayMods.projectileKills ) ).c_str() );
+		MESSAGE_END();
+	}
+
+	if ( gameplayMods.scoreAttack ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgScoreDeact, NULL, pPlayer->pev );
+		MESSAGE_END();
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgEndScore, NULL, pPlayer->pev );
+			WRITE_STRING( "SCORE|PERSONAL BEST" );
+			WRITE_LONG( gameplayMods.score );
+			WRITE_LONG( config.record.score );
+			WRITE_BYTE( gameplayMods.score > config.record.score );
 		MESSAGE_END();
 	}
 
@@ -712,6 +931,22 @@ void CCustomGameModeRules::ResumeTimer( CBasePlayer *pPlayer )
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
 		WRITE_BYTE( false );
 	MESSAGE_END();
+}
+
+void CCustomGameModeRules::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message ) {
+	if ( gameplayMods.timerPaused || timeToAdd <= 0 ) {
+		return;
+	}
+
+	gameplayMods.time += timeToAdd;
+
+	SendGameLogMessage( pPlayer, message );
+
+	char timeAddedCString[6];
+	sprintf( timeAddedCString, "00:%02d", timeToAdd ); // mm:ss
+	const std::string timeAddedString = std::string( timeAddedCString );
+
+	SendGameLogWorldMessage( pPlayer, eventPos, timeAddedString );
 }
 
 // Hardcoded values so it won't depend on console variables
@@ -1070,3 +1305,4 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 
 	} while ( !spawnPositionDecided );
 }
+

@@ -1001,9 +1001,8 @@ void RunCustomGameMode( CONFIG_TYPE configType ) {
 	int argCount = gEngfuncs.Cmd_Argc();
 	if ( argCount < 2 ) {
 		gEngfuncs.Con_Printf(
-			"%s <configname> : launches %s with settings specified in %s\\<configname>\n",
+			"%s <configname> : launches Custom Game Mode with settings specified in %s\\<configname>\n",
 			CustomGameModeConfig::ConfigTypeToGameModeCommand( configType ).c_str(),
-			CustomGameModeConfig::ConfigTypeToGameModeName( configType ).c_str(),
 			CustomGameModeConfig::ConfigTypeToDirectoryName( configType ).c_str()
 		);
 		return;
@@ -1031,19 +1030,9 @@ void RunCustomGameMode( CONFIG_TYPE configType ) {
 	gEngfuncs.pfnClientCmd( mapCmd );
 }
 
-void RunBlackMesaMinute()
-{
-	RunCustomGameMode( CONFIG_TYPE_BMM );
-}
-
 void RunCustomGameMode()
 {
 	RunCustomGameMode( CONFIG_TYPE_CGM );
-}
-
-void RunScoreAttack()
-{
-	RunCustomGameMode( CONFIG_TYPE_SAGM );
 }
 
 void MP3Play()
@@ -1098,14 +1087,6 @@ void ShowGameModeConfigs( CONFIG_TYPE configType ) {
 
 void ShowCustomGameModesList() {
 	ShowGameModeConfigs( CONFIG_TYPE_CGM );
-}
-
-void ShowBlackMesaMinuteList() {
-	ShowGameModeConfigs( CONFIG_TYPE_BMM );
-}
-
-void ShowScoreAttackList() {
-	ShowGameModeConfigs( CONFIG_TYPE_SAGM );
 }
 
 /*
@@ -1206,12 +1187,8 @@ void InitInput (void)
 	max_commentary_near_death				= gEngfuncs.pfnRegisterVariable( "max_commentary_near_death", "1", FCVAR_ARCHIVE );
 
 	gEngfuncs.pfnAddCommand( "cgm_list", ShowCustomGameModesList );
-	gEngfuncs.pfnAddCommand( "bmm_list", ShowBlackMesaMinuteList );
-	gEngfuncs.pfnAddCommand( "sagm_list", ShowScoreAttackList );
 
 	gEngfuncs.pfnAddCommand( "cgm", RunCustomGameMode );
-	gEngfuncs.pfnAddCommand( "bmm", RunBlackMesaMinute );
-	gEngfuncs.pfnAddCommand( "sagm", RunScoreAttack );
 
 	gEngfuncs.pfnAddCommand( "MP3Play", MP3Play );
 	gEngfuncs.pfnAddCommand( "MP3Stop", MP3Stop );

@@ -27,7 +27,6 @@
 #include "soundent.h"
 #include "decals.h"
 #include "player.h"
-#include "bmm_gamerules.h"
 
 
 //===================grenade

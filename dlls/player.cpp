@@ -33,13 +33,12 @@
 #include "shake.h"
 #include "decals.h"
 #include "gamerules.h"
-#include "bmm_gamerules.h"
-#include "sagm_gamerules.h"
 #include "game.h"
 #include "pm_shared.h"
 #include "hltv.h"
 #include "client.h"
 #include "func_break.h"
+#include "cgm_gamerules.h"
 
 #include "gameplay_mod.h"
 

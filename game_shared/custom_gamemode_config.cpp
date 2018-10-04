@@ -551,12 +551,6 @@ std::string CustomGameModeConfig::ConfigTypeToDirectoryName( CONFIG_TYPE configT
 		case CONFIG_TYPE_CGM:
 			return "cgm_cfg";
 
-		case CONFIG_TYPE_BMM:
-			return "bmm_cfg";
-
-		case CONFIG_TYPE_SAGM:
-			return "sagm_cfg";
-
 		default:
 			return "";
 	}
@@ -567,31 +561,23 @@ std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE confi
 		case CONFIG_TYPE_CGM:
 			return "cgm";
 
-		case CONFIG_TYPE_BMM:
-			return "bmm";
-
-		case CONFIG_TYPE_SAGM:
-			return "sagm";
-
 		default:
 			return "";
 	}
 }
 
-std::string CustomGameModeConfig::ConfigTypeToGameModeName( CONFIG_TYPE configType, bool uppercase ) {
-	switch ( configType ) {
-		case CONFIG_TYPE_CGM:
-			return uppercase ? "CUSTOM GAME MODE" : "Custom Game Mode";
-
-		case CONFIG_TYPE_BMM:
-			return uppercase ? "BLACK MESA MINUTE" : "Black Mesa Minute";
-
-		case CONFIG_TYPE_SAGM:
-			return uppercase ? "SCORE ATTACK" : "Score Attack";
-
-		default:
-			return "";
+std::string CustomGameModeConfig::ConfigTypeToGameModeName( bool uppercase ) {
+	if ( IsGameplayModActive( GAMEPLAY_MOD_BLACK_MESA_MINUTE ) && IsGameplayModActive( GAMEPLAY_MOD_SCORE_ATTACK ) ) {
+		return uppercase ? "BLACK MESA MINUTE SCORE ATTACK" : "Black Mesa Minute Score Attack";
+	} else if ( IsGameplayModActive( GAMEPLAY_MOD_BLACK_MESA_MINUTE ) ) {
+		return uppercase ? "BLACK MESA MINUTE" : "Black Mesa Minute";
+	} else if ( IsGameplayModActive( GAMEPLAY_MOD_SCORE_ATTACK ) ) {
+		return uppercase ? "SCORE ATTACK" : "Score Attack";
+	} else if ( configType == CONFIG_TYPE_CGM ) {
+		return uppercase ? "CUSTOM GAME MODE" : "Custom Game Mode";
 	}
+
+	return "";
 }
 
 std::vector<std::string> CustomGameModeConfig::GetAllConfigFileNames() {
@@ -829,6 +815,19 @@ void CustomGameModeConfig::InitGameplayMods() {
 		{},
 		[]( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.gibsAlways = TRUE;
+		}
+	);
+
+	mods[GAMEPLAY_MOD_BLACK_MESA_MINUTE] = GameplayMod(
+		"black_mesa_minute",
+		"Black Mesa Minute",
+		"Time-based game mode - rush against a minute, kill enemies to get more time.",
+		{},
+		[]( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.blackMesaMinute = true;
+			gameplayMods.timerShown = true;
+			gameplayMods.time = 60.0f;
+			gameplayMods.timerBackwards = true;
 		}
 	);
 
@@ -1408,6 +1407,16 @@ void CustomGameModeConfig::InitGameplayMods() {
 		{},
 		[]( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.preventMonsterDrops = TRUE;
+		}
+	);
+
+	mods[GAMEPLAY_MOD_SCORE_ATTACK] = GameplayMod(
+		"score_attack",
+		"Score attack",
+		"Kill enemies to get as much score as possible. Build combos to get even more score.",
+		{},
+		[]( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.scoreAttack = true;
 		}
 	);
 

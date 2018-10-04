@@ -26,9 +26,7 @@ void GameModeGUI_RefreshConfigFiles() {
 	configCompleted = 0;
 
 	auto configTypes = std::vector<CONFIG_TYPE>( {
-		CONFIG_TYPE_CGM,
-		CONFIG_TYPE_BMM,
-		CONFIG_TYPE_SAGM
+		CONFIG_TYPE_CGM
 	} );
 
 	for ( auto configType : configTypes ) {
@@ -42,8 +40,6 @@ void GameModeGUI_RefreshConfigFiles() {
 			std::string sectionName =
 				config.configNameSeparated.size() > 1 ? config.configNameSeparated.at( 0 ) :
 				configType == CONFIG_TYPE_CGM  ? "Main Game - Variety" :
-				configType == CONFIG_TYPE_BMM  ? "Main Game - Black Mesa Minute" :
-				configType == CONFIG_TYPE_SAGM ? "Main Game - Score Attack" :
 				"ERROR";
 
 			configs[sectionName].push_back( config );
@@ -169,14 +165,14 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 			if ( config.gameFinishedOnce && ImGui::IsItemHovered() ) {
 				ImGui::BeginTooltip();
 
-				bool timerBackwards = config.configType == CONFIG_TYPE_BMM || config.IsGameplayModActive( GAMEPLAY_MOD_TIME_RESTRICTION );
+				bool timerBackwards = config.IsGameplayModActive( GAMEPLAY_MOD_BLACK_MESA_MINUTE ) || config.IsGameplayModActive( GAMEPLAY_MOD_TIME_RESTRICTION );
 
 				ImGui::Text( timerBackwards ? "Time score: %s" : "Time: %s", GameModeGUI_GetFormattedTime( config.record.time ).c_str() );
 				ImGui::Text( "Real time: %s", GameModeGUI_GetFormattedTime( config.record.realTime ).c_str() );
 				if ( timerBackwards ) {
 					ImGui::Text( "Real time minus score: %s", GameModeGUI_GetFormattedTime( config.record.realTimeMinusTime ).c_str() );
 				}
-				if ( config.configType == CONFIG_TYPE_SAGM ) {
+				if ( config.IsGameplayModActive( GAMEPLAY_MOD_SCORE_ATTACK ) ) {
 					ImGui::Text( "Score: %d", config.record.score );
 				}
 
@@ -268,14 +264,6 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 		if ( !config.description.empty() ) {
 			ImGui::Text( "\nDescription\n" );
 			ImGui::Text( config.description.c_str() );
-		}
-
-		if ( config.configType == CONFIG_TYPE_BMM ) {
-			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nBlack Mesa Minute\n" );
-			ImGui::Text( "Time-based game mode - rush against a minute, kill enemies to get more time.\n" );
-		} else if ( config.configType == CONFIG_TYPE_SAGM ) {
-			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "\n\nScore Attack\n" );
-			ImGui::Text( "Kill enemies to get as much score as possible. Build combos to get even more score.\n" );
 		}
 
 		for ( const auto &pair : config.mods ) {

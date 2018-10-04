@@ -46,6 +46,9 @@ public:
 
 	virtual void PauseTimer( CBasePlayer *pPlayer );
 	virtual void ResumeTimer( CBasePlayer *pPlayer );
+	virtual void IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message );
+	virtual void CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
+	virtual void CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 
 	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );
 	bool endMarkersActive;

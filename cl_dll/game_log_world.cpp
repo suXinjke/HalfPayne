@@ -110,7 +110,7 @@ int CHudGameLogWorld::MsgFunc_GLogWMsg( const char *pszName, int iSize, void *pb
 	float x = READ_COORD();
 	float y = READ_COORD();
 	float z = READ_COORD();
-	auto messageParts = Split( READ_STRING(), '|' );
+	auto messageParts = Split( READ_STRING(), '|', false );
 	
 	messages.push_back( {
 		{ x, y, z },

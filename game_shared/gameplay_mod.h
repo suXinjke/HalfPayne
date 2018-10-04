@@ -21,9 +21,7 @@ enum BULLET_PHYSICS_MODE {
 
 enum GAME_MODE {
 	GAME_MODE_VANILLA,
-	GAME_MODE_CUSTOM,
-	GAME_MODE_BMM,
-	GAME_MODE_SCORE_ATTACK
+	GAME_MODE_CUSTOM
 };
 
 // ISSUE: Player instance still relies on itself in some cases, like when managin superhot or aimOffset
@@ -167,6 +165,9 @@ public:
 	// Statistics and game state
 	FieldBool( cheated, FALSE );
 	FieldBool( usedCheat, FALSE );
+
+	FieldBool( blackMesaMinute, FALSE );
+	FieldBool( scoreAttack, FALSE );
 	
 	FieldFloat( time, 0.0f );
 	FieldFloat( realTime, 0.0f );

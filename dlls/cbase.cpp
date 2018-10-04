@@ -20,10 +20,9 @@
 #include	"client.h"
 #include	"decals.h"
 #include	"gamerules.h"
-#include	"bmm_gamerules.h"
-#include	"sagm_gamerules.h"
 #include	"game.h"
 #include	"gameplay_mod.h"
+#include	"cgm_gamerules.h"
 
 void EntvarsKeyvalue( entvars_t *pev, KeyValueData *pkvd );
 
@@ -416,6 +415,7 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 	// and you're allowed to Precache here
 
 	// Gotta initialize custom game mode if you're loading the game but didn't set it up
+
 	if (
 		gameplayMods.activeGameMode == GAME_MODE_CUSTOM &&
 		( strcmp( CVAR_GET_STRING( "gamemode" ), "cgm" ) != 0 ||
@@ -429,28 +429,6 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 		// new CCustomGameModeRules instance to parse specified config file above
 		delete g_pGameRules;
 		g_pGameRules = new CCustomGameModeRules;
-	} else if (
-		gameplayMods.activeGameMode == GAME_MODE_BMM &&
-		( strcmp( CVAR_GET_STRING( "gamemode" ), "bmm" ) != 0 ||
-		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayMods.activeGameModeConfig ) != 0 )
-	) {
-
-		CVAR_SET_STRING( "gamemode", "bmm" );
-		CVAR_SET_STRING( "gamemode_config", STRING( gameplayMods.activeGameModeConfig ) );
-
-		delete g_pGameRules;
-		g_pGameRules = new CBlackMesaMinute;
-	} else if (
-		gameplayMods.activeGameMode == GAME_MODE_SCORE_ATTACK &&
-		( strcmp( CVAR_GET_STRING( "gamemode" ), "sagm" ) != 0 ||
-		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayMods.activeGameModeConfig ) != 0 )
-	) {
-
-		CVAR_SET_STRING( "gamemode", "sagm" );
-		CVAR_SET_STRING( "gamemode_config", gameplayMods.activeGameModeConfig );
-
-		delete g_pGameRules;
-		g_pGameRules = new CScoreAttack;
 	} else if (
 		gameplayMods.activeGameMode == GAME_MODE_VANILLA &&
 		( strcmp( CVAR_GET_STRING( "gamemode" ), "vanilla" ) != 0 )

@@ -354,9 +354,6 @@
     <ClCompile Include="..\..\game_shared\string_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dlls\bmm_gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp">
       <Filter>Source Files\dlls\wpn_shared</Filter>
     </ClCompile>
@@ -370,9 +367,6 @@
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dlls\cgm_gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\sagm_gamerules.cpp">
       <Filter>Source Files\dlls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\game_shared\sha1.cpp">
@@ -551,16 +545,10 @@
     <ClInclude Include="..\..\game_shared\string_aux.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dlls\bmm_gamerules.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\game_shared\custom_gamemode_config.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dlls\cgm_gamerules.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\sagm_gamerules.h">
       <Filter>Header Files\dlls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\game_shared\sha1.h">
