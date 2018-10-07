@@ -603,6 +603,28 @@ void ClientCommand( edict_t *pEntity )
 		if ( pPlayer->IsObserver() )
 			pPlayer->Observer_FindNextPlayer( atoi( CMD_ARGV(1) )?true:false );
 	}
+	else if ( FStrEq( pcmd, "gameplay_mod" ) )
+	{
+		if ( CMD_ARGC() < 2 ) {
+			return;
+		}
+
+		if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
+			auto gameplay_mod = ( char * ) CMD_ARGS();
+			gameplayMods.SetGameplayModActiveByString( std::string( gameplay_mod ), true );
+		}
+	}
+	else if ( FStrEq( pcmd, "gameplay_demod" ) )
+	{
+		if ( CMD_ARGC() < 2 ) {
+			return;
+		}
+
+		if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
+			auto gameplay_mod = ( char * ) CMD_ARGS();
+			gameplayMods.SetGameplayModActiveByString( std::string( gameplay_mod ), false );
+		}
+	}
 	else if ( g_pGameRules->ClientCommand( GetClassPtr((CBasePlayer *)pev), pcmd ) )
 	{
 		// MenuSelect returns true only if the command is properly handled,  so don't print a warning

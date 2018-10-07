@@ -227,6 +227,7 @@
     <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp" />
     <ClCompile Include="..\..\game_shared\fs_aux.cpp" />
     <ClCompile Include="..\..\game_shared\gameplay_mod.cpp" />
+    <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp" />
     <ClCompile Include="..\..\game_shared\sha1.cpp" />
     <ClCompile Include="..\..\game_shared\string_aux.cpp" />
     <ClCompile Include="..\..\game_shared\voice_gamemgr.cpp" />
@@ -284,6 +285,7 @@
     <ClInclude Include="..\..\fmt\printf.h" />
     <ClInclude Include="..\..\fmt\string.h" />
     <ClInclude Include="..\..\fmt\time.h" />
+    <ClInclude Include="..\..\game_shared\argument.h" />
     <ClInclude Include="..\..\game_shared\custom_gamemode_config.h" />
     <ClInclude Include="..\..\game_shared\custom_gamemode_record.h" />
     <ClInclude Include="..\..\game_shared\fs_aux.h" />

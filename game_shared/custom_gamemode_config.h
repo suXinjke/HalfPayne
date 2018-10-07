@@ -12,6 +12,8 @@
 #include <map>
 #include <functional>
 #include "custom_gamemode_record.h"
+#include "gameplay_mod.h"
+#include "argument.h"
 
 #define CHANGE_LEVEL_MODEL_INDEX -1
 
@@ -98,64 +100,6 @@ static char *allowedEntities[] {
 
 	"end_marker",
 	"kerotan"
-};
-
-struct Argument {
-	std::string name;
-	std::string default;
-	std::string string;
-	std::string description;
-	float number = NAN;
-
-	bool isRequired = true;
-	bool isNumber = false;
-	bool mustBeNumber = false;
-	float min = NAN;
-	float max = NAN;
-
-	typedef std::function<std::string(const std::string &, float)> ArgumentDescriptionFunction;
-
-	ArgumentDescriptionFunction GetDescription = []( const std::string &string, float number ){
-		return "";
-	};
-
-	Argument( const std::string &name ) : name( name ) {};
-
-	Argument &IsOptional() {
-		isRequired = false;
-		return *this;
-	}
-	
-	Argument &IsNumber() {
-		isNumber = true;
-		mustBeNumber = true;
-		return *this;
-	}
-	
-	Argument &CanBeNumber() {
-		isNumber = true;
-		return *this;
-	}
-	
-	Argument &MinMax( float min, float max = NAN ) {
-		this->isNumber = true;
-		this->min = min;
-		this->max = max;
-		return *this;
-	}
-
-	Argument &Description( const ArgumentDescriptionFunction &description ) {
-		this->GetDescription = description;
-		return *this;
-	}
-
-	Argument &Default( const std::string &default ) {
-		this->default = default;
-		Init( default );
-		return *this;
-	}
-
-	std::string Init( const std::string &value );
 };
 
 struct Hookable {
@@ -285,89 +229,6 @@ struct EntityRandomSpawner
 	float spawnPeriod;
 };
 
-enum GAMEPLAY_MOD {
-	GAMEPLAY_MOD_ALWAYS_GIB,
-	GAMEPLAY_MOD_BLACK_MESA_MINUTE,
-	GAMEPLAY_MOD_BLEEDING,
-	GAMEPLAY_MOD_BULLET_DELAY_ON_SLOWMOTION,
-	GAMEPLAY_MOD_BULLET_PHYSICS_CONSTANT,
-	GAMEPLAY_MOD_BULLET_PHYSICS_DISABLED,
-	GAMEPLAY_MOD_BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION,
-	GAMEPLAY_MOD_BULLET_RICOCHET,
-	GAMEPLAY_MOD_BULLET_SELF_HARM,
-	GAMEPLAY_MOD_BULLET_TRAIL_CONSTANT,
-	GAMEPLAY_MOD_CONSTANT_SLOWMOTION,
-	GAMEPLAY_MOD_CROSSBOW_EXPLOSIVE_BOLTS,
-	GAMEPLAY_MOD_DETACHABLE_TRIPMINES,
-	GAMEPLAY_MOD_DIVING_ALLOWED_WITHOUT_SLOWMOTION,
-	GAMEPLAY_MOD_DIVING_ONLY,
-	GAMEPLAY_MOD_DRUNK_AIM,
-	GAMEPLAY_MOD_DRUNK_LOOK,
-	GAMEPLAY_MOD_EASY,
-	GAMEPLAY_MOD_EDIBLE_GIBS,
-	GAMEPLAY_MOD_EMPTY_SLOWMOTION,
-	GAMEPLAY_MOD_FADING_OUT,
-	GAMEPLAY_MOD_FRICTION,
-	GAMEPLAY_MOD_GARBAGE_GIBS,
-	GAMEPLAY_MOD_GOD,
-	GAMEPLAY_MOD_HARD,
-	GAMEPLAY_MOD_HEADSHOTS,
-	GAMEPLAY_MOD_HEAL_ON_KILL,
-	GAMEPLAY_MOD_HEALTH_REGENERATION,
-	GAMEPLAY_MOD_INFINITE_AMMO,
-	GAMEPLAY_MOD_INFINITE_AMMO_CLIP,
-	GAMEPLAY_MOD_INFINITE_PAINKILLERS,
-	GAMEPLAY_MOD_INFINITE_SLOWMOTION,
-	GAMEPLAY_MOD_INITIAL_CLIP_AMMO,
-	GAMEPLAY_MOD_INSTAGIB,
-	GAMEPLAY_MOD_NO_FALL_DAMAGE,
-	GAMEPLAY_MOD_NO_HEALING,
-	GAMEPLAY_MOD_NO_JUMPING,
-	GAMEPLAY_MOD_NO_MAP_MUSIC,
-	GAMEPLAY_MOD_NO_PILLS,
-	GAMEPLAY_MOD_NO_SAVING,
-	GAMEPLAY_MOD_NO_SECONDARY_ATTACK,
-	GAMEPLAY_MOD_NO_SLOWMOTION,
-	GAMEPLAY_MOD_NO_SMG_GRENADE_PICKUP,
-	GAMEPLAY_MOD_NO_TARGET,
-	GAMEPLAY_MOD_NO_WALKING,
-	GAMEPLAY_MOD_ONE_HIT_KO,
-	GAMEPLAY_MOD_ONE_HIT_KO_FROM_PLAYER,
-	GAMEPLAY_MOD_PREVENT_MONSTER_DROPS,
-	GAMEPLAY_MOD_PREVENT_MONSTER_MOVEMENT,
-	GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN,
-	GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT,
-	GAMEPLAY_MOD_SCORE_ATTACK,
-	GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,
-	GAMEPLAY_MOD_SHOW_TIMER,
-	GAMEPLAY_MOD_SHOW_TIMER_REAL_TIME,
-	GAMEPLAY_MOD_SLOWMOTION_FAST_WALK,
-	GAMEPLAY_MOD_SLOWMOTION_ON_DAMAGE,
-	GAMEPLAY_MOD_SLOWMOTION_ONLY_DIVING,
-	GAMEPLAY_MOD_SLOW_PAINKILLERS,
-	GAMEPLAY_MOD_SNARK_FRIENDLY_TO_ALLIES,
-	GAMEPLAY_MOD_SNARK_FRIENDLY_TO_PLAYER,
-	GAMEPLAY_MOD_SNARK_FROM_EXPLOSION,
-	GAMEPLAY_MOD_SNARK_INCEPTION,
-	GAMEPLAY_MOD_SNARK_INFESTATION,
-	GAMEPLAY_MOD_SNARK_NUCLEAR,
-	GAMEPLAY_MOD_SNARK_PARANOIA,
-	GAMEPLAY_MOD_SNARK_PENGUINS,
-	GAMEPLAY_MOD_SNARK_STAY_ALIVE,
-	GAMEPLAY_MOD_STARTING_HEALTH,
-	GAMEPLAY_MOD_SUPERHOT,
-	GAMEPLAY_MOD_SWEAR_ON_KILL,
-	GAMEPLAY_MOD_UPSIDE_DOWN,
-	GAMEPLAY_MOD_TELEPORT_MAINTAIN_VELOCITY,
-	GAMEPLAY_MOD_TELEPORT_ON_KILL,
-	GAMEPLAY_MOD_TIME_RESTRICTION,
-	GAMEPLAY_MOD_TOTALLY_SPIES,
-	GAMEPLAY_MOD_VVVVVV,
-	GAMEPLAY_MOD_WEAPON_IMPACT,
-	GAMEPLAY_MOD_WEAPON_PUSH_BACK,
-	GAMEPLAY_MOD_WEAPON_RESTRICTED,
-};
-
 enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_NO_SECTION,
 
@@ -402,30 +263,6 @@ enum CONFIG_FILE_SECTION {
 enum CONFIG_TYPE {
 	CONFIG_TYPE_MAP,
 	CONFIG_TYPE_CGM
-};
-
-
-struct GameplayMod
-{
-	bool active;
-	std::string id;
-	std::string name;
-	std::string description;
-
-	std::vector<Argument> arguments;
-
-	std::function<void(CBasePlayer*, const std::vector<Argument> &)> init;
-
-	GameplayMod() {};
-	GameplayMod(
-		const std::string &id,
-		const std::string &name,
-		const std::string description,
-		std::vector<Argument> arguments = std::vector<Argument>(),
-		std::function<void(CBasePlayer*, const std::vector<Argument> &)> initFunction = []( CBasePlayer *, const std::vector<Argument> & ){}
-	) :
-		active( false ), id( id ), name( name ), description( description ), arguments( arguments ), init( initFunction )
-	{}
 };
 
 class CustomGameModeConfig {
@@ -501,10 +338,8 @@ public:
 	std::set<std::string> GetSoundsToPrecacheForMap( const std::string &map );
 	std::set<std::string> GetEntitiesToPrecacheForMap( const std::string &map );
 
-	std::map<GAMEPLAY_MOD, GameplayMod> mods;
-
 	bool IsGameplayModActive( GAMEPLAY_MOD mod );
-	void InitGameplayMods();
+	std::map<GAMEPLAY_MOD, GameplayMod> mods;
 
 	bool musicPlaylistShuffle;
 	

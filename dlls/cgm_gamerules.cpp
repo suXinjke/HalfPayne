@@ -170,9 +170,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 	for ( const auto &pair : config.mods ) {
 		const auto &mod = pair.second;
-		if ( mod.active ) {
-			mod.init( pPlayer, mod.arguments );
-		}
+		mod.init( pPlayer, mod.arguments );
 	}
 
 	pPlayer->SetEvilImpulse101( true );

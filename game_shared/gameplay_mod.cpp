@@ -1,4 +1,7 @@
+#include <map>
 #include "gameplay_mod.h"
+#include "string_aux.h"
+#include "player.h"
 GameplayMods gameplayMods;
 
 #ifdef CLIENT_DLL
@@ -60,3 +63,56 @@ void GameplayMods::SendToClient() {
 }
 
 #endif
+
+void GameplayMods::SetGameplayModActiveByString( const std::string &line, bool isActive ) {
+	auto args = NaiveCommandLineParse( line );
+	std::vector<Argument> parsedArgs = {
+		Argument( "mod" ),
+		Argument( "param1" ).IsOptional().CanBeNumber(),
+		Argument( "param2" ).IsOptional().CanBeNumber(),
+		Argument( "param3" ).IsOptional().CanBeNumber(),
+		Argument( "param4" ).IsOptional().CanBeNumber(),
+		Argument( "param5" ).IsOptional().CanBeNumber()
+	};
+
+	for ( size_t i = 0; i < min( parsedArgs.size(), args.size() ); i++ ) {
+		auto value = args.at( i );
+		auto parsingError = parsedArgs.at( i ).Init( value );
+		if ( !parsingError.empty() ) {
+			// TODO: replace with proper engine function call
+			ALERT( at_notice, "Error getting gameplay mod by string: %s\n", parsingError.c_str() );
+		}
+	}
+
+	std::string modName = parsedArgs.at( 0 ).string;
+	bool activatedMod = false;
+
+	for ( auto &pair : gameplayModDefs ) {
+		auto mod = pair.second;
+		if ( mod.id == modName ) {
+			activatedMod = true;
+
+			for ( size_t i = 0; i < min( mod.arguments.size(), parsedArgs.size() - 1 ); i++ ) {
+				auto parsingError = mod.arguments.at( i ).Init( parsedArgs.at( i + 1 ).string );
+
+				if ( !parsingError.empty() ) {
+					ALERT( at_notice, "%s, argument %d: %s", modName.c_str(), i + 1, parsingError.c_str() );
+					return;
+				}
+			}
+
+			if ( CBasePlayer *pPlayer = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
+				if ( isActive ) {
+					mod.init( pPlayer, mod.arguments );
+				} else {
+					mod.deactivate( pPlayer, mod.arguments );
+				}
+			}
+			break;
+		}
+	}
+
+	if ( !activatedMod ) {
+		ALERT( at_notice, "incorrect mod specified: %s\n", modName.c_str() );
+	}
+}

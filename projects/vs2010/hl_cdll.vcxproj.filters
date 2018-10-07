@@ -420,6 +420,9 @@
     <ClCompile Include="..\..\fmt\format.cc">
       <Filter>Source Files\fmt</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -634,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="..\..\fmt\time.h">
       <Filter>Header Files\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\argument.h">
+      <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

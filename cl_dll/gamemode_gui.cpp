@@ -268,9 +268,6 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 
 		for ( const auto &pair : config.mods ) {
 			const auto &mod = pair.second;
-			if ( !mod.active ) {
-				continue;
-			}
 
 			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
 			ImGui::Text( mod.description.c_str() );
