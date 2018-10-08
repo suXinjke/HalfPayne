@@ -58,7 +58,6 @@ TYPEDESCRIPTION	CSqueakGrenade::m_SaveData[] =
 	DEFINE_FIELD( CSqueakGrenade, m_hOwner, FIELD_EHANDLE ),
 	DEFINE_FIELD( CSqueakGrenade, inceptionDepth, FIELD_INTEGER ),
 	DEFINE_FIELD( CSqueakGrenade, isPenguin, FIELD_BOOLEAN ),
-	DEFINE_FIELD( CSqueakGrenade, nuclear, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CSqueakGrenade, isPanic, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CSqueakGrenade, isStill, FIELD_BOOLEAN ),
 };
@@ -121,7 +120,6 @@ void CSqueakGrenade :: Spawn( void )
 
 	isPenguin = false;
 	inceptionDepth = 10;
-	nuclear = false;
 	isStill = false;
 	float health = gSkillData.snarkHealth;
 
@@ -130,13 +128,12 @@ void CSqueakGrenade :: Spawn( void )
 
 	// TODO: access gameplayMods directly where needed instead of duplicating it here
 	inceptionDepth = gameplayMods.snarkInceptionDepth;
-	nuclear = gameplayMods.snarkNuclear;
 	isPenguin = gameplayMods.snarkPenguins;
 	if ( isPenguin ) {
 		SET_MODEL(ENT(pev), "models/w_pingu.mdl");
 		UTIL_SetSize(pev, Vector( -6, -6, 0), Vector(6, 6, 20));
 		health = gSkillData.headcrabHealth;
-		if ( !nuclear ) {
+		if ( !gameplayMods.snarkNuclear ) {
 			pev->skin = 1;
 			SetBodygroup( 1, 1 );
 		}
@@ -237,7 +234,7 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 		snark2->pev->velocity = -gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
 	}
 
-	if ( nuclear ) {
+	if ( gameplayMods.snarkNuclear ) {
 		float damage = gSkillData.plrDmgHandGrenade;
 		RadiusDamage ( pev, pev, damage, CLASS_NONE, DMG_BLAST, false );
 

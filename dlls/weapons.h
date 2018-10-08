@@ -1291,7 +1291,6 @@ class CSqueakGrenade : public CGrenade
 	EHANDLE m_hOwner;
 	int  m_iMyClass;
 	int inceptionDepth;
-	BOOL nuclear;
 	BOOL isPenguin;
 
 public:

@@ -8,9 +8,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 	
 	{ GAMEPLAY_MOD_ALWAYS_GIB, GameplayMod( "always_gib", "Always gib" )
 		.Description( "Kills will always try to result in gibbing." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.gibsAlways = TRUE;
-		} )
+		.Toggles( &gameplayMods.gibsAlways )
 	},
 
 	{ GAMEPLAY_MOD_BLACK_MESA_MINUTE, GameplayMod( "black_mesa_minute", "Black Mesa Minute" )
@@ -42,13 +40,14 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.bleedingUpdatePeriod = args.at( 1 ).number;
 			gameplayMods.bleedingImmunityPeriod = args.at( 2 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.bleeding = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_BULLET_DELAY_ON_SLOWMOTION, GameplayMod( "bullet_delay_on_slowmotion", "Bullet delay on slowmotion" )
 		.Description( "When slowmotion is activated, physical bullets shot by you will move slowly until you turn off the slowmotion." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.bulletDelayOnSlowmotion = TRUE;
-		} )
+		.Toggles( &gameplayMods.bulletDelayOnSlowmotion )
 	},
 
 	{ GAMEPLAY_MOD_BULLET_PHYSICS_DISABLED, GameplayMod( "bullet_physics_disabled", "Bullet physics disabled" )
@@ -88,20 +87,19 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			// TODO
 			//gameplayMods.bulletRicochetError = 5;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.bulletRicochetCount = 0;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_BULLET_SELF_HARM, GameplayMod( "bullet_self_harm", "Bullet self harm" )
 		.Description( "Physical bullets shot by player can harm back (ricochet mod is required)." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.bulletSelfHarm = TRUE;
-		} )
+		.Toggles( &gameplayMods.bulletSelfHarm )
 	},
 
 	{ GAMEPLAY_MOD_BULLET_TRAIL_CONSTANT, GameplayMod( "bullet_trail_constant", "Bullet trail constant" )
 		.Description( "Physical bullets always get a trail, regardless if slowmotion is present." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.bulletTrailConstant = TRUE;
-		} )
+		.Toggles( &gameplayMods.bulletTrailConstant )
 	},
 
 	{ GAMEPLAY_MOD_CONSTANT_SLOWMOTION, GameplayMod( "constant_slowmotion", "Constant slowmotion" )
@@ -114,13 +112,18 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.slowmotionInfinite = TRUE;
 			gameplayMods.slowmotionConstant = TRUE;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+	#ifndef CLIENT_DLL
+			player->SetSlowMotion( false ),
+	#endif
+			gameplayMods.slowmotionInfinite = FALSE;
+			gameplayMods.slowmotionConstant = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_CROSSBOW_EXPLOSIVE_BOLTS, GameplayMod( "crossbow_explosive_bolts", "Crossbow explosive bolts" )
 		.Description( "Crossbow bolts explode when they hit the wall." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.crossbowExplosiveBolts = TRUE;
-		} )
+		.Toggles( &gameplayMods.crossbowExplosiveBolts )
 	},
 
 	{ GAMEPLAY_MOD_DETACHABLE_TRIPMINES, GameplayMod( "detachable_tripmines", "Detachable tripmines" )
@@ -134,6 +137,9 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.detachableTripmines = TRUE;
 			gameplayMods.detachableTripminesInstantly = args.at( 0 ).string == "instantly";
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.detachableTripmines = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_DIVING_ALLOWED_WITHOUT_SLOWMOTION, GameplayMod( "diving_allowed_without_slowmotion", "Diving allowed without slowmotion" )
@@ -141,9 +147,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"You're still allowed to dive even if you have no slowmotion charge.\n"
 			"In that case you will dive without going into slowmotion."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.divingAllowedWithoutSlowmotion = TRUE;
-		} )
+		.Toggles( &gameplayMods.divingAllowedWithoutSlowmotion )
 	},
 
 	{ GAMEPLAY_MOD_DIVING_ONLY, GameplayMod( "diving_only", "Diving only" )
@@ -152,10 +156,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"This enables Infinite slowmotion by default.\n"
 			"You can dive even when in crouch-like position, like when being in vents etc."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.divingOnly = TRUE;
-			gameplayMods.slowmotionInfinite = TRUE;
-		} )
+		.Toggles( { &gameplayMods.divingOnly, &gameplayMods.slowmotionInfinite } )
 	},
 
 	{ GAMEPLAY_MOD_DRUNK_AIM, GameplayMod( "drunk_aim", "Drunk aim" )
@@ -176,6 +177,11 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.aimOffsetMaxY = args.at( 1 ).number;
 			gameplayMods.aimOffsetChangeFreqency = args.at( 2 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) { 
+			gameplayMods.aimOffsetMaxX = 0;
+			gameplayMods.aimOffsetMaxY = 0;
+			gameplayMods.aimOffsetChangeFreqency = 0;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_DRUNK_LOOK, GameplayMod( "drunk_look", "Drunk look" )
@@ -188,23 +194,22 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.drunkiness = ( args.at( 0 ).number / 100.0f ) * 255;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.drunkiness = 0;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_EASY, GameplayMod( "easy", "Easy difficulty" )
 		.Description( "Sets up easy level of difficulty." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {} )
 	},
 
 	{ GAMEPLAY_MOD_EDIBLE_GIBS, GameplayMod( "edible_gibs", "Edible gibs" )
 		.Description( "Allows you to eat gibs by pressing USE when aiming at the gib, which restore your health by 5." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.gibsEdible = TRUE;
-		} )
+		.Toggles( &gameplayMods.gibsEdible )
 	},
 
 	{ GAMEPLAY_MOD_EMPTY_SLOWMOTION, GameplayMod( "empty_slowmotion", "Empty slowmotion" )
 		.Description( "Start with no slowmotion charge." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {} )
 	},
 
 	{ GAMEPLAY_MOD_FADING_OUT, GameplayMod( "fading_out", "Fading out" )
@@ -226,6 +231,9 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.fadeOutThreshold = 255 - ( args.at( 0 ).number / 100.0f ) * 255;
 			gameplayMods.fadeOutUpdatePeriod = args.at( 1 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.fadeOut = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_FRICTION, GameplayMod( "friction", "Friction" )
@@ -238,13 +246,14 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.frictionOverride = args.at( 0 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.frictionOverride = -1.0f;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_GARBAGE_GIBS, GameplayMod( "garbage_gibs", "Garbage gibs" )
 		.Description( "Replaces all gibs with garbage." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.gibsGarbage = TRUE;
-		} )
+		.Toggles( &gameplayMods.gibsGarbage )
 	},
 
 	{ GAMEPLAY_MOD_GOD, GameplayMod( "god", "God mode" )
@@ -252,37 +261,33 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.godConstant = TRUE;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.godConstant = FALSE;
+			player->pev->flags &= ~FL_GODMODE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_HARD, GameplayMod( "hard", "Hard difficulty" )
 		.Description( "Sets up hard level of difficulty." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {} )
 	},
 
 	{ GAMEPLAY_MOD_HEADSHOTS, GameplayMod( "headshots", "Headshots" )
 		.Description( "Headshots dealt to enemies become much more deadly." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {} )
 	},
 
 	{ GAMEPLAY_MOD_INFINITE_AMMO, GameplayMod( "infinite_ammo", "Infinite ammo" )
 		.Description( "All weapons get infinite ammo." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.infiniteAmmo = TRUE;
-		} )
+		.Toggles( &gameplayMods.infiniteAmmo )
 	},
 
 	{ GAMEPLAY_MOD_INFINITE_AMMO_CLIP, GameplayMod( "infinite_ammo_clip", "Infinite ammo clip" )
 		.Description( "Most weapons get an infinite ammo clip and need no reloading." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.infiniteAmmoClip = TRUE;
-		} )
+		.Toggles( &gameplayMods.infiniteAmmoClip )
 	},
 
 	{ GAMEPLAY_MOD_INFINITE_PAINKILLERS, GameplayMod( "infinite_painkillers", "Infinite painkillers" )
 		.Description( "Self explanatory." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.painkillersInfinite = TRUE;
-		} )
+		.Toggles( &gameplayMods.painkillersInfinite )
 	},
 
 	{ GAMEPLAY_MOD_INFINITE_SLOWMOTION, GameplayMod( "infinite_slowmotion", "Infinite slowmotion" )
@@ -292,6 +297,9 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			player->TakeSlowmotionCharge( 100 ),
 	#endif
 			gameplayMods.slowmotionInfinite = TRUE;
+		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.slowmotionInfinite = FALSE;
 		} )
 	},
 
@@ -312,12 +320,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"Gauss Gun becomes much more deadly with 9999 damage, also gets red beam and slower rate of fire.\n"
 			"More gibs come out."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.instaGib = TRUE;
-		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.instaGib = FALSE;
-		} )
+		.Toggles( &gameplayMods.instaGib )
 	},
 
 	{ GAMEPLAY_MOD_HEALTH_REGENERATION, GameplayMod( "health_regeneration", "Health regeneration" )
@@ -352,69 +355,63 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.healOnKill = TRUE;
 			gameplayMods.healOnKillMultiplier = args.at( 0 ).number / 100.0f;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.healOnKill = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_NO_FALL_DAMAGE, GameplayMod( "no_fall_damage", "No fall damage" )
 		.Description( "Self explanatory." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noFallDamage = TRUE;
-		} )
+		.Toggles( &gameplayMods.noFallDamage )
 	},
 
 	{ GAMEPLAY_MOD_NO_MAP_MUSIC, GameplayMod( "no_map_music", "No map music" )
 		.Description( "Music which is defined by map will not be played.\nOnly the music defined in gameplay config files will play." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noMapMusic = TRUE;
-		} )
+		.Toggles( &gameplayMods.noMapMusic )
 	},
 
 	{ GAMEPLAY_MOD_NO_HEALING, GameplayMod( "no_healing", "No healing" )
 		.Description( "Don't allow to heal in any way, including Xen healing pools." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noHealing = TRUE;
-		} )
+		.Toggles( &gameplayMods.noHealing )
 	},
 
 	{ GAMEPLAY_MOD_NO_JUMPING, GameplayMod( "no_jumping", "No jumping" )
 		.Description( "Don't allow to jump." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noJumping = TRUE;
-		} )
+		.Toggles( &gameplayMods.noJumping )
 	},
 
 	{ GAMEPLAY_MOD_NO_PILLS, GameplayMod( "no_pills", "No painkillers" )
 		.Description( "Don't allow to take painkillers." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.painkillersForbidden = TRUE;
-		} )
+		.Toggles( &gameplayMods.painkillersForbidden )
 	},
 
 	{ GAMEPLAY_MOD_NO_SAVING, GameplayMod( "no_saving", "No saving" )
 		.Description( "Don't allow to load saved files." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noSaving = TRUE;
-		} )
+		.Toggles( &gameplayMods.noSaving )
 	},
 
 	{ GAMEPLAY_MOD_NO_SECONDARY_ATTACK, GameplayMod( "no_secondary_attack", "No secondary attack" )
 		.Description( "Disables the secondary attack on all weapons." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noSecondaryAttack = TRUE;
-		} )
+		.Toggles( &gameplayMods.noSecondaryAttack )
 	},
 
 	{ GAMEPLAY_MOD_NO_SLOWMOTION, GameplayMod( "no_slowmotion", "No slowmotion" )
 		.Description( "You're not allowed to use slowmotion." )
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+#ifndef CLIENT_DLL
+			player->DeactivateSlowMotion();
+			player->slowMotionCharge = 0;
+#endif
 			gameplayMods.slowmotionForbidden = TRUE;
+		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.slowmotionForbidden = FALSE;
 		} )
 	},
 
 	{ GAMEPLAY_MOD_NO_SMG_GRENADE_PICKUP, GameplayMod( "no_smg_grenade_pickup", "No SMG grenade pickup" )
 		.Description( "You're not allowed to pickup and use SMG (MP5) grenades." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noSmgGrenadePickup = TRUE;
-		} )
+		.Toggles( &gameplayMods.noSmgGrenadePickup )
 	},
 
 	{ GAMEPLAY_MOD_NO_TARGET, GameplayMod( "no_target", "No target" )
@@ -422,13 +419,15 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.noTargetConstant = TRUE;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.noTargetConstant = FALSE;
+			player->pev->flags &= ~FL_NOTARGET;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_NO_WALKING, GameplayMod( "no_walking", "No walking" )
 		.Description( "Don't allow to walk, swim, dive, climb ladders." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.noWalking = TRUE;
-		} )
+		.Toggles( &gameplayMods.noWalking )
 	},
 
 	{ GAMEPLAY_MOD_ONE_HIT_KO, GameplayMod( "one_hit_ko", "One hit KO" )
@@ -436,23 +435,17 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"Any hit from an enemy will kill you instantly.\n"
 			"You still get proper damage from falling and environment."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.oneHitKO = TRUE;
-		} )
+		.Toggles( &gameplayMods.oneHitKO )
 	},
 
 	{ GAMEPLAY_MOD_ONE_HIT_KO_FROM_PLAYER, GameplayMod( "one_hit_ko_from_player", "One hit KO from player" )
 		.Description( "All enemies die in one hit." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.oneHitKOFromPlayer = TRUE;
-		} )
+		.Toggles( &gameplayMods.oneHitKOFromPlayer )
 	},
 
 	{ GAMEPLAY_MOD_PREVENT_MONSTER_MOVEMENT, GameplayMod( "prevent_monster_movement", "Prevent monster movement" )
 		.Description( "Monsters will always stay at spawn spot." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.preventMonsterMovement = TRUE;
-		} )
+		.Toggles( &gameplayMods.preventMonsterMovement )
 	},
 
 	{ GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN, GameplayMod( "prevent_monster_spawn", "Prevent monster spawn" )
@@ -460,73 +453,52 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"Don't spawn predefined monsters (NPCs) when visiting a new map.\n"
 			"This doesn't affect dynamic monster_spawners."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.preventMonsterSpawn = TRUE;
-		} )
+		.Toggles( &gameplayMods.preventMonsterSpawn )
 	},
 
 	{ GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT, GameplayMod( "prevent_monster_stuck_effect", "Prevent monster stuck effect" )
 		.Description( "If monsters get stuck after spawning, they won't have the usual yellow particles effect." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.preventMonsterStuckEffect = TRUE;
-		} )
+		.Toggles( &gameplayMods.preventMonsterStuckEffect )
 	},
 
 	{ GAMEPLAY_MOD_PREVENT_MONSTER_DROPS, GameplayMod( "prevent_monster_drops", "Prevent monster drops" )
 		.Description( "Monsters won't drop anything when dying." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.preventMonsterDrops = TRUE;
-		} )
+		.Toggles( &gameplayMods.preventMonsterDrops )
 	},
 
 	{ GAMEPLAY_MOD_SCORE_ATTACK, GameplayMod( "score_attack", "Score attack" )
 		.Description( "Kill enemies to get as much score as possible. Build combos to get even more score." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.scoreAttack = true;
-		} )
+		.Toggles( &gameplayMods.scoreAttack )
 	},
 
 	{ GAMEPLAY_MOD_SHOTGUN_AUTOMATIC, GameplayMod( "shotgun_automatic", "Automatic shotgun" )
 		.Description( "Shotgun only fires single shots and doesn't have to be reloaded after each shot." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.automaticShotgun = true;
-		} )
+		.Toggles( &gameplayMods.automaticShotgun )
 	},
 
 	{ GAMEPLAY_MOD_SHOW_TIMER, GameplayMod( "show_timer", "Show timer" )
 		.Description( "Timer will be shown. Time is affected by slowmotion." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.timerShown = TRUE;
-		} )
+		.Toggles( &gameplayMods.timerShown )
 	},
 
 	{ GAMEPLAY_MOD_SHOW_TIMER_REAL_TIME, GameplayMod( "show_timer_real_time", "Show timer with real time" )
 		.Description( "Time will be shown and it's not affected by slowmotion, which is useful for speedruns." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.timerShown = TRUE;
-			gameplayMods.timerShowReal = TRUE;
-		} )
+		.Toggles( { &gameplayMods.timerShown, &gameplayMods.timerShowReal } )
 	},
 
 	{ GAMEPLAY_MOD_SLOWMOTION_FAST_WALK, GameplayMod( "slowmotion_fast_walk", "Fast walk in slowmotion" )
 		.Description( "You still walk and run almost as fast as when slowmotion is not active." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.slowmotionFastWalk = TRUE;
-		} )
+		.Toggles( &gameplayMods.slowmotionFastWalk )
 	},
 
 	{ GAMEPLAY_MOD_SLOWMOTION_ON_DAMAGE, GameplayMod( "slowmotion_on_damage", "Slowmotion on damage" )
 		.Description( "You get slowmotion charge when receiving damage." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.slowmotionOnDamage = TRUE;
-		} )
+		.Toggles( &gameplayMods.slowmotionOnDamage )
 	},
 
 	{ GAMEPLAY_MOD_SLOWMOTION_ONLY_DIVING, GameplayMod( "slowmotion_only_diving", "Slowmotion only when diving" )
 		.Description( "You're allowed to go into slowmotion only by diving." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.slowmotionOnlyDiving = TRUE;
-		} )
+		.Toggles( &gameplayMods.slowmotionOnlyDiving )
 	},
 
 	{ GAMEPLAY_MOD_SLOW_PAINKILLERS, GameplayMod( "slow_painkillers", "Slow painkillers" )
@@ -540,27 +512,24 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.painkillersSlow = TRUE;
 			player->nextPainkillerEffectTimePeriod = args.at( 0 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.painkillersSlow = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_FRIENDLY_TO_ALLIES, GameplayMod( "snark_friendly_to_allies", "Snarks friendly to allies" )
 		.Description( "Snarks won't attack player's allies." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkFriendlyToAllies = TRUE;
-		} )
+		.Toggles( &gameplayMods.snarkFriendlyToAllies )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_FRIENDLY_TO_PLAYER, GameplayMod( "snark_friendly_to_player", "Snarks friendly to player" )
 		.Description( "Snarks won't attack player." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkFriendlyToPlayer = true;
-		} )
+		.Toggles( &gameplayMods.snarkFriendlyToPlayer )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_FROM_EXPLOSION, GameplayMod( "snark_from_explosion", "Snark from explosion" )
 		.Description( "Snarks will spawn in the place of explosion." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkFromExplosion = TRUE;
-		} )
+		.Toggles( &gameplayMods.snarkFromExplosion )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_INCEPTION, GameplayMod( "snark_inception", "Snark inception" )
@@ -574,6 +543,9 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.snarkInception = TRUE;
 			gameplayMods.snarkInceptionDepth = args.at( 0 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.snarkInception = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_INFESTATION, GameplayMod( "snark_infestation", "Snark infestation" )
@@ -581,30 +553,22 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"Snark will spawn in the body of killed monster (NPC).\n"
 			"Even more snarks spawn if monster's corpse has been gibbed."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkInfestation = TRUE;
-		} )
+		.Toggles( &gameplayMods.snarkInfestation )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_NUCLEAR, GameplayMod( "snark_nuclear", "Snark nuclear" )
 		.Description( "Killing snark produces a grenade-like explosion." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkNuclear = TRUE;
-		} )
+		.Toggles( &gameplayMods.snarkNuclear )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_PENGUINS, GameplayMod( "snark_penguins", "Snark penguins" )
 		.Description( "Replaces snarks with penguins from Opposing Force.\n" )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkPenguins = TRUE;
-		} )
+		.Toggles( &gameplayMods.snarkPenguins )
 	},
 
 	{ GAMEPLAY_MOD_SNARK_STAY_ALIVE, GameplayMod( "snark_stay_alive", "Snark stay alive" )
 		.Description( "Snarks will never die on their own, they must be shot." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.snarkStayAlive = TRUE;
-		} )
+		.Toggles( &gameplayMods.snarkStayAlive )
 	},
 
 	{ GAMEPLAY_MOD_STARTING_HEALTH, GameplayMod( "starting_health", "Starting Health" )
@@ -625,36 +589,49 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"Inspired by the game SUPERHOT."
 		)
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+#ifndef CLIENT_DLL
+			player->SetSlowMotion( false );
+#endif
 			gameplayMods.superHot = TRUE;
+		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+#ifndef CLIENT_DLL
+			player->SetSlowMotion( false );
+			player->desiredTimeScale = 1.0f;
+#endif
+			gameplayMods.superHot = FALSE;
 		} )
 	},
 
 	{ GAMEPLAY_MOD_SWEAR_ON_KILL, GameplayMod( "swear_on_kill", "Swear on kill" )
 		.Description( "Max will swear when killing an enemy. He will still swear even if Max's commentary is turned off." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.swearOnKill = TRUE;
-		} )
+		.Toggles( &gameplayMods.swearOnKill )
 	},
 
 	{ GAMEPLAY_MOD_UPSIDE_DOWN, GameplayMod( "upside_down", "Upside down" )
 		.Description( "View becomes turned on upside down." )
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+#ifndef CLIENT_DLL
+			player->upsideDownMessageSent = false;
+#endif
 			gameplayMods.upsideDown = TRUE;
+		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+#ifndef CLIENT_DLL
+			player->upsideDownMessageSent = false;
+#endif
+			gameplayMods.upsideDown = FALSE;
 		} )
 	},
 
 	{ GAMEPLAY_MOD_TOTALLY_SPIES, GameplayMod( "totally_spies", "Totally spies" )
 		.Description( "Replaces all HGrunts with Black Ops." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.totallySpies = TRUE;
-		} )
+		.Toggles( &gameplayMods.totallySpies )
 	},
 
 	{ GAMEPLAY_MOD_TELEPORT_MAINTAIN_VELOCITY, GameplayMod( "teleport_maintain_velocity", "Teleport maintain velocity" )
 		.Description( "Your velocity will be preserved after going through teleporters." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.teleportMaintainVelocity = TRUE;
-		} )
+		.Toggles( &gameplayMods.teleportMaintainVelocity )
 	},
 
 	{ GAMEPLAY_MOD_TELEPORT_ON_KILL, GameplayMod( "teleport_on_kill", "Teleport on kill" )
@@ -672,6 +649,9 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 				snprintf( gameplayMods.teleportOnKillWeapon, 64, "%s", weapon.c_str() );
 			}
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.teleportOnKill = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_TIME_RESTRICTION, GameplayMod( "time_restriction", "Time restriction" )
@@ -686,6 +666,10 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.timerBackwards = TRUE;
 			gameplayMods.time = args.at( 0 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.timerShown = FALSE;
+			gameplayMods.timerBackwards = FALSE;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_VVVVVV, GameplayMod( "vvvvvv", "VVVVVV" )
@@ -693,9 +677,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"Pressing jump reverses gravity for player.\n"
 			"Inspired by the game VVVVVV."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.vvvvvv = TRUE;
-		} )
+		.Toggles( &gameplayMods.vvvvvv )
 	},
 
 	{ GAMEPLAY_MOD_WEAPON_IMPACT, GameplayMod( "weapon_impact", "Weapon impact" )
@@ -710,6 +692,9 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.weaponImpact = args.at( 0 ).number;
 		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.weaponImpact = 0.0f;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_WEAPON_PUSH_BACK, GameplayMod( "weapon_push_back", "Weapon push back" )
@@ -722,8 +707,11 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			} ),
 		} )
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.weaponPushBack = true;
+			gameplayMods.weaponPushBack = TRUE;
 			gameplayMods.weaponPushBackMultiplier = args.at( 0 ).number;
+		} )
+		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.weaponPushBack = FALSE;
 		} )
 	},
 
@@ -733,8 +721,6 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			"You can have several weapons at once if they are specified in [loadout] section.\n"
 			"Weapon stripping doesn't affect you."
 		)
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-			gameplayMods.weaponRestricted = TRUE;
-		} )
+		.Toggles( &gameplayMods.weaponRestricted )
 	}
 };

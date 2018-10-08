@@ -117,6 +117,7 @@ struct GameplayMod {
 	std::vector<Argument> arguments;
 
 	std::function<void( CBasePlayer*, const std::vector<Argument> & )> init;
+	bool canBeDeactivated;
 	std::function<void( CBasePlayer*, const std::vector<Argument> & )> deactivate;
 
 	GameplayMod() {};
@@ -124,7 +125,10 @@ struct GameplayMod {
 		id( id ), name( name ),
 		description( "" ), arguments( std::vector<Argument>() ),
 		init( []( CBasePlayer *, const std::vector<Argument> & ) {} ),
-		deactivate( []( CBasePlayer *, const std::vector<Argument> & ) {} ) {
+
+		canBeDeactivated( false ),
+		deactivate( []( CBasePlayer *, const std::vector<Argument> & ) {} )
+	{
 	}
 
 	GameplayMod &Description( const std::string &description ) {
@@ -137,6 +141,30 @@ struct GameplayMod {
 		return *this;
 	}
 
+	GameplayMod &Toggles( BOOL *flag ) {
+		this->OnInit( [flag]( CBasePlayer *, const std::vector<Argument> & ) {
+			*flag = TRUE;
+		} );
+		this->OnDeactivation( [flag]( CBasePlayer *, const std::vector<Argument> & ) {
+			*flag = FALSE;
+		} );
+		return *this;
+	}
+	
+	GameplayMod &Toggles( const std::vector<BOOL *> flags ) {
+		this->OnInit( [flags]( CBasePlayer *, const std::vector<Argument> & ) {
+			for ( auto flag : flags ) {
+				*flag = TRUE;
+			}
+		} );
+		this->OnDeactivation( [flags]( CBasePlayer *, const std::vector<Argument> & ) {
+			for ( auto flag : flags ) {
+				*flag = FALSE;
+			}
+		} );
+		return *this;
+	}
+
 	GameplayMod &OnInit( const std::function<void( CBasePlayer*, const std::vector<Argument> & )> &init ) {
 		this->init = init;
 		return *this;
@@ -144,6 +172,7 @@ struct GameplayMod {
 
 	GameplayMod &OnDeactivation( const std::function<void( CBasePlayer*, const std::vector<Argument> & )> &deactivate ) {
 		this->deactivate = deactivate;
+		this->canBeDeactivated = true;
 		return *this;
 	}
 };

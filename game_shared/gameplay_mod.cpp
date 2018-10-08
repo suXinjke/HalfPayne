@@ -105,7 +105,11 @@ void GameplayMods::SetGameplayModActiveByString( const std::string &line, bool i
 				if ( isActive ) {
 					mod.init( pPlayer, mod.arguments );
 				} else {
-					mod.deactivate( pPlayer, mod.arguments );
+					if ( mod.canBeDeactivated ) {
+						mod.deactivate( pPlayer, mod.arguments );
+					} else {
+						ALERT( at_notice, "this mod cannot be deactivated\n" );
+					}
 				}
 			}
 			break;

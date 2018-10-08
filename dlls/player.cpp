@@ -3586,6 +3586,8 @@ pt_end:
 
 	if ( gameplayMods.divingOnly ) {
 		pev->fuser4 = 1.0f;
+	} else {
+		pev->fuser4 = 0.0f;
 	}
 
 	if ( gameplayMods.reverseGravity ) {
@@ -3600,18 +3602,15 @@ pt_end:
 		ThinkAboutFinalDesperation();
 	}
 
-	if ( gameplayMods.aimOffsetMaxX > 0.0f || gameplayMods.aimOffsetMaxY > 0.0f ) {
-		float phi = gpGlobals->time * gameplayMods.aimOffsetChangeFreqency;
-		aimOffsetX = sin( phi ) * gameplayMods.aimOffsetMaxX;
-		aimOffsetY = cos( phi ) * sin( phi ) * gameplayMods.aimOffsetMaxY;
+	float phi = gpGlobals->time * gameplayMods.aimOffsetChangeFreqency;
+	aimOffsetX = sin( phi ) * gameplayMods.aimOffsetMaxX;
+	aimOffsetY = cos( phi ) * sin( phi ) * gameplayMods.aimOffsetMaxY;
+	MESSAGE_BEGIN( MSG_ONE, gmsgAimOffset, NULL, pev );
+		WRITE_FLOAT( aimOffsetX );
+		WRITE_FLOAT( aimOffsetY );
+	MESSAGE_END();
 
-		MESSAGE_BEGIN( MSG_ONE, gmsgAimOffset, NULL, pev );
-			WRITE_FLOAT( aimOffsetX );
-			WRITE_FLOAT( aimOffsetY );
-		MESSAGE_END();
-
-		SET_CROSSHAIRANGLE( edict(), aimOffsetY, -aimOffsetX );
-	}
+	SET_CROSSHAIRANGLE( edict(), aimOffsetY, -aimOffsetX );
 
 	if ( showCredits ) {
 		if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -5597,11 +5596,9 @@ void CBasePlayer :: UpdateClientData( void )
 		nextPainkillerEffectTime = nextPainkillerEffectTimePeriod + gpGlobals->time;
 	}
 
-	if ( gameplayMods.fadeOut ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgFadeOut, NULL, pev );
-			WRITE_BYTE( gameplayMods.fade );
-		MESSAGE_END();
-	}
+	MESSAGE_BEGIN( MSG_ONE, gmsgFadeOut, NULL, pev );
+		WRITE_BYTE( gameplayMods.fade );
+	MESSAGE_END();
 
 	if ( gameplayMods.fadeOut && lastHealingTime <= gpGlobals->time && fadeOutTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
 		fadeOutTime = gameplayMods.fadeOutUpdatePeriod + gpGlobals->time;
@@ -5609,6 +5606,8 @@ void CBasePlayer :: UpdateClientData( void )
 		if ( gameplayMods.fade < gameplayMods.fadeOutThreshold ) {
 			gameplayMods.fade = gameplayMods.fadeOutThreshold;
 		}
+	} else if ( !gameplayMods.fadeOut ) {
+		gameplayMods.fade = 255;
 	}
 
 	if ( last_fps_max != g_fps_max->value ) {
