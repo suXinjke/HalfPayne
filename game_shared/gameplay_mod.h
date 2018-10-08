@@ -198,6 +198,8 @@ public:
 #define FieldFloat( name, default ) Field( float, name, default, FIELD_FLOAT )
 #define FieldTime( name, default ) Field( float, name, default, FIELD_TIME )
 
+	bool addedAdditionalFields = false;
+
 	Field( GAME_MODE, activeGameMode, GAME_MODE_VANILLA, FIELD_INTEGER );
 	char activeGameModeConfig[256];
 	char activeGameModeConfigHash[128];
@@ -351,6 +353,7 @@ public:
 	int Restore( CRestore &restore );
 #endif // CLIENT_DLL
 
+	void AddArrayFieldDefinitions();
 	void SetGameplayModActiveByString( const std::string &line, bool isActive = false );
 
 	static void Reset();

@@ -28,19 +28,17 @@ void GameplayMods::Init() {
 	} );
 #endif
 
-	// HACK: didn't figure out simple macro to avoid defining these fields in this place
-	fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfig, FIELD_CHARACTER, 256 ) );
-	fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfigHash, FIELD_CHARACTER, 128 ) );
-	fields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
 }
 
 #ifndef CLIENT_DLL
 
 int GameplayMods::Save( CSave &save ) {
+	AddArrayFieldDefinitions();
 	return save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
 }
 
 int GameplayMods::Restore( CRestore &restore ) {
+	AddArrayFieldDefinitions();
 	return restore.ReadFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
 }
 
@@ -63,6 +61,17 @@ void GameplayMods::SendToClient() {
 }
 
 #endif
+
+void GameplayMods::AddArrayFieldDefinitions() {
+	if ( !addedAdditionalFields ) {
+		// HACK: didn't figure out simple macro to avoid defining these fields in this place
+		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfig, FIELD_CHARACTER, 256 ) );
+		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfigHash, FIELD_CHARACTER, 128 ) );
+		fields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
+
+		addedAdditionalFields = true;
+	}
+}
 
 void GameplayMods::SetGameplayModActiveByString( const std::string &line, bool isActive ) {
 	auto args = NaiveCommandLineParse( line );
