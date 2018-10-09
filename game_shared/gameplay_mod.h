@@ -10,6 +10,7 @@
 #ifdef CLIENT_DLL
 #include "wrect.h"
 #include "../cl_dll/cl_dll.h"
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
 #endif // CLIENT_DLL
 
 #include <vector>
@@ -116,9 +117,8 @@ struct GameplayMod {
 
 	std::vector<Argument> arguments;
 
-	std::function<void( CBasePlayer*, const std::vector<Argument> & )> init;
 	bool canBeDeactivated;
-	std::function<void( CBasePlayer*, const std::vector<Argument> & )> deactivate;
+	std::function<void( CBasePlayer * )> Deactivate;
 
 	GameplayMod() {};
 	GameplayMod( const std::string &id, const std::string &name ) :
@@ -127,8 +127,25 @@ struct GameplayMod {
 		init( []( CBasePlayer *, const std::vector<Argument> & ) {} ),
 
 		canBeDeactivated( false ),
-		deactivate( []( CBasePlayer *, const std::vector<Argument> & ) {} )
+		Deactivate( []( CBasePlayer * ) {} )
 	{
+	}
+
+	void Init( CBasePlayer *player ) {
+		this->init( player, this->arguments );
+	}
+
+	void Init( CBasePlayer *player, const std::vector<std::string> &stringArgs ) {
+		for ( size_t i = 0; i < min( this->arguments.size(), stringArgs.size() ); i++ ) {
+			auto parsingError = this->arguments.at( i ).Init( stringArgs.at( i ) );
+
+			if ( !parsingError.empty() ) {
+				ALERT( at_notice, "%s, argument %d: %s", this->name.c_str(), i, parsingError.c_str() );
+				return;
+			}
+		}
+
+		this->init( player, this->arguments );
 	}
 
 	GameplayMod &Description( const std::string &description ) {
@@ -145,7 +162,7 @@ struct GameplayMod {
 		this->OnInit( [flag]( CBasePlayer *, const std::vector<Argument> & ) {
 			*flag = TRUE;
 		} );
-		this->OnDeactivation( [flag]( CBasePlayer *, const std::vector<Argument> & ) {
+		this->OnDeactivation( [flag]( CBasePlayer * ) {
 			*flag = FALSE;
 		} );
 		return *this;
@@ -157,7 +174,7 @@ struct GameplayMod {
 				*flag = TRUE;
 			}
 		} );
-		this->OnDeactivation( [flags]( CBasePlayer *, const std::vector<Argument> & ) {
+		this->OnDeactivation( [flags]( CBasePlayer * ) {
 			for ( auto flag : flags ) {
 				*flag = FALSE;
 			}
@@ -170,11 +187,14 @@ struct GameplayMod {
 		return *this;
 	}
 
-	GameplayMod &OnDeactivation( const std::function<void( CBasePlayer*, const std::vector<Argument> & )> &deactivate ) {
-		this->deactivate = deactivate;
+	GameplayMod &OnDeactivation( const std::function<void( CBasePlayer* )> &deactivate ) {
+		this->Deactivate = deactivate;
 		this->canBeDeactivated = true;
 		return *this;
 	}
+
+	private:
+		std::function<void( CBasePlayer*, const std::vector<Argument> & )> init;
 };
 
 // ISSUE: Player instance still relies on itself in some cases, like when managin superhot or aimOffset

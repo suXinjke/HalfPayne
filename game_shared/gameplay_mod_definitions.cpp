@@ -40,7 +40,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.bleedingUpdatePeriod = args.at( 1 ).number;
 			gameplayMods.bleedingImmunityPeriod = args.at( 2 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.bleeding = FALSE;
 		} )
 	},
@@ -87,7 +87,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			// TODO
 			//gameplayMods.bulletRicochetError = 5;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.bulletRicochetCount = 0;
 		} )
 	},
@@ -112,7 +112,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.slowmotionInfinite = TRUE;
 			gameplayMods.slowmotionConstant = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 	#ifndef CLIENT_DLL
 			player->SetSlowMotion( false ),
 	#endif
@@ -137,7 +137,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.detachableTripmines = TRUE;
 			gameplayMods.detachableTripminesInstantly = args.at( 0 ).string == "instantly";
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.detachableTripmines = FALSE;
 		} )
 	},
@@ -177,7 +177,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.aimOffsetMaxY = args.at( 1 ).number;
 			gameplayMods.aimOffsetChangeFreqency = args.at( 2 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) { 
+		.OnDeactivation( []( CBasePlayer *player ) { 
 			gameplayMods.aimOffsetMaxX = 0;
 			gameplayMods.aimOffsetMaxY = 0;
 			gameplayMods.aimOffsetChangeFreqency = 0;
@@ -194,7 +194,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.drunkiness = ( args.at( 0 ).number / 100.0f ) * 255;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.drunkiness = 0;
 		} )
 	},
@@ -231,7 +231,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.fadeOutThreshold = 255 - ( args.at( 0 ).number / 100.0f ) * 255;
 			gameplayMods.fadeOutUpdatePeriod = args.at( 1 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.fadeOut = FALSE;
 		} )
 	},
@@ -246,7 +246,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.frictionOverride = args.at( 0 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.frictionOverride = -1.0f;
 		} )
 	},
@@ -261,7 +261,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.godConstant = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.godConstant = FALSE;
 			player->pev->flags &= ~FL_GODMODE;
 		} )
@@ -298,7 +298,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 	#endif
 			gameplayMods.slowmotionInfinite = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.slowmotionInfinite = FALSE;
 		} )
 	},
@@ -355,7 +355,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.healOnKill = TRUE;
 			gameplayMods.healOnKillMultiplier = args.at( 0 ).number / 100.0f;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.healOnKill = FALSE;
 		} )
 	},
@@ -404,7 +404,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 #endif
 			gameplayMods.slowmotionForbidden = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.slowmotionForbidden = FALSE;
 		} )
 	},
@@ -419,7 +419,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.noTargetConstant = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.noTargetConstant = FALSE;
 			player->pev->flags &= ~FL_NOTARGET;
 		} )
@@ -512,7 +512,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.painkillersSlow = TRUE;
 			player->nextPainkillerEffectTimePeriod = args.at( 0 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.painkillersSlow = FALSE;
 		} )
 	},
@@ -543,7 +543,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.snarkInception = TRUE;
 			gameplayMods.snarkInceptionDepth = args.at( 0 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.snarkInception = FALSE;
 		} )
 	},
@@ -594,7 +594,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 #endif
 			gameplayMods.superHot = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 #ifndef CLIENT_DLL
 			player->SetSlowMotion( false );
 			player->desiredTimeScale = 1.0f;
@@ -616,7 +616,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 #endif
 			gameplayMods.upsideDown = TRUE;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 #ifndef CLIENT_DLL
 			player->upsideDownMessageSent = false;
 #endif
@@ -649,7 +649,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 				snprintf( gameplayMods.teleportOnKillWeapon, 64, "%s", weapon.c_str() );
 			}
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.teleportOnKill = FALSE;
 		} )
 	},
@@ -666,7 +666,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.timerBackwards = TRUE;
 			gameplayMods.time = args.at( 0 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.timerShown = FALSE;
 			gameplayMods.timerBackwards = FALSE;
 		} )
@@ -692,7 +692,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
 			gameplayMods.weaponImpact = args.at( 0 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.weaponImpact = 0.0f;
 		} )
 	},
@@ -710,7 +710,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			gameplayMods.weaponPushBack = TRUE;
 			gameplayMods.weaponPushBackMultiplier = args.at( 0 ).number;
 		} )
-		.OnDeactivation( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+		.OnDeactivation( []( CBasePlayer *player ) {
 			gameplayMods.weaponPushBack = FALSE;
 		} )
 	},

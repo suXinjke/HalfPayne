@@ -168,9 +168,9 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	} );
 	sprintf_s( gameplayMods.activeGameModeConfig, sanitizedConfigName.c_str() );
 
-	for ( const auto &pair : config.mods ) {
-		const auto &mod = pair.second;
-		mod.init( pPlayer, mod.arguments );
+	for ( auto &pair : config.mods ) {
+		auto &mod = pair.second;
+		mod.Init( pPlayer );
 	}
 
 	pPlayer->SetEvilImpulse101( true );
