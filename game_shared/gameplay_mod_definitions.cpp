@@ -986,7 +986,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 						
 						entity = rules->SpawnBySpawnData( spawnData );
 					} while ( !entity );
-					spawnedEntities.insert( randomMonsterName );
+					spawnedEntities.insert( spawnData.name );
 				}
 			}
 
