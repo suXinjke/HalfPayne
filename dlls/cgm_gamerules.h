@@ -56,7 +56,6 @@ public:
 	bool cheatedMessageSent;
 	bool startMapDoesntMatch;
 
-	float timeDelta;
 	float musicSwitchDelay;
 
 	int yOffset;

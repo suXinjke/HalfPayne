@@ -867,6 +867,60 @@ void EntitySpawnData::UpdateSpawnFlags() {
 	}
 }
 
+void EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
+#ifndef CLIENT_DLL
+
+	while ( true ) {
+		TraceResult tr;
+		char bottomTexture[256] = "(null)";
+		char upperTexture[256] = "(null)";
+
+		Vector randomPoint = Vector( RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ) );
+		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
+		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
+
+		if ( FStrEq( bottomTexture, "(null)" ) || FStrEq( bottomTexture, "sky" ) || FStrEq( upperTexture, "(null)" ) ) {
+			continue;
+		}
+
+		// Player should not be out of bounds
+		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, pPlayer->pev->origin, randomPoint - gpGlobals->v_up * 8192 ) );
+		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, pPlayer->pev->origin, randomPoint + gpGlobals->v_up * 8192 ) );
+		bool playerIsOutOfBounds = FStrEq( bottomTexture, "(null)" ) || FStrEq( upperTexture, "(null)" );
+
+		// Drop randomPoint on the floor
+		UTIL_TraceLine( randomPoint, randomPoint - gpGlobals->v_up * 8192, dont_ignore_monsters, ignore_glass, pPlayer->edict(), &tr );
+		if ( tr.fAllSolid ) {
+			continue;
+		}
+
+		randomPoint = tr.vecEndPos;
+
+		// Check there are no monsters around
+		CBaseEntity *list[1] = { NULL };
+		UTIL_MonstersInSphere( list, 1, randomPoint, 32.0f );
+		if ( list[0] != NULL ) {
+			continue;
+		}
+
+		// Prefer not to spawn near player
+		UTIL_TraceLine( pPlayer->pev->origin, randomPoint, dont_ignore_monsters, dont_ignore_glass, pPlayer->edict(), &tr );
+		if ( tr.flFraction >= 1.0f && !playerIsOutOfBounds ) {
+			continue;
+		}
+
+		this->x = randomPoint.x;
+		this->y = randomPoint.y;
+		this->z = randomPoint.z + 4;
+		this->angle = RANDOM_LONG( 0, 360 );
+
+		break;
+
+	}
+
+#endif
+}
+
 EntitySpawn::EntitySpawn( const std::vector<Argument> &args ) : Hookable( args ) {
 	
 	entity.name = args.at( 2 ).string;

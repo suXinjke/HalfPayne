@@ -8,7 +8,6 @@
 #include "fs_aux.h"
 #include <map>
 #include <fstream>
-#include <sstream>
 #include <regex>
 
 extern SDL_Window *window;
@@ -115,37 +114,6 @@ std::string GetSubtitleKeyWithLanguage( const std::string &key ) {
 	}
 }
 
-// Based on https://www.rosettacode.org/wiki/Word_wrap#C.2B.2B
-std::vector<std::string> Wrap( const char *text, float line_length = 72 )
-{
-	std::istringstream words( text );
-	std::ostringstream wrapped;
-	std::string word;
-
-	std::vector<std::string> result;
-
-	if ( words >> word ) {
-		wrapped << word;
-		float space_left = line_length - ImGui::CalcTextSize( word.c_str() ).x;
-		while ( words >> word ) {
-			float wordLength = ImGui::CalcTextSize( word.c_str() ).x;
-			if ( space_left < wordLength + 1 ) {
-				result.push_back( wrapped.str() );
-				wrapped = std::ostringstream(); // to reset 'wrapped' stream
-				wrapped << word;
-				space_left = line_length - wordLength;
-			} else {
-				wrapped << ' ' << word;
-				space_left -= wordLength + 1;
-			}
-		}
-		
-		result.push_back( wrapped.str() );
-	}
-
-	return result;
-}
-
 bool Subtitle_IsFarAwayFromPlayer( const SubtitleOutput &subtitle ) {
 	if ( subtitle.ignoreLongDistances ) {
 		return false;
@@ -243,7 +211,9 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 	int ScreenWidth;
 	SDL_GetWindowSize( window, &ScreenWidth, NULL );
 
-	std::vector<std::string> lines = Wrap( text.c_str(), ScreenWidth / 2.0f );
+	std::vector<std::string> lines = Wrap( text.c_str(), ScreenWidth / 2.0f, []( const std::string &str ) -> float {
+		return ImGui::CalcTextSize( str.c_str() ).x;
+	} );
 
 	for ( size_t i = 0 ; i < lines.size() ; i++ ) {
 		std::string actualKey = key + "_" + std::to_string( i );

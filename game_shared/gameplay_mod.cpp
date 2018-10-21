@@ -1,7 +1,10 @@
 #include <map>
+#include <random>
 #include "gameplay_mod.h"
 #include "string_aux.h"
 #include "player.h"
+#include "util_aux.h"
+#include "cgm_gamerules.h"
 GameplayMods gameplayMods;
 
 #ifdef CLIENT_DLL
@@ -34,12 +37,21 @@ void GameplayMods::Init() {
 
 int GameplayMods::Save( CSave &save ) {
 	AddArrayFieldDefinitions();
-	return save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
+	
+	int configFieldsSaveResult = save.WriteFields( "GAMEPLAY_CONFIG", this, fields.data(), fields.size() );
+	int gameplayModsSaveResult = save.WriteFields( "GAMEPLAY_MODS", this, gameplayFields.data(), gameplayFields.size() );
+
+	return configFieldsSaveResult && gameplayModsSaveResult;
 }
 
 int GameplayMods::Restore( CRestore &restore ) {
 	AddArrayFieldDefinitions();
-	return restore.ReadFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
+	return restore.ReadFields( "GAMEPLAY_CONFIG", this, fields.data(), fields.size() );
+}
+
+int GameplayMods::RestoreMods( CRestore &restore ) {
+	AddArrayFieldDefinitions();
+	return restore.ReadFields( "GAMEPLAY_MODS", this, gameplayFields.data(), gameplayFields.size() );
 }
 
 void GameplayMods::Reset() {
@@ -67,7 +79,7 @@ void GameplayMods::AddArrayFieldDefinitions() {
 		// HACK: didn't figure out simple macro to avoid defining these fields in this place
 		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfig, FIELD_CHARACTER, 256 ) );
 		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfigHash, FIELD_CHARACTER, 128 ) );
-		fields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
+		gameplayFields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
 
 		addedAdditionalFields = true;
 	}
@@ -103,4 +115,49 @@ void GameplayMods::SetGameplayModActiveByString( const std::string &line, bool i
 	if ( !activatedMod ) {
 		ALERT( at_notice, "incorrect mod specified: %s\n", modName.c_str() );
 	}
+}
+
+std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player, int modAmount, std::function<bool( const GameplayMod &mod )> filter ) {
+
+	std::vector<GameplayMod> randomGameplayMods;
+
+	auto gameplayMods = gameplayModDefs;
+	for ( auto it = gameplayMods.begin(); it != gameplayMods.end(); ) {
+		if (
+			( it->second.isEvent && !it->second.CanBeActivatedRandomly( player ) ) ||
+			( !it->second.isEvent && !it->second.canBeDeactivated || it->second.cannotBeActivatedRandomly || !it->second.CanBeActivatedRandomly( player ) || !filter( it->second ) )
+		) {
+			it = gameplayMods.erase( it );
+		} else {
+			it++;
+		}
+	}
+
+	for ( size_t i = 0; i < modAmount && gameplayMods.size() > 0; i++ ) {
+	
+		int randomModIndex = UniformInt( 0, gameplayMods.size() - 1 );
+
+		auto it = gameplayMods.begin();
+		std::advance( it, randomModIndex );
+		auto &randomGameplayMod = it->second;
+
+		for ( auto &arg : randomGameplayMod.arguments ) {
+			float min = arg.randomMin;
+			float max = arg.randomMax;
+
+			if ( arg.isNumber && !std::isnan( min ) && !std::isnan( max ) ) {
+				arg.Init( std::to_string( UniformFloat( min, max ) ) );
+			}
+		}
+
+		randomGameplayMods.push_back( randomGameplayMod );
+
+		gameplayMods.erase( it );
+	}
+
+	return randomGameplayMods;
+}
+
+GameplayMod GameplayMods::GetRandomGameplayMod( CBasePlayer *player ) {
+	return GetRandomGameplayMod( player, 1 ).at( 0 );
 }

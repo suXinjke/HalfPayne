@@ -9,6 +9,7 @@
 #include "parsemsg.h"
 #include <random>
 #include "fs_aux.h"
+#include "util_aux.h"
 
 #include <regex>
 
@@ -129,13 +130,9 @@ void SM_Play( const char *soundPath, int looping ) {
 }
 
 void SM_PlayRandomMainMenuMusic() {
-	std::vector<std::string> backgroundFolders = FS_GetAllFilesInDirectory( ".\\half_payne\\media\\menu" );
+	std::vector<std::string> musicFiles = FS_GetAllFilesInDirectory( ".\\half_payne\\media\\menu" );
 
-	static std::random_device rd;
-	static std::mt19937 gen( rd() );
-	std::uniform_int_distribution<> dis( 0, backgroundFolders.size() - 1 );
-
-	SM_Play( backgroundFolders.at( dis( gen ) ).c_str() );
+	SM_Play( RandomFromVector( musicFiles ).c_str() );
 }
 
 void SM_SetPaused( bool paused ) {

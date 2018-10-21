@@ -230,6 +230,7 @@
     <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp" />
     <ClCompile Include="..\..\game_shared\sha1.cpp" />
     <ClCompile Include="..\..\game_shared\string_aux.cpp" />
+    <ClCompile Include="..\..\game_shared\util_aux.cpp" />
     <ClCompile Include="..\..\game_shared\voice_gamemgr.cpp" />
     <ClCompile Include="..\..\pm_shared\pm_debug.c" />
     <ClCompile Include="..\..\pm_shared\pm_math.c" />
@@ -292,6 +293,7 @@
     <ClInclude Include="..\..\game_shared\gameplay_mod.h" />
     <ClInclude Include="..\..\game_shared\sha1.h" />
     <ClInclude Include="..\..\game_shared\string_aux.h" />
+    <ClInclude Include="..\..\game_shared\util_aux.h" />
     <ClInclude Include="..\..\pm_shared\pm_debug.h" />
     <ClInclude Include="..\..\pm_shared\pm_defs.h" />
     <ClInclude Include="..\..\pm_shared\pm_info.h" />

@@ -161,6 +161,8 @@
     <ClCompile Include="..\..\cl_dll\model_indexes.cpp" />
     <ClCompile Include="..\..\cl_dll\painkiller.cpp" />
     <ClCompile Include="..\..\cl_dll\player_info_window.cpp" />
+    <ClCompile Include="..\..\cl_dll\central_label.cpp" />
+    <ClCompile Include="..\..\cl_dll\random_gameplay_mods.cpp" />
     <ClCompile Include="..\..\cl_dll\saytext.cpp" />
     <ClCompile Include="..\..\cl_dll\score.cpp" />
     <ClCompile Include="..\..\cl_dll\slowmotion.cpp" />
@@ -217,6 +219,7 @@
     <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp" />
     <ClCompile Include="..\..\game_shared\sha1.cpp" />
     <ClCompile Include="..\..\game_shared\string_aux.cpp" />
+    <ClCompile Include="..\..\game_shared\util_aux.cpp" />
     <ClCompile Include="..\..\game_shared\vgui_checkbutton2.cpp" />
     <ClCompile Include="..\..\game_shared\vgui_grid.cpp" />
     <ClCompile Include="..\..\game_shared\vgui_helpers.cpp" />
@@ -290,6 +293,7 @@
     <ClInclude Include="..\..\game_shared\gameplay_mod.h" />
     <ClInclude Include="..\..\game_shared\sha1.h" />
     <ClInclude Include="..\..\game_shared\string_aux.h" />
+    <ClInclude Include="..\..\game_shared\util_aux.h" />
     <ClInclude Include="..\..\game_shared\vgui_scrollbar2.h" />
     <ClInclude Include="..\..\game_shared\vgui_slider2.h" />
     <ClInclude Include="..\..\game_shared\voice_banmgr.h" />

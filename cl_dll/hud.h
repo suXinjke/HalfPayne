@@ -645,6 +645,8 @@ public:
 	virtual int Draw( float fTime );
 
 	int MsgFunc_CountDeact( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_CountLen( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_CountOffse( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_CountValue( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_CountCheat( const char *pszName, int iSize, void *pbuf );
 
@@ -655,6 +657,44 @@ private:
 
 	std::vector<CounterValue> values;
 };
+
+struct ProposedRandomGameplayMod {
+	int votes;
+	float percent;
+	std::string name;
+};
+
+struct ActiveRandomGameplayMod {
+	float initialTime;
+	float timeLeft;
+	std::string name;
+};
+
+class CHudRandomGameplayMods : public CHudBase {
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_RandModLen( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_RandModVal( const char *pszName, int iSize, void *pbuf );
+	
+	int MsgFunc_PropModLen( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_PropModVal( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_PropModVot( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_PropModAni( const char *pszName, int iSize, void *pbuf );
+
+private:
+	std::vector<ProposedRandomGameplayMod> proposedMods;
+	std::vector<ActiveRandomGameplayMod> mods;
+	
+	int highlightIndex;
+	float timeUntilNextHighlight;
+
+	bool ShouldDrawVotes();
+	void HighlightRandomProposedMod();
+};
+
 
 class CHudScore : public CHudBase
 {
@@ -675,6 +715,23 @@ private:
 	int currentScore;
 	int comboMultiplier;
 	float comboMultiplierReset;
+};
+
+class CHudCentralLabel : public CHudBase {
+public:
+	virtual int Init( void );
+	virtual void Reset( void );
+	virtual int Draw( float fTime );
+
+	int MsgFunc_CLabelVal( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_CLabelGMod( const char *pszName, int iSize, void *pbuf );
+
+private:
+	float timeUntilStopDrawing;
+	int alpha;
+
+	std::string label;
+	std::string subLabel;
 };
 
 typedef std::pair< std::string, float > GameLogMessage;
@@ -883,6 +940,8 @@ public:
 	CHudPainkiller  m_Painkiller;
 	CHudTimer		m_Timer;
 	CHudScore		m_Score;
+	CHudRandomGameplayMods m_RandomGameplayMods;
+	CHudCentralLabel	m_CentralLabel;
 	CHudCounter		m_Counter;
 	CHudGameLog		m_GameLog;
 	CHudGameLogWorld m_GameLogWorld;

@@ -53,6 +53,7 @@ extern "C"
 #include "../public/interface.h"
 
 #include "hl_imgui.h"
+#include "util_aux.h"
 
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
@@ -168,12 +169,9 @@ void ShuffleMainMenuBackground() {
 	} ), backgroundFolders.end() );
 
 	if ( backgroundFolders.size() > 0 ) {
-		static std::random_device rd;
-		static std::mt19937 gen( rd() );
-		std::uniform_int_distribution<> dis( 0, backgroundFolders.size() - 1 );
 
 		std::string backgroundFolder = ".\\half_payne\\resource\\background";
-		std::string newBackground = backgroundFolders.at( dis( gen ) );
+		std::string newBackground = RandomFromVector( backgroundFolders );
 
 		FS_RemoveDirectory( backgroundFolder );
 		FS_CopyDirectory( newBackground, backgroundFolder );

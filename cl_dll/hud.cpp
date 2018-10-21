@@ -378,6 +378,8 @@ void CHud :: Init( void )
 	m_SlowMotion.Init();
 	m_Painkiller.Init();
 	m_Score.Init();
+	m_RandomGameplayMods.Init();
+	m_CentralLabel.Init();
 	m_Counter.Init();
 	m_GameLog.Init();
 	m_GameLogWorld.Init();

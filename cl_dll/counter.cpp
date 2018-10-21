@@ -4,17 +4,21 @@
 #include "parsemsg.h"
 #include "triangleapi.h"
 
+DECLARE_MESSAGE( m_Counter, CountLen )
 DECLARE_MESSAGE( m_Counter, CountValue )
 DECLARE_MESSAGE( m_Counter, CountCheat )
 DECLARE_MESSAGE( m_Counter, CountDeact )
+DECLARE_MESSAGE( m_Counter, CountOffse )
 
 extern globalvars_t *gpGlobals;
 
 int CHudCounter::Init( void )
 {
+	HOOK_MESSAGE( CountLen );
 	HOOK_MESSAGE( CountValue );
 	HOOK_MESSAGE( CountCheat );
 	HOOK_MESSAGE( CountDeact );
+	HOOK_MESSAGE( CountOffse );
 	
 	gHUD.AddHudElem( this );
 
@@ -87,20 +91,34 @@ int CHudCounter::Draw( float flTime )
 	return 1;
 }
 
+int CHudCounter::MsgFunc_CountLen( const char *pszName, int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+	
+	size_t counterCount = READ_SHORT();
+	if ( values.size() != counterCount ) {
+		values.resize( counterCount );
+	}
+
+	return 1;
+}
+
 int CHudCounter::MsgFunc_CountValue( const char *pszName, int iSize, void *pbuf )
 {
 	BEGIN_READ( pbuf, iSize );
-	size_t counterCount = READ_SHORT();
-	for ( size_t i = 0 ; i < counterCount ; i++ ) {
-		CounterValue value = { READ_LONG(), READ_LONG(), READ_STRING() };
-		if ( i + 1 > values.size() ) {
-			values.push_back( value );
-		} else {
-			values[i] = value;
-		}
-	}
+	size_t index = READ_SHORT();
+	CounterValue value = { READ_LONG(), READ_LONG(), READ_STRING() };
+	values[index] = value;
 
-	yOffset = READ_LONG();
+	m_iFlags |= HUD_ACTIVE;
+
+	return 1;
+}
+
+int CHudCounter::MsgFunc_CountOffse( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	yOffset = READ_SHORT();
+
 	m_iFlags |= HUD_ACTIVE;
 
 	return 1;

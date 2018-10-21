@@ -79,6 +79,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_PREVENT_MONSTER_MOVEMENT,
 	GAMEPLAY_MOD_PREVENT_MONSTER_SPAWN,
 	GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT,
+	GAMEPLAY_MOD_RANDOM_GAMEPLAY_MODS,
 	GAMEPLAY_MOD_SCORE_ATTACK,
 	GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,
 	GAMEPLAY_MOD_SHOW_TIMER,
@@ -108,6 +109,9 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_WEAPON_IMPACT,
 	GAMEPLAY_MOD_WEAPON_PUSH_BACK,
 	GAMEPLAY_MOD_WEAPON_RESTRICTED,
+
+	GAMEPLAY_MOD_EVENT_GIVE_RANDOM_WEAPON,
+	GAMEPLAY_MOD_EVENT_SPAWN_RANDOM_MONSTERS,
 };
 
 struct GameplayMod {
@@ -117,22 +121,33 @@ struct GameplayMod {
 
 	std::vector<Argument> arguments;
 
+	bool cannotBeActivatedRandomly;
 	bool canBeDeactivated;
+	bool isEvent;
+	bool canBeCancelledAfterChangeLevel;
 	std::function<void( CBasePlayer * )> Deactivate;
+	std::function<bool( CBasePlayer * )> CanBeActivatedRandomly;
 
 	GameplayMod() {};
 	GameplayMod( const std::string &id, const std::string &name ) :
 		id( id ), name( name ),
 		description( "" ), arguments( std::vector<Argument>() ),
-		init( []( CBasePlayer *, const std::vector<Argument> & ) {} ),
+
+		cannotBeActivatedRandomly( false ),
+		init( []( CBasePlayer *, const std::vector<Argument> & ) -> std::pair<std::string, std::string> {
+			return { "", "" };
+		} ),
 
 		canBeDeactivated( false ),
-		Deactivate( []( CBasePlayer * ) {} )
+		isEvent( false ),
+		canBeCancelledAfterChangeLevel( false ),
+		Deactivate( []( CBasePlayer * ) {} ),
+		CanBeActivatedRandomly( []( CBasePlayer * ) { return true; } )
 	{
 	}
 
-	void Init( CBasePlayer *player ) {
-		this->init( player, this->arguments );
+	std::pair<std::string, std::string> Init( CBasePlayer *player ) {
+		return this->init( player, this->arguments );
 	}
 
 	void Init( CBasePlayer *player, const std::vector<std::string> &stringArgs ) {
@@ -183,7 +198,16 @@ struct GameplayMod {
 	}
 
 	GameplayMod &OnInit( const std::function<void( CBasePlayer*, const std::vector<Argument> & )> &init ) {
+		this->init = [init]( CBasePlayer *player, const std::vector<Argument> &args ) -> std::pair<std::string, std::string> {
+			init( player, args );
+			return { "", "" };
+		};
+		return *this;
+	}
+
+	GameplayMod &OnEventInit( const std::function<std::pair<std::string, std::string>( CBasePlayer*, const std::vector<Argument> & )> &init ) {
 		this->init = init;
+		this->isEvent = true;
 		return *this;
 	}
 
@@ -193,8 +217,23 @@ struct GameplayMod {
 		return *this;
 	}
 
+	GameplayMod &CannotBeActivatedRandomly() {
+		this->cannotBeActivatedRandomly = true;
+		return *this;
+	}
+
+	GameplayMod &CanOnlyBeActivatedRandomlyWhen( const std::function<bool( CBasePlayer* )> &randomActivateCondition ) {
+		this->CanBeActivatedRandomly = randomActivateCondition;
+		return *this;
+	}
+
+	GameplayMod &CanBeCancelledAfterChangeLevel() {
+		this->canBeCancelledAfterChangeLevel = true;
+		return *this;
+	}
+
 	private:
-		std::function<void( CBasePlayer*, const std::vector<Argument> & )> init;
+		std::function<std::pair<std::string, std::string>( CBasePlayer*, const std::vector<Argument> & )> init;
 };
 
 // ISSUE: Player instance still relies on itself in some cases, like when managin superhot or aimOffset
@@ -204,138 +243,149 @@ class GameplayMods
 {
 public:
 	std::vector<TYPEDESCRIPTION> fields;
-	template<typename T> T _Field( int offset, T default, FIELDTYPE type, short count = 1 ) {
-		std::string fieldName = "gameplayModsField" + std::to_string( fields.size() + 1 );
-
-		this->fields.push_back(
-			{ type, _strdup( fieldName.c_str() ), offset, count, 0 }
-		);
+	std::vector<TYPEDESCRIPTION> gameplayFields;
+	template<typename T> T _Field( int offset, char *fieldName, T default, FIELDTYPE type, bool isGameplayField ) {
+		
+		if ( isGameplayField ) {
+			this->gameplayFields.push_back(
+				{ type, fieldName, offset, 1, 0 }
+			);
+		} else {
+			this->fields.push_back(
+				{ type, fieldName, offset, 1, 0 }
+			);
+		}
 		return default;
 	}
-#define Field( ctype, name, default, type, ... ) ctype name = _Field( offsetof( GameplayMods, name ), default, type, ##__VA_ARGS__ )
-#define FieldBool( name, default ) Field( BOOL, name, default, FIELD_BOOLEAN )
-#define FieldInt( name, default ) Field( int, name, default, FIELD_INTEGER )
-#define FieldFloat( name, default ) Field( float, name, default, FIELD_FLOAT )
-#define FieldTime( name, default ) Field( float, name, default, FIELD_TIME )
+#define Field( ctype, name, default, type, isGameplayField, ... ) ctype name = _Field( offsetof( GameplayMods, name ), #name, default, type, isGameplayField, ##__VA_ARGS__ )
+#define FieldBool( name, default ) Field( BOOL, name, default, FIELD_BOOLEAN, false )
+#define FieldInt( name, default ) Field( int, name, default, FIELD_INTEGER, false )
+#define FieldFloat( name, default ) Field( float, name, default, FIELD_FLOAT, false )
+#define FieldTime( name, default ) Field( float, name, default, FIELD_TIME, false )
+
+#define GameplayFieldBool( name, default ) Field( BOOL, name, default, FIELD_BOOLEAN, true )
+#define GameplayFieldInt( name, default ) Field( int, name, default, FIELD_INTEGER, true )
+#define GameplayFieldFloat( name, default ) Field( float, name, default, FIELD_FLOAT, true )
+#define GameplayFieldTime( name, default ) Field( float, name, default, FIELD_TIME, true )
 
 	bool addedAdditionalFields = false;
 
-	Field( GAME_MODE, activeGameMode, GAME_MODE_VANILLA, FIELD_INTEGER );
+	Field( GAME_MODE, activeGameMode, GAME_MODE_VANILLA, FIELD_INTEGER, false );
 	char activeGameModeConfig[256];
 	char activeGameModeConfigHash[128];
 
-	FieldFloat( aimOffsetMaxX, 0.0f );
-	FieldFloat( aimOffsetMaxY, 0.0f );
-	FieldFloat( aimOffsetChangeFreqency, 0.0f );
+	GameplayFieldFloat( aimOffsetMaxX, 0.0f );
+	GameplayFieldFloat( aimOffsetMaxY, 0.0f );
+	GameplayFieldFloat( aimOffsetChangeFreqency, 0.0f );
 
-	FieldBool( automaticShotgun, FALSE );
+	GameplayFieldBool( automaticShotgun, FALSE );
 
-	FieldBool( bleeding, FALSE );
-	FieldFloat( bleedingUpdatePeriod, 1.0f );
-	FieldFloat( bleedingHandicap, 20.0f );
-	FieldFloat( bleedingImmunityPeriod, 10.0f );
+	GameplayFieldBool( bleeding, FALSE );
+	GameplayFieldFloat( bleedingUpdatePeriod, 1.0f );
+	GameplayFieldFloat( bleedingHandicap, 20.0f );
+	GameplayFieldFloat( bleedingImmunityPeriod, 10.0f );
 
-	FieldBool( bulletDelayOnSlowmotion, FALSE );
-	FieldInt( bulletRicochetCount, 0 );
-	FieldInt( bulletRicochetError, 5 );
-	FieldFloat( bulletRicochetMaxDotProduct, 0.5 );
-	FieldBool( bulletPhysical, FALSE );
-	Field( BULLET_PHYSICS_MODE, bulletPhysicsMode, BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION, FIELD_INTEGER );
-	FieldBool( bulletSelfHarm, FALSE );
-	FieldBool( bulletTrailConstant, FALSE );
+	GameplayFieldBool( bulletDelayOnSlowmotion, FALSE );
+	GameplayFieldInt( bulletRicochetCount, 0 );
+	GameplayFieldInt( bulletRicochetError, 5 );
+	GameplayFieldFloat( bulletRicochetMaxDotProduct, 0.5 );
+	GameplayFieldBool( bulletPhysical, FALSE );
+	Field( BULLET_PHYSICS_MODE, bulletPhysicsMode, BULLET_PHYSICS_ENEMIES_ONLY_ON_SLOWMOTION, FIELD_INTEGER, true );
+	GameplayFieldBool( bulletSelfHarm, FALSE );
+	GameplayFieldBool( bulletTrailConstant, FALSE );
 
-	FieldBool( crossbowExplosiveBolts, FALSE );
+	GameplayFieldBool( crossbowExplosiveBolts, FALSE );
 
-	FieldBool( detachableTripmines, FALSE );
-	FieldBool( detachableTripminesInstantly, FALSE );
+	GameplayFieldBool( detachableTripmines, FALSE );
+	GameplayFieldBool( detachableTripminesInstantly, FALSE );
 
-	FieldBool( divingOnly, FALSE );
-	FieldBool( divingAllowedWithoutSlowmotion, FALSE );
+	GameplayFieldBool( divingOnly, FALSE );
+	GameplayFieldBool( divingAllowedWithoutSlowmotion, FALSE );
 
-	FieldInt( drunkiness, 0 );
+	GameplayFieldInt( drunkiness, 0 );
 
-	FieldBool( gibsAlways, FALSE );
-	FieldBool( gibsEdible, FALSE );
-	FieldBool( gibsGarbage, FALSE );
+	GameplayFieldBool( gibsAlways, FALSE );
+	GameplayFieldBool( gibsEdible, FALSE );
+	GameplayFieldBool( gibsGarbage, FALSE );
 
-	FieldInt( fade, 255 );
-	FieldBool( fadeOut, FALSE );
-	FieldInt( fadeOutThreshold, 25 );
-	FieldFloat( fadeOutUpdatePeriod, 0.5f );
+	GameplayFieldInt( fade, 255 );
+	GameplayFieldBool( fadeOut, FALSE );
+	GameplayFieldInt( fadeOutThreshold, 25 );
+	GameplayFieldFloat( fadeOutUpdatePeriod, 0.5f );
 
-	FieldFloat( frictionOverride, -1.0f );
+	GameplayFieldFloat( frictionOverride, -1.0f );
 
-	FieldBool( godConstant, FALSE );
+	GameplayFieldBool( godConstant, FALSE );
 
-	FieldBool( healOnKill, FALSE );
-	FieldFloat( healOnKillMultiplier, 0.25f );
+	GameplayFieldBool( healOnKill, FALSE );
+	GameplayFieldFloat( healOnKillMultiplier, 0.25f );
 	
-	FieldBool( infiniteAmmo, FALSE );
-	FieldBool( infiniteAmmoClip, FALSE );
-	FieldInt( initialClipAmmo, 0 );
+	GameplayFieldBool( infiniteAmmo, FALSE );
+	GameplayFieldBool( infiniteAmmoClip, FALSE );
+	GameplayFieldInt( initialClipAmmo, 0 );
 
-	FieldBool( instaGib, FALSE );
+	GameplayFieldBool( instaGib, FALSE );
 
-	FieldBool( noFallDamage, FALSE );
-	FieldBool( noJumping, FALSE );
-	FieldBool( noMapMusic, FALSE );
-	FieldBool( noHealing, FALSE );
-	FieldBool( noSaving, FALSE );
-	FieldBool( noSecondaryAttack, FALSE );
-	FieldBool( noSmgGrenadePickup, FALSE );
-	FieldBool( noTargetConstant, FALSE );
-	FieldBool( noWalking, FALSE );
+	GameplayFieldBool( noFallDamage, FALSE );
+	GameplayFieldBool( noJumping, FALSE );
+	GameplayFieldBool( noMapMusic, FALSE );
+	GameplayFieldBool( noHealing, FALSE );
+	GameplayFieldBool( noSaving, FALSE );
+	GameplayFieldBool( noSecondaryAttack, FALSE );
+	GameplayFieldBool( noSmgGrenadePickup, FALSE );
+	GameplayFieldBool( noTargetConstant, FALSE );
+	GameplayFieldBool( noWalking, FALSE );
 
-	FieldBool( oneHitKO, FALSE );
-	FieldBool( oneHitKOFromPlayer, FALSE );
+	GameplayFieldBool( oneHitKO, FALSE );
+	GameplayFieldBool( oneHitKOFromPlayer, FALSE );
 
-	FieldBool( preventMonsterDrops, FALSE );
-	FieldBool( preventMonsterMovement, FALSE );
-	FieldBool( preventMonsterSpawn, FALSE );
-	FieldBool( preventMonsterStuckEffect, FALSE );
+	GameplayFieldBool( preventMonsterDrops, FALSE );
+	GameplayFieldBool( preventMonsterMovement, FALSE );
+	GameplayFieldBool( preventMonsterSpawn, FALSE );
+	GameplayFieldBool( preventMonsterStuckEffect, FALSE );
 
-	FieldFloat( regenerationMax, 20.0f );
-	FieldFloat( regenerationDelay, 3.0f );
-	FieldFloat( regenerationFrequency, 0.2f );
-	FieldBool( reverseGravity, FALSE );
+	GameplayFieldFloat( regenerationMax, 20.0f );
+	GameplayFieldFloat( regenerationDelay, 3.0f );
+	GameplayFieldFloat( regenerationFrequency, 0.2f );
+	GameplayFieldBool( reverseGravity, FALSE );
 
-	FieldBool( painkillersForbidden, FALSE );
-	FieldBool( painkillersInfinite, FALSE );
-	FieldBool( painkillersSlow, FALSE );
+	GameplayFieldBool( painkillersForbidden, FALSE );
+	GameplayFieldBool( painkillersInfinite, FALSE );
+	GameplayFieldBool( painkillersSlow, FALSE );
 
-	FieldBool( slowmotionConstant, FALSE );
-	FieldBool( slowmotionFastWalk, FALSE );
-	FieldBool( slowmotionForbidden, FALSE );
-	FieldBool( slowmotionInfinite, FALSE );
-	FieldBool( slowmotionOnDamage, FALSE );
-	FieldBool( slowmotionOnlyDiving, FALSE );
+	GameplayFieldBool( slowmotionConstant, FALSE );
+	GameplayFieldBool( slowmotionFastWalk, FALSE );
+	GameplayFieldBool( slowmotionForbidden, FALSE );
+	GameplayFieldBool( slowmotionInfinite, FALSE );
+	GameplayFieldBool( slowmotionOnDamage, FALSE );
+	GameplayFieldBool( slowmotionOnlyDiving, FALSE );
 
-	FieldBool( snarkFriendlyToAllies, FALSE );
-	FieldBool( snarkFriendlyToPlayer, FALSE );
-	FieldBool( snarkFromExplosion, FALSE );
-	FieldBool( snarkInception, FALSE );
-	FieldInt( snarkInceptionDepth, 10 );
-	FieldBool( snarkInfestation, FALSE );
-	FieldBool( snarkNuclear, FALSE );
-	FieldBool( snarkPenguins, FALSE );
-	FieldBool( snarkStayAlive, FALSE );
+	GameplayFieldBool( snarkFriendlyToAllies, FALSE );
+	GameplayFieldBool( snarkFriendlyToPlayer, FALSE );
+	GameplayFieldBool( snarkFromExplosion, FALSE );
+	GameplayFieldBool( snarkInception, FALSE );
+	GameplayFieldInt( snarkInceptionDepth, 10 );
+	GameplayFieldBool( snarkInfestation, FALSE );
+	GameplayFieldBool( snarkNuclear, FALSE );
+	GameplayFieldBool( snarkPenguins, FALSE );
+	GameplayFieldBool( snarkStayAlive, FALSE );
 
-	FieldBool( superHot, FALSE );
-	FieldBool( swearOnKill, FALSE );
+	GameplayFieldBool( superHot, FALSE );
+	GameplayFieldBool( swearOnKill, FALSE );
 
-	FieldBool( teleportMaintainVelocity, FALSE );
-	FieldBool( teleportOnKill, FALSE );
+	GameplayFieldBool( teleportMaintainVelocity, FALSE );
+	GameplayFieldBool( teleportOnKill, FALSE );
 	char teleportOnKillWeapon[64];
 	
-	FieldBool( totallySpies, FALSE );
+	GameplayFieldBool( totallySpies, FALSE );
 
-	FieldBool( upsideDown, FALSE );
-	FieldBool( vvvvvv, FALSE );
+	GameplayFieldBool( upsideDown, FALSE );
+	GameplayFieldBool( vvvvvv, FALSE );
 
-	FieldFloat( weaponImpact, 0.0f );
-	FieldBool( weaponPushBack, FALSE );
-	FieldFloat( weaponPushBackMultiplier, 1.0f );
-	FieldBool( weaponRestricted, FALSE );
+	GameplayFieldFloat( weaponImpact, 0.0f );
+	GameplayFieldBool( weaponPushBack, FALSE );
+	GameplayFieldFloat( weaponPushBackMultiplier, 1.0f );
+	GameplayFieldBool( weaponRestricted, FALSE );
 
 	// Statistics and game state
 	FieldBool( cheated, FALSE );
@@ -343,6 +393,13 @@ public:
 
 	FieldBool( blackMesaMinute, FALSE );
 	FieldBool( scoreAttack, FALSE );
+
+	FieldBool( randomGameplayMods, FALSE );
+	FieldTime( timeForRandomGameplayMod, 10.0f );
+	FieldFloat( timeUntilNextRandomGameplayMod, 10.0f );
+	FieldFloat( timeForRandomGameplayModVoting, 10.0f );
+	float timeLeftUntilNextRandomGameplayMod = 10.0f;
+	std::vector<GameplayMod> proposedGameplayMods;
 	
 	FieldFloat( time, 0.0f );
 	FieldFloat( realTime, 0.0f );
@@ -371,10 +428,15 @@ public:
 	void SendToClient();
 	int Save( CSave &save );
 	int Restore( CRestore &restore );
+	int RestoreMods( CRestore &restore );
 #endif // CLIENT_DLL
 
 	void AddArrayFieldDefinitions();
 	void SetGameplayModActiveByString( const std::string &line, bool isActive = false );
+	std::vector<GameplayMod> GetRandomGameplayMod( CBasePlayer *player, int modAmount, std::function<bool( const GameplayMod &mod )> filter = []( const GameplayMod & ){ return true; } );
+	GameplayMod GetRandomGameplayMod( CBasePlayer *player );
+
+	std::vector<std::pair<GameplayMod, float>> timedGameplayMods;
 
 	static void Reset();
 };

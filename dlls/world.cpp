@@ -444,7 +444,7 @@ void SaveGlobalState( SAVERESTOREDATA *pSaveData )
 {
 	CSave saveHelper( pSaveData );
 	gGlobalState.Save( saveHelper );
-	
+
 	gameplayMods.Save( saveHelper );
 }
 
@@ -455,6 +455,13 @@ void RestoreGlobalState( SAVERESTOREDATA *pSaveData )
 	gGlobalState.Restore( restoreHelper );
 
 	gameplayMods.Restore( restoreHelper );
+	if ( !gameplayMods.randomGameplayMods ) {
+		gameplayMods.RestoreMods( restoreHelper );
+	} else {
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
+		}
+	}
 }
 
 
@@ -463,7 +470,11 @@ void ResetGlobalState( void )
 	gGlobalState.ClearStates();
 	gInitHUD = TRUE;	// Init the HUD on a new game / load game
 
-	gameplayMods.Reset();
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		if ( !cgm->config.IsGameplayModActive( GAMEPLAY_MOD_RANDOM_GAMEPLAY_MODS ) ) {
+			gameplayMods.Reset();
+		}
+	}
 }
 
 // moved CWorld class definition to cbase.h

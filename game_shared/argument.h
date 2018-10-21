@@ -17,6 +17,9 @@ struct Argument {
 	float min = NAN;
 	float max = NAN;
 
+	float randomMin = NAN;
+	float randomMax = NAN;
+
 	typedef std::function<std::string( const std::string &, float )> ArgumentDescriptionFunction;
 
 	ArgumentDescriptionFunction GetDescription = []( const std::string &string, float number ) {
@@ -45,6 +48,12 @@ struct Argument {
 		this->isNumber = true;
 		this->min = min;
 		this->max = max;
+		return *this;
+	}
+	
+	Argument &RandomMinMax( float min, float max ) {
+		this->randomMin = min;
+		this->randomMax = max;
 		return *this;
 	}
 

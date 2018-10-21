@@ -295,6 +295,14 @@ CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData 
 		entity->pev->targetname = ALLOC_STRING( spawnData.targetName.c_str() ); // memory leak
 	}
 
+	// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
+	if ( DROP_TO_FLOOR( ENT( entity->pev ) ) >= 1 && WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
+		entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
+	} else {
+		g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
+		return NULL;
+	}
+
 	return entity;
 }
 

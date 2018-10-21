@@ -612,6 +612,7 @@ void ClientCommand( edict_t *pEntity )
 		if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
 			auto gameplay_mod = ( char * ) CMD_ARGS();
 			gameplayMods.SetGameplayModActiveByString( std::string( gameplay_mod ), true );
+			gameplayMods.cheated = true;
 		}
 	}
 	else if ( FStrEq( pcmd, "gameplay_demod" ) )
@@ -623,6 +624,27 @@ void ClientCommand( edict_t *pEntity )
 		if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
 			auto gameplay_mod = ( char * ) CMD_ARGS();
 			gameplayMods.SetGameplayModActiveByString( std::string( gameplay_mod ), false );
+			gameplayMods.cheated = true;
+		}
+	}
+	else if ( FStrEq( pcmd, "gameplay_mod_can_be_activated_randomly" ) ) {
+		if ( CMD_ARGC() < 2 ) {
+			return;
+		}
+
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			auto gameplay_mod = std::string( CMD_ARGS() );
+
+			for ( auto &pair : gameplayModDefs ) {
+				auto &mod = pair.second;
+				if ( mod.id != gameplay_mod ) {
+					continue;
+				}
+				
+				if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+					ALERT( at_notice, "%s: %d\n", mod.id.c_str(), mod.CanBeActivatedRandomly( player ) );
+				}
+			}
 		}
 	}
 	else if ( g_pGameRules->ClientCommand( GetClassPtr((CBasePlayer *)pev), pcmd ) )

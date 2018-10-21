@@ -1,5 +1,6 @@
 #include "string_aux.h"
 #include <algorithm>
+#include <sstream>
 
 std::string Trim( const std::string& str, const std::string& whitespace )
 {
@@ -120,4 +121,35 @@ std::vector<std::string> NaiveCommandLineParse( const std::string &input ) {
 	}
 
 	return args;
+}
+
+// Based on https://www.rosettacode.org/wiki/Word_wrap#C.2B.2B
+std::vector<std::string> Wrap( const char *text, float line_length, std::function<float(const std::string &)> text_length_calculator ) {
+	std::istringstream words( text );
+	std::ostringstream wrapped;
+	std::string word;
+
+	std::vector<std::string> result;
+
+	if ( words >> word ) {
+		wrapped << word;
+		float space_left = line_length - text_length_calculator( word );
+
+		while ( words >> word ) {
+			float wordLength = text_length_calculator( word );
+			if ( space_left < wordLength + 1 ) {
+				result.push_back( wrapped.str() );
+				wrapped = std::ostringstream(); // to reset 'wrapped' stream
+				wrapped << word;
+				space_left = line_length - wordLength;
+			} else {
+				wrapped << ' ' << word;
+				space_left -= wordLength + 1;
+			}
+		}
+
+		result.push_back( wrapped.str() );
+	}
+
+	return result;
 }

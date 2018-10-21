@@ -10,6 +10,8 @@
 #include	<random>
 #include	"monsters.h"
 #include	"gameplay_mod.h"
+#include	"util_aux.h"
+#include	"../fmt/printf.h"
 
 // Custom Game Mode Rules
 
@@ -29,12 +31,25 @@ int gmsgTimerValue = 0;
 int gmsgTimerCheat = 0;
 
 int gmsgCountDeact = 0;
+int gmsgCountLen   = 0;
 int gmsgCountValue = 0;
+int gmsgCountOffse = 0;
 int gmsgCountCheat = 0;
 
 int gmsgScoreDeact  = 0;
 int gmsgScoreValue	= 0;
 int gmsgScoreCheat	= 0;
+
+int gmsgRandModLen = 0;
+int gmsgRandModVal = 0;
+
+int gmsgPropModLen = 0;
+int gmsgPropModVal = 0;
+int gmsgPropModVot = 0;
+int gmsgPropModAni = 0;
+
+int gmsgCLabelVal  = 0;
+int gmsgCLabelGMod  = 0;
 
 // CGameRules were recreated each level change and there were no built-in saving method,
 // that means we'd lose config file state on each level change.
@@ -70,12 +85,25 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 
 		gmsgCountDeact = REG_USER_MSG( "CountDeact", 0 );
+		gmsgCountLen = REG_USER_MSG( "CountLen", 2 );
 		gmsgCountValue = REG_USER_MSG( "CountValue", -1 );
+		gmsgCountOffse = REG_USER_MSG( "CountOffse", 4 );
 		gmsgCountCheat = REG_USER_MSG( "CountCheat", 0 );
 
 		gmsgScoreDeact = REG_USER_MSG( "ScoreDeact", 0 );
 		gmsgScoreValue = REG_USER_MSG( "ScoreValue", 16 );
 		gmsgScoreCheat = REG_USER_MSG( "ScoreCheat", 0 );
+
+		gmsgCLabelVal = REG_USER_MSG( "CLabelVal", -1 );
+		gmsgCLabelGMod = REG_USER_MSG( "CLabelGMod", -1 );
+
+		gmsgRandModLen = REG_USER_MSG( "RandModLen", 2 );
+		gmsgRandModVal = REG_USER_MSG( "RandModVal", -1 );
+		
+		gmsgPropModLen = REG_USER_MSG( "PropModLen", 2 );
+		gmsgPropModVal = REG_USER_MSG( "PropModVal", -1 );
+		gmsgPropModVot = REG_USER_MSG( "PropModVot", 2 );
+		gmsgPropModAni = REG_USER_MSG( "PropModAni", 0 );
 	}
 
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
@@ -91,7 +119,6 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	cheatedMessageSent = false;
 	startMapDoesntMatch = false;
 
-	timeDelta = 0.0f;
 	musicSwitchDelay = 0.0f;
 
 	yOffset = 0;
@@ -158,6 +185,8 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	}
 
 	CHalfLifeRules::PlayerSpawn( pPlayer );
+
+	gameplayMods.Reset();
 
 	gameplayMods.activeGameMode = GAME_MODE_CUSTOM;
 
@@ -254,29 +283,28 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 {
 	CHalfLifeRules::PlayerThink( pPlayer );
 	
-	timeDelta = ( gpGlobals->time - gameplayMods.lastGlobalTime );
+	// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
+	// It was made to prevent timer messup during level changes, because each level has it's own local time
+	float proposedTimeDelta = gpGlobals->time - gameplayMods.lastGlobalTime;
+	float timeDelta = fabs( proposedTimeDelta ) <= 0.1 ? ( proposedTimeDelta ) : 0.0f;
 
 	gameplayMods.lastGlobalTime = gpGlobals->time;
 
 	if ( !gameplayMods.timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
-
-		// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
-		// It was made to prevent timer messup during level changes, because each level has it's own local time
-		if ( fabs( timeDelta ) <= 0.1 ) {
-			if ( gameplayMods.timerBackwards ) {
-				gameplayMods.time -= timeDelta;
-			} else {
-				gameplayMods.time += timeDelta;
-			}
-
-			gameplayMods.realTime += timeDelta / pPlayer->desiredTimeScale;
-
-			if ( pPlayer->slowMotionEnabled ) {
-				gameplayMods.secondsInSlowmotion += timeDelta;
-			}
-
-			CheckForCheats( pPlayer );
+	
+		if ( gameplayMods.timerBackwards ) {
+			gameplayMods.time -= timeDelta;
+		} else {
+			gameplayMods.time += timeDelta;
 		}
+
+		gameplayMods.realTime += timeDelta / pPlayer->desiredTimeScale;
+
+		if ( pPlayer->slowMotionEnabled ) {
+			gameplayMods.secondsInSlowmotion += timeDelta;
+		}
+
+		CheckForCheats( pPlayer );
 	}
 
 	for ( auto &spawner : entityRandomSpawnerControllers ) {
@@ -291,10 +319,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	) {
 		size_t musicIndexToPlay = pPlayer->currentMusicPlaylistIndex + 1;
 		if ( config.musicPlaylistShuffle ) {
-			static std::random_device rd;
-			static std::mt19937 gen( rd() );
-			std::uniform_int_distribution<> dis( 0, musicPlaylistSize - 1 );
-			musicIndexToPlay = dis( gen );
+			musicIndexToPlay = UniformInt( 0, musicPlaylistSize - 1 );
 		}
 
 		if ( musicIndexToPlay >= musicPlaylistSize ) {
@@ -341,18 +366,25 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	int conditionsHeight = 0;
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
-	WRITE_SHORT( config.endConditions.size() );
+	MESSAGE_BEGIN( MSG_ONE, gmsgCountLen, NULL, pPlayer->pev );
+		WRITE_SHORT( config.endConditions.size() );
+	MESSAGE_END();
 
-	for ( const auto &condition : config.endConditions ) {
-		WRITE_LONG( condition.activations );
-		WRITE_LONG( condition.activationsRequired );
+	for ( size_t i = 0 ; i < config.endConditions.size() ; i++ ) {
+		auto &condition = config.endConditions.at( i );
 
-		WRITE_STRING( condition.objective.c_str() );
+		MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
+			WRITE_SHORT( i );
+			WRITE_LONG( condition.activations );
+			WRITE_LONG( condition.activationsRequired );
+			WRITE_STRING( condition.objective.c_str() );
+		MESSAGE_END();
 
 		conditionsHeight += condition.activationsRequired > 1 ? SPACING : SPACING - 34;
 	}
-	WRITE_LONG( yOffset );
+	
+	MESSAGE_BEGIN( MSG_ONE, gmsgCountOffse, NULL, pPlayer->pev );
+		WRITE_LONG( yOffset );
 	MESSAGE_END();
 
 	yOffset += conditionsHeight;
@@ -365,6 +397,108 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			gameplayMods.comboMultiplier = 1;
 		}
 	}
+
+	if ( gameplayMods.randomGameplayMods ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgRandModLen, NULL, pPlayer->pev );
+			WRITE_SHORT( gameplayMods.timedGameplayMods.size() );
+		MESSAGE_END();
+
+		int index = 0;
+
+		for ( const auto &timedMod : gameplayMods.timedGameplayMods ) {
+
+			MESSAGE_BEGIN( MSG_ONE, gmsgRandModVal, NULL, pPlayer->pev );
+				WRITE_SHORT( index );
+				WRITE_FLOAT( gameplayMods.timeForRandomGameplayMod );
+				WRITE_FLOAT( timedMod.second );
+				WRITE_STRING( timedMod.first.name.c_str() );
+			MESSAGE_END();
+
+			index++;
+		}
+
+		gameplayMods.timeLeftUntilNextRandomGameplayMod -= timeDelta;
+
+		if ( gameplayMods.proposedGameplayMods.size() > 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod < 0.0f ) {
+			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
+
+			auto randomGameplayMod = RandomFromVector( gameplayMods.proposedGameplayMods );
+			auto eventResults = randomGameplayMod.Init( pPlayer );
+
+			if ( randomGameplayMod.isEvent ) {
+				MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
+					WRITE_STRING( eventResults.first.c_str() );
+					WRITE_STRING( eventResults.second.c_str() );
+				MESSAGE_END();
+			} else {
+				gameplayMods.timedGameplayMods.push_back( { randomGameplayMod, gameplayMods.timeForRandomGameplayMod } );
+				MESSAGE_BEGIN( MSG_ONE, gmsgCLabelGMod, NULL, pPlayer->pev );
+					WRITE_STRING( randomGameplayMod.id.c_str() );
+				MESSAGE_END();
+			}
+		
+			gameplayMods.proposedGameplayMods.clear();
+			MESSAGE_BEGIN( MSG_ONE, gmsgPropModLen, NULL, pPlayer->pev );
+				WRITE_SHORT( 0 );
+			MESSAGE_END();
+
+		} else if ( gameplayMods.timeLeftUntilNextRandomGameplayMod < 3.0f && gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgPropModAni, NULL, pPlayer->pev );
+			MESSAGE_END();
+		} 
+		
+		if ( gameplayMods.proposedGameplayMods.size() == 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod <= gameplayMods.timeForRandomGameplayModVoting ) {
+			
+			do {
+				gameplayMods.proposedGameplayMods = gameplayMods.GetRandomGameplayMod( pPlayer, 3, [this]( const GameplayMod &mod ) -> bool {
+					if (
+						std::any_of( gameplayMods.timedGameplayMods.begin(), gameplayMods.timedGameplayMods.end(), [&mod]( std::pair<GameplayMod, float> &timedGameplayMod ) {
+							return timedGameplayMod.first.id == mod.id;
+						} ) ||
+
+						std::any_of( this->config.mods.begin(), this->config.mods.end(), [&mod]( auto &gameplayMod ) {
+							return gameplayMod.second.id == mod.id;
+						} )
+					) {
+
+						return false;
+					}
+
+					return true;
+				} );
+			} while ( gameplayMods.proposedGameplayMods.size() == 0 );
+		}
+
+		if (
+			gameplayMods.proposedGameplayMods.size() > 0 &&
+			gameplayMods.timeForRandomGameplayMod >= 10.0f &&
+			gameplayMods.timeLeftUntilNextRandomGameplayMod < gameplayMods.timeForRandomGameplayModVoting
+		) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgPropModLen, NULL, pPlayer->pev );
+				WRITE_SHORT( gameplayMods.proposedGameplayMods.size() );
+			MESSAGE_END();
+
+			for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
+				MESSAGE_BEGIN( MSG_ONE, gmsgPropModVal, NULL, pPlayer->pev );
+					WRITE_SHORT( i );
+					WRITE_STRING( gameplayMods.proposedGameplayMods.at( i ).name.c_str() );
+				MESSAGE_END();
+			}
+		}
+
+		for ( auto i = gameplayMods.timedGameplayMods.begin(); i != gameplayMods.timedGameplayMods.end(); ) {
+			i->second -= timeDelta;
+
+			if ( i->second <= 0 ) {
+				i->first.Deactivate( pPlayer );
+				i = gameplayMods.timedGameplayMods.erase( i );
+			} else {
+				i++;
+			}
+
+		}
+	}
+
 }
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
@@ -895,6 +1029,18 @@ void CCustomGameModeRules::OnChangeLevel() {
 	if ( endMarkersActive ) {
 		ActivateEndMarkers();
 	}
+
+	if ( gameplayMods.proposedGameplayMods.size() > 0 ) {
+		tasks.push_back( { 0.0f, []( CBasePlayer *pPlayer ) {
+			for ( auto mod = gameplayMods.proposedGameplayMods.begin(); mod != gameplayMods.proposedGameplayMods.end(); ) {
+				if ( mod->canBeCancelledAfterChangeLevel && !mod->CanBeActivatedRandomly( pPlayer ) ) {
+					mod = gameplayMods.proposedGameplayMods.erase( mod );
+				} else {
+					mod++;
+				}
+			}
+		} } );
+	}
 }
 
 extern int g_autoSaved;
@@ -1244,63 +1390,8 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 		return;
 	}
 
+	spawnData.DetermineBestSpawnPosition( pPlayer );
 	bool spawnPositionDecided = false;
-
-	do {
-		TraceResult tr;
-		char bottomTexture[256] = "(null)";
-		char upperTexture[256] = "(null)";
-
-		Vector randomPoint = Vector( RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ) );
-		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
-		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
-
-		if ( FStrEq( bottomTexture, "(null)" )  || FStrEq( bottomTexture, "sky" ) || FStrEq( upperTexture, "(null)" ) ) {
-			continue;
-		}
-
-		// Player should not be out of bounds
-		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, pPlayer->pev->origin, randomPoint - gpGlobals->v_up * 8192 ) );
-		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, pPlayer->pev->origin, randomPoint + gpGlobals->v_up * 8192 ) );
-		bool playerIsOutOfBounds = FStrEq( bottomTexture, "(null)" ) || FStrEq( upperTexture, "(null)" );
-
-		// Drop randomPoint on the floor
-		UTIL_TraceLine( randomPoint, randomPoint - gpGlobals->v_up * 8192, dont_ignore_monsters, ignore_glass, pPlayer->edict(), &tr );
-		if ( tr.fAllSolid ) {
-			continue;
-		}
-
-		randomPoint = tr.vecEndPos;
-
-		// Check there are no monsters around
-		CBaseEntity *list[1] = { NULL };
-		UTIL_MonstersInSphere( list, 1, randomPoint, 32.0f );
-		if ( list[0] != NULL ) {
-			continue;
-		}
-
-		// Prefer not to spawn near player
-		UTIL_TraceLine( pPlayer->pev->origin, randomPoint, dont_ignore_monsters, dont_ignore_glass, pPlayer->edict(), &tr );
-		if ( tr.flFraction >= 1.0f && !playerIsOutOfBounds ) {
-			continue;
-		}
-
-		spawnData.x = randomPoint.x;
-		spawnData.y = randomPoint.y;
-		spawnData.z = randomPoint.z + 4;
-		spawnData.angle = RANDOM_LONG( 0, 360 );
-
-		CBaseEntity *entity = CCustomGameModeRules::SpawnBySpawnData( spawnData );
-		if ( entity ) {
-			// DROP_TO_FLOOR call is required to prevent staying in CLIP brushes
-			if ( DROP_TO_FLOOR( ENT( entity->pev ) ) >= 1 && WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
-				entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
-				spawnPositionDecided = true;
-			} else {
-				g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
-			}
-		}
-
-	} while ( !spawnPositionDecided );
+	CCustomGameModeRules::SpawnBySpawnData( spawnData );
 }
 

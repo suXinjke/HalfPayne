@@ -163,6 +163,7 @@ struct EntitySpawnData {
 	int weaponFlags = 0;
 
 	void UpdateSpawnFlags();
+	void DetermineBestSpawnPosition( CBasePlayer *player );
 };
 
 struct EntitySpawn : Hookable {

@@ -423,6 +423,15 @@
     <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\central_label.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cl_dll\random_gameplay_mods.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game_shared\util_aux.cpp">
+      <Filter>Source Files\game_shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -639,6 +648,9 @@
       <Filter>Header Files\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\..\game_shared\argument.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\util_aux.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>
