@@ -454,16 +454,17 @@ void RestoreGlobalState( SAVERESTOREDATA *pSaveData )
 	CRestore restoreHelper( pSaveData );
 	gGlobalState.Restore( restoreHelper );
 
+	bool randomGameplayModsWereActive = gameplayMods.randomGameplayMods;
+
 	gameplayMods.Restore( restoreHelper );
 	if ( !gameplayMods.randomGameplayMods ) {
 		gameplayMods.RestoreMods( restoreHelper );
 	} else {
-		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		if ( !randomGameplayModsWereActive ) {
 			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
 		}
 	}
 }
-
 
 void ResetGlobalState( void )
 {

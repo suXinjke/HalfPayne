@@ -395,7 +395,7 @@ public:
 	FieldBool( scoreAttack, FALSE );
 
 	FieldBool( randomGameplayMods, FALSE );
-	FieldTime( timeForRandomGameplayMod, 10.0f );
+	FieldFloat( timeForRandomGameplayMod, 10.0f );
 	FieldFloat( timeUntilNextRandomGameplayMod, 10.0f );
 	FieldFloat( timeForRandomGameplayModVoting, 10.0f );
 	float timeLeftUntilNextRandomGameplayMod = 10.0f;
