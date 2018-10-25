@@ -45,6 +45,11 @@
     </Filter>
     <Filter Include="Source Files\fmt">
       <UniqueIdentifier>{7c4f4232-c16b-453e-b09a-9acc5db79b9b}</UniqueIdentifier>
+    <Filter Include="Source Files\twitch">
+      <UniqueIdentifier>{e7190f78-e7be-4d4d-87be-8bf999549aaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\twitch">
+      <UniqueIdentifier>{5023c9ff-f9c6-44c2-9789-d87d4633d5a9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -410,6 +415,8 @@
     </ClCompile>
     <ClCompile Include="..\..\game_shared\util_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
+    <ClCompile Include="..\..\twitch\twitch.cpp">
+      <Filter>Source Files\twitch</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -604,6 +611,23 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="..\..\twitch\libirc_errors.h">
+      <Filter>Header Files\twitch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\twitch\libirc_events.h">
+      <Filter>Header Files\twitch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\twitch\libirc_options.h">
+      <Filter>Header Files\twitch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h">
+      <Filter>Header Files\twitch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\twitch\libircclient.h">
+      <Filter>Header Files\twitch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\twitch\twitch.h">
+      <Filter>Header Files\twitch</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

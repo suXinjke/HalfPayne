@@ -50,6 +50,9 @@ public:
 	virtual void CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 	virtual void CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 
+	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, int modIndex );
+	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
+
 	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );
 	bool endMarkersActive;
 
@@ -66,7 +69,7 @@ public:
 	std::vector<EntityRandomSpawnerController> entityRandomSpawnerControllers;
 
 protected:
-	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message );
+	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message, bool logToConsole = false );
 	void SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 = "" );
 
 	virtual void OnEnd( CBasePlayer *pPlayer );

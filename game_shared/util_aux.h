@@ -11,6 +11,7 @@ extern std::mt19937 gen;
 
 int UniformInt( int min, int max );
 float UniformFloat( float min, float max );
+int IndexFromDiscreteDistribution( const std::vector<double> &values );
 
 template<typename Iter>
 Iter RandomFromContainer( Iter start, Iter end ) {
@@ -38,5 +39,8 @@ template <typename K, typename V>
 const V& RandomValueFromMap( const std::map<K, V> &map ) {
 	return RandomFromContainer( map.begin(), map.end() )->second;
 }
+
+void SaveTwitchCredentialsToFile( const std::string &user, const std::string &password );
+std::pair<std::string, std::string> ReadTwitchCredentialsFromFile();
 
 #endif // UTIL_AUX_H

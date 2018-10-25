@@ -8,10 +8,17 @@
 #include	"custom_gamemode_config.h"
 #include	<algorithm>
 #include	<random>
+#include	<regex>
 #include	"monsters.h"
 #include	"gameplay_mod.h"
 #include	"util_aux.h"
 #include	"../fmt/printf.h"
+#include	<thread>
+#include	<mutex>
+#include	"../twitch/twitch.h"
+
+Twitch *twitch = 0;
+std::thread twitch_thread;
 
 // Custom Game Mode Rules
 
@@ -46,10 +53,22 @@ int gmsgRandModVal = 0;
 int gmsgPropModLen = 0;
 int gmsgPropModVal = 0;
 int gmsgPropModVot = 0;
+int gmsgPropModVin = 0;
 int gmsgPropModAni = 0;
 
 int gmsgCLabelVal  = 0;
 int gmsgCLabelGMod  = 0;
+
+int gmsgSayText2 = 0;
+
+TwitchConnectionStatus twitchStatus = TWITCH_DISCONNECTED;
+bool ShouldInitializeTwitch() {
+	return
+		CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) > 0.0f ||
+		CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) > 0.0f ||
+		CVAR_GET_FLOAT( "twitch_integration_say" ) > 0.0f ||
+		CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f;
+}
 
 // CGameRules were recreated each level change and there were no built-in saving method,
 // that means we'd lose config file state on each level change.
@@ -102,8 +121,11 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 		
 		gmsgPropModLen = REG_USER_MSG( "PropModLen", 2 );
 		gmsgPropModVal = REG_USER_MSG( "PropModVal", -1 );
-		gmsgPropModVot = REG_USER_MSG( "PropModVot", 2 );
+		gmsgPropModVot = REG_USER_MSG( "PropModVot", 6 );
+		gmsgPropModVin = REG_USER_MSG( "PropModVin", -1 );
 		gmsgPropModAni = REG_USER_MSG( "PropModAni", 0 );
+
+		gmsgSayText2 = REG_USER_MSG( "SayText2", -1 );
 	}
 
 	// Difficulty must be initialized separately and here, becuase entities are not yet spawned,
@@ -144,11 +166,18 @@ void CCustomGameModeRules::RestartGame() {
 	CHANGE_LEVEL( mapName, NULL );
 }
 
-void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message ) {
+std::mutex gameLogMutex;
+void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message, bool logToConsole ) {
+	std::lock_guard<std::mutex> guard( gameLogMutex );
+
 	MESSAGE_BEGIN( MSG_ONE, gmsgGLogMsg, NULL, pPlayer->pev );
 		WRITE_STRING( message.c_str() );
 		WRITE_LONG( maxYOffset );
 	MESSAGE_END();
+
+	if ( logToConsole ) {
+		g_engfuncs.pfnServerPrint( message.c_str() );
+	}
 }
 
 void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 ) {
@@ -263,6 +292,46 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	if ( !spawningAfterIntermission ) {
 		const char *actualMap = STRING( gpGlobals->mapname );
 		startMapDoesntMatch = config.startMap != actualMap;
+	}
+
+	if ( !twitch ) {
+		twitch = new Twitch();
+		twitch->OnConnected = [this] {
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				SendGameLogMessage( pPlayer, "Connected to Twitch chat", true );
+				twitchStatus = TWITCH_CONNECTED;
+			}
+		};
+		twitch->OnDisconnected = [this] {
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				SendGameLogMessage( pPlayer, "Disconnected from Twitch chat", true );
+				twitchStatus = TWITCH_DISCONNECTED;
+			}
+		};
+		twitch->OnError = [this]( int errorCode, const std::string &error ) {
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( errorCode != -1 ) {
+					SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error %d: %s", errorCode, error ).c_str(), true );
+				} else {
+					SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error: %s", error ).c_str(), true );
+				}
+			}
+		};
+
+		twitch->OnMessage = [this]( const std::string &sender, const std::string &message ) {
+			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
+					VoteForRandomGameplayMod( pPlayer, sender, message );
+				}
+
+				if ( CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
+					std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
+					MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
+						WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
+					MESSAGE_END();
+				}
+			}
+		};
 	}
 }
 
@@ -422,7 +491,35 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		if ( gameplayMods.proposedGameplayMods.size() > 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod < 0.0f ) {
 			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
 
-			auto randomGameplayMod = RandomFromVector( gameplayMods.proposedGameplayMods );
+			GameplayMod randomGameplayMod;
+			if ( std::any_of( gameplayMods.proposedGameplayMods.begin(), gameplayMods.proposedGameplayMods.end(), []( const GameplayMod &mod ) {
+				return mod.votes.size() > 0;
+			} ) ) {
+				int totalVotes = 0;
+				int maxVoteCount = 0;
+				for ( auto &mod : gameplayMods.proposedGameplayMods ) {
+					totalVotes += mod.votes.size();
+					maxVoteCount = max( maxVoteCount, mod.votes.size() );
+				}
+
+				std::vector<double> voteDistributions;
+
+				if ( std::string( CVAR_GET_STRING( "twitch_integration_random_gameplay_mods_voting_result" ) ) == "most_votes_more_likely" ) {
+					for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
+						voteDistributions.push_back( gameplayMods.proposedGameplayMods.at( i ).votes.size() / ( double ) totalVotes );
+					}
+				} else {
+					for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
+						voteDistributions.push_back( gameplayMods.proposedGameplayMods.at( i ).votes.size() == maxVoteCount ? 1.0f : 0.0f );
+					}
+				}
+
+				int randomIndex = IndexFromDiscreteDistribution( voteDistributions );
+				randomGameplayMod = gameplayMods.proposedGameplayMods.at( randomIndex );
+			} else {
+				randomGameplayMod = RandomFromVector( gameplayMods.proposedGameplayMods );
+			}
+			
 			auto eventResults = randomGameplayMod.Init( pPlayer );
 
 			if ( randomGameplayMod.isEvent ) {
@@ -467,13 +564,17 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 					return true;
 				} );
 			} while ( gameplayMods.proposedGameplayMods.size() == 0 );
+
+			if ( twitchStatus == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
+				twitch->SendChatMessage( "VOTE FOR NEXT MOD" );
+				for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
+					auto &mod = gameplayMods.proposedGameplayMods.at( i );
+					twitch->SendChatMessage( fmt::sprintf( "%d: %s", i + 1, mod.name ) );
+				}
+			}
 		}
 
-		if (
-			gameplayMods.proposedGameplayMods.size() > 0 &&
-			gameplayMods.timeForRandomGameplayMod >= 10.0f &&
-			gameplayMods.timeLeftUntilNextRandomGameplayMod < gameplayMods.timeForRandomGameplayModVoting
-		) {
+		if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
 			MESSAGE_BEGIN( MSG_ONE, gmsgPropModLen, NULL, pPlayer->pev );
 				WRITE_SHORT( gameplayMods.proposedGameplayMods.size() );
 			MESSAGE_END();
@@ -481,7 +582,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
 				MESSAGE_BEGIN( MSG_ONE, gmsgPropModVal, NULL, pPlayer->pev );
 					WRITE_SHORT( i );
-					WRITE_STRING( gameplayMods.proposedGameplayMods.at( i ).name.c_str() );
+					WRITE_STRING( gameplayMods.proposedGameplayMods.at( gameplayMods.proposedGameplayMods.size() - 1 - i ).name.c_str() );
 				MESSAGE_END();
 			}
 		}
@@ -499,6 +600,24 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
+	if ( ShouldInitializeTwitch() && twitchStatus == TWITCH_DISCONNECTED ) {
+
+
+		auto twitch_credentials = ReadTwitchCredentialsFromFile();
+		auto login = twitch_credentials.first;
+		auto password = twitch_credentials.second;
+		if ( !login.empty() && !password.empty() ) {
+			SendGameLogMessage( pPlayer, "Connecting to Twitch chat...", true );
+
+			twitch_thread = twitch->Connect( login, password );
+			twitch_thread.detach();
+			twitchStatus = TWITCH_CONNECTING;
+		}
+
+	} else if ( !ShouldInitializeTwitch() && TWITCH_CONNECTED ) {
+		SendGameLogMessage( pPlayer, "Disconnecting from Twitch chat", true );
+		twitch->Disconnect();
+	}
 }
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
@@ -541,6 +660,16 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 			}
 		}
 
+	}
+
+	if ( twitchStatus == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f && twitch->killfeedMessages.size() > 0 ) {
+		Vector deathPos = victim->pev->origin;
+		deathPos.z += victim->pev->size.z + 5.0f;
+		auto it = RandomFromContainer( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
+		if ( it != twitch->killfeedMessages.end() ) {
+			SendGameLogWorldMessage( pPlayer, deathPos, *it );
+			twitch->killfeedMessages.erase( it );
+		}
 	}
 
 	if ( gameplayMods.blackMesaMinute ) {
@@ -713,10 +842,12 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 				std::sprintf( upperString, "%d x%.1f", scoreToAdd, comboMultiplier );
 			}
 
-			if ( gameplayMods.blackMesaMinute ) {
-				SendGameLogWorldMessage( pPlayer, deathPos, "", std::string( upperString ) + " / " + std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ) );
-			} else {
-				SendGameLogWorldMessage( pPlayer, deathPos, std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ), upperString );
+			if ( twitchStatus != TWITCH_CONNECTED || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
+				if ( gameplayMods.blackMesaMinute ) {
+					SendGameLogWorldMessage( pPlayer, deathPos, "", std::string( upperString ) + " / " + std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ) );
+				} else {
+					SendGameLogWorldMessage( pPlayer, deathPos, std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ), upperString );
+				}
 			}
 		}
 
@@ -733,6 +864,41 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 		}
 
 		gameplayMods.comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
+	}
+}
+
+void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, int modIndex ) {
+	if ( modIndex < 0 || modIndex > gameplayMods.proposedGameplayMods.size() - 1 ) {
+		return;
+	}
+
+	for ( auto &proposedMod : gameplayMods.proposedGameplayMods ) {
+		proposedMod.votes.erase( voter );
+	}
+
+	gameplayMods.proposedGameplayMods.at( modIndex ).votes.insert( voter );
+
+	for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgPropModVot, NULL, pPlayer->pev );
+			WRITE_SHORT( i );
+			WRITE_LONG( gameplayMods.proposedGameplayMods.at( gameplayMods.proposedGameplayMods.size() - 1 - i ).votes.size() );
+		MESSAGE_END();
+	}
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgPropModVin, NULL, pPlayer->pev );
+		WRITE_SHORT( gameplayMods.proposedGameplayMods.size() - 1 - modIndex );
+		WRITE_STRING( voter.c_str() );
+	MESSAGE_END();
+}
+
+void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modStringIndex ) {
+	std::regex vote_index_regex( "^[#!0]*([1-9]{1}).*" );
+	std::smatch base_match;
+	if ( std::regex_match( modStringIndex, base_match, vote_index_regex ) ) {
+		if ( base_match.size() == 2 ) {
+			int modIndex = std::stoi( base_match[1].str() ) - 1;
+			VoteForRandomGameplayMod( pPlayer, voter, modIndex );
+		}
 	}
 }
 
@@ -1090,7 +1256,9 @@ void CCustomGameModeRules::IncreaseTime( CBasePlayer *pPlayer, const Vector &eve
 	sprintf( timeAddedCString, "00:%02d", timeToAdd ); // mm:ss
 	const std::string timeAddedString = std::string( timeAddedCString );
 
-	SendGameLogWorldMessage( pPlayer, eventPos, timeAddedString );
+	if ( twitchStatus != TWITCH_CONNECTED || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
+		SendGameLogWorldMessage( pPlayer, eventPos, timeAddedString );
+	}
 }
 
 // Hardcoded values so it won't depend on console variables

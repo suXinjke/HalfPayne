@@ -6,6 +6,7 @@
 #include "cbase.h"
 #include "argument.h"
 #include <map>
+#include <set>
 
 #ifdef CLIENT_DLL
 #include "wrect.h"
@@ -127,6 +128,8 @@ struct GameplayMod {
 	bool canBeCancelledAfterChangeLevel;
 	std::function<void( CBasePlayer * )> Deactivate;
 	std::function<bool( CBasePlayer * )> CanBeActivatedRandomly;
+
+	std::set<std::string> votes;
 
 	GameplayMod() {};
 	GameplayMod( const std::string &id, const std::string &name ) :
@@ -430,6 +433,8 @@ public:
 	int Restore( CRestore &restore );
 	int RestoreMods( CRestore &restore );
 #endif // CLIENT_DLL
+
+	bool AllowedToVoteOnRandomGameplayMods();
 
 	void AddArrayFieldDefinitions();
 	void SetGameplayModActiveByString( const std::string &line, bool isActive = false );

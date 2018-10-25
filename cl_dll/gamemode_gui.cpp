@@ -3,6 +3,8 @@
 #include "FontAwesome.h"
 #include <map>
 #include <algorithm>
+#include "util_aux.h"
+#include <Windows.h>
 
 #include "gamemode_gui.h"
 
@@ -14,8 +16,15 @@ int configAmount;
 int configCompleted;
 float configCompletedPercent;
 
+char twitch_login[128] = "";
+char twitch_chat_oauth_password[128] = "";
+
 void GameModeGUI_Init() {
 	GameModeGUI_RefreshConfigFiles();
+
+	auto twitch_credentials = ReadTwitchCredentialsFromFile();
+	snprintf( twitch_login, 128, "%s", twitch_credentials.first.c_str() );
+	snprintf( twitch_chat_oauth_password, 128, "%s", twitch_credentials.second.c_str() );
 }
 
 void GameModeGUI_RefreshConfigFiles() {
@@ -116,6 +125,8 @@ void GameModeGUI_DrawMainWindow() {
 				ImGui::Columns( 1 );
 			}
 		}
+
+		GameModeGUI_DrawTwitchConfig();
 
 		ImGui::EndChild();
 	}
@@ -312,4 +323,66 @@ const std::string GameModeGUI_GetFormattedTime( float time ) {
 	result += std::to_string( actualMilliseconds );
 
 	return result;
+}
+
+void GameModeGUI_DrawTwitchConfig() {
+	ImGui::PushStyleColor( ImGuiCol_Header, ImVec4( 0.50f, 0.50f, 0.90f, 1.00f ) );
+	ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImVec4( 0.70f, 0.70f, 0.90f, 0.63f ) );
+	ImGui::PushStyleColor( ImGuiCol_HeaderActive, ImVec4( 0.70f, 0.70f, 0.70f, 0.51f ) );
+
+	if ( ImGui::CollapsingHeader( "Twitch Integration" ) ) {
+		ImGui::TextWrapped(
+			"Filling both fields and enabling one of the options below will allow "
+			"your Twitch viewers to affect your gameplay.\n"
+			"This will work only in custom gameplay mods.\n\n"
+			"Your credentials are stored in half_payne/twitch_credentials.cfg\n"
+			"Don't have the console open while pasting your password to prevent leaking it in console input\n"
+		);
+
+		ImGui::Text( "\n" );
+
+		ImGui::InputText( "Twitch login", twitch_login, 128 );
+		ImGui::InputText( "Twitch chat OAuth password", twitch_chat_oauth_password, 128, ImGuiInputTextFlags_Password );
+
+		if ( ImGui::Button( "Get OAuth password..." ) ) {
+			ShellExecute( 0, 0, "https://twitchapps.com/tmi/", 0, 0, SW_SHOW );
+		}
+		ImGui::SameLine();
+		if ( ImGui::Button( "Save login info" ) ) {
+			SaveTwitchCredentialsToFile( twitch_login, twitch_chat_oauth_password );
+		}
+
+		ImGui::Text( "\n" );
+
+		bool vote_checkbox = gEngfuncs.pfnGetCvarFloat( "twitch_integration_random_gameplay_mods_voting" ) > 0.0f;
+		if ( ImGui::Checkbox( "Viewers can vote on random gameplay mods", &vote_checkbox ) ) {
+			gEngfuncs.Cvar_Set( "twitch_integration_random_gameplay_mods_voting", vote_checkbox ? "1" : "0" );
+		}
+
+		if ( vote_checkbox ) {
+			int voting_result = std::string( gEngfuncs.pfnGetCvarString( "twitch_integration_random_gameplay_mods_voting_result" ) ) == "most_votes_wins" ? 0 : 1;
+			if ( ImGui::RadioButton( "Voting affects which mod WILL BE activated next", &voting_result, 0 ) ) {
+				gEngfuncs.Cvar_Set( "twitch_integration_random_gameplay_mods_voting_result", "most_votes_wins" );
+			}
+			if ( ImGui::RadioButton( "Voting affects which mod IS MORE LIKELY to be activated next", &voting_result, 1 ) ) {
+				gEngfuncs.Cvar_Set( "twitch_integration_random_gameplay_mods_voting_result", "most_votes_more_likely" );
+			}
+		}
+
+		bool mirror_chat_checkbox = gEngfuncs.pfnGetCvarFloat( "twitch_integration_mirror_chat" ) > 0.0f;
+		if ( ImGui::Checkbox( "Relay Twitch chat to Half-Life", &mirror_chat_checkbox ) ) {
+			gEngfuncs.Cvar_Set( "twitch_integration_mirror_chat", mirror_chat_checkbox ? "1" : "0" );
+		}
+
+		bool say_checkbox = gEngfuncs.pfnGetCvarFloat( "twitch_integration_say" ) > 0.0f;
+		if ( ImGui::Checkbox( "Relay say commands to Twitch chat", &say_checkbox ) ) {
+			gEngfuncs.Cvar_Set( "twitch_integration_say", say_checkbox ? "1" : "0" );
+		}
+
+		bool random_kill_messages_checkbox = gEngfuncs.pfnGetCvarFloat( "twitch_integration_random_kill_messages" ) > 0.0f;
+		if ( ImGui::Checkbox( "Show random Twitch chat messages when you kill someone", &random_kill_messages_checkbox ) ) {
+			gEngfuncs.Cvar_Set( "twitch_integration_random_kill_messages", random_kill_messages_checkbox ? "1" : "0" );
+		}
+	}
+	ImGui::PopStyleColor( 3 );
 }

@@ -74,6 +74,13 @@ void GameplayMods::SendToClient() {
 
 #endif
 
+bool GameplayMods::AllowedToVoteOnRandomGameplayMods() {
+	return
+		proposedGameplayMods.size() > 0 &&
+		timeForRandomGameplayMod >= 10.0f &&
+		timeLeftUntilNextRandomGameplayMod < timeForRandomGameplayModVoting;
+}
+
 void GameplayMods::AddArrayFieldDefinitions() {
 	if ( !addedAdditionalFields ) {
 		// HACK: didn't figure out simple macro to avoid defining these fields in this place

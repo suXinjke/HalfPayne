@@ -13,6 +13,7 @@ DECLARE_MESSAGE( m_RandomGameplayMods, RandModVal )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModLen )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModVal )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModVot )
+DECLARE_MESSAGE( m_RandomGameplayMods, PropModVin )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModAni )
 
 extern globalvars_t *gpGlobals;
@@ -25,6 +26,7 @@ int CHudRandomGameplayMods::Init( void )
 	HOOK_MESSAGE( PropModLen );
 	HOOK_MESSAGE( PropModVal );
 	HOOK_MESSAGE( PropModVot );
+	HOOK_MESSAGE( PropModVin );
 	HOOK_MESSAGE( PropModAni );
 	
 	gHUD.AddHudElem( this );
@@ -100,6 +102,22 @@ int CHudRandomGameplayMods::Draw( float flTime )
 			gHUD.DrawHudString( x, y + gHUD.m_scrinfo.iCharHeight * 2 + 4, 0, fmt::sprintf( "%d %s", mod.votes, vote_noun ).c_str(), r, g, b );
 			gHUD.DrawHudStringKeepRight( x + ITEM_WIDTH, y + gHUD.m_scrinfo.iCharHeight * 2 + 4, 0, fmt::sprintf( "%.1f%%", mod.percent ).c_str(), r, g, b );
 		}
+
+		for ( auto it = mod.voters.begin(); it != mod.voters.end(); ) {
+			if ( it->alpha <= 0 ) {
+				it = mod.voters.erase( it );
+			} else {
+				int vote_offset = ( ( 255 - it->alpha ) / 255.0f ) * 30;
+				int vote_r = 255;
+				int vote_g = 255;
+				int vote_b = 255;
+				ScaleColors( vote_r, vote_g, vote_b, it->alpha );
+				gHUD.DrawHudString( x, y + vote_offset + gHUD.m_scrinfo.iCharHeight * 3 + 4, 0, it->name.c_str(), vote_r, vote_g, vote_b );
+
+				it->alpha -= 4;
+				it++;
+			}
+		}
 	}
 
 	if ( timeUntilNextHighlight && gEngfuncs.GetAbsoluteTime() > timeUntilNextHighlight ) {
@@ -172,7 +190,7 @@ int CHudRandomGameplayMods::MsgFunc_PropModVal( const char *pszName, int iSize, 
 	BEGIN_READ( pbuf, iSize );
 
 	size_t index = READ_SHORT();
-	proposedMods[index] = { 0, 0.0f, READ_STRING() };
+	proposedMods[index].name = READ_STRING();
 
 	m_iFlags |= HUD_ACTIVE;
 
@@ -183,9 +201,26 @@ int CHudRandomGameplayMods::MsgFunc_PropModVot( const char *pszName, int iSize, 
 	BEGIN_READ( pbuf, iSize );
 
 	size_t index = READ_SHORT();
-	proposedMods[index].votes++;
+	proposedMods.at( index ).votes = READ_LONG();
 
-	// TODO: Calculate vote percents
+	int totalVotes = 0;
+	for ( auto &mod : proposedMods ) {
+		totalVotes += mod.votes;
+	}
+	for ( auto &mod : proposedMods ) {
+		mod.percent = ( mod.votes / ( float ) totalVotes ) * 100;
+	}
+
+	m_iFlags |= HUD_ACTIVE;
+
+	return 1;
+}
+
+int CHudRandomGameplayMods::MsgFunc_PropModVin( const char *pszName, int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+
+	size_t index = READ_SHORT();
+	proposedMods.at( index ).voters.push_back( { 255, READ_STRING() } );
 
 	m_iFlags |= HUD_ACTIVE;
 

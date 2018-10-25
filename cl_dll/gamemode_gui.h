@@ -10,6 +10,7 @@
 void GameModeGUI_Init();
 void GameModeGUI_DrawMainWindow();
 void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig> &configs );
+void GameModeGUI_DrawTwitchConfig();
 void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config );
 void GameModeGUI_RunCustomGameMode( const CustomGameModeConfig &config );
 void GameModeGUI_RefreshConfigFiles();

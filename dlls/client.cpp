@@ -42,6 +42,9 @@
 
 #include "cgm_gamerules.h"
 #include "gameplay_mod.h"
+#include "../fmt/printf.h"
+#include "util_aux.h"
+#include "../twitch/twitch.h"
 
 #if !defined ( _WIN32 )
 #include <ctype.h>
@@ -340,6 +343,8 @@ bool Q_UnicodeValidate( const char *pUTF8 )
 	return true;
 }
 
+extern Twitch *twitch;
+
 //// HOST_SAY
 // String comes in as
 // say blah blah blah
@@ -469,6 +474,10 @@ void Host_Say( edict_t *pEntity, int teamonly )
 
 	// echo to server console
 	g_engfuncs.pfnServerPrint( text );
+	
+	if ( CVAR_GET_FLOAT( "twitch_integration_say" ) >= 0.0f && twitch ) {
+		twitch->SendChatMessage( p );
+	}
 
 	char * temp;
 	if ( teamonly )
@@ -498,7 +507,6 @@ void Host_Say( edict_t *pEntity, int teamonly )
 			p );
 	}
 }
-
 
 /*
 ===========
@@ -643,6 +651,22 @@ void ClientCommand( edict_t *pEntity )
 				
 				if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 					ALERT( at_notice, "%s: %d\n", mod.id.c_str(), mod.CanBeActivatedRandomly( player ) );
+				}
+			}
+		}
+	}
+	else if ( FStrEq( pcmd, "gameplay_mod_vote" ) ) {
+		if ( CMD_ARGC() < 3 ) {
+			return;
+		}
+
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			auto sender = fmt::sprintf( "%s#%d", CMD_ARGV( 1 ), UniformInt( 1, 9999 ) );
+			auto modIndex = std::string( CMD_ARGV( 2 ) );
+
+			if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
+					cgm->VoteForRandomGameplayMod( player, sender, modIndex );
 				}
 			}
 		}

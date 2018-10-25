@@ -102,6 +102,12 @@ cvar_t  *sm_current_file;
 cvar_t  *sm_looping;
 
 cvar_t  *crosshair_kill_confirmed;
+
+cvar_t  *twitch_integration_random_gameplay_mods_voting;
+cvar_t  *twitch_integration_random_gameplay_mods_voting_result;
+cvar_t  *twitch_integration_mirror_chat;
+cvar_t  *twitch_integration_say;
+cvar_t  *twitch_integration_random_kill_messages;
 /*
 ===============================================================================
 
@@ -1214,6 +1220,12 @@ void InitInput (void)
 	sm_current_pos = gEngfuncs.pfnRegisterVariable( "sm_current_pos", "0", NULL );
 	sm_current_file = gEngfuncs.pfnRegisterVariable( "sm_current_file", "0", NULL );
 	sm_looping = gEngfuncs.pfnRegisterVariable( "sm_looping", "0", NULL );
+	
+	twitch_integration_random_gameplay_mods_voting = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_gameplay_mods_voting", "0", FCVAR_ARCHIVE );
+	twitch_integration_random_gameplay_mods_voting_result = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_gameplay_mods_voting_result", "most_votes_wins", FCVAR_ARCHIVE );
+	twitch_integration_mirror_chat = gEngfuncs.pfnRegisterVariable( "twitch_integration_mirror_chat", "0", FCVAR_ARCHIVE );
+	twitch_integration_say = gEngfuncs.pfnRegisterVariable( "twitch_integration_say", "0", FCVAR_ARCHIVE );
+	twitch_integration_random_kill_messages = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages", "0", FCVAR_ARCHIVE );
 
 	// Initialize third person camera controls.
 	CAM_Init();

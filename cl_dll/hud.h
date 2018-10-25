@@ -379,6 +379,7 @@ public:
 	int VidInit( void );
 	int Draw( float flTime );
 	int MsgFunc_SayText( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_SayText2( const char *pszName, int iSize, void *pbuf );
 	void SayTextPrint( const char *pszBuf, int iBufSize, int clientIndex = -1 );
 	void EnsureTextFitsInOneLineAndWrapIfHaveTo( int line );
 friend class CHudSpectator;
@@ -658,10 +659,16 @@ private:
 	std::vector<CounterValue> values;
 };
 
+struct ProposedRandomGameplayModVoter {
+	int alpha;
+	std::string name;
+};
+
 struct ProposedRandomGameplayMod {
 	int votes;
 	float percent;
 	std::string name;
+	std::vector<ProposedRandomGameplayModVoter> voters;
 };
 
 struct ActiveRandomGameplayMod {
@@ -682,6 +689,7 @@ public:
 	int MsgFunc_PropModLen( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModVal( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModVot( const char *pszName, int iSize, void *pbuf );
+	int MsgFunc_PropModVin( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModAni( const char *pszName, int iSize, void *pbuf );
 
 private:

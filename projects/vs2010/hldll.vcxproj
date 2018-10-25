@@ -103,7 +103,7 @@
       <ModuleDefinitionFile>$(ProjectDir)..\..\dlls\hl.def</ModuleDefinitionFile>
       <AddModuleNamesToAssembly>
       </AddModuleNamesToAssembly>
-      <AdditionalDependencies>C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\libircclient.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -235,6 +235,7 @@
     <ClCompile Include="..\..\pm_shared\pm_debug.c" />
     <ClCompile Include="..\..\pm_shared\pm_math.c" />
     <ClCompile Include="..\..\pm_shared\pm_shared.c" />
+    <ClCompile Include="..\..\twitch\twitch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\activity.h" />
@@ -300,9 +301,12 @@
     <ClInclude Include="..\..\pm_shared\pm_materials.h" />
     <ClInclude Include="..\..\pm_shared\pm_movevars.h" />
     <ClInclude Include="..\..\pm_shared\pm_shared.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="..\..\twitch\libircclient.h" />
+    <ClInclude Include="..\..\twitch\libirc_errors.h" />
+    <ClInclude Include="..\..\twitch\libirc_events.h" />
+    <ClInclude Include="..\..\twitch\libirc_options.h" />
+    <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h" />
+    <ClInclude Include="..\..\twitch\twitch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

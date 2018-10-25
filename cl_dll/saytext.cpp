@@ -25,6 +25,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <malloc.h> // _alloca
+#include "string_aux.h"
+#include "../fmt/printf.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -47,12 +49,14 @@ static int Y_START = 0;
 static int line_height = 0;
 
 DECLARE_MESSAGE( m_SayText, SayText );
+DECLARE_MESSAGE( m_SayText, SayText2 );
 
 int CHudSayText :: Init( void )
 {
 	gHUD.AddHudElem( this );
 
 	HOOK_MESSAGE( SayText );
+	HOOK_MESSAGE( SayText2 );
 
 	InitHUDData();
 
@@ -138,11 +142,12 @@ int CHudSayText :: Draw( float flTime )
 					// draw the first x characters in the player color
 					strncpy( buf, g_szLineBuffer[i], min(g_iNameLengths[i], MAX_PLAYER_NAME_LENGTH+32) );
 					buf[ min(g_iNameLengths[i], MAX_PLAYER_NAME_LENGTH+31) ] = 0;
-					gEngfuncs.pfnDrawSetTextColor( g_pflNameColors[i][0], g_pflNameColors[i][1], g_pflNameColors[i][2] );
+					gEngfuncs.pfnDrawSetTextColor( 0.8f, 0.8f, 0.8f );
 					int x = DrawConsoleString( LINE_START, y, buf + 1 ); // don't draw the control code at the start
 					strncpy( buf, g_szLineBuffer[i] + g_iNameLengths[i], strlen( g_szLineBuffer[i] ));
 					buf[ strlen( g_szLineBuffer[i] + g_iNameLengths[i] ) - 1 ] = '\0';
 					// color is reset after each string draw
+					gEngfuncs.pfnDrawSetTextColor( 0.8f, 0.8f, 0.8f );
 					DrawConsoleString( x, y, buf ); 
 				}
 				else
@@ -152,7 +157,7 @@ int CHudSayText :: Draw( float flTime )
 			}
 			else
 			{
-				// normal draw
+				gEngfuncs.pfnDrawSetTextColor( 0.8f, 0.8f, 0.8f );
 				DrawConsoleString( LINE_START, y, g_szLineBuffer[i] );
 			}
 		}
@@ -169,6 +174,31 @@ int CHudSayText :: MsgFunc_SayText( const char *pszName, int iSize, void *pbuf )
 
 	int client_index = READ_BYTE();		// the client who spoke the message
 	SayTextPrint( READ_STRING(), iSize - 1,  client_index );
+	
+	return 1;
+}
+
+int CHudSayText::MsgFunc_SayText2( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+
+	std::string input = READ_STRING();
+	auto messageParts = Split( input, '|' );
+	if ( messageParts.size() >= 2 ) {
+		auto sender = messageParts.at( 0 );
+		auto message = messageParts.at( 1 );
+
+		// ugly hack because Split doesn't have max splits argument
+		// | separator should be preserved if it's part of original message
+		for ( size_t i = 2; i < messageParts.size(); i++ ) {
+			message += "|" + messageParts.at( i );
+		}
+
+		auto result = fmt::sprintf( "%s: %s\n", sender, message );
+
+		SayTextPrint( result.c_str(), result.size() - 1 );
+	}
+
 	
 	return 1;
 }
@@ -231,7 +261,7 @@ void CHudSayText :: SayTextPrint( const char *pszBuf, int iBufSize, int clientIn
 	m_iFlags |= HUD_ACTIVE;
 	PlaySound( "misc/talk.wav", 1 );
 
-	Y_START = ScreenHeight - 60 - ( line_height * (MAX_LINES+2) );
+	Y_START = ScreenHeight - 160 - ( line_height * (MAX_LINES+2) );
 }
 
 void CHudSayText :: EnsureTextFitsInOneLineAndWrapIfHaveTo( int line )
