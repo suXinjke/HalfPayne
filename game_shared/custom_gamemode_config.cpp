@@ -989,6 +989,8 @@ const std::string CustomGameModeConfig::ConfigSection::OnSectionData( const std:
 		return fmt::sprintf( "Error parsing %s\\%s.txt, line %d, section [%s]: %s\n", ConfigTypeToDirectoryName( configType ).c_str(), configName.c_str(), lineCount, name.c_str(), error.c_str() );
 	}
 
+	lines.push_back( line );
+
 	return "";
 
 }
