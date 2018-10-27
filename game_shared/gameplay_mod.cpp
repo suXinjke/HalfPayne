@@ -124,7 +124,7 @@ void GameplayMods::SetGameplayModActiveByString( const std::string &line, bool i
 	}
 }
 
-std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player, int modAmount, std::function<bool( const GameplayMod &mod )> filter ) {
+std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player, size_t modAmount, std::function<bool( const GameplayMod &mod )> filter ) {
 
 	std::vector<GameplayMod> randomGameplayMods;
 

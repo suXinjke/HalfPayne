@@ -454,7 +454,7 @@ void RestoreGlobalState( SAVERESTOREDATA *pSaveData )
 	CRestore restoreHelper( pSaveData );
 	gGlobalState.Restore( restoreHelper );
 
-	bool randomGameplayModsWereActive = gameplayMods.randomGameplayMods;
+	BOOL randomGameplayModsWereActive = gameplayMods.randomGameplayMods;
 
 	gameplayMods.Restore( restoreHelper );
 	if ( !gameplayMods.randomGameplayMods ) {

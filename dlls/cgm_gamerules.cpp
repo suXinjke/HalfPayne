@@ -492,8 +492,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			if ( std::any_of( gameplayMods.proposedGameplayMods.begin(), gameplayMods.proposedGameplayMods.end(), []( const GameplayMod &mod ) {
 				return mod.votes.size() > 0;
 			} ) ) {
-				int totalVotes = 0;
-				int maxVoteCount = 0;
+				size_t totalVotes = 0;
+				size_t maxVoteCount = 0;
 				for ( auto &mod : gameplayMods.proposedGameplayMods ) {
 					totalVotes += mod.votes.size();
 					maxVoteCount = max( maxVoteCount, mod.votes.size() );
@@ -863,7 +863,7 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 	}
 }
 
-void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, int modIndex ) {
+void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex ) {
 	if ( modIndex < 0 || modIndex > gameplayMods.proposedGameplayMods.size() - 1 ) {
 		return;
 	}

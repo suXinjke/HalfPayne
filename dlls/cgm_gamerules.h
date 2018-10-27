@@ -50,7 +50,7 @@ public:
 	virtual void CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 	virtual void CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar );
 
-	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, int modIndex );
+	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex );
 	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
 
 	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );

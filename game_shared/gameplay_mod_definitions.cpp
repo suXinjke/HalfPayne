@@ -151,7 +151,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.Toggles( &gameplayMods.crossbowExplosiveBolts )
 		.CanOnlyBeActivatedRandomlyWhen( []( CBasePlayer *player ) -> bool {
 #ifndef CLIENT_DLL
-			return player->HasNamedPlayerItem( "weapon_crossbow" );
+			return player->HasNamedPlayerItem( "weapon_crossbow" ) == TRUE;
 #else
 			return true;
 #endif
@@ -366,7 +366,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.Toggles( &gameplayMods.instaGib )
 		.CanOnlyBeActivatedRandomlyWhen( []( CBasePlayer *player ) -> bool {
 #ifndef CLIENT_DLL
-			return player->HasNamedPlayerItem( "weapon_gauss" );
+			return player->HasNamedPlayerItem( "weapon_gauss" ) == TRUE;
 #else
 			return true;
 #endif
@@ -582,7 +582,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.Toggles( &gameplayMods.automaticShotgun )
 		.CanOnlyBeActivatedRandomlyWhen( []( CBasePlayer *player ) -> bool {
 #ifndef CLIENT_DLL
-			return player->HasNamedPlayerItem( "weapon_shotgun" );
+			return player->HasNamedPlayerItem( "weapon_shotgun" ) == TRUE;
 #else
 			return true;
 #endif

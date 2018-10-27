@@ -798,7 +798,7 @@ void CustomGameModeConfig::Reset() {
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
-	return mods.count( mod );
+	return mods.count( mod ) > 0;
 }
 
 LoadoutItem::LoadoutItem( const std::vector<Argument> &args ) {

@@ -438,7 +438,7 @@ public:
 
 	void AddArrayFieldDefinitions();
 	void SetGameplayModActiveByString( const std::string &line, bool isActive = false );
-	std::vector<GameplayMod> GetRandomGameplayMod( CBasePlayer *player, int modAmount, std::function<bool( const GameplayMod &mod )> filter = []( const GameplayMod & ){ return true; } );
+	std::vector<GameplayMod> GetRandomGameplayMod( CBasePlayer *player, size_t modAmount, std::function<bool( const GameplayMod &mod )> filter = []( const GameplayMod & ){ return true; } );
 	GameplayMod GetRandomGameplayMod( CBasePlayer *player );
 
 	std::vector<std::pair<GameplayMod, float>> timedGameplayMods;
