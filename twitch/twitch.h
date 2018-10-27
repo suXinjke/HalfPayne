@@ -11,6 +11,12 @@
 
 struct TwitchContext;
 
+enum TwitchConnectionStatus {
+	TWITCH_DISCONNECTED,
+	TWITCH_CONNECTING,
+	TWITCH_CONNECTED
+};
+
 class Twitch {
 public:
 	Twitch();
@@ -26,6 +32,8 @@ public:
 
 	std::list<std::string> killfeedMessages;
 
+	TwitchConnectionStatus status = TWITCH_DISCONNECTED;
+
 	std::function<void( const std::string &, const std::string & )> OnMessage = []( const std::string &, const std::string & ) {};
 	std::function<void()> OnConnected = []{};
 	std::function<void( int, const std::string & )> OnError = []( int, const std::string & ){};
@@ -33,12 +41,6 @@ public:
 
 private:
 	irc_session_t *session = NULL;
-};
-
-enum TwitchConnectionStatus {
-	TWITCH_DISCONNECTED,
-	TWITCH_CONNECTING,
-	TWITCH_CONNECTED
 };
 
 struct TwitchContext {

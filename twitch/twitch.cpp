@@ -14,6 +14,7 @@ void event_connect( irc_session_t *session, const char *event, const char *origi
 		return;
 	}
 
+	ctx->twitch->status = TWITCH_CONNECTED;
 	ctx->twitch->OnConnected();
 }
 
@@ -99,13 +100,17 @@ std::thread Twitch::Connect( const std::string &user, const std::string &passwor
 
 		irc_option_set( session, LIBIRC_OPTION_STRIPNICKS );
 
+		status = TWITCH_CONNECTING;
+
 		if ( irc_connect( session, "irc.chat.twitch.tv", 6667, password.c_str(), user.c_str(), user.c_str(), user.c_str() ) ) {
 			OnError( irc_errno( session ), irc_strerror( irc_errno( session ) ) );
+			status = TWITCH_DISCONNECTED;
 			return;
 		}
 
 		if ( irc_run( session ) ) {
 			OnError( irc_errno( session ), irc_strerror( irc_errno( session ) ) );
+			status = TWITCH_DISCONNECTED;
 			return;
 		}
 	} );
@@ -114,9 +119,10 @@ std::thread Twitch::Connect( const std::string &user, const std::string &passwor
 void Twitch::Disconnect() {
 	if ( session ) {
 		irc_disconnect( session );
+		
+		status = TWITCH_DISCONNECTED;
+		OnDisconnected();
 	}
-
-	OnDisconnected();
 }
 
 void Twitch::SendChatMessage( const std::string &message ) {

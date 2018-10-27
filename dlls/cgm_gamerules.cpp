@@ -61,7 +61,6 @@ int gmsgCLabelGMod  = 0;
 
 int gmsgSayText2 = 0;
 
-TwitchConnectionStatus twitchStatus = TWITCH_DISCONNECTED;
 bool ShouldInitializeTwitch() {
 	return
 		CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) > 0.0f ||
@@ -299,13 +298,11 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		twitch->OnConnected = [this] {
 			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 				SendGameLogMessage( pPlayer, "Connected to Twitch chat", true );
-				twitchStatus = TWITCH_CONNECTED;
 			}
 		};
 		twitch->OnDisconnected = [this] {
 			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 				SendGameLogMessage( pPlayer, "Disconnected from Twitch chat", true );
-				twitchStatus = TWITCH_DISCONNECTED;
 			}
 		};
 		twitch->OnError = [this]( int errorCode, const std::string &error ) {
@@ -565,7 +562,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				} );
 			} while ( gameplayMods.proposedGameplayMods.size() == 0 );
 
-			if ( twitchStatus == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
+			if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
 				twitch->SendChatMessage( "VOTE FOR NEXT MOD" );
 				for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
 					auto &mod = gameplayMods.proposedGameplayMods.at( i );
@@ -600,7 +597,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
-	if ( ShouldInitializeTwitch() && twitchStatus == TWITCH_DISCONNECTED ) {
+	if ( twitch && twitch->status == TWITCH_DISCONNECTED && ShouldInitializeTwitch() ) {
 
 
 		auto twitch_credentials = ReadTwitchCredentialsFromFile();
@@ -611,10 +608,9 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 			twitch_thread = twitch->Connect( login, password );
 			twitch_thread.detach();
-			twitchStatus = TWITCH_CONNECTING;
 		}
 
-	} else if ( !ShouldInitializeTwitch() && TWITCH_CONNECTED ) {
+	} else if ( twitch && twitch->status == TWITCH_CONNECTED && !ShouldInitializeTwitch() ) {
 		SendGameLogMessage( pPlayer, "Disconnecting from Twitch chat", true );
 		twitch->Disconnect();
 	}
@@ -662,7 +658,7 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 
 	}
 
-	if ( twitchStatus == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f && twitch->killfeedMessages.size() > 0 ) {
+	if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f && twitch->killfeedMessages.size() > 0 ) {
 		Vector deathPos = victim->pev->origin;
 		deathPos.z += victim->pev->size.z + 5.0f;
 		auto it = RandomFromContainer( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
@@ -842,7 +838,7 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 				std::sprintf( upperString, "%d x%.1f", scoreToAdd, comboMultiplier );
 			}
 
-			if ( twitchStatus != TWITCH_CONNECTED || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
+			if ( ( twitch && twitch->status != TWITCH_CONNECTED ) || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
 				if ( gameplayMods.blackMesaMinute ) {
 					SendGameLogWorldMessage( pPlayer, deathPos, "", std::string( upperString ) + " / " + std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ) );
 				} else {
@@ -1256,7 +1252,7 @@ void CCustomGameModeRules::IncreaseTime( CBasePlayer *pPlayer, const Vector &eve
 	sprintf( timeAddedCString, "00:%02d", timeToAdd ); // mm:ss
 	const std::string timeAddedString = std::string( timeAddedCString );
 
-	if ( twitchStatus != TWITCH_CONNECTED || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
+	if ( ( twitch && twitch->status != TWITCH_CONNECTED ) || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
 		SendGameLogWorldMessage( pPlayer, eventPos, timeAddedString );
 	}
 }

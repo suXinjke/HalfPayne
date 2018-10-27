@@ -475,7 +475,7 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	// echo to server console
 	g_engfuncs.pfnServerPrint( text );
 	
-	if ( CVAR_GET_FLOAT( "twitch_integration_say" ) >= 0.0f && twitch ) {
+	if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_say" ) >= 0.0f ) {
 		twitch->SendChatMessage( p );
 	}
 
