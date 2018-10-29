@@ -448,21 +448,16 @@ void SaveGlobalState( SAVERESTOREDATA *pSaveData )
 	gameplayMods.Save( saveHelper );
 }
 
-
 void RestoreGlobalState( SAVERESTOREDATA *pSaveData )
 {
 	CRestore restoreHelper( pSaveData );
 	gGlobalState.Restore( restoreHelper );
 
 	BOOL randomGameplayModsWereActive = gameplayMods.randomGameplayMods;
-
 	gameplayMods.Restore( restoreHelper );
-	if ( !gameplayMods.randomGameplayMods ) {
-		gameplayMods.RestoreMods( restoreHelper );
-	} else {
-		if ( !randomGameplayModsWereActive ) {
-			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
-		}
+
+	if ( gameplayMods.randomGameplayMods && !randomGameplayModsWereActive ) {
+		gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
 	}
 }
 

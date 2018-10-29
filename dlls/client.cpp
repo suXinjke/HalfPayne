@@ -808,6 +808,31 @@ void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 
 	// Link user messages here to make sure first client can get them...
 	LinkUserMessages();
+
+	if ( gameplayMods.randomGameplayMods ) {
+		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+			if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				auto filteredGameplayMods = gameplayMods.FilterGameplayMods( gameplayModDefs, player );
+
+				for ( auto &mod : filteredGameplayMods ) {
+					mod.second.Deactivate( player );
+				}
+
+				auto filteredConfigFileGameplayMods = gameplayMods.FilterGameplayMods( cgm->config.mods, player );
+				for ( auto &mod : filteredConfigFileGameplayMods ) {
+					mod.second.Init( player );
+				}
+
+				for ( auto &mod : gameplayMods.timedGameplayMods ) {
+					mod.first.Init( player );
+				}
+
+				if ( std::string( gameplayMods.activeGameModeConfigHash ) != cgm->config.sha1 ) {
+					gameplayMods.usedCheat = TRUE;
+				}
+			}
+		}
+	}
 }
 
 

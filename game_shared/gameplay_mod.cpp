@@ -37,21 +37,12 @@ void GameplayMods::Init() {
 
 int GameplayMods::Save( CSave &save ) {
 	AddArrayFieldDefinitions();
-	
-	int configFieldsSaveResult = save.WriteFields( "GAMEPLAY_CONFIG", this, fields.data(), fields.size() );
-	int gameplayModsSaveResult = save.WriteFields( "GAMEPLAY_MODS", this, gameplayFields.data(), gameplayFields.size() );
-
-	return configFieldsSaveResult && gameplayModsSaveResult;
+	return save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
 }
 
 int GameplayMods::Restore( CRestore &restore ) {
 	AddArrayFieldDefinitions();
-	return restore.ReadFields( "GAMEPLAY_CONFIG", this, fields.data(), fields.size() );
-}
-
-int GameplayMods::RestoreMods( CRestore &restore ) {
-	AddArrayFieldDefinitions();
-	return restore.ReadFields( "GAMEPLAY_MODS", this, gameplayFields.data(), gameplayFields.size() );
+	return restore.ReadFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
 }
 
 void GameplayMods::Reset() {
@@ -86,7 +77,7 @@ void GameplayMods::AddArrayFieldDefinitions() {
 		// HACK: didn't figure out simple macro to avoid defining these fields in this place
 		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfig, FIELD_CHARACTER, 256 ) );
 		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfigHash, FIELD_CHARACTER, 128 ) );
-		gameplayFields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
+		fields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
 
 		addedAdditionalFields = true;
 	}
@@ -128,17 +119,7 @@ std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player
 
 	std::vector<GameplayMod> randomGameplayMods;
 
-	auto gameplayMods = gameplayModDefs;
-	for ( auto it = gameplayMods.begin(); it != gameplayMods.end(); ) {
-		if (
-			( it->second.isEvent && !it->second.CanBeActivatedRandomly( player ) ) ||
-			( !it->second.isEvent && !it->second.canBeDeactivated || it->second.cannotBeActivatedRandomly || !it->second.CanBeActivatedRandomly( player ) || !filter( it->second ) )
-		) {
-			it = gameplayMods.erase( it );
-		} else {
-			it++;
-		}
-	}
+	auto gameplayMods = FilterGameplayMods( gameplayModDefs, player, filter );
 
 	for ( size_t i = 0; i < modAmount && gameplayMods.size() > 0; i++ ) {
 	
@@ -163,6 +144,21 @@ std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player
 	}
 
 	return randomGameplayMods;
+}
+
+std::map<GAMEPLAY_MOD, GameplayMod> GameplayMods::FilterGameplayMods( std::map<GAMEPLAY_MOD, GameplayMod> gameplayMods, CBasePlayer *player, std::function<bool( const GameplayMod &mod )> filter ) {
+	for ( auto it = gameplayMods.begin(); it != gameplayMods.end(); ) {
+		if (
+			( it->second.isEvent && !it->second.CanBeActivatedRandomly( player ) ) ||
+			( !it->second.isEvent && !it->second.canBeDeactivated || it->second.cannotBeActivatedRandomly || !it->second.CanBeActivatedRandomly( player ) || !filter( it->second ) )
+		) {
+			it = gameplayMods.erase( it );
+		} else {
+			it++;
+		}
+	}
+
+	return gameplayMods;
 }
 
 GameplayMod GameplayMods::GetRandomGameplayMod( CBasePlayer *player ) {
