@@ -445,7 +445,9 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			index++;
 		}
 
-		gameplayMods.timeLeftUntilNextRandomGameplayMod -= timeDelta;
+		if ( pPlayer->pev->deadflag == DEAD_NO ) {
+			gameplayMods.timeLeftUntilNextRandomGameplayMod -= timeDelta;
+		}
 
 		if ( gameplayMods.proposedGameplayMods.size() > 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod < 0.0f ) {
 			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
@@ -546,16 +548,18 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			}
 		}
 
-		for ( auto i = gameplayMods.timedGameplayMods.begin(); i != gameplayMods.timedGameplayMods.end(); ) {
-			i->second -= timeDelta;
+		if ( pPlayer->pev->deadflag == DEAD_NO ) {
+			for ( auto i = gameplayMods.timedGameplayMods.begin(); i != gameplayMods.timedGameplayMods.end(); ) {
+				i->second -= timeDelta;
 
-			if ( i->second <= 0 ) {
-				i->first.Deactivate( pPlayer );
-				i = gameplayMods.timedGameplayMods.erase( i );
-			} else {
-				i++;
+				if ( i->second <= 0 ) {
+					i->first.Deactivate( pPlayer );
+					i = gameplayMods.timedGameplayMods.erase( i );
+				} else {
+					i++;
+				}
+
 			}
-
 		}
 	}
 
