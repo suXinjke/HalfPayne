@@ -688,7 +688,6 @@ public:
 	
 	int MsgFunc_PropModLen( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModVal( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_PropModVot( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModVin( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModAni( const char *pszName, int iSize, void *pbuf );
 

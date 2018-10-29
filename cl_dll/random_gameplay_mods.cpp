@@ -12,7 +12,6 @@ DECLARE_MESSAGE( m_RandomGameplayMods, RandModVal )
 
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModLen )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModVal )
-DECLARE_MESSAGE( m_RandomGameplayMods, PropModVot )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModVin )
 DECLARE_MESSAGE( m_RandomGameplayMods, PropModAni )
 
@@ -25,7 +24,6 @@ int CHudRandomGameplayMods::Init( void )
 	
 	HOOK_MESSAGE( PropModLen );
 	HOOK_MESSAGE( PropModVal );
-	HOOK_MESSAGE( PropModVot );
 	HOOK_MESSAGE( PropModVin );
 	HOOK_MESSAGE( PropModAni );
 	
@@ -190,26 +188,9 @@ int CHudRandomGameplayMods::MsgFunc_PropModVal( const char *pszName, int iSize, 
 	BEGIN_READ( pbuf, iSize );
 
 	size_t index = READ_SHORT();
+	proposedMods[index].votes = READ_LONG();
+	proposedMods[index].percent = READ_FLOAT();
 	proposedMods[index].name = READ_STRING();
-
-	m_iFlags |= HUD_ACTIVE;
-
-	return 1;
-}
-
-int CHudRandomGameplayMods::MsgFunc_PropModVot( const char *pszName, int iSize, void *pbuf ) {
-	BEGIN_READ( pbuf, iSize );
-
-	size_t index = READ_SHORT();
-	proposedMods.at( index ).votes = READ_LONG();
-
-	int totalVotes = 0;
-	for ( auto &mod : proposedMods ) {
-		totalVotes += mod.votes;
-	}
-	for ( auto &mod : proposedMods ) {
-		mod.percent = ( mod.votes / ( float ) totalVotes ) * 100;
-	}
 
 	m_iFlags |= HUD_ACTIVE;
 

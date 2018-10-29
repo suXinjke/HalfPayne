@@ -52,7 +52,6 @@ int gmsgRandModVal = 0;
 
 int gmsgPropModLen = 0;
 int gmsgPropModVal = 0;
-int gmsgPropModVot = 0;
 int gmsgPropModVin = 0;
 int gmsgPropModAni = 0;
 
@@ -120,7 +119,6 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 		
 		gmsgPropModLen = REG_USER_MSG( "PropModLen", 2 );
 		gmsgPropModVal = REG_USER_MSG( "PropModVal", -1 );
-		gmsgPropModVot = REG_USER_MSG( "PropModVot", 6 );
 		gmsgPropModVin = REG_USER_MSG( "PropModVin", -1 );
 		gmsgPropModAni = REG_USER_MSG( "PropModAni", 0 );
 
@@ -467,7 +465,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 				if ( std::string( CVAR_GET_STRING( "twitch_integration_random_gameplay_mods_voting_result" ) ) == "most_votes_more_likely" ) {
 					for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
-						voteDistributions.push_back( gameplayMods.proposedGameplayMods.at( i ).votes.size() / ( double ) totalVotes );
+						voteDistributions.push_back( gameplayMods.proposedGameplayMods.at( i ).voteDistributionPercent );
 					}
 				} else {
 					for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
@@ -541,9 +539,12 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			MESSAGE_END();
 
 			for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
+				auto &mod = gameplayMods.proposedGameplayMods.at( gameplayMods.proposedGameplayMods.size() - 1 - i );
 				MESSAGE_BEGIN( MSG_ONE, gmsgPropModVal, NULL, pPlayer->pev );
 					WRITE_SHORT( i );
-					WRITE_STRING( gameplayMods.proposedGameplayMods.at( gameplayMods.proposedGameplayMods.size() - 1 - i ).name.c_str() );
+					WRITE_LONG( mod.votes.size() );
+					WRITE_FLOAT( mod.voteDistributionPercent );
+					WRITE_STRING( mod.name.c_str() );
 				MESSAGE_END();
 			}
 		}
@@ -840,11 +841,14 @@ void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const
 
 	gameplayMods.proposedGameplayMods.at( modIndex ).votes.insert( voter );
 
-	for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgPropModVot, NULL, pPlayer->pev );
-			WRITE_SHORT( i );
-			WRITE_LONG( gameplayMods.proposedGameplayMods.at( gameplayMods.proposedGameplayMods.size() - 1 - i ).votes.size() );
-		MESSAGE_END();
+	size_t totalVotes = 0;
+	size_t maxVoteCount = 0;
+	for ( auto &mod : gameplayMods.proposedGameplayMods ) {
+		totalVotes += mod.votes.size();
+		maxVoteCount = max( maxVoteCount, mod.votes.size() );
+	}
+	for ( auto &mod : gameplayMods.proposedGameplayMods ) {
+		mod.voteDistributionPercent = ( mod.votes.size() / ( float ) totalVotes ) * 100;
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgPropModVin, NULL, pPlayer->pev );

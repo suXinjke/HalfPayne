@@ -130,6 +130,7 @@ struct GameplayMod {
 	std::function<bool( CBasePlayer * )> CanBeActivatedRandomly;
 
 	std::set<std::string> votes;
+	float voteDistributionPercent;
 
 	GameplayMod() {};
 	GameplayMod( const std::string &id, const std::string &name ) :
@@ -145,7 +146,8 @@ struct GameplayMod {
 		isEvent( false ),
 		canBeCancelledAfterChangeLevel( false ),
 		Deactivate( []( CBasePlayer * ) {} ),
-		CanBeActivatedRandomly( []( CBasePlayer * ) { return true; } )
+		CanBeActivatedRandomly( []( CBasePlayer * ) { return true; } ),
+		voteDistributionPercent( 0.0f )
 	{
 	}
 
