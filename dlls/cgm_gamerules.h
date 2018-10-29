@@ -68,10 +68,10 @@ public:
 
 	std::vector<EntityRandomSpawnerController> entityRandomSpawnerControllers;
 
-protected:
 	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message, bool logToConsole = false );
 	void SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 = "" );
 
+protected:
 	virtual void OnEnd( CBasePlayer *pPlayer );
 };
 

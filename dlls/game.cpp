@@ -18,7 +18,9 @@
 #include "game.h"
 #include <vector>
 #include <algorithm>
-#include "gameplay_mod.h"
+#include "cgm_gamerules.h"
+#include "../twitch/twitch.h"
+#include "../fmt/printf.h"
 
 cvar_t	displaysoundlist = {"displaysoundlist","0"};
 
@@ -509,6 +511,9 @@ void InitializeTracks() {
 	} );
 }
 
+Twitch *twitch = 0;
+extern int gmsgSayText2;
+
 // END Cvars for Skill Level settings
 
 // Register your console variables here
@@ -544,6 +549,52 @@ void GameDLLInit( void )
 	gameplayMods.Init();
 
 	InitializeTracks();
+
+	if ( !twitch ) {
+		twitch = new Twitch();
+		twitch->OnConnected = [] {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+					cgm->SendGameLogMessage( pPlayer, "Connected to Twitch chat", true );
+				}
+			}
+		};
+		twitch->OnDisconnected = [] {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+					cgm->SendGameLogMessage( pPlayer, "Disconnected from Twitch chat", true );
+				}
+			}
+		};
+		twitch->OnError = []( int errorCode, const std::string &error ) {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+					if ( errorCode != -1 ) {
+						cgm->SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error %d: %s", errorCode, error ).c_str(), true );
+					} else {
+						cgm->SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error: %s", error ).c_str(), true );
+					}
+				}
+			}
+		};
+
+		twitch->OnMessage = []( const std::string &sender, const std::string &message ) {
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+					if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
+						cgm->VoteForRandomGameplayMod( pPlayer, sender, message );
+					}
+
+					if ( CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
+						std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
+						MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
+							WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
+						MESSAGE_END();
+					}
+				}
+			}
+		};
+	}
 
 	CVAR_REGISTER (&displaysoundlist);
 	CVAR_REGISTER( &allow_spectators );

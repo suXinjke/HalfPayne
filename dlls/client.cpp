@@ -99,6 +99,7 @@ BOOL ClientConnect( edict_t *pEntity, const char *pszName, const char *pszAddres
 
 }
 
+extern Twitch *twitch;
 
 /*
 ===========
@@ -139,6 +140,10 @@ void ClientDisconnect( edict_t *pEntity )
 	UTIL_SetOrigin ( &pEntity->v, pEntity->v.origin );
 
 	g_pGameRules->ClientDisconnected( pEntity );
+
+	if ( twitch && twitch->status != TWITCH_DISCONNECTED ) {
+		twitch->Disconnect();
+	}
 }
 
 

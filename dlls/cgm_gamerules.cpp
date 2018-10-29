@@ -17,7 +17,7 @@
 #include	<mutex>
 #include	"../twitch/twitch.h"
 
-Twitch *twitch = 0;
+extern Twitch *twitch;
 std::thread twitch_thread;
 
 // Custom Game Mode Rules
@@ -175,7 +175,7 @@ void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::
 	MESSAGE_END();
 
 	if ( logToConsole ) {
-		g_engfuncs.pfnServerPrint( message.c_str() );
+		g_engfuncs.pfnServerPrint( ( message + "\n" ).c_str() );
 	}
 }
 
@@ -291,44 +291,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	if ( !spawningAfterIntermission ) {
 		const char *actualMap = STRING( gpGlobals->mapname );
 		startMapDoesntMatch = config.startMap != actualMap;
-	}
-
-	if ( !twitch ) {
-		twitch = new Twitch();
-		twitch->OnConnected = [this] {
-			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				SendGameLogMessage( pPlayer, "Connected to Twitch chat", true );
-			}
-		};
-		twitch->OnDisconnected = [this] {
-			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				SendGameLogMessage( pPlayer, "Disconnected from Twitch chat", true );
-			}
-		};
-		twitch->OnError = [this]( int errorCode, const std::string &error ) {
-			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				if ( errorCode != -1 ) {
-					SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error %d: %s", errorCode, error ).c_str(), true );
-				} else {
-					SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error: %s", error ).c_str(), true );
-				}
-			}
-		};
-
-		twitch->OnMessage = [this]( const std::string &sender, const std::string &message ) {
-			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
-					VoteForRandomGameplayMod( pPlayer, sender, message );
-				}
-
-				if ( CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
-					std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
-					MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
-						WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
-					MESSAGE_END();
-				}
-			}
-		};
 	}
 }
 
@@ -610,7 +572,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			twitch_thread.detach();
 		}
 
-	} else if ( twitch && twitch->status == TWITCH_CONNECTED && !ShouldInitializeTwitch() ) {
+	} else if ( twitch && twitch->status != TWITCH_DISCONNECTED && !ShouldInitializeTwitch() ) {
 		SendGameLogMessage( pPlayer, "Disconnecting from Twitch chat", true );
 		twitch->Disconnect();
 	}
