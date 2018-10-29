@@ -122,9 +122,7 @@ void CHalfLifeRules::OnChangeLevel()
 	} } );
 }
 
-extern int g_autoSaved;
 void CHalfLifeRules::OnSave( CBasePlayer *pPlayer ) {
-	g_autoSaved = 0;
 }
 
 void CHalfLifeRules::OnKilledEntityByPlayer( CBasePlayer * pPlayer, CBaseEntity * victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {

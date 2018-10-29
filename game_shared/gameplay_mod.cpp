@@ -35,9 +35,23 @@ void GameplayMods::Init() {
 
 #ifndef CLIENT_DLL
 
+extern int g_autoSaved;
+
 int GameplayMods::Save( CSave &save ) {
 	AddArrayFieldDefinitions();
-	return save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
+
+	BOOL previousNoSavingValue = gameplayMods.noSaving;
+	if ( gameplayMods.autosavesOnly && g_autoSaved ) {
+		gameplayMods.noSaving = FALSE;
+	}
+	auto saveResult = save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
+	if ( gameplayMods.autosavesOnly && g_autoSaved ) {
+		gameplayMods.noSaving = previousNoSavingValue;
+	}
+
+	g_autoSaved = FALSE;
+
+	return saveResult;
 }
 
 int GameplayMods::Restore( CRestore &restore ) {

@@ -14,6 +14,12 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 	{ GAMEPLAY_MOD_ALWAYS_GIB, GameplayMod( "always_gib", "Always gib" )
 		.Description( "Kills will always try to result in gibbing." )
 		.Toggles( &gameplayMods.gibsAlways )
+	},	
+
+	{ GAMEPLAY_MOD_AUTOSAVES_ONLY, GameplayMod( "autosaves_only", "Autosaves only" )
+		.Description( "Only autosaves are allowed. You are not allowed to quicksave." )
+		.Toggles( { &gameplayMods.autosavesOnly, &gameplayMods.noSaving } )
+		.CannotBeActivatedRandomly()
 	},
 
 	{ GAMEPLAY_MOD_BLACK_MESA_MINUTE, GameplayMod( "black_mesa_minute", "Black Mesa Minute" )

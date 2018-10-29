@@ -30,6 +30,7 @@ enum GAME_MODE {
 
 enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_ALWAYS_GIB,
+	GAMEPLAY_MOD_AUTOSAVES_ONLY,
 	GAMEPLAY_MOD_BLACK_MESA_MINUTE,
 	GAMEPLAY_MOD_BLEEDING,
 	GAMEPLAY_MOD_BULLET_DELAY_ON_SLOWMOTION,
@@ -271,6 +272,7 @@ public:
 	FieldFloat( aimOffsetChangeFreqency, 0.0f );
 
 	FieldBool( automaticShotgun, FALSE );
+	FieldBool( autosavesOnly, FALSE );
 
 	FieldBool( bleeding, FALSE );
 	FieldFloat( bleedingUpdatePeriod, 1.0f );
