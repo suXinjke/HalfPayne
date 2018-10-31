@@ -283,7 +283,7 @@ public:
 		std::string argumentsString;
 
 		ConfigSection() {};
-		ConfigSection( const std::string &name, const std::vector<Argument> args, ConfigSectionInitFunction init )
+		ConfigSection( const std::string &name, const std::vector<Argument> &args, const ConfigSectionInitFunction &init )
 			: name( name ), args( args ), Init( init ), requiredAmountOfArguments( 0 ) {
 
 			for ( const auto &arg : args ) {

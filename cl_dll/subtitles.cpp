@@ -24,8 +24,8 @@ void Subtitles_Init() {
 
 	std::vector<std::string> subtitleFiles = FS_GetAllFilesInDirectory( "half_payne/resource", "txt" );
 
-	for ( auto sub : subtitleFiles ) {
-		std::regex rgx( "subtitles_(\\w+)\\.txt" );
+	std::regex rgx( "subtitles_(\\w+)\\.txt" );
+	for ( auto &sub : subtitleFiles ) {
 		std::smatch match;
 		std::regex_search( sub, match, rgx );
 
@@ -150,7 +150,7 @@ void Subtitles_Draw() {
 
 	auto i = subtitlesToDraw.begin();
 	while ( i != subtitlesToDraw.end() ) {
-		auto subtitle = i->second;
+		auto &subtitle = i->second;
 		
 		if ( time >= subtitle.duration ) {
 			i = subtitlesToDraw.erase( i );
@@ -186,7 +186,7 @@ void Subtitles_Draw() {
 
 	ImGui::Begin( "Subtitles", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
 	for ( const auto &pair : subtitlesToDraw ) {
-		auto subtitle = pair.second;
+		auto &subtitle = pair.second;
 		if ( time < subtitle.delay ) {
 			continue;
 		}
@@ -262,7 +262,7 @@ void Subtitles_Push( const std::string &key, int ignoreLongDistances, const Vect
 	auto subtitles = Subtitles_GetByKey( actualKey );
 
 	for ( size_t i = 0 ; i < subtitles.size() ; i++ ) {
-		auto subtitle = subtitles.at( i );
+		auto &subtitle = subtitles.at( i );
 		auto color = Subtitles_GetSubtitleColorByKey( subtitle.colorKey );
 
 		if ( subtitle.colorKey != "PAYNE" && print_subtitles_cvar < 2.0f ) {

@@ -5705,7 +5705,7 @@ void CBasePlayer :: UpdateClientData( void )
 		MESSAGE_END();
 	}
 
-	if ( CVAR_GET_FLOAT( "print_player_info" ) >= 0.0f ) {
+	if ( CVAR_GET_FLOAT( "print_player_info" ) >= 1.0f ) {
 		TraceResult tr;
 		UTIL_MakeVectors( pev->v_angle );
 		UTIL_TraceLine( pev->origin + pev->view_ofs, pev->origin + pev->view_ofs + gpGlobals->v_forward * 8192, dont_ignore_monsters, edict(), &tr );
@@ -5730,7 +5730,7 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 
 	// Show aim coordinates
-	if ( CVAR_GET_FLOAT( "print_aim_coordinates" ) > 0.0f ) {
+	if ( CVAR_GET_FLOAT( "print_aim_coordinates" ) >= 1.0f ) {
 
 		TraceResult tr;
 		UTIL_MakeVectors( pev->v_angle );

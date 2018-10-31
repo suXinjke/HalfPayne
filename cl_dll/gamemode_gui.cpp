@@ -119,7 +119,7 @@ void GameModeGUI_DrawMainWindow() {
 	{
 		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, -20 ) );
 
-		for ( const auto &configSection : configs ) {
+		for ( auto &configSection : configs ) {
 			if ( ImGui::CollapsingHeader( configSection.first.c_str() ) ) {
 				GameModeGUI_DrawGamemodeConfigTable( configSection.second );
 				ImGui::Columns( 1 );
@@ -138,7 +138,7 @@ void GameModeGUI_DrawMainWindow() {
 	ImGui::End();
 }
 
-void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig> &configs ) {
+void GameModeGUI_DrawGamemodeConfigTable( std::vector<CustomGameModeConfig> &configs ) {
 	
 	//const std::vector<CustomGameModeConfig> *configs = GameModeGUI_GameModeConfigVectorFromType( configType );
 
@@ -167,7 +167,7 @@ void GameModeGUI_DrawGamemodeConfigTable( const std::vector<CustomGameModeConfig
 
 		for ( size_t i = 0; i < configs.size(); i++ ) {
 
-			CustomGameModeConfig config = configs.at( i );
+			CustomGameModeConfig &config = configs.at( i );
 
 			const char *file = config.configNameSeparated.at( config.configNameSeparated.size() - 1 ).c_str();
 			

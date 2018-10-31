@@ -379,8 +379,8 @@ void CustomGameModeConfig::InitConfigSections() {
 
 			bool activatedMod = false;
 			for ( auto &pair : gameplayModDefs ) {
-				auto mod = pair.second;
-				if ( mod.id == modName ) {
+				if ( pair.second.id == modName ) {
+					auto &mod = pair.second;
 					activatedMod = true;
 
 					for ( size_t i = 0 ; i < min( mod.arguments.size(), args.size() - 1 ) ; i++ ) {

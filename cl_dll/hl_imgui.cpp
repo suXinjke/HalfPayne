@@ -18,10 +18,6 @@ SDL_Window *window = NULL;
 
 // To draw imgui on top of Half-Life, we take a detour from certain engine's function into HL_ImGUI_Draw function
 void HL_ImGUI_Init() {
-	// TODO: figure out if it's possible to avoid crash on startup when using Debug build
-#ifdef DEBUG
-	return;
-#endif
 
 	// One of the final steps before drawing a frame is calling SDL_GL_SwapWindow function
 	// It must be prevented, so imgui could be drawn before calling SDL_GL_SwapWindow
