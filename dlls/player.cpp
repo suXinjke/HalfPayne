@@ -61,6 +61,7 @@ extern "C" int				g_slowMotionCharge;
 extern "C" int				g_divingAllowedWithoutSlowmotion;
 extern "C" float			g_frictionOverride;
 extern "C" int				g_noJumping;
+extern "C" int				g_upsideDown;
 extern "C" int				g_noWalking;
 extern "C" int				g_doubleSpeed;
 
@@ -3581,6 +3582,7 @@ pt_end:
 
 	g_frictionOverride = gameplayMods.frictionOverride;
 	g_noJumping = gameplayMods.noJumping;
+	g_upsideDown = gameplayMods.upsideDown;
 	g_noWalking = gameplayMods.noWalking;
 	g_doubleSpeed = gameplayMods.slowmotionFastWalk && slowMotionEnabled;
 

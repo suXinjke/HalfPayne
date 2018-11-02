@@ -160,6 +160,7 @@ int g_divingAllowedWithoutSlowmotion = 0;
 int g_playerHasSuit = 0;
 int g_noJumping = 0;
 int g_noWalking = 0;
+int g_upsideDown = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
@@ -2840,10 +2841,10 @@ void PM_Dive(void)
 			resultVector[i] -= pmove->forward[i];
 		}
 		if (pmove->cmd.buttons & IN_MOVELEFT) {
-			resultVector[i] -= pmove->right[i];
+			resultVector[i] += g_upsideDown ? pmove->right[i] : -pmove->right[i];
 		}
 		if (pmove->cmd.buttons & IN_MOVERIGHT) {
-			resultVector[i] += pmove->right[i];
+			resultVector[i] += g_upsideDown ? -pmove->right[i] : pmove->right[i];
 		}	
 	}
 	VectorNormalize(resultVector);
