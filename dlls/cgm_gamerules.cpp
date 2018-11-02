@@ -11,7 +11,6 @@
 #include	<regex>
 #include	"monsters.h"
 #include	"gameplay_mod.h"
-#include	"util_aux.h"
 #include	"../fmt/printf.h"
 #include	<thread>
 #include	<mutex>
@@ -345,7 +344,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	) {
 		size_t musicIndexToPlay = pPlayer->currentMusicPlaylistIndex + 1;
 		if ( config.musicPlaylistShuffle ) {
-			musicIndexToPlay = UniformInt( 0, musicPlaylistSize - 1 );
+			musicIndexToPlay = aux::rand::uniformInt<size_t>( 0, musicPlaylistSize - 1 );
 		}
 
 		if ( musicIndexToPlay >= musicPlaylistSize ) {
@@ -473,10 +472,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 					}
 				}
 
-				int randomIndex = IndexFromDiscreteDistribution( voteDistributions );
+				int randomIndex = aux::rand::discreteIndex( voteDistributions );
 				randomGameplayMod = gameplayMods.proposedGameplayMods.at( randomIndex );
 			} else {
-				randomGameplayMod = RandomFromVector( gameplayMods.proposedGameplayMods );
+				randomGameplayMod = aux::rand::choice( gameplayMods.proposedGameplayMods );
 			}
 			
 			auto eventResults = randomGameplayMod.Init( pPlayer );
@@ -566,8 +565,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	if ( twitch && twitch->status == TWITCH_DISCONNECTED && ShouldInitializeTwitch() ) {
 
-
-		auto twitch_credentials = ReadTwitchCredentialsFromFile();
+		auto twitch_credentials = aux::twitch::readCredentialsFromFile();
 		auto login = twitch_credentials.first;
 		auto password = twitch_credentials.second;
 		if ( !login.empty() && !password.empty() ) {
@@ -628,7 +626,7 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 	if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f && twitch->killfeedMessages.size() > 0 ) {
 		Vector deathPos = victim->pev->origin;
 		deathPos.z += victim->pev->size.z + 5.0f;
-		auto it = RandomFromContainer( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
+		auto it = aux::rand::choice( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
 		if ( it != twitch->killfeedMessages.end() ) {
 			SendGameLogWorldMessage( pPlayer, deathPos, *it );
 			twitch->killfeedMessages.erase( it );

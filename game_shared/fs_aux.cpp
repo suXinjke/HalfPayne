@@ -1,5 +1,5 @@
 #include "fs_aux.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 #include <Windows.h>
 
 void FillTCHAR( TCHAR *tchar, const std::string &str ) {
@@ -65,7 +65,7 @@ std::vector<std::string> FS_GetAllFilesInDirectory( const char *path, const char
 			} else {
 				if (
 					!excludeFiles &&
-					( extension == "*" || EndsWith( sPath, extension ) )
+					( extension == "*" || aux::str::endsWith( sPath, extension ) )
 				) {
 					result.push_back( sPath );
 				}

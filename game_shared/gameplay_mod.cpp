@@ -1,9 +1,7 @@
 #include <map>
 #include <random>
 #include "gameplay_mod.h"
-#include "string_aux.h"
 #include "player.h"
-#include "util_aux.h"
 #include "cgm_gamerules.h"
 GameplayMods gameplayMods;
 
@@ -98,7 +96,7 @@ void GameplayMods::AddArrayFieldDefinitions() {
 }
 
 void GameplayMods::SetGameplayModActiveByString( const std::string &line, bool isActive ) {
-	auto args = NaiveCommandLineParse( line );
+	auto args = aux::str::getCommandLineArguments( line );
 
 	std::string modName = args.at( 0 );
 	bool activatedMod = false;
@@ -137,10 +135,7 @@ std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player
 
 	for ( size_t i = 0; i < modAmount && gameplayMods.size() > 0; i++ ) {
 	
-		int randomModIndex = UniformInt( 0, gameplayMods.size() - 1 );
-
-		auto it = gameplayMods.begin();
-		std::advance( it, randomModIndex );
+		auto it = aux::rand::choice( gameplayMods.begin(), gameplayMods.end() );
 		auto &randomGameplayMod = it->second;
 
 		for ( auto &arg : randomGameplayMod.arguments ) {
@@ -148,7 +143,7 @@ std::vector<GameplayMod> GameplayMods::GetRandomGameplayMod( CBasePlayer *player
 			float max = arg.randomMax;
 
 			if ( arg.isNumber && !std::isnan( min ) && !std::isnan( max ) ) {
-				arg.Init( std::to_string( UniformFloat( min, max ) ) );
+				arg.Init( std::to_string( aux::rand::uniformFloat( min, max ) ) );
 			}
 		}
 

@@ -2,7 +2,7 @@
 #include "cl_util.h"
 #include "parsemsg.h"
 #include "triangleapi.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 #include "gamemode_gui.h"
 
 DECLARE_MESSAGE( m_EndScreen, EndActiv )
@@ -144,7 +144,7 @@ int CHudEndScreen::MsgFunc_EndTime( const char *pszName, int iSize, void *pbuf )
 	BEGIN_READ( pbuf, iSize );
 
 	const char *stringMessage = READ_STRING();
-	auto messageParts = Split( stringMessage, '|' );
+	auto messageParts = aux::str::split( stringMessage, '|' );
 
 	float time = READ_FLOAT();
 	float recordTime = READ_FLOAT();
@@ -166,7 +166,7 @@ int CHudEndScreen::MsgFunc_EndScore( const char *pszName, int iSize, void *pbuf 
 	BEGIN_READ( pbuf, iSize );
 
 	const char *stringMessage = READ_STRING();
-	auto messageParts = Split( stringMessage, '|' );
+	auto messageParts = aux::str::split( stringMessage, '|' );
 
 	float score = READ_LONG();
 	float recordScore = READ_LONG();
@@ -189,7 +189,7 @@ int CHudEndScreen::MsgFunc_EndStat( const char *pszName, int iSize, void *pbuf )
 	BEGIN_READ( pbuf, iSize );
 
 	const char *stringMessage = READ_STRING();
-	auto messageParts = Split( stringMessage, '|' );
+	auto messageParts = aux::str::split( stringMessage, '|' );
 
 	statLines.push_back( {
 		messageParts.at( 0 ),

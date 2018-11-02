@@ -1,7 +1,8 @@
 #include "twitch.h"
 #include <iostream>
 #include <regex>
-#include "string_aux.h"
+#include <fstream>
+#include "cpp_aux.h"
 
 void event_connect( irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count ) {
 	TwitchContext *ctx = ( TwitchContext * ) irc_get_ctx( session );
@@ -33,7 +34,7 @@ void event_channel( irc_session_t *session, const char *event, const char *origi
 	message = std::regex_replace( message, std::regex( "\\s+" ), " " );
 	message = std::regex_replace( message, std::regex( "^[#!0]*([1-9]{1})" ), "" );
 
-	message = Trim( message );
+	message = aux::str::trim( message );
 
 	if ( message.size() > 0 && message.size() < 64 ) {
 		auto &killfeedMessages = ctx->twitch->killfeedMessages;
@@ -134,3 +135,4 @@ void Twitch::SendChatMessage( const std::string &message ) {
 		OnError( irc_errno( session ), irc_strerror( irc_errno( session ) ) );
 	}
 }
+

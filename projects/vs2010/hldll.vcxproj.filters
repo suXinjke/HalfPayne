@@ -1,633 +1,195 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Source Files\dlls">
-      <UniqueIdentifier>{a59f65b1-455f-459d-bc2a-75775255cd5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\dlls\wpn_shared">
-      <UniqueIdentifier>{000b311c-d555-467e-b6cb-5e669fb8c45e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\pm_shared">
-      <UniqueIdentifier>{7f184267-1d16-4bbc-9212-a804fcd04e6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game_shared">
-      <UniqueIdentifier>{9cd951c6-53c4-4c79-826f-13ac1af8a8b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\dlls">
-      <UniqueIdentifier>{e3b69fef-bfa6-4270-8280-f2b25793ac4e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\engine">
-      <UniqueIdentifier>{b85e935a-5cc8-482d-b85f-6cdaa3452ccb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\pm_shared">
-      <UniqueIdentifier>{37941113-16fa-4ce0-9bdd-a72a1ced8902}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\common">
-      <UniqueIdentifier>{03c3b7ab-7381-4112-a0a0-1c1c467c5674}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\game_shared">
-      <UniqueIdentifier>{8e877b5e-e3d7-4d0e-97fa-e666a0ecd436}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\fmt">
-      <UniqueIdentifier>{3d5e80a6-157c-45ba-9d29-5749373ca130}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\fmt">
-      <UniqueIdentifier>{7c4f4232-c16b-453e-b09a-9acc5db79b9b}</UniqueIdentifier>
-    <Filter Include="Source Files\twitch">
-      <UniqueIdentifier>{e7190f78-e7be-4d4d-87be-8bf999549aaa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\twitch">
-      <UniqueIdentifier>{5023c9ff-f9c6-44c2-9789-d87d4633d5a9}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="..\..\dlls\aflock.cpp" />
+    <ClCompile Include="..\..\dlls\agrunt.cpp" />
+    <ClCompile Include="..\..\dlls\airtank.cpp" />
+    <ClCompile Include="..\..\dlls\animating.cpp" />
+    <ClCompile Include="..\..\dlls\animation.cpp" />
+    <ClCompile Include="..\..\dlls\apache.cpp" />
+    <ClCompile Include="..\..\dlls\barnacle.cpp" />
+    <ClCompile Include="..\..\dlls\barney.cpp" />
+    <ClCompile Include="..\..\dlls\bigmomma.cpp" />
+    <ClCompile Include="..\..\dlls\bloater.cpp" />
+    <ClCompile Include="..\..\dlls\bmodels.cpp" />
+    <ClCompile Include="..\..\dlls\bullet.cpp" />
+    <ClCompile Include="..\..\dlls\bullsquid.cpp" />
+    <ClCompile Include="..\..\dlls\buttons.cpp" />
+    <ClCompile Include="..\..\dlls\cbase.cpp" />
+    <ClCompile Include="..\..\dlls\cgm_gamerules.cpp" />
+    <ClCompile Include="..\..\dlls\client.cpp" />
+    <ClCompile Include="..\..\dlls\combat.cpp" />
+    <ClCompile Include="..\..\dlls\controller.cpp" />
+    <ClCompile Include="..\..\dlls\crossbow.cpp" />
+    <ClCompile Include="..\..\dlls\crowbar.cpp" />
+    <ClCompile Include="..\..\dlls\defaultai.cpp" />
+    <ClCompile Include="..\..\dlls\doors.cpp" />
+    <ClCompile Include="..\..\dlls\effects.cpp" />
+    <ClCompile Include="..\..\dlls\egon.cpp" />
+    <ClCompile Include="..\..\dlls\end_marker.cpp" />
+    <ClCompile Include="..\..\dlls\explode.cpp" />
+    <ClCompile Include="..\..\dlls\flyingmonster.cpp" />
+    <ClCompile Include="..\..\dlls\func_break.cpp" />
+    <ClCompile Include="..\..\dlls\func_tank.cpp" />
+    <ClCompile Include="..\..\dlls\game.cpp" />
+    <ClCompile Include="..\..\dlls\gamerules.cpp" />
+    <ClCompile Include="..\..\dlls\gargantua.cpp" />
+    <ClCompile Include="..\..\dlls\gauss.cpp" />
+    <ClCompile Include="..\..\dlls\genericmonster.cpp" />
+    <ClCompile Include="..\..\dlls\ggrenade.cpp" />
+    <ClCompile Include="..\..\dlls\globals.cpp" />
+    <ClCompile Include="..\..\dlls\gman.cpp" />
+    <ClCompile Include="..\..\dlls\handgrenade.cpp" />
+    <ClCompile Include="..\..\dlls\hassassin.cpp" />
+    <ClCompile Include="..\..\dlls\headcrab.cpp" />
+    <ClCompile Include="..\..\dlls\healthkit.cpp" />
+    <ClCompile Include="..\..\dlls\hgrunt.cpp" />
+    <ClCompile Include="..\..\dlls\hornet.cpp" />
+    <ClCompile Include="..\..\dlls\hornetgun.cpp" />
+    <ClCompile Include="..\..\dlls\houndeye.cpp" />
+    <ClCompile Include="..\..\dlls\h_ai.cpp" />
+    <ClCompile Include="..\..\dlls\h_battery.cpp" />
+    <ClCompile Include="..\..\dlls\h_cine.cpp" />
+    <ClCompile Include="..\..\dlls\h_cycler.cpp" />
+    <ClCompile Include="..\..\dlls\h_export.cpp" />
+    <ClCompile Include="..\..\dlls\ichthyosaur.cpp" />
+    <ClCompile Include="..\..\dlls\ingram.cpp" />
+    <ClCompile Include="..\..\dlls\ingram_twin.cpp" />
+    <ClCompile Include="..\..\dlls\islave.cpp" />
+    <ClCompile Include="..\..\dlls\items.cpp" />
+    <ClCompile Include="..\..\dlls\kerotan.cpp" />
+    <ClCompile Include="..\..\dlls\leech.cpp" />
+    <ClCompile Include="..\..\dlls\lights.cpp" />
+    <ClCompile Include="..\..\dlls\maprules.cpp" />
+    <ClCompile Include="..\..\dlls\monstermaker.cpp" />
+    <ClCompile Include="..\..\dlls\monsters.cpp" />
+    <ClCompile Include="..\..\dlls\monsterstate.cpp" />
+    <ClCompile Include="..\..\dlls\mortar.cpp" />
+    <ClCompile Include="..\..\dlls\mp5.cpp" />
+    <ClCompile Include="..\..\dlls\multiplay_gamerules.cpp" />
+    <ClCompile Include="..\..\dlls\nihilanth.cpp" />
+    <ClCompile Include="..\..\dlls\nodes.cpp" />
+    <ClCompile Include="..\..\dlls\observer.cpp" />
+    <ClCompile Include="..\..\dlls\osprey.cpp" />
+    <ClCompile Include="..\..\dlls\pathcorner.cpp" />
+    <ClCompile Include="..\..\dlls\plane.cpp" />
+    <ClCompile Include="..\..\dlls\plats.cpp" />
+    <ClCompile Include="..\..\dlls\player.cpp" />
+    <ClCompile Include="..\..\dlls\python.cpp" />
+    <ClCompile Include="..\..\dlls\rat.cpp" />
+    <ClCompile Include="..\..\dlls\roach.cpp" />
+    <ClCompile Include="..\..\dlls\rpg.cpp" />
+    <ClCompile Include="..\..\dlls\satchel.cpp" />
+    <ClCompile Include="..\..\dlls\schedule.cpp" />
+    <ClCompile Include="..\..\dlls\scientist.cpp" />
+    <ClCompile Include="..\..\dlls\scripted.cpp" />
+    <ClCompile Include="..\..\dlls\shotgun.cpp" />
+    <ClCompile Include="..\..\dlls\singleplay_gamerules.cpp" />
+    <ClCompile Include="..\..\dlls\skill.cpp" />
+    <ClCompile Include="..\..\dlls\sound.cpp" />
+    <ClCompile Include="..\..\dlls\soundent.cpp" />
+    <ClCompile Include="..\..\dlls\spectator.cpp" />
+    <ClCompile Include="..\..\dlls\squadmonster.cpp" />
+    <ClCompile Include="..\..\dlls\squeakgrenade.cpp" />
+    <ClCompile Include="..\..\dlls\subs.cpp" />
+    <ClCompile Include="..\..\dlls\talkmonster.cpp" />
+    <ClCompile Include="..\..\dlls\teamplay_gamerules.cpp" />
+    <ClCompile Include="..\..\dlls\tempmonster.cpp" />
+    <ClCompile Include="..\..\dlls\tentacle.cpp" />
+    <ClCompile Include="..\..\dlls\triggers.cpp" />
+    <ClCompile Include="..\..\dlls\tripmine.cpp" />
+    <ClCompile Include="..\..\dlls\turret.cpp" />
+    <ClCompile Include="..\..\dlls\util.cpp" />
+    <ClCompile Include="..\..\dlls\weapons.cpp" />
+    <ClCompile Include="..\..\dlls\world.cpp" />
+    <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock.cpp" />
+    <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp" />
+    <ClCompile Include="..\..\dlls\xen.cpp" />
+    <ClCompile Include="..\..\dlls\zombie.cpp" />
+    <ClCompile Include="..\..\fmt\format.cc" />
+    <ClCompile Include="..\..\fmt\ostream.cc" />
+    <ClCompile Include="..\..\fmt\posix.cc" />
+    <ClCompile Include="..\..\fmt\printf.cc" />
+    <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp" />
+    <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp" />
+    <ClCompile Include="..\..\game_shared\gameplay_mod.cpp" />
+    <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp" />
+    <ClCompile Include="..\..\game_shared\sha1.cpp" />
+    <ClCompile Include="..\..\game_shared\voice_gamemgr.cpp" />
+    <ClCompile Include="..\..\pm_shared\pm_debug.c" />
+    <ClCompile Include="..\..\pm_shared\pm_math.c" />
+    <ClCompile Include="..\..\pm_shared\pm_shared.c" />
+    <ClCompile Include="..\..\twitch\twitch.cpp" />
+    <ClCompile Include="..\..\game_shared\fs_aux.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dlls\aflock.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\airtank.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\animating.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\animation.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\apache.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\barnacle.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\barney.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\bigmomma.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\bloater.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\bmodels.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\bullsquid.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\buttons.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\cbase.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\client.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\combat.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\controller.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\crossbow.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\crowbar.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\defaultai.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\gman.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\doors.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\effects.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\egon.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\explode.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\flyingmonster.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\func_break.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\func_tank.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\game.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\gargantua.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\gauss.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\genericmonster.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\ggrenade.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\globals.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\h_ai.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\h_battery.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\h_cine.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\h_cycler.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\h_export.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\handgrenade.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\hassassin.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\headcrab.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\healthkit.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\hgrunt.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock.cpp">
-      <Filter>Source Files\dlls\wpn_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\monstermaker.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\hornet.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\hornetgun.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\houndeye.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\ichthyosaur.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\islave.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\items.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\leech.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\lights.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\maprules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\player.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\monsters.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\monsterstate.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\mortar.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\mp5.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\multiplay_gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\nihilanth.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\nodes.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\observer.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\osprey.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\pathcorner.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\plane.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\plats.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\pm_shared\pm_shared.c">
-      <Filter>Source Files\pm_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\pm_shared\pm_debug.c">
-      <Filter>Source Files\pm_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\pm_shared\pm_math.c">
-      <Filter>Source Files\pm_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\python.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\rat.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\roach.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\rpg.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\satchel.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\schedule.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\scientist.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\scripted.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\shotgun.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\singleplay_gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\skill.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\sound.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\soundent.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\spectator.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\squadmonster.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\squeakgrenade.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\subs.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\talkmonster.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\teamplay_gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\tempmonster.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\tentacle.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\triggers.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\tripmine.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\turret.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\util.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\voice_gamemgr.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\zombie.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\weapons.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\world.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\xen.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\string_aux.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp">
-      <Filter>Source Files\dlls\wpn_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\agrunt.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\bullet.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\custom_gamemode_config.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\cgm_gamerules.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\sha1.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\custom_gamemode_record.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\ingram.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\ingram_twin.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\fs_aux.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\end_marker.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dlls\kerotan.cpp">
-      <Filter>Source Files\dlls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\gameplay_mod.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\fmt\printf.cc">
-      <Filter>Source Files\fmt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\fmt\posix.cc">
-      <Filter>Source Files\fmt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\fmt\ostream.cc">
-      <Filter>Source Files\fmt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\fmt\format.cc">
-      <Filter>Source Files\fmt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\gameplay_mod_definitions.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\game_shared\util_aux.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    <ClCompile Include="..\..\twitch\twitch.cpp">
-      <Filter>Source Files\twitch</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\dlls\doors.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\activity.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\activitymap.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\animation.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\basemonster.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\cbase.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\cdll_dll.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\client.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\decals.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\defaultai.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\effects.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\engine\eiface.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\hornet.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\enginecallback.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\explode.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\extdll.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\flyingmonster.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\func_break.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\gamerules.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\player.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\items.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\monsterevent.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\monsters.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\nodes.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\plane.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\pm_shared\pm_shared.h">
-      <Filter>Header Files\pm_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\pm_shared\pm_debug.h">
-      <Filter>Header Files\pm_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\pm_shared\pm_defs.h">
-      <Filter>Header Files\pm_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\pm_shared\pm_info.h">
-      <Filter>Header Files\pm_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\pm_shared\pm_materials.h">
-      <Filter>Header Files\pm_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\pm_shared\pm_movevars.h">
-      <Filter>Header Files\pm_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\weapons.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\saverestore.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\schedule.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\scripted.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\scriptevent.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\skill.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\soundent.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\spectator.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\squadmonster.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\talkmonster.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\teamplay_gamerules.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\trains.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\util.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\vector.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\string_aux.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\custom_gamemode_config.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\cgm_gamerules.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\sha1.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\custom_gamemode_record.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\fs_aux.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\end_marker.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dlls\kerotan.h">
-      <Filter>Header Files\dlls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\gameplay_mod.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\container.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\format.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\ostream.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\posix.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\printf.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\string.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\fmt\time.h">
-      <Filter>Header Files\fmt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\argument.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_shared\util_aux.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\twitch\libirc_errors.h">
-      <Filter>Header Files\twitch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\twitch\libirc_events.h">
-      <Filter>Header Files\twitch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\twitch\libirc_options.h">
-      <Filter>Header Files\twitch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h">
-      <Filter>Header Files\twitch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\twitch\libircclient.h">
-      <Filter>Header Files\twitch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\twitch\twitch.h">
-      <Filter>Header Files\twitch</Filter>
-    </ClInclude>
+    <ClInclude Include="..\..\dlls\activity.h" />
+    <ClInclude Include="..\..\dlls\activitymap.h" />
+    <ClInclude Include="..\..\dlls\animation.h" />
+    <ClInclude Include="..\..\dlls\basemonster.h" />
+    <ClInclude Include="..\..\dlls\cbase.h" />
+    <ClInclude Include="..\..\dlls\cdll_dll.h" />
+    <ClInclude Include="..\..\dlls\cgm_gamerules.h" />
+    <ClInclude Include="..\..\dlls\client.h" />
+    <ClInclude Include="..\..\dlls\decals.h" />
+    <ClInclude Include="..\..\dlls\defaultai.h" />
+    <ClInclude Include="..\..\dlls\doors.h" />
+    <ClInclude Include="..\..\dlls\effects.h" />
+    <ClInclude Include="..\..\dlls\end_marker.h" />
+    <ClInclude Include="..\..\dlls\enginecallback.h" />
+    <ClInclude Include="..\..\dlls\explode.h" />
+    <ClInclude Include="..\..\dlls\extdll.h" />
+    <ClInclude Include="..\..\dlls\flyingmonster.h" />
+    <ClInclude Include="..\..\dlls\func_break.h" />
+    <ClInclude Include="..\..\dlls\gamerules.h" />
+    <ClInclude Include="..\..\dlls\hornet.h" />
+    <ClInclude Include="..\..\dlls\items.h" />
+    <ClInclude Include="..\..\dlls\kerotan.h" />
+    <ClInclude Include="..\..\dlls\monsterevent.h" />
+    <ClInclude Include="..\..\dlls\monsters.h" />
+    <ClInclude Include="..\..\dlls\nodes.h" />
+    <ClInclude Include="..\..\dlls\plane.h" />
+    <ClInclude Include="..\..\dlls\player.h" />
+    <ClInclude Include="..\..\dlls\saverestore.h" />
+    <ClInclude Include="..\..\dlls\schedule.h" />
+    <ClInclude Include="..\..\dlls\scripted.h" />
+    <ClInclude Include="..\..\dlls\scriptevent.h" />
+    <ClInclude Include="..\..\dlls\skill.h" />
+    <ClInclude Include="..\..\dlls\soundent.h" />
+    <ClInclude Include="..\..\dlls\spectator.h" />
+    <ClInclude Include="..\..\dlls\squadmonster.h" />
+    <ClInclude Include="..\..\dlls\talkmonster.h" />
+    <ClInclude Include="..\..\dlls\teamplay_gamerules.h" />
+    <ClInclude Include="..\..\dlls\trains.h" />
+    <ClInclude Include="..\..\dlls\util.h" />
+    <ClInclude Include="..\..\dlls\vector.h" />
+    <ClInclude Include="..\..\dlls\weapons.h" />
+    <ClInclude Include="..\..\engine\eiface.h" />
+    <ClInclude Include="..\..\fmt\container.h" />
+    <ClInclude Include="..\..\fmt\format.h" />
+    <ClInclude Include="..\..\fmt\ostream.h" />
+    <ClInclude Include="..\..\fmt\posix.h" />
+    <ClInclude Include="..\..\fmt\printf.h" />
+    <ClInclude Include="..\..\fmt\string.h" />
+    <ClInclude Include="..\..\fmt\time.h" />
+    <ClInclude Include="..\..\game_shared\argument.h" />
+    <ClInclude Include="..\..\game_shared\custom_gamemode_config.h" />
+    <ClInclude Include="..\..\game_shared\custom_gamemode_record.h" />
+    <ClInclude Include="..\..\game_shared\gameplay_mod.h" />
+    <ClInclude Include="..\..\game_shared\sha1.h" />
+    <ClInclude Include="..\..\pm_shared\pm_debug.h" />
+    <ClInclude Include="..\..\pm_shared\pm_defs.h" />
+    <ClInclude Include="..\..\pm_shared\pm_info.h" />
+    <ClInclude Include="..\..\pm_shared\pm_materials.h" />
+    <ClInclude Include="..\..\pm_shared\pm_movevars.h" />
+    <ClInclude Include="..\..\pm_shared\pm_shared.h" />
+    <ClInclude Include="..\..\twitch\libircclient.h" />
+    <ClInclude Include="..\..\twitch\libirc_errors.h" />
+    <ClInclude Include="..\..\twitch\libirc_events.h" />
+    <ClInclude Include="..\..\twitch\libirc_options.h" />
+    <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h" />
+    <ClInclude Include="..\..\twitch\twitch.h" />
+    <ClInclude Include="..\..\game_shared\cpp_aux.h" />
+    <ClInclude Include="..\..\game_shared\fs_aux.h" />
   </ItemGroup>
 </Project>

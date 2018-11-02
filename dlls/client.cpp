@@ -43,7 +43,6 @@
 #include "cgm_gamerules.h"
 #include "gameplay_mod.h"
 #include "../fmt/printf.h"
-#include "util_aux.h"
 #include "../twitch/twitch.h"
 
 #if !defined ( _WIN32 )
@@ -666,12 +665,13 @@ void ClientCommand( edict_t *pEntity )
 		}
 
 		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-			auto sender = fmt::sprintf( "%s#%d", CMD_ARGV( 1 ), UniformInt( 1, 9999 ) );
+			auto sender = fmt::sprintf( "%s#%d", CMD_ARGV( 1 ), aux::rand::uniformInt( 1, 9999 ) );
 			auto modIndex = std::string( CMD_ARGV( 2 ) );
 
 			if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 				if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
 					cgm->VoteForRandomGameplayMod( player, sender, modIndex );
+					gameplayMods.cheated = true;
 				}
 			}
 		}

@@ -3,7 +3,7 @@
 #include "FontAwesome.h"
 #include <map>
 #include <algorithm>
-#include "util_aux.h"
+#include "cpp_aux.h"
 #include <Windows.h>
 
 #include "gamemode_gui.h"
@@ -22,7 +22,7 @@ char twitch_chat_oauth_password[128] = "";
 void GameModeGUI_Init() {
 	GameModeGUI_RefreshConfigFiles();
 
-	auto twitch_credentials = ReadTwitchCredentialsFromFile();
+	auto twitch_credentials = aux::twitch::readCredentialsFromFile();
 	snprintf( twitch_login, 128, "%s", twitch_credentials.first.c_str() );
 	snprintf( twitch_chat_oauth_password, 128, "%s", twitch_credentials.second.c_str() );
 }
@@ -349,7 +349,7 @@ void GameModeGUI_DrawTwitchConfig() {
 		}
 		ImGui::SameLine();
 		if ( ImGui::Button( "Save login info" ) ) {
-			SaveTwitchCredentialsToFile( twitch_login, twitch_chat_oauth_password );
+			aux::twitch::saveCredentialsToFile( twitch_login, twitch_chat_oauth_password );
 		}
 
 		ImGui::Text( "\n" );

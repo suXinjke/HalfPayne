@@ -3,7 +3,7 @@
 #include "../common/event_api.h"
 #include "parsemsg.h"
 #include "triangleapi.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 
 DECLARE_MESSAGE( m_GameLogWorld, GLogWDeact )
 DECLARE_MESSAGE( m_GameLogWorld, GLogWMsg )
@@ -110,7 +110,7 @@ int CHudGameLogWorld::MsgFunc_GLogWMsg( const char *pszName, int iSize, void *pb
 	float x = READ_COORD();
 	float y = READ_COORD();
 	float z = READ_COORD();
-	auto messageParts = Split( READ_STRING(), '|', false );
+	auto messageParts = aux::str::split( READ_STRING(), '|' );
 	
 	messages.push_back( {
 		{ x, y, z },

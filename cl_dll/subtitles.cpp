@@ -4,7 +4,7 @@
 #include "cvardef.h"
 
 #include "subtitles.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 #include "fs_aux.h"
 #include <map>
 #include <fstream>
@@ -12,6 +12,8 @@
 
 extern SDL_Window *window;
 extern cvar_t *subtitles_language;
+
+using namespace aux;
 
 std::map<std::string, SubtitleOutput> subtitlesToDraw;
 std::map<std::string, SubtitleColor> colors;
@@ -48,7 +50,7 @@ void Subtitles_ParseSubtitles( const std::string &filePath, const std::string &l
 	while ( std::getline( inp, line ) ) {
 		lineCount++;
 
-		line = Trim( line, " " );
+		line = str::trim( line );
 		if ( line.size() == 0 ) {
 			continue;
 		}
@@ -57,14 +59,14 @@ void Subtitles_ParseSubtitles( const std::string &filePath, const std::string &l
 			continue;
 		}
 
-		std::vector<std::string> parts = Split( line, '|' );
+		std::vector<std::string> parts = str::split( line, '|' );
 
 		if ( parts.at( 0 ) == "SUBTITLE" ) {
 			if ( parts.size() < 6 ) {
 				gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR ON Line %d: insufficient subtitle data\n", filePath.c_str(), lineCount );
 				continue;
 			}
-			std::string subtitleKey = Uppercase( language + "_" + parts.at( 1 ) );
+			std::string subtitleKey = str::toUppercase( language + "_" + parts.at( 1 ) );
 			std::string colorKey = parts.at( 2 );
 			std::string text = parts.at( 5 );
 			float delay, duration;
@@ -87,7 +89,7 @@ void Subtitles_ParseSubtitles( const std::string &filePath, const std::string &l
 				gEngfuncs.Con_DPrintf( "%s SUBTITLE PARSER ERROR ON Line %d: insufficient color data\n", filePath.c_str(), lineCount );
 				continue;
 			}
-			std::string colorKey = Uppercase( parts.at( 1 ) );
+			std::string colorKey = str::toUppercase( parts.at( 1 ) );
 			float r, g, b;
 			try {
 				r = std::stof( parts.at( 2 ) );
@@ -105,7 +107,7 @@ void Subtitles_ParseSubtitles( const std::string &filePath, const std::string &l
 
 std::string GetSubtitleKeyWithLanguage( const std::string &key ) {
 	std::string language_to_use = std::string( subtitles_language->string );
-	auto subtitleKey = Uppercase( language_to_use + "_" + key ) ;
+	auto subtitleKey = str::toUppercase( language_to_use + "_" + key ) ;
 
 	if ( subtitleMap.count( subtitleKey ) ) {
 		return subtitleKey;
@@ -211,7 +213,7 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 	int ScreenWidth;
 	SDL_GetWindowSize( window, &ScreenWidth, NULL );
 
-	std::vector<std::string> lines = Wrap( text.c_str(), ScreenWidth / 2.0f, []( const std::string &str ) -> float {
+	std::vector<std::string> lines = str::wordWrap( text.c_str(), ScreenWidth / 2.0f, []( const std::string &str ) -> float {
 		return ImGui::CalcTextSize( str.c_str() ).x;
 	} );
 
@@ -234,7 +236,7 @@ void Subtitles_Push( const std::string &key, const std::string &text, float dura
 }
 
 const std::vector<Subtitle> Subtitles_GetByKey( const std::string &key ) {
-	std::string actualKey = Uppercase( key );
+	std::string actualKey = str::toUppercase( key );
 
 	return subtitleMap.count( actualKey ) ?
 		subtitleMap[actualKey] :

@@ -8,8 +8,8 @@
 #include "cl_dll.h"
 #include "parsemsg.h"
 #include <random>
+#include "cpp_aux.h"
 #include "fs_aux.h"
-#include "util_aux.h"
 
 #include <regex>
 
@@ -132,7 +132,9 @@ void SM_Play( const char *soundPath, int looping ) {
 void SM_PlayRandomMainMenuMusic() {
 	std::vector<std::string> musicFiles = FS_GetAllFilesInDirectory( ".\\half_payne\\media\\menu" );
 
-	SM_Play( RandomFromVector( musicFiles ).c_str() );
+	if ( !musicFiles.empty() ) {
+		SM_Play( aux::rand::choice( musicFiles ).c_str() );
+	}
 }
 
 void SM_SetPaused( bool paused ) {

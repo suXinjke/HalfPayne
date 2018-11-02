@@ -324,9 +324,6 @@
     <ClCompile Include="..\..\cl_dll\painkiller.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\game_shared\string_aux.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dlls\wpn_shared\hl_wpn_glock_twin.cpp">
       <Filter>Source Files\_hl\dlls\wpn_shared</Filter>
     </ClCompile>
@@ -399,9 +396,6 @@
     <ClCompile Include="..\..\cl_dll\flash.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\game_shared\fs_aux.cpp">
-      <Filter>Source Files\game_shared</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cl_dll\counter.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
@@ -429,7 +423,7 @@
     <ClCompile Include="..\..\cl_dll\random_gameplay_mods.cpp">
       <Filter>Source Files\cl_dll</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\game_shared\util_aux.cpp">
+    <ClCompile Include="..\..\game_shared\fs_aux.cpp">
       <Filter>Source Files\game_shared</Filter>
     </ClCompile>
   </ItemGroup>
@@ -554,9 +548,6 @@
     <ClInclude Include="..\..\cl_dll\view.h">
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\game_shared\string_aux.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\game_shared\custom_gamemode_config.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
@@ -620,9 +611,6 @@
     <ClInclude Include="..\..\cl_dll\flash.h">
       <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\game_shared\fs_aux.h">
-      <Filter>Header Files\game_shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\game_shared\gameplay_mod.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
@@ -650,7 +638,10 @@
     <ClInclude Include="..\..\game_shared\argument.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\game_shared\util_aux.h">
+    <ClInclude Include="..\..\game_shared\cpp_aux.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_shared\fs_aux.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
   </ItemGroup>

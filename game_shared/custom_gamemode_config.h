@@ -5,7 +5,7 @@
 #include "util.h"
 #include "cbase.h"
 #include "player.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 #include <string>
 #include <vector>
 #include <set>
@@ -296,7 +296,7 @@ public:
 					( " [" + arg.name + "]" );
 			}
 
-			argumentsString = Trim( argumentsString );
+			argumentsString = aux::str::trim( argumentsString );
 		}
 
 		const std::string OnSectionData( const std::string &configName, const std::string &line, int lineCount, CONFIG_TYPE configType );

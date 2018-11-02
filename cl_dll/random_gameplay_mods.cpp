@@ -3,8 +3,7 @@
 #include "../common/event_api.h"
 #include "parsemsg.h"
 #include "triangleapi.h"
-#include "util_aux.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 #include "../fmt/printf.h"
 
 DECLARE_MESSAGE( m_RandomGameplayMods, RandModLen )
@@ -86,7 +85,7 @@ int CHudRandomGameplayMods::Draw( float flTime )
 		int b = highlightIndex == i ? 0 : 255;
 		
 		std::string modName = "#" + std::to_string( proposedMods.size() - i ) + "  " + mod.name;
-		auto modNameLines = Wrap( modName.c_str(), ITEM_WIDTH - 20, []( const std::string &str ) -> float {
+		auto modNameLines = aux::str::wordWrap( modName.c_str(), ITEM_WIDTH - 20, []( const std::string &str ) -> float {
 			return gHUD.GetStringWidth( str.c_str() );
 		} );
 
@@ -138,9 +137,9 @@ bool CHudRandomGameplayMods::ShouldDrawVotes() {
 void CHudRandomGameplayMods::HighlightRandomProposedMod() {
 	timeUntilNextHighlight = gEngfuncs.GetAbsoluteTime() + 0.1f;
 	
-	int lastHighlightIndex = highlightIndex;
+	size_t lastHighlightIndex = highlightIndex;
 	while ( highlightIndex == lastHighlightIndex && proposedMods.size() > 1 ) {
-		highlightIndex = UniformInt( 0, proposedMods.size() - 1 );
+		highlightIndex = aux::rand::uniformInt<size_t>( 0, proposedMods.size() - 1 );
 	}
 }
 

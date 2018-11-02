@@ -3,7 +3,7 @@
 #include "../common/event_api.h"
 #include "parsemsg.h"
 #include "gameplay_mod.h"
-#include "string_aux.h"
+#include "cpp_aux.h"
 
 DECLARE_MESSAGE( m_CentralLabel, CLabelVal )
 DECLARE_MESSAGE( m_CentralLabel, CLabelGMod )
@@ -87,7 +87,7 @@ int CHudCentralLabel::MsgFunc_CLabelGMod( const char *pszName, int iSize, void *
 	for ( auto &pair : gameplayModDefs ) {
 		if ( pair.second.id == gameplayModId ) {
 			label = pair.second.name;
-			subLabel = Split( pair.second.description, '\n', false ).at( 0 );
+			subLabel = aux::str::split( pair.second.description, '\n' ).at( 0 );
 			m_iFlags |= HUD_ACTIVE;
 			timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 6.0f;
 

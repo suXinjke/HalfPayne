@@ -1,5 +1,4 @@
 #include "custom_gamemode_config.h"
-#include "string_aux.h"
 #include <fstream>
 #include <regex>
 #include <sstream>
@@ -631,11 +630,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	Reset();
 
 	configName = fileName;
-
-	// DUMB heuristic hack because too lazy to ensure proper replacing of \\ to / EVERYWHERE and/or making Split function support regex or several chars at once
-	auto potentialConfigFileSeparated = Split( fileName, '\\' );
-	auto potentialConfigFileSeparated2 = Split( fileName, '/' );
-	configNameSeparated = potentialConfigFileSeparated2.size() >= potentialConfigFileSeparated.size() ? potentialConfigFileSeparated2 : potentialConfigFileSeparated;
+	configNameSeparated = aux::str::split( fileName, "[\\\\\\/]" );
 
 	std::string filePath = folderPath + "\\" + std::string( fileName ) + ".txt";
 
@@ -657,7 +652,7 @@ bool CustomGameModeConfig::ReadFile( const char *fileName ) {
 	while ( std::getline( inp, line ) && error.size() == 0 ) {
 		lineCount++;
 		fileContents += line;
-		line = Trim( line );
+		line = aux::str::trim( line );
 
 		// remove trailing comments
 		line = line.substr( 0, line.find( "//" ) );
@@ -965,7 +960,7 @@ EndCondition::EndCondition( const std::vector<Argument>& args ) : Hookable( args
 
 const std::string CustomGameModeConfig::ConfigSection::OnSectionData( const std::string &configName, const std::string &line, int lineCount, CONFIG_TYPE configType ) {
 
-	auto args = NaiveCommandLineParse( line );
+	auto args = aux::str::getCommandLineArguments( line );
 	std::vector<Argument> parsedArgs = this->args;
 
 	int amountOfParsedArguments = 0;

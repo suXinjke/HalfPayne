@@ -26,6 +26,7 @@
 //#include "vgui_schememanager.h"
 #include "soundmanager.h"
 #include "fs_aux.h"
+#include "cpp_aux.h"
 #include "gameplay_mod.h"
 
 #include <random>
@@ -53,7 +54,6 @@ extern "C"
 #include "../public/interface.h"
 
 #include "hl_imgui.h"
-#include "util_aux.h"
 
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
@@ -171,7 +171,7 @@ void ShuffleMainMenuBackground() {
 	if ( backgroundFolders.size() > 0 ) {
 
 		std::string backgroundFolder = ".\\half_payne\\resource\\background";
-		std::string newBackground = RandomFromVector( backgroundFolders );
+		std::string newBackground = aux::rand::choice( backgroundFolders );
 
 		FS_RemoveDirectory( backgroundFolder );
 		FS_CopyDirectory( newBackground, backgroundFolder );

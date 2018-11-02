@@ -25,7 +25,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <malloc.h> // _alloca
-#include "string_aux.h"
+#include "cpp_aux.h"
 #include "../fmt/printf.h"
 
 #include "vgui_TeamFortressViewport.h"
@@ -183,7 +183,7 @@ int CHudSayText::MsgFunc_SayText2( const char *pszName, int iSize, void *pbuf )
 	BEGIN_READ( pbuf, iSize );
 
 	std::string input = READ_STRING();
-	auto messageParts = Split( input, '|' );
+	auto messageParts = aux::str::split( input, '|' );
 	if ( messageParts.size() >= 2 ) {
 		auto sender = messageParts.at( 0 );
 		auto message = messageParts.at( 1 );

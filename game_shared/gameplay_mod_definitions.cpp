@@ -4,7 +4,6 @@
 #include "player.h"
 #include "custom_gamemode_config.h"
 #include "weapons.h"
-#include "util_aux.h"
 #include <algorithm>
 #include <iterator>
 #include "gamerules.h"
@@ -918,7 +917,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			};
 
 			float hud_autoswitch = CVAR_GET_FLOAT( "hud_autoswitch" );
-			auto &weapon = RandomFromVector( allowedRandomWeapons );
+			auto &weapon = aux::rand::choice( allowedRandomWeapons );
 			CVAR_SET_FLOAT( "hud_autoswitch", 0.0f );
 			player->GiveNamedItem( weapon.first, true );
 			CVAR_SET_FLOAT( "hud_autoswitch", hud_autoswitch );
@@ -971,15 +970,15 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 				allowedMonstersToSpawn.push_back( "monster_snark" );
 			}
 
-			int amountOfMonsters = UniformInt( 3, 10 );
+			int amountOfMonsters = aux::rand::uniformInt( 3, 10 );
 			for ( int i = 0; i < amountOfMonsters; i++ ) {
-				auto randomMonsterName = RandomFromVector( allowedMonstersToSpawn );
+				auto randomMonsterName = aux::rand::choice( allowedMonstersToSpawn );
 				if ( randomMonsterName == "monster_human_grunt" ) {
-					auto choice = UniformInt( 0, 2 );
-					randomMonsterName =
-						choice == 0 ? "monster_human_grunt" :
-						choice == 1 ? "monster_human_grunt_shotgun" :
-						"monster_human_grunt_grenade_launcher";
+					auto choice = aux::rand::choice<std::vector, std::string>( {
+						"monster_human_grunt",
+						"monster_human_grunt_shotgun",
+						"monster_human_grunt_grenade_launcher"
+					} );
 				}
 
 				if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
