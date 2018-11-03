@@ -518,6 +518,12 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
+	{ GAMEPLAY_MOD_NO_SELF_GAUSS, GameplayMod( "no_self_gauss", "No self gauss" )
+		.Description( "Prevents self gauss effect." )
+		.Toggles( &gameplayMods.noSelfGauss )
+		.CannotBeActivatedRandomly()
+	},
+
 	{ GAMEPLAY_MOD_NO_SLOWMOTION, GameplayMod( "no_slowmotion", "No slowmotion" )
 		.Description( "You're not allowed to use slowmotion." )
 		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {

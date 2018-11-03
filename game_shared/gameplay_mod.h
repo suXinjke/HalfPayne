@@ -71,6 +71,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_NO_PILLS,
 	GAMEPLAY_MOD_NO_SAVING,
 	GAMEPLAY_MOD_NO_SECONDARY_ATTACK,
+	GAMEPLAY_MOD_NO_SELF_GAUSS,
 	GAMEPLAY_MOD_NO_SLOWMOTION,
 	GAMEPLAY_MOD_NO_SMG_GRENADE_PICKUP,
 	GAMEPLAY_MOD_NO_TARGET,
@@ -326,6 +327,7 @@ public:
 	FieldBool( noHealing, FALSE );
 	FieldBool( noSaving, FALSE );
 	FieldBool( noSecondaryAttack, FALSE );
+	FieldBool( noSelfGauss, FALSE );
 	FieldBool( noSmgGrenadePickup, FALSE );
 	FieldBool( noTargetConstant, FALSE );
 	FieldBool( noWalking, FALSE );

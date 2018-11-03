@@ -452,7 +452,7 @@ void CGauss::Fire( Vector vecOrigSrc, Vector vecDir, float flDamage )
 			ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 		}
 
-		if ( pEntity->ReflectGauss() && !gameplayMods.instaGib )
+		if ( pEntity->ReflectGauss() && !gameplayMods.instaGib && !gameplayMods.noSelfGauss )
 		{
 			float n;
 
