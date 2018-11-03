@@ -338,6 +338,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	size_t musicPlaylistSize = config.musicPlaylist.size();
 	if (
+		pPlayer->pev->deadflag == DEAD_NO &&
 		musicPlaylistSize > 0 &&
 		CVAR_GET_FLOAT( "sm_current_pos" ) == 0.0f &&
 		gpGlobals->time > musicSwitchDelay
