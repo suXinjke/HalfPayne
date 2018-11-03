@@ -84,6 +84,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_PREVENT_MONSTER_STUCK_EFFECT,
 	GAMEPLAY_MOD_RANDOM_GAMEPLAY_MODS,
 	GAMEPLAY_MOD_SCORE_ATTACK,
+	GAMEPLAY_MOD_SHOOT_UNDERWATER,
 	GAMEPLAY_MOD_SHOTGUN_AUTOMATIC,
 	GAMEPLAY_MOD_SHOW_TIMER,
 	GAMEPLAY_MOD_SHOW_TIMER_REAL_TIME,
@@ -348,6 +349,8 @@ public:
 	FieldBool( painkillersForbidden, FALSE );
 	FieldBool( painkillersInfinite, FALSE );
 	FieldBool( painkillersSlow, FALSE );
+
+	FieldBool( shootUnderwater, FALSE );
 
 	FieldBool( slowmotionConstant, FALSE );
 	FieldBool( slowmotionFastWalk, FALSE );

@@ -145,7 +145,7 @@ void CMP5::ItemPostFrame()
 void CMP5::PrimaryAttack()
 {
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater)
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;
@@ -249,7 +249,7 @@ void CMP5::SecondaryAttack( void )
 		return;
 	}
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater)
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;

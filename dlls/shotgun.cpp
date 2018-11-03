@@ -142,7 +142,7 @@ void CShotgun::PrimaryAttack()
 		return;
 	}
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.15);
@@ -247,7 +247,7 @@ void CShotgun::SecondaryAttack( void )
 		return;
 	}
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.15);

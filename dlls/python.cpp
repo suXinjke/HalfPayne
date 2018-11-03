@@ -176,7 +176,7 @@ void CPython::PrimaryAttack()
 	}
 
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;

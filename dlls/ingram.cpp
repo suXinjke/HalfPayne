@@ -142,7 +142,7 @@ void CIngram::ItemPostFrame(void) {
 
 void CIngram::PrimaryAttack( void )
 {
-	if ( m_pPlayer->pev->waterlevel == 3 ) {
+	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater ) {
 		PlayEmptySound();
 		m_flNextPrimaryAttack = 0.15;
 		return;

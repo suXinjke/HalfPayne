@@ -647,6 +647,12 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
+	{ GAMEPLAY_MOD_SHOOT_UNDERWATER, GameplayMod( "shoot_underwater", "Shoot underwater" )
+		.Description( "All weapons now can shoot underwater" )
+		.Toggles( &gameplayMods.shootUnderwater )
+		.CannotBeActivatedRandomly()
+	},
+
 	{ GAMEPLAY_MOD_SHOW_TIMER, GameplayMod( "show_timer", "Show timer" )
 		.Description( "Timer will be shown. Time is affected by slowmotion." )
 		.Toggles( &gameplayMods.timerShown )
