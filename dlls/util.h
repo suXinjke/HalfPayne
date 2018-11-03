@@ -340,7 +340,7 @@ inline void			UTIL_CenterPrintAll( const char *msg_name, const char *param1 = NU
 }
 
 extern int			UTIL_GetWeaponClip( int weaponId );
-extern void			UTIL_SetWeaponClip( int weaponId, int clip );
+extern void			UTIL_SetWeaponClip( int weaponId, int clip, int clip2 = -1 );
 
 class CBasePlayerItem;
 class CBasePlayer;

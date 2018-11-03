@@ -24,6 +24,7 @@ void GameplayMods::Init() {
 		gameplayMods.noSecondaryAttack = READ_BYTE();
 		gameplayMods.bulletPhysical = READ_BYTE();
 		gameplayMods.snarkNuclear = READ_BYTE();
+		gameplayMods.infiniteAmmoClip = READ_BYTE();
 
 		return 1;
 	} );
@@ -72,6 +73,7 @@ void GameplayMods::SendToClient() {
 		WRITE_BYTE( noSecondaryAttack );
 		WRITE_BYTE( bulletPhysical );
 		WRITE_BYTE( snarkNuclear );
+		WRITE_BYTE( infiniteAmmoClip );
 	MESSAGE_END();
 }
 

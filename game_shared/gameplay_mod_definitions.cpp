@@ -325,7 +325,54 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 
 	{ GAMEPLAY_MOD_INFINITE_AMMO_CLIP, GameplayMod( "infinite_ammo_clip", "Infinite ammo clip" )
 		.Description( "Most weapons get an infinite ammo clip and need no reloading." )
-		.Toggles( &gameplayMods.infiniteAmmoClip )
+		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+#ifndef CLIENT_DLL
+			for ( int i = 0; i < MAX_ITEM_TYPES; i++ ) {
+				CBasePlayerItem *pItem = player->m_rgpPlayerItems[i];
+
+				while ( pItem ) {
+					if ( CBasePlayerWeapon *weapon = dynamic_cast< CBasePlayerWeapon * >( pItem ) ) {
+						if ( weapon->iMaxClip() > 0 ) {
+							UTIL_SetWeaponClip( weapon->m_iId, weapon->iMaxClip() );
+						}
+						if ( weapon->iMaxClip2() > 0 ) {
+							UTIL_SetWeaponClip( weapon->m_iId, weapon->iMaxClip(), weapon->iMaxClip2() );
+						}
+					}
+
+					pItem = pItem->m_pNext;
+				}
+
+			}
+#endif
+			gameplayMods.infiniteAmmoClip = TRUE;
+		} )
+		.OnDeactivation( []( CBasePlayer *player ) {
+			gameplayMods.infiniteAmmoClip = FALSE;
+		} )
+		.CanOnlyBeActivatedRandomlyWhen( []( CBasePlayer *player ) -> bool {
+			static std::vector<std::string> clipBasedWeapons = {
+				"weapon_9mmhandgun",
+				"weapon_9mmhandgun_twin",
+				"weapon_357",
+				"weapon_9mmAR",
+				"weapon_shotgun",
+				"weapon_crossbow",
+				"weapon_ingram",
+				"weapon_ingram_twin"
+			};
+
+			for ( int i = 0; i < MAX_ITEM_TYPES; i++ ) {
+				if (
+					player->m_rgpPlayerItems[i] &&
+					aux::ctr::includes( clipBasedWeapons, STRING( player->m_rgpPlayerItems[i]->pev->classname ) )
+				) {
+					return true;
+				}
+			}
+
+			return false;
+		} )
 	},
 
 	{ GAMEPLAY_MOD_INFINITE_PAINKILLERS, GameplayMod( "infinite_painkillers", "Infinite painkillers" )

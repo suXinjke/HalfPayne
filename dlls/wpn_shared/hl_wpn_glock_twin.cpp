@@ -22,6 +22,8 @@
 #include "player.h"
 #include "gameplay_mod.h"
 
+static int leftRightModifier = 0;
+
 enum glock_twin_e {
 	GLOCK_TWIN_IDLE = 0,
 	GLOCK_TWIN_IDLE_NOSHOT_BOTH,
@@ -168,6 +170,8 @@ BOOL CGlockTwin::Deploy() {
 		anim++;
 	}
 
+	leftRightModifier = 0;
+
 	return DefaultDeploy( "models/v_9mmhandgun_twin.mdl", "models/p_9mmhandgun.mdl", anim, "onehanded", /*UseDecrement() ? 1 : 0*/ 0 );
 }
 
@@ -227,7 +231,7 @@ void CGlockTwin::GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim 
 		return;
 	}
 
-	int shootingRight = ( m_iClip + m_iClip2 ) % 2 == 0;
+	int shootingRight = ( m_iClip + m_iClip2 + leftRightModifier ) % 2 == 0;
 	if ( m_iClip == 0 ) {
 		shootingRight = false;
 	} else if ( m_iClip2 == 0 ) {
@@ -235,13 +239,17 @@ void CGlockTwin::GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim 
 	}
 	
 	if ( shootingRight ) {
-		m_iClip--;
-		UTIL_SetWeaponClip( WEAPON_GLOCK, m_iClip );
+		if ( !gameplayMods.infiniteAmmoClip ) {
+			m_iClip--;
+			UTIL_SetWeaponClip( WEAPON_GLOCK, m_iClip );
+		} else {
+			leftRightModifier = !leftRightModifier;
+		}
 	} else {
 		if ( !gameplayMods.infiniteAmmoClip ) {
 			m_iClip2--;
 		} else {
-			m_iClip++;
+			leftRightModifier = !leftRightModifier;
 		}
 	}
 

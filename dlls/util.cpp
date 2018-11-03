@@ -1683,7 +1683,7 @@ int UTIL_GetWeaponClip( int weaponId ) {
 	return -1;
 }
 
-void UTIL_SetWeaponClip( int weaponId, int clip ) {
+void UTIL_SetWeaponClip( int weaponId, int clip, int clip2 ) {
 #ifdef  CLIENT_DLL
 	return;
 #endif
@@ -1709,6 +1709,9 @@ void UTIL_SetWeaponClip( int weaponId, int clip ) {
 				{
 					if ( gun->m_iId == weaponId ) {
 						gun->m_iClip = clip;
+						if ( clip2 >= 0 ) {
+							gun->m_iClip2 = clip2;
+						}
 						return;
 					}
 				}
