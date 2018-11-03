@@ -957,7 +957,17 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 	}
 
 	if ( gameplayMods.oneHitKOFromPlayer ) {
-		flDamage = pev->health + 1;
+		CBaseEntity *pAttacker = pevAttacker ? CBaseEntity::Instance( pevAttacker ) : NULL;
+		CBaseEntity *pInflctor = pevInflictor ? CBaseEntity::Instance( pevInflictor ) : NULL;
+		
+		if (
+			( pevAttacker && FStrEq( STRING( pevAttacker->classname ), "player" ) ) ||
+			( pevInflictor && FStrEq( STRING( pevInflictor->classname ), "player" ) ) ||
+			( pAttacker && pAttacker->auxOwner && FStrEq( STRING( pAttacker->auxOwner->v.classname ), "player" ) ) ||
+			( pInflctor && pInflctor->auxOwner && FStrEq( STRING( pInflctor->auxOwner->v.classname ), "player" ) )
+		) {
+			flDamage = pev->health + 1;
+		}
 	}
 
 	//!!!LATER - make armor consideration here!
