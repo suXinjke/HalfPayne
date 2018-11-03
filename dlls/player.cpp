@@ -4746,15 +4746,17 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 	if ( gameplayMods.bulletDelayOnSlowmotion ) {
 		CBaseEntity *entity = NULL;
 		while ( ( entity = UTIL_FindEntityInSphere( entity, pev->origin, 8192.0f ) ) != NULL ) {
-
 			if (
 				FStrEq( STRING( entity->pev->classname ), "bullet" ) &&
 				entity->auxOwner == edict()
 			) {
 				if ( CBullet *bullet = dynamic_cast<CBullet *>( entity ) ) {
 					bullet->pev->velocity = bullet->pev->velocity.Normalize() * 2000;
+					bullet->lastVelocity = bullet->pev->velocity;
 					bullet->ActivateTrail();
 				}
+			} else if ( FStrEq( STRING( entity->pev->classname ), "bolt" ) ) {
+				entity->pev->velocity = entity->pev->velocity.Normalize() * ( entity->pev->waterlevel == 3 ? 1000 : 2000 );
 			}
 		}
 	}

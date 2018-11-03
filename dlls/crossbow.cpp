@@ -454,6 +454,10 @@ void CCrossbow::FireBolt()
 		pBolt->pev->speed = BOLT_AIR_VELOCITY;
 	}
 	pBolt->pev->avelocity.z = 10;
+
+	if ( gameplayMods.bulletDelayOnSlowmotion && m_pPlayer->slowMotionEnabled ) {
+		pBolt->pev->velocity = vecDir * 40;
+	}
 #endif
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
