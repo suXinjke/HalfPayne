@@ -316,9 +316,8 @@ void CustomGameModeConfig::InitConfigSections() {
 			}
 
 			WIN32_FIND_DATA fdFile;
-			HANDLE hFind = NULL;
 
-			if ( ( hFind = FindFirstFile( line.c_str(), &fdFile ) ) == INVALID_HANDLE_VALUE ) {
+			if ( FindFirstFile( line.c_str(), &fdFile ) == INVALID_HANDLE_VALUE ) {
 				return "";
 			}
 
@@ -334,6 +333,7 @@ void CustomGameModeConfig::InitConfigSections() {
 
 					// TODO: GET RID OF THIS HACK We only need file paths
 					auto argsCopy = args;
+					argsCopy.at( 0 ).string = file;
 					argsCopy.insert( argsCopy.begin(), Argument( "dummy" ) );
 					argsCopy.insert( argsCopy.begin(), Argument( "dummy" ) );
 					musicPlaylist.push_back( Sound( argsCopy ) );
