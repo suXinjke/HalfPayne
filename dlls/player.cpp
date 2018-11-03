@@ -958,7 +958,9 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	CBaseEntity *pInflctor = pevInflictor ? CBaseEntity::Instance( pevInflictor ) : NULL;
 
 	if ( gameplayMods.oneHitKO ) {
-		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pInflctor ) ) {
+		CBaseMonster *isMonster = dynamic_cast< CBaseMonster * >( pAttacker );
+		bool isSquidspit = FStrEq( STRING( pAttacker->pev->classname ), "squidspit" );
+		if ( isMonster || isSquidspit ) {
 			flDamage = pev->health + 1;
 		}
 	}
