@@ -465,6 +465,7 @@ TYPEDESCRIPTION	CBasePlayerWeapon::m_SaveData[] =
 	DEFINE_FIELD( CBasePlayerWeapon, m_iDefaultAmmo, FIELD_INTEGER ),
 //	DEFINE_FIELD( CBasePlayerWeapon, m_iClientClip, FIELD_INTEGER )	 , reset to zero on load so hud gets updated correctly
 //  DEFINE_FIELD( CBasePlayerWeapon, m_iClientWeaponState, FIELD_INTEGER ), reset to zero on load so hud gets updated correctly
+	DEFINE_FIELD( CBasePlayerWeapon, ammoPriorToReload, FIELD_INTEGER ),
 };
 
 IMPLEMENT_SAVERESTORE( CBasePlayerWeapon, CBasePlayerItem );
@@ -656,11 +657,12 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	if ((m_fInReload) && ( m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase() ) )
 	{
 		// complete the reload. and add bullets to the clip
-		int j = min( iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+		int j = min( iMaxClip() - m_iClip, ammoPriorToReload );
 		m_iClip += j;
 
 		if ( !gameplayMods.infiniteAmmo ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
+			ammoPriorToReload -= j;
 		}
 		if ( FClassnameIs( pev, "weapon_9mmhandgun" ) ) {
 			UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
@@ -673,7 +675,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		}
 
 		if ( iMaxClip2() != -1 ) {
-			int j2 = min( iMaxClip2() - m_iClip2, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] );
+			int j2 = min( iMaxClip2() - m_iClip2, ammoPriorToReload );
 			m_iClip2 += j2;
 			if ( !gameplayMods.infiniteAmmo ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j2;
@@ -1143,6 +1145,7 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay,
 	m_fInReload = TRUE;
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3;
+	ammoPriorToReload = m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType];
 	return TRUE;
 }
 
