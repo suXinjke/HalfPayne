@@ -849,12 +849,6 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
-	{ GAMEPLAY_MOD_TOTALLY_SPIES, GameplayMod( "totally_spies", "Totally spies" )
-		.Description( "Replaces all HGrunts with Black Ops." )
-		.Toggles( &gameplayMods.totallySpies )
-		.CannotBeActivatedRandomly()
-	},
-
 	{ GAMEPLAY_MOD_TELEPORT_MAINTAIN_VELOCITY, GameplayMod( "teleport_maintain_velocity", "Teleport maintain velocity" )
 		.Description( "Your velocity will be preserved after going through teleporters." )
 		.Toggles( &gameplayMods.teleportMaintainVelocity )

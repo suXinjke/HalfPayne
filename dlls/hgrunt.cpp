@@ -1002,13 +1002,6 @@ void CHGrunt :: HandleAnimEvent( MonsterEvent_t *pEvent )
 //=========================================================
 void CHGrunt :: Spawn()
 {
-	if ( gameplayMods.totallySpies ) {
-		CBaseEntity *spy = CBaseEntity::Create( "monster_human_assassin", pev->origin, pev->angles, NULL );
-		spy->pev->target = pev->target;
-		spy->pev->targetname = pev->targetname;
-		return;
-	}
-
 	Precache( );
 
 	SET_MODEL(ENT(pev), "models/hgrunt.mdl");

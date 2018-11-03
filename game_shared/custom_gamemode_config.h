@@ -83,6 +83,7 @@ static char *allowedEntities[] {
 	"monster_alien_grunt",
 	"monster_alien_slave",
 	"monster_barnacle",
+	"monster_barney",
 	"monster_bullchicken",
 	"monster_gargantua",
 	"monster_headcrab",
@@ -95,6 +96,7 @@ static char *allowedEntities[] {
 	"monster_miniturret",
 	"monster_sentry",
 	"monster_snark",
+	"monster_scientist",
 	"monster_tripmine",
 	"monster_zombie",
 
@@ -172,6 +174,13 @@ struct EntitySpawn : Hookable {
 	EntitySpawn( const std::vector<Argument> &args );
 };
 
+struct EntityReplace : Hookable {
+	std::string replacedEntity;
+	EntitySpawnData newEntity;
+
+	EntityReplace( const std::vector<Argument> &args );
+};
+
 struct EndCondition : Hookable {
 	int activations;
 	int activationsRequired;
@@ -247,6 +256,7 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_ENTITY_PREVENT,
 	CONFIG_FILE_SECTION_ENTITY_REMOVE,
 	CONFIG_FILE_SECTION_ENTITY_RANDOM_SPAWNER,
+	CONFIG_FILE_SECTION_ENTITY_REPLACE,
 	CONFIG_FILE_SECTION_SOUND,
 	CONFIG_FILE_SECTION_MUSIC,
 	CONFIG_FILE_SECTION_MUSIC_STOP,
@@ -372,6 +382,7 @@ public:
 	std::vector<EntityRandomSpawner> entityRandomSpawners;
 	std::vector<EndCondition> endConditions;
 	std::vector<HookableWithTarget> entitiesToRemove;
+	std::vector<EntityReplace> entityReplaces;
 
 protected:
 	std::string folderPath;

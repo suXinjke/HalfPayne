@@ -480,6 +480,30 @@ void CustomGameModeConfig::InitConfigSections() {
 		}
 	);
 
+	configSections[CONFIG_FILE_SECTION_ENTITY_REPLACE] = ConfigSection(
+		"entity_replace",
+		{
+			Argument( "map_name" ),
+			Argument( "model_index | target_name" ).CanBeNumber(),
+			Argument( "replaced_entity" ),
+			Argument( "new_entity" )
+		},
+		[this]( const std::vector<Argument> &args, const std::string &line ) {
+			std::string entityName = args.at( 2 ).string;
+			if ( GetAllowedEntityIndex( entityName.c_str() ) == -1 ) {
+				return fmt::sprintf( "incorrect entity name: %s", entityName.c_str() );
+			}
+			std::string newEntityName = args.at( 3 ).string;
+			if ( GetAllowedEntityIndex( newEntityName.c_str() ) == -1 ) {
+				return fmt::sprintf( "incorrect entity name: %s", newEntityName.c_str() );
+			}
+
+			entityReplaces.push_back( EntityReplace( args ) );
+
+			return std::string( "" );
+		}
+	);
+
 	configSections[CONFIG_FILE_SECTION_END_CONDITIONS] = ConfigSection(
 		"end_conditions",
 		{
@@ -543,6 +567,12 @@ std::set<std::string> CustomGameModeConfig::GetEntitiesToPrecacheForMap( const s
 	for ( const auto &entityRandomSpawner : entityRandomSpawners ) {
 		if ( entityRandomSpawner.mapName == map || entityRandomSpawner.mapName == "everywhere" ) {
 			entitiesToPrecache.insert( entityRandomSpawner.entity.name );
+		}
+	}
+
+	for ( const auto &entityReplace : entityReplaces ) {
+		if ( entityReplace.map == map || entityReplace.map == "everywhere" ) {
+			entitiesToPrecache.insert( entityReplace.newEntity.name );
 		}
 	}
 
@@ -796,6 +826,7 @@ void CustomGameModeConfig::Reset() {
 	teleports.clear();
 	entitiesToRemove.clear();
 	mods.clear();
+	entityReplaces.clear();
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
@@ -932,6 +963,14 @@ EntitySpawn::EntitySpawn( const std::vector<Argument> &args ) : Hookable( args )
 	entity.targetName = args.size() >= 8 ? args.at( 7 ).string : "";
 
 	entity.UpdateSpawnFlags();
+}
+
+EntityReplace::EntityReplace( const std::vector<Argument> &args ) : Hookable( args ) {
+	
+	replacedEntity = args.at( 2 ).string;
+	newEntity.name = args.at( 3 ).string;
+
+	newEntity.UpdateSpawnFlags();
 }
 
 Intermission::Intermission( const std::vector<Argument>& args ) : HookableWithTarget( args ) {

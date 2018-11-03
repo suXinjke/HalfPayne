@@ -108,7 +108,6 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_TELEPORT_MAINTAIN_VELOCITY,
 	GAMEPLAY_MOD_TELEPORT_ON_KILL,
 	GAMEPLAY_MOD_TIME_RESTRICTION,
-	GAMEPLAY_MOD_TOTALLY_SPIES,
 	GAMEPLAY_MOD_VVVVVV,
 	GAMEPLAY_MOD_WEAPON_IMPACT,
 	GAMEPLAY_MOD_WEAPON_PUSH_BACK,
@@ -375,8 +374,6 @@ public:
 	FieldBool( teleportMaintainVelocity, FALSE );
 	FieldBool( teleportOnKill, FALSE );
 	char teleportOnKillWeapon[64];
-	
-	FieldBool( totallySpies, FALSE );
 
 	FieldBool( upsideDown, FALSE );
 	FieldBool( vvvvvv, FALSE );

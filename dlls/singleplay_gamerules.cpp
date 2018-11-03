@@ -257,6 +257,28 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 				SpawnBySpawnData( entitySpawn.entity );
 			}
 		}
+
+		for ( const auto &entityReplace : config->entityReplaces ) {
+			if ( entityReplace.Fits( modelIndex, className, targetName, firstTime ) ) {
+				CBaseEntity *pEntity = NULL;
+				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, Vector( 0, 0, 0 ), 8192 ) ) != NULL ) {
+					if ( std::string( STRING( pEntity->pev->classname ) ) != entityReplace.replacedEntity ) {
+						continue;
+					}
+
+					Vector pos = pEntity->pev->origin;
+					Vector ang = pEntity->pev->angles;
+					auto target = pEntity->pev->target;
+					auto targetname = pEntity->pev->targetname;
+
+					pEntity->pev->flags |= FL_KILLME;
+
+					CBaseEntity *newEntity = CBaseEntity::Create( ( char * ) entityReplace.newEntity.name.c_str(), pos, ang, NULL, entityReplace.newEntity.weaponFlags, entityReplace.newEntity.spawnFlags );
+					newEntity->pev->target = target;
+					newEntity->pev->targetname = targetname;
+				}
+			}
+		}
 	}
 }
 void CHalfLifeRules::Precache()
