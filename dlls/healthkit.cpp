@@ -112,7 +112,7 @@ public:
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	virtual int	ObjectCaps( void ) { return (CBaseToggle :: ObjectCaps() | FCAP_CONTINUOUS_USE); }
 
-    void WaitUntilOpened( void );
+    void EXPORT WaitUntilOpened( void );
 
     enum WALL_HEALTH_ANIM {
         IDLE,
