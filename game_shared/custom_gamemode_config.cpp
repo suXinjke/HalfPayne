@@ -219,7 +219,8 @@ void CustomGameModeConfig::InitConfigSections() {
 		{
 			Argument( "map_name" ),
 			Argument( "model_index | target_name" ).CanBeNumber(),
-			Argument( "target_to_use" ).CanBeNumber()
+			Argument( "target_to_use" ).CanBeNumber(),
+			Argument( "const" ).IsOptional()
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			entityUses.push_back( HookableWithTarget( args ) );
@@ -232,7 +233,8 @@ void CustomGameModeConfig::InitConfigSections() {
 		"entity_prevent",
 		{
 			Argument( "map_name" ),
-			Argument( "model_index | target_name" ).CanBeNumber()
+			Argument( "model_index | target_name" ).CanBeNumber(),
+			Argument( "const" ).IsOptional()
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			entitiesPrevented.push_back( Hookable( args ) );
@@ -246,7 +248,8 @@ void CustomGameModeConfig::InitConfigSections() {
 		{
 			Argument( "map_name" ),
 			Argument( "model_index | target_name" ).CanBeNumber(),
-			Argument( "target_to_remove" ).CanBeNumber()
+			Argument( "target_to_remove" ).CanBeNumber(),
+			Argument( "const" ).IsOptional()
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			entitiesToRemove.push_back( HookableWithTarget( args ) );
@@ -294,7 +297,8 @@ void CustomGameModeConfig::InitConfigSections() {
 		"music_stop",
 		{
 			Argument( "map_name" ),
-			Argument( "model_index | target_name" ).CanBeNumber()
+			Argument( "model_index | target_name" ).CanBeNumber(),
+			Argument( "const" ).IsOptional()
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			musicStops.push_back( Hookable( args ) );
@@ -406,7 +410,8 @@ void CustomGameModeConfig::InitConfigSections() {
 		"timer_pause",
 		{
 			Argument( "map_name" ),
-			Argument( "model_index | target_name" ).CanBeNumber()
+			Argument( "model_index | target_name" ).CanBeNumber(),
+			Argument( "const" ).IsOptional()
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			timerPauses.push_back( Hookable( args ) );
@@ -419,7 +424,8 @@ void CustomGameModeConfig::InitConfigSections() {
 		"timer_resume",
 		{
 			Argument( "map_name" ),
-			Argument( "model_index | target_name" ).CanBeNumber()
+			Argument( "model_index | target_name" ).CanBeNumber(),
+			Argument( "const" ).IsOptional()
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			timerResumes.push_back( Hookable( args ) );
