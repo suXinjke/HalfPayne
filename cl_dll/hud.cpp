@@ -738,8 +738,6 @@ float CHud::GetSensitivity( void )
 	return m_flMouseSensitivity;
 }
 
-extern globalvars_t *gpGlobals;
-
 float CHudRunningAnimation::nextRuntimeSoundTime = 0.0f;
 CHudRunningAnimation::CHudRunningAnimation( float endValue, float stepFraction ) :
 	isRunning( false ),
@@ -752,13 +750,14 @@ CHudRunningAnimation::CHudRunningAnimation( float endValue, float stepFraction )
 void CHudRunningAnimation::StartRunning()
 {
 	isRunning = true;
-	nextUpdateTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
-	nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+	nextUpdateTime = gEngfuncs.GetAbsoluteTime() + RUNTIME_UPDATE_TIME;
+	nextRuntimeSoundTime = gEngfuncs.GetAbsoluteTime() + RUNTIME_SOUND_DURATION;
 }
 
 int CHudRunningAnimation::Draw( int x, int y, int r, int g, int b )
 {
-	if ( isRunning && gpGlobals->time > nextUpdateTime ) {
+	auto time = gEngfuncs.GetAbsoluteTime();
+	if ( isRunning && time > nextUpdateTime ) {
 		if ( value < endValue ) {
 			value += step;
 		}
@@ -767,12 +766,12 @@ int CHudRunningAnimation::Draw( int x, int y, int r, int g, int b )
 			value = endValue;
 			isRunning = false;
 		} else {
-			nextUpdateTime = gpGlobals->time + RUNTIME_UPDATE_TIME;
+			nextUpdateTime = time + RUNTIME_UPDATE_TIME;
 		}
 
-		if ( gpGlobals->time > nextRuntimeSoundTime ) {
+		if ( time > nextRuntimeSoundTime ) {
 			gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, "var/runtime.wav", 1.0, ATTN_NORM, 0, PITCH_NORM, true );
-			nextRuntimeSoundTime = gpGlobals->time + RUNTIME_SOUND_DURATION;
+			nextRuntimeSoundTime = time + RUNTIME_SOUND_DURATION;
 		}
 	}
 
