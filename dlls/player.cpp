@@ -916,6 +916,14 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 		return 0;
 	}
 
+	if (
+		gameplayMods.teleportOnKill &&
+		pevInflictor == pev && pevAttacker == pev &&
+		m_pActiveItem && FStrEq( STRING( m_pActiveItem->pev->classname ), "weapon_gauss" )
+	) {
+		return 0;
+	}
+
 	// have suit diagnose the problem - ie: report damage type
 	int bitsDamage = bitsDamageType;
 	int ffound = TRUE;
