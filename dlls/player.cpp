@@ -946,10 +946,11 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	// go take the damage first
 
 	
-	CBaseEntity *pAttacker = CBaseEntity::Instance(pevAttacker);
+	CBaseEntity *pAttacker = pevAttacker ? CBaseEntity::Instance( pevAttacker ) : NULL;
+	CBaseEntity *pInflctor = pevInflictor ? CBaseEntity::Instance( pevInflictor ) : NULL;
 
 	if ( gameplayMods.oneHitKO ) {
-		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pAttacker ) ) {
+		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pInflctor ) ) {
 			flDamage = pev->health + 1;
 		}
 	}
@@ -985,6 +986,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 
 					// if you've fallen down or made such an injury with explosive yourself - leave a remark
 					if (
+						pAttacker &&
 						CVAR_GET_FLOAT( "max_commentary_pain_self" ) > 0.0f && (
 							bitsDamageType & DMG_FALL ||
 							strcmp( STRING( pAttacker->pev->classname ), "player" ) == 0 ||
@@ -1001,7 +1003,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 		}
 	}
 
-	if ( !g_pGameRules->FPlayerCanTakeDamage( this, pAttacker ) )
+	if ( pAttacker && !g_pGameRules->FPlayerCanTakeDamage( this, pAttacker ) )
 	{
 		// Refuse the damage
 		return 0;
@@ -1011,7 +1013,7 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 	m_lastDamageAmount = flDamage;
 
 	if ( gameplayMods.slowmotionOnDamage ) {
-		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pAttacker ) ) {
+		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pInflctor ) ) {
 			if ( flDamage > 0 && ( bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_CLUB | DMG_SHOCK | DMG_SONIC | DMG_ENERGYBEAM ) ) ) {
 				TakeSlowmotionCharge( max( 1, flDamage / 2.0f ) );
 			}
