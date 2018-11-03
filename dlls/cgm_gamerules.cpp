@@ -209,9 +209,9 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		return;
 	}
 
-	CHalfLifeRules::PlayerSpawn( pPlayer );
-
 	gameplayMods.Reset();
+
+	CHalfLifeRules::PlayerSpawn( pPlayer );
 
 	gameplayMods.activeGameMode = GAME_MODE_CUSTOM;
 
