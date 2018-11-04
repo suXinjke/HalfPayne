@@ -55,23 +55,47 @@ void PlayerInfoWindow_Draw() {
 	ImGui::SetNextWindowSize( ImVec2( 350, 70 ), ImGuiSetCond_FirstUseEver );
 
 	ImGui::Begin( "Player info" );
-	ImGui::Columns( 4, "player_info_vec_columns" );
-	PlayerInfoWindow_DrawFourColumnRowRightAligned( "", "x", "y", "z" );
+	ImGui::Columns( 5, "player_info_vec_columns" );
+	PlayerInfoWindow_DrawFourColumnRowRightAligned( "", "x", "y", "z" ); ImGui::NextColumn();
 
 	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Position", playerOrigin );
+	if ( ImGui::Button( "Copy pos" ) ) {
+		char copy[256];
+		snprintf( copy, 256, "%.2f %.2f %.2f", playerOrigin.x, playerOrigin.y, playerOrigin.z );
+		ImGui::SetClipboardText( copy );
+	} ImGui::NextColumn();
+
 	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Position (view)", playerOrigin + playerViewOffset );
+	if ( ImGui::Button( "Copy pos (view)" ) ) {
+		Vector viewVec = playerOrigin + playerViewOffset;
+		char copy[256];
+		snprintf( copy, 256, "%.2f %.2f %.2f", viewVec.x, viewVec.y, viewVec.z );
+		ImGui::SetClipboardText( copy );
+	} ImGui::NextColumn();
+
 	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Position (aim)", playerViewHitPos );
+	if ( ImGui::Button( "Copy pos (aim)" ) ) {
+		char copy[256];
+		snprintf( copy, 256, "%.2f %.2f %.2f", playerViewHitPos.x, playerViewHitPos.y, playerViewHitPos.z );
+		ImGui::SetClipboardText( copy );
+	} ImGui::NextColumn();
 
 	char distance[256];
 	sprintf( distance, "%.2f", ( playerViewHitPos - ( playerOrigin + playerViewOffset ) ).Length() );
-	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Distance", distance, "", "" );
+	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Distance", distance, "", "" ); ImGui::NextColumn();
 
 	PlayerInfoWindow_DrawFourColumnRowRightAligned( "View angle", playerViewAngles );
-	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Velocity", playerVelocity );
+	if ( ImGui::Button( "Copy yaw" ) ) {
+		char copy[256];
+		snprintf( copy, 256, "%.0f", playerViewAngles.y );
+		ImGui::SetClipboardText( copy );
+	} ImGui::NextColumn();
+
+	PlayerInfoWindow_DrawFourColumnRowRightAligned( "Velocity", playerVelocity ); ImGui::NextColumn();
 
 	char velocity[256];
 	sprintf( velocity, "%.2f", playerVelocity.Length() );
-	PlayerInfoWindow_DrawFourColumnRowRightAligned( "", velocity, "", "" );
+	PlayerInfoWindow_DrawFourColumnRowRightAligned( "", velocity, "", "" ); ImGui::NextColumn();
 
 	ImGui::End();
 }
