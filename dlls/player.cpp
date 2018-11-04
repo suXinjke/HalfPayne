@@ -5306,12 +5306,12 @@ Called every frame by the player PostThink
 void CBasePlayer::ItemPostFrame()
 {
 	static int fInSelect = FALSE;
+	
+	ImpulseCommands();
 
 	// check if the player is using a tank
 	if ( m_pTank != NULL )
 		return;
-
-	ImpulseCommands();
 
 #if defined( CLIENT_WEAPONS )
     if ( m_flNextAttack > 0 )

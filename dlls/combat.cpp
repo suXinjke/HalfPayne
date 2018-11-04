@@ -1541,8 +1541,11 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 						y * vecSpread.y * vecUp;
 
 
-		if ( gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
-			( player->slowMotionEnabled && gameplayMods.bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) {
+		if (
+			gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
+			( pevAttacker != player->pev && player->slowMotionEnabled && gameplayMods.bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ||
+			( pevAttacker == player->pev && player->slowMotionEnabled && gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION )
+		) {
 
 			CBullet::BulletCreate(
 				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || gameplayMods.bulletTrailConstant, edict(),
