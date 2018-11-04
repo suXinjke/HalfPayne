@@ -505,32 +505,30 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		
 		if ( gameplayMods.proposedGameplayMods.size() == 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod <= gameplayMods.timeForRandomGameplayModVoting ) {
 			
-			do {
-				gameplayMods.proposedGameplayMods = gameplayMods.GetRandomGameplayMod( pPlayer, 3, [this]( const GameplayMod &mod ) -> bool {
-					if (
-						std::any_of( gameplayMods.timedGameplayMods.begin(), gameplayMods.timedGameplayMods.end(), [&mod]( std::pair<GameplayMod, float> &timedGameplayMod ) {
-							return timedGameplayMod.first.id == mod.id;
-						} ) ||
+			gameplayMods.proposedGameplayMods = gameplayMods.GetRandomGameplayMod( pPlayer, 3, [this]( const GameplayMod &mod ) -> bool {
+				if (
+					std::any_of( gameplayMods.timedGameplayMods.begin(), gameplayMods.timedGameplayMods.end(), [&mod]( std::pair<GameplayMod, float> &timedGameplayMod ) {
+						return timedGameplayMod.first.id == mod.id;
+					} ) ||
 
-						std::any_of( this->config.mods.begin(), this->config.mods.end(), [&mod]( auto &gameplayMod ) {
-							return gameplayMod.second.id == mod.id;
-						} )
-					) {
+					std::any_of( this->config.mods.begin(), this->config.mods.end(), [&mod]( auto &gameplayMod ) {
+						return gameplayMod.second.id == mod.id;
+					} )
+				) {
 
-						return false;
-					}
+					return false;
+				}
 
-					if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod.id ) ) {
-						return false;
-					}
+				if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod.id ) ) {
+					return false;
+				}
 
-					if ( aux::ctr::includes( config.randomModsBlacklist, mod.id ) ) {
-						return false;
-					}
+				if ( aux::ctr::includes( config.randomModsBlacklist, mod.id ) ) {
+					return false;
+				}
 
-					return true;
-				} );
-			} while ( gameplayMods.proposedGameplayMods.size() == 0 );
+				return true;
+			} );
 
 			if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
 				twitch->SendChatMessage( "VOTE FOR NEXT MOD" );
