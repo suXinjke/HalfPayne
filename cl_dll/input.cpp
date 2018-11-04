@@ -24,6 +24,7 @@ extern "C"
 #include "Exports.h"
 #include "custom_gamemode_config.h"
 #include "soundmanager.h"
+#include "event_api.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -716,9 +717,10 @@ void CL_AdjustAngles ( float frametime, float *viewangles )
 
 	if ( v_idlescale ) {
 		float time = gEngfuncs.GetAbsoluteTime(); 
-		viewangles[ROLL] += v_idlescale * sin( time * 0.5 ) * 0.0016;
-		viewangles[PITCH] += v_idlescale * sin( time * 1 ) * 0.002;
-		viewangles[YAW] += v_idlescale * sin( time * 2 ) * 0.005;
+		float multiplier = isSlowmotionEnabled() ? 0.5f : 1.0f;
+		viewangles[ROLL] += v_idlescale * sin( time * 0.5 ) * 0.0016 * multiplier;
+		viewangles[PITCH] += v_idlescale * sin( time * 1 ) * 0.002 * multiplier;
+		viewangles[YAW] += v_idlescale * sin( time * 2 ) * 0.005 * multiplier;
 	}
 }
 
