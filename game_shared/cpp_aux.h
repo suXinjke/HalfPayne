@@ -114,17 +114,11 @@ namespace aux {
 		}
 
 		inline bool startsWith( const std::string &str, const std::string &containedStr ) {
-			if ( containedStr.empty() ) {
-				return true;
-			}
-			return str.find_first_of( containedStr ) == 0;
+			return str.size() >= containedStr.size() && 0 == str.compare( 0, containedStr.size(), containedStr );
 		}
 
 		inline bool endsWith( const std::string &str, const std::string &containedStr ) {
-			if ( containedStr.empty() ) {
-				return true;
-			}
-			return str.size() == str.find_last_of( containedStr ) + 1;
+			return str.size() >= containedStr.size() && 0 == str.compare( str.size() - containedStr.size(), containedStr.size(), containedStr );
 		}
 
 		inline bool includes( const std::string &str, const std::string &containedStr ) {
