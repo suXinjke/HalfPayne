@@ -1487,6 +1487,7 @@ void CCustomGameModeRules::RefreshSkillData()
 }
 
 EntityRandomSpawnerController::EntityRandomSpawnerController( const EntityRandomSpawner &entityRandomSpawner ) :
+	mapName( entityRandomSpawner.mapName ),
 	spawnData( entityRandomSpawner.entity ),
 	maxAmount( entityRandomSpawner.maxAmount ),
 	spawnPeriod( entityRandomSpawner.spawnPeriod ),
@@ -1495,8 +1496,14 @@ EntityRandomSpawnerController::EntityRandomSpawnerController( const EntityRandom
 
 void EntityRandomSpawnerController::Think( CBasePlayer *pPlayer ) {
 	if ( gpGlobals->time > nextSpawn ) {
-		Spawn( pPlayer );
 		ResetSpawnPeriod();
+
+		if (
+			FStrEq( STRING( gpGlobals->mapname ), mapName.c_str() ) ||
+			FStrEq( STRING( gpGlobals->mapname ), "everywhere" )
+		) {
+			Spawn( pPlayer );
+		}
 	}
 }
 

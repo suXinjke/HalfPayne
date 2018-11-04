@@ -13,6 +13,7 @@ public:
 private:
 	void Spawn( CBasePlayer *pPlayer );
 
+	std::string mapName;
 	EntitySpawnData spawnData;
 	int maxAmount;
 	float spawnPeriod;
