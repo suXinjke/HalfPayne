@@ -263,6 +263,8 @@ enum CONFIG_FILE_SECTION {
 	CONFIG_FILE_SECTION_PLAYLIST,
 	CONFIG_FILE_SECTION_MAX_COMMENTARY,
 	CONFIG_FILE_SECTION_MODS,
+	CONFIG_FILE_SECTION_RANDOM_MODS_WHITELIST,
+	CONFIG_FILE_SECTION_RANDOM_MODS_BLACKLIST,
 	CONFIG_FILE_SECTION_END_CONDITIONS,
 	CONFIG_FILE_SECTION_TIMER_PAUSE,
 	CONFIG_FILE_SECTION_TIMER_RESUME,
@@ -383,6 +385,9 @@ public:
 	std::vector<EndCondition> endConditions;
 	std::vector<HookableWithTarget> entitiesToRemove;
 	std::vector<EntityReplace> entityReplaces;
+
+	std::set<std::string> randomModsWhitelist;
+	std::set<std::string> randomModsBlacklist;
 
 protected:
 	std::string folderPath;

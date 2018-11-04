@@ -406,6 +406,56 @@ void CustomGameModeConfig::InitConfigSections() {
 		}
 	);
 
+	configSections[CONFIG_FILE_SECTION_RANDOM_MODS_WHITELIST] = ConfigSection(
+		"random_mods_whitelist",
+		{
+			Argument( "mod" ),
+		},
+		[this]( const std::vector<Argument> &args, const std::string &line ) {
+			std::string modName = args.at( 0 ).string;
+
+			bool activatedMod = false;
+			for ( const auto &pair : gameplayModDefs ) {
+				if ( pair.second.id == modName ) {
+					activatedMod = true;
+					randomModsWhitelist.insert( pair.second.id );
+					break;
+				}
+			}
+
+			if ( !activatedMod ) {
+				return fmt::sprintf( "incorrect mod specified: %s\n", modName.c_str() );
+			}
+
+			return std::string( "" );
+		}
+	);
+
+	configSections[CONFIG_FILE_SECTION_RANDOM_MODS_BLACKLIST] = ConfigSection(
+		"random_mods_blacklist",
+		{
+			Argument( "mod" ),
+		},
+		[this]( const std::vector<Argument> &args, const std::string &line ) {
+			std::string modName = args.at( 0 ).string;
+
+			bool activatedMod = false;
+			for ( const auto &pair : gameplayModDefs ) {
+				if ( pair.second.id == modName ) {
+					activatedMod = true;
+					randomModsBlacklist.insert( pair.second.id );
+					break;
+				}
+			}
+
+			if ( !activatedMod ) {
+				return fmt::sprintf( "incorrect mod specified: %s\n", modName.c_str() );
+			}
+
+			return std::string( "" );
+		}
+	);
+
 	configSections[CONFIG_FILE_SECTION_TIMER_PAUSE] = ConfigSection(
 		"timer_pause",
 		{
@@ -827,6 +877,8 @@ void CustomGameModeConfig::Reset() {
 	entitiesToRemove.clear();
 	mods.clear();
 	entityReplaces.clear();
+	randomModsWhitelist.clear();
+	randomModsBlacklist.clear();
 }
 
 bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {

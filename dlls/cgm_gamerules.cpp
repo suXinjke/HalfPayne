@@ -520,6 +520,14 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 						return false;
 					}
 
+					if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod.id ) ) {
+						return false;
+					}
+
+					if ( aux::ctr::includes( config.randomModsBlacklist, mod.id ) ) {
+						return false;
+					}
+
 					return true;
 				} );
 			} while ( gameplayMods.proposedGameplayMods.size() == 0 );
