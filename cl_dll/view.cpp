@@ -20,7 +20,7 @@
 #include "shake.h"
 #include "hltv.h"
 #include "Exports.h"
-
+#include "gameplay_mod.h"
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
@@ -674,7 +674,7 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	view->angles[ROLL]  -= bob * 1;
 	view->angles[PITCH] -= bob * 0.3;
 
-	if ( cl_bobclassic->value > 0.0f ) {
+	if ( cl_bobclassic->value > 0.0f && !gameplayMods.holdingTwinWeapons ) {
 		VectorCopy( view->angles, view->curstate.angles );
 	}
 

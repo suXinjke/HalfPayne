@@ -5676,6 +5676,8 @@ void CBasePlayer :: UpdateClientData( void )
 		desiredTimeScale = superHotMultiplier;
 	}
 
+	gameplayMods.holdingTwinWeapons = m_pActiveItem && ( m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN || m_pActiveItem->m_iId == WEAPON_INGRAM_TWIN );
+
 	if ( nextSmoothTimeScaleChange && nextSmoothTimeScaleChange <= gpGlobals->time ) {
 		float cap = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 		

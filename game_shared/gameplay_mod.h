@@ -315,6 +315,8 @@ public:
 	FieldBool( healOnKill, FALSE );
 	FieldFloat( healOnKillMultiplier, 0.25f );
 	
+	FieldBool( holdingTwinWeapons, FALSE );
+	
 	FieldBool( infiniteAmmo, FALSE );
 	FieldBool( infiniteAmmoClip, FALSE );
 	FieldInt( initialClipAmmo, 0 );
