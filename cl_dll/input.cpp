@@ -753,33 +753,35 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 		
 		gEngfuncs.SetViewAngles( (float *)viewangles );
 
+		int inverseMultiplier = gameplayMods.inverseControls ? -1 : 1;
+
 		if ( !upsideDown ) {
 			if ( in_strafe.state & 1 )
 			{
-				cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right);
-				cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_left);
+				cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right) * inverseMultiplier;
+				cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_left) * inverseMultiplier;
 			}
 
-			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveright);
-			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveleft);
+			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveright) * inverseMultiplier;
+			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveleft) * inverseMultiplier;
 		} else {
 			if ( in_strafe.state & 1 )
 			{
-				cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_right);
-				cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_left);
+				cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_right) * inverseMultiplier;
+				cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_left) * inverseMultiplier;
 			}
 
-			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveright);
-			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveleft);
+			cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveright) * inverseMultiplier;
+			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveleft) * inverseMultiplier;
 		}
 
-		cmd->upmove += cl_upspeed->value * CL_KeyState (&in_up);
-		cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down);
+		cmd->upmove += cl_upspeed->value * CL_KeyState (&in_up) * inverseMultiplier;
+		cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down) * inverseMultiplier;
 
 		if ( !(in_klook.state & 1 ) )
 		{	
-			cmd->forwardmove += cl_forwardspeed->value * CL_KeyState (&in_forward);
-			cmd->forwardmove -= cl_backspeed->value * CL_KeyState (&in_back);
+			cmd->forwardmove += cl_forwardspeed->value * CL_KeyState (&in_forward) * inverseMultiplier;
+			cmd->forwardmove -= cl_backspeed->value * CL_KeyState (&in_back) * inverseMultiplier;
 		}	
 
 		// adjust for speed key

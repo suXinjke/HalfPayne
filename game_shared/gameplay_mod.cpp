@@ -7,6 +7,7 @@ GameplayMods gameplayMods;
 
 #ifdef CLIENT_DLL
 #include "parsemsg.h"
+int g_inverseControls = 0;
 #else
 int gmsgGmplayMod = 0;
 #endif
@@ -27,6 +28,9 @@ void GameplayMods::Init() {
 		gameplayMods.infiniteAmmoClip = READ_BYTE();
 		gameplayMods.shootUnderwater = READ_BYTE();
 		gameplayMods.holdingTwinWeapons = READ_BYTE();
+		gameplayMods.inverseControls = READ_BYTE();
+
+		g_inverseControls = gameplayMods.inverseControls;
 
 		return 1;
 	} );
@@ -78,6 +82,7 @@ void GameplayMods::SendToClient() {
 		WRITE_BYTE( infiniteAmmoClip );
 		WRITE_BYTE( shootUnderwater );
 		WRITE_BYTE( holdingTwinWeapons );
+		WRITE_BYTE( inverseControls );
 	MESSAGE_END();
 }
 

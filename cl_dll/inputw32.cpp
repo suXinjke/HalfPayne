@@ -32,6 +32,8 @@
 
 #define MOUSE_BUTTON_COUNT 5
 
+extern int g_inverseControls;
+
 // use IN_SetVisibleMouse to set:
 int	iVisibleMouse = 0;
 
@@ -718,24 +720,27 @@ void IN_MouseMove ( float frametime, usercmd_t *cmd)
 
 		// Apply custom mouse scaling/acceleration
 		IN_ScaleMouse( &mouse_x, &mouse_y );
+		
+		int inverseMultiplier = g_inverseControls ? -1 : 1;
 
 		// add mouse X/Y movement to cmd
 		if ( (in_strafe.state & 1) || (lookstrafe->value && (in_mlook.state & 1) ))
 			cmd->sidemove += m_side->value * mouse_x;
 		else {
 			if ( !upsideDown ) {
-				viewangles[YAW] -= m_yaw->value * mouse_x;
+				viewangles[YAW] -= m_yaw->value * mouse_x * inverseMultiplier;
 			} else {
-				viewangles[YAW] -= -m_yaw->value * mouse_x;
+				viewangles[YAW] -= -m_yaw->value * mouse_x * inverseMultiplier;
 			}
 		}
+		
 
 		if ( (in_mlook.state & 1) && !(in_strafe.state & 1))
 		{
 			if ( !upsideDown ) {
-				viewangles[PITCH] += m_pitch->value * mouse_y;
+				viewangles[PITCH] += m_pitch->value * mouse_y * inverseMultiplier;
 			} else {
-				viewangles[PITCH] += -m_pitch->value * mouse_y;
+				viewangles[PITCH] += -m_pitch->value * mouse_y * inverseMultiplier;
 			}
 			if (viewangles[PITCH] > cl_pitchdown->value)
 				viewangles[PITCH] = cl_pitchdown->value;

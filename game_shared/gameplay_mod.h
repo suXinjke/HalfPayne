@@ -64,6 +64,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_INFINITE_SLOWMOTION,
 	GAMEPLAY_MOD_INITIAL_CLIP_AMMO,
 	GAMEPLAY_MOD_INSTAGIB,
+	GAMEPLAY_MOD_INVERSE_CONTROLS,
 	GAMEPLAY_MOD_NO_FALL_DAMAGE,
 	GAMEPLAY_MOD_NO_HEALING,
 	GAMEPLAY_MOD_NO_JUMPING,
@@ -322,6 +323,8 @@ public:
 	FieldInt( initialClipAmmo, 0 );
 
 	FieldBool( instaGib, FALSE );
+	
+	FieldBool( inverseControls, FALSE );
 
 	FieldBool( noFallDamage, FALSE );
 	FieldBool( noJumping, FALSE );

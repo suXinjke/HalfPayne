@@ -425,6 +425,11 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
+	{ GAMEPLAY_MOD_INVERSE_CONTROLS, GameplayMod( "inverse_controls", "Inverse controls" )
+		.Description( "Movement and view controls become inversed." )
+		.Toggles( &gameplayMods.inverseControls )
+	},
+
 	{ GAMEPLAY_MOD_HEALTH_REGENERATION, GameplayMod( "health_regeneration", "Health regeneration" )
 		.Description( "Allows for health regeneration options." )
 		.Arguments( {
