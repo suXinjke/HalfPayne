@@ -227,7 +227,9 @@ void CRpgRocket :: FollowThink( void  )
 		{
 			Vector forward = gpGlobals->v_forward;
 			if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				forward = pPlayer->GetAimForwardWithOffset();
+				if ( auxOwner == pPlayer->edict() ) {
+					forward = pPlayer->GetAimForwardWithOffset();
+				}
 			}
 
 			vecDir = pOther->pev->origin - pev->origin;
