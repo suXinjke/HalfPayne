@@ -328,9 +328,9 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		if ( pPlayer->slowMotionEnabled ) {
 			gameplayMods.secondsInSlowmotion += timeDelta;
 		}
-
-		CheckForCheats( pPlayer );
 	}
+
+	CheckForCheats( pPlayer );
 
 	for ( auto &spawner : entityRandomSpawnerControllers ) {
 		spawner.Think( pPlayer );
