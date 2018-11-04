@@ -207,7 +207,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 			Argument( "max_vertical_wobble" ).IsOptional().MinMax( 0, 25.5 ).RandomMinMax( 2, 25.5 ).Default( "5" ).Description( []( const std::string string, float value ) {
 				return "Max vertical wobble: " + std::to_string( value ) + " deg\n";
 			} ),
-			Argument( "wobble_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.05, 90 ).Default( "1" ).Description( []( const std::string string, float value ) {
+			Argument( "wobble_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.05, 6 ).Default( "1" ).Description( []( const std::string string, float value ) {
 				return "Wobble frequency: " + std::to_string( value ) + "\n";
 			} ),
 		} )
