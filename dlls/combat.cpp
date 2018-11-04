@@ -354,6 +354,7 @@ void CBaseMonster :: GibMonster( void )
 		Vector spawnPos = pev->origin + gpGlobals->v_forward * RANDOM_LONG( -5, 5 ) + gpGlobals->v_right * RANDOM_LONG( -5, 5 );
 		for ( int i = 0 ; i < snarkCount ; i++ ) {
 			CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_up * ( 2 + i * 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
+			pSqueak->pev->velocity = Vector( RANDOM_LONG( -200, 200 ), RANDOM_LONG( -200, 200 ), RANDOM_LONG( 10, 50 ) );
 		}
 	}
 
@@ -1245,6 +1246,7 @@ void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacke
 
 				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", vecSrc + coords, Vector( 0, 120 * i, 0 ), NULL );
 				pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
+				pSqueak->pev->velocity = Vector( RANDOM_LONG( -200, 200 ), RANDOM_LONG( -200, 200 ), RANDOM_LONG( 10, 500 ) );
 			}
 		}
 	} 
