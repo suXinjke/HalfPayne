@@ -37,6 +37,8 @@ int grgLogoFrame[MAX_LOGO_FRAMES] =
 float HUD_GetFOV( void );
 
 extern cvar_t *sensitivity;
+extern float g_fovOffsetAmplitude;
+extern float g_fovOffsetChangeFreqency;
 
 // Think
 void CHud::Think(void)
@@ -88,6 +90,9 @@ void CHud::Think(void)
 	{
 		m_iFOV = gHUD.m_Spectator.GetFOV();	// default_fov->value;
 	}
+
+	float phi = gEngfuncs.GetClientTime() * g_fovOffsetChangeFreqency;
+	m_iFOV = m_iFOV + sin( phi ) * g_fovOffsetAmplitude;
 
 	Bench_CheckStart();
 }

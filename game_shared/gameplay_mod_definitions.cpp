@@ -223,6 +223,26 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
+	{ GAMEPLAY_MOD_DRUNK_FOV, GameplayMod( "drunk_fov", "Drunk FOV" )
+		.Description( "Your field of view becomes wobbly." )
+		.Arguments( {
+			Argument( "fov_offset_amplitude" ).IsOptional().MinMax( 0.01, 100 ).RandomMinMax( 0, 30 ).Default( "10" ).Description( []( const std::string string, float value ) {
+				return "FOV offset amplitude: " + std::to_string( value ) + " deg\n";
+			} ),
+			Argument( "fov_offset_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.1, 15 ).Default( "1" ).Description( []( const std::string string, float value ) {
+				return "FOV offset frequency: " + std::to_string( value ) + "\n";
+			} ),
+		} )
+		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
+			gameplayMods.fovOffsetAmplitude = args.at( 0 ).number;
+			gameplayMods.fovOffsetChangeFreqency = args.at( 1 ).number;
+		} )
+		.OnDeactivation( []( CBasePlayer *player ) {
+			gameplayMods.fovOffsetAmplitude = 0;
+			gameplayMods.fovOffsetChangeFreqency = 0;
+		} )
+	},
+
 	{ GAMEPLAY_MOD_DRUNK_LOOK, GameplayMod( "drunk_look", "Drunk look" )
 		.Description( "Camera view becomes wobbly and makes aim harder." )
 		.Arguments( {

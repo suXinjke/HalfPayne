@@ -46,6 +46,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_DIVING_ALLOWED_WITHOUT_SLOWMOTION,
 	GAMEPLAY_MOD_DIVING_ONLY,
 	GAMEPLAY_MOD_DRUNK_AIM,
+	GAMEPLAY_MOD_DRUNK_FOV,
 	GAMEPLAY_MOD_DRUNK_LOOK,
 	GAMEPLAY_MOD_EASY,
 	GAMEPLAY_MOD_EDIBLE_GIBS,
@@ -299,6 +300,9 @@ public:
 	FieldBool( divingAllowedWithoutSlowmotion, FALSE );
 
 	FieldInt( drunkiness, 0 );
+
+	FieldFloat( fovOffsetAmplitude, 0.0f );
+	FieldFloat( fovOffsetChangeFreqency, 0.0f );
 
 	FieldBool( gibsAlways, FALSE );
 	FieldBool( gibsEdible, FALSE );

@@ -7,6 +7,8 @@ GameplayMods gameplayMods;
 
 #ifdef CLIENT_DLL
 #include "parsemsg.h"
+float g_fovOffsetAmplitude = 0.0f;
+float g_fovOffsetChangeFreqency = 0.0f;
 int g_inverseControls = 0;
 #else
 int gmsgGmplayMod = 0;
@@ -28,9 +30,9 @@ void GameplayMods::Init() {
 		gameplayMods.infiniteAmmoClip = READ_BYTE();
 		gameplayMods.shootUnderwater = READ_BYTE();
 		gameplayMods.holdingTwinWeapons = READ_BYTE();
-		gameplayMods.inverseControls = READ_BYTE();
-
-		g_inverseControls = gameplayMods.inverseControls;
+		g_inverseControls = READ_BYTE();
+		g_fovOffsetAmplitude = READ_FLOAT();
+		g_fovOffsetChangeFreqency = READ_FLOAT();
 
 		return 1;
 	} );
@@ -83,6 +85,8 @@ void GameplayMods::SendToClient() {
 		WRITE_BYTE( shootUnderwater );
 		WRITE_BYTE( holdingTwinWeapons );
 		WRITE_BYTE( inverseControls );
+		WRITE_FLOAT( fovOffsetAmplitude );
+		WRITE_FLOAT( fovOffsetChangeFreqency );
 	MESSAGE_END();
 }
 
