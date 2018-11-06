@@ -54,6 +54,8 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_FADING_OUT,
 	GAMEPLAY_MOD_FRICTION,
 	GAMEPLAY_MOD_GARBAGE_GIBS,
+	GAMEPLAY_MOD_GAUSS_FAST_CHARGE,
+	GAMEPLAY_MOD_GAUSS_JUMPING,
 	GAMEPLAY_MOD_GOD,
 	GAMEPLAY_MOD_HARD,
 	GAMEPLAY_MOD_HEADSHOTS,
@@ -303,6 +305,9 @@ public:
 
 	FieldFloat( fovOffsetAmplitude, 0.0f );
 	FieldFloat( fovOffsetChangeFreqency, 0.0f );
+
+	FieldBool( gaussFastCharge, FALSE );
+	FieldBool( gaussJumping, FALSE );
 
 	FieldBool( gibsAlways, FALSE );
 	FieldBool( gibsEdible, FALSE );

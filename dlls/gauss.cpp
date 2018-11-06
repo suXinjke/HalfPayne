@@ -46,9 +46,9 @@ LINK_ENTITY_TO_CLASS( weapon_gauss, CGauss );
 float CGauss::GetFullChargeTime( void )
 {
 #ifdef CLIENT_DLL
-	if ( bIsMultiplayer() )
+	if ( bIsMultiplayer() || gameplayMods.gaussFastCharge )
 #else
-	if ( g_pGameRules->IsMultiplayer() )
+	if ( g_pGameRules->IsMultiplayer() || gameplayMods.gaussFastCharge )
 #endif
 	{
 		return 1.5;
@@ -355,7 +355,7 @@ void CGauss::StartFire( void )
 			m_pPlayer->ApplyWeaponPushback( 400 );
 		}
 
-		if ( !g_pGameRules->IsMultiplayer() && !gameplayMods.weaponPushBack )
+		if ( !g_pGameRules->IsMultiplayer() && !gameplayMods.weaponPushBack && !gameplayMods.gaussJumping )
 
 		{
 			// in deathmatch, gauss can pop you up into the air. Not in single play.

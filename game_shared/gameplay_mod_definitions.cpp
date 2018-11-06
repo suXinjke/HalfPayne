@@ -312,6 +312,17 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
+	{ GAMEPLAY_MOD_GAUSS_FAST_CHARGE, GameplayMod( "gauss_fast_charge", "Gauss fast charge" )
+		.Description( "Gauss charges faster like in multiplayer." )
+		.Toggles( &gameplayMods.gaussFastCharge )
+		.CannotBeActivatedRandomly()
+	},	
+	
+	{ GAMEPLAY_MOD_GAUSS_JUMPING, GameplayMod( "gauss_jumping", "Gauss jumping" )
+		.Description( "Allows for easier gauss jumping like in multiplayer." )
+		.Toggles( &gameplayMods.gaussJumping )
+	},
+
 	{ GAMEPLAY_MOD_GARBAGE_GIBS, GameplayMod( "garbage_gibs", "Garbage gibs" )
 		.Description( "Replaces all gibs with garbage." )
 		.Toggles( &gameplayMods.gibsGarbage )

@@ -30,6 +30,7 @@ void GameplayMods::Init() {
 		gameplayMods.infiniteAmmoClip = READ_BYTE();
 		gameplayMods.shootUnderwater = READ_BYTE();
 		gameplayMods.holdingTwinWeapons = READ_BYTE();
+		gameplayMods.gaussFastCharge = READ_BYTE();
 		g_inverseControls = READ_BYTE();
 		g_fovOffsetAmplitude = READ_FLOAT();
 		g_fovOffsetChangeFreqency = READ_FLOAT();
@@ -84,6 +85,7 @@ void GameplayMods::SendToClient() {
 		WRITE_BYTE( infiniteAmmoClip );
 		WRITE_BYTE( shootUnderwater );
 		WRITE_BYTE( holdingTwinWeapons );
+		WRITE_BYTE( gaussFastCharge );
 		WRITE_BYTE( inverseControls );
 		WRITE_FLOAT( fovOffsetAmplitude );
 		WRITE_FLOAT( fovOffsetChangeFreqency );
