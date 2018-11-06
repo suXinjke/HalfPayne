@@ -34,8 +34,15 @@ int AimEntity_OnAimNew( const char *pszName, int iSize, void *pbuf ) {
 	entityTarget = READ_STRING();
 	entityTargetName = READ_STRING();
 	entityModelIndex = READ_SHORT();
-	entityMins = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	entityMaxs = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
+
+	entityMins.x = READ_COORD();
+	entityMins.y = READ_COORD();
+	entityMins.z = READ_COORD();
+
+	entityMaxs.x = READ_COORD();
+	entityMaxs.y = READ_COORD();
+	entityMaxs.z = READ_COORD();
+
 	entitySpawnFlags = READ_BYTE();
 
 	return 1;
@@ -44,9 +51,18 @@ int AimEntity_OnAimNew( const char *pszName, int iSize, void *pbuf ) {
 int AimEntity_OnAimUpd( const char *pszName, int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 
-	entityPos = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	entityAngle = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	entityVelocity = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
+	entityPos.x = READ_COORD();
+	entityPos.y = READ_COORD();
+	entityPos.z = READ_COORD();
+
+	entityAngle.x = READ_COORD();
+	entityAngle.y = READ_COORD();
+	entityAngle.z = READ_COORD();
+
+	entityVelocity.x = READ_COORD();
+	entityVelocity.y = READ_COORD();
+	entityVelocity.z = READ_COORD();
+
 	entityHealth = READ_FLOAT();
 	entityHealthMax = READ_FLOAT();
 	entityFlags = READ_BYTE();

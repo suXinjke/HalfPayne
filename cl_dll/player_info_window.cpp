@@ -41,11 +41,25 @@ void PlayerInfoWindow_DrawFourColumnRowRightAligned( const char *name, const Vec
 int PlayerInfoWindow_OnPlyUpd( const char *pszName, int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 
-	playerViewHitPos = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	playerOrigin = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	playerViewOffset = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	playerViewAngles = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
-	playerVelocity = Vector( READ_COORD(), READ_COORD(), READ_COORD() );
+	playerViewHitPos.x = READ_COORD();
+	playerViewHitPos.y = READ_COORD();
+	playerViewHitPos.z = READ_COORD();
+
+	playerOrigin.x = READ_COORD();
+	playerOrigin.y = READ_COORD();
+	playerOrigin.z = READ_COORD();
+
+	playerViewOffset.x = READ_COORD();
+	playerViewOffset.y = READ_COORD();
+	playerViewOffset.z = READ_COORD();
+
+	playerViewAngles.x = READ_COORD();
+	playerViewAngles.y = READ_COORD();
+	playerViewAngles.z = READ_COORD();
+
+	playerVelocity.x = READ_COORD();
+	playerVelocity.y = READ_COORD();
+	playerVelocity.z = READ_COORD();
 
 	return 1;
 }
