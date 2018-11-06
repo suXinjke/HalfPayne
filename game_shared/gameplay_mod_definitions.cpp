@@ -456,6 +456,12 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		} )
 	},
 
+	{ GAMEPLAY_MOD_KEROTAN_DETECTOR, GameplayMod( "kerotan_detector", "Kerotan detector" )
+		.Description( "Kerotan frogs will call out to you when you get near them." )
+		.Toggles( &gameplayMods.kerotanDetector )
+		.CannotBeActivatedRandomly()
+	},
+
 	{ GAMEPLAY_MOD_INVERSE_CONTROLS, GameplayMod( "inverse_controls", "Inverse controls" )
 		.Description( "Movement and view controls become inversed." )
 		.Toggles( &gameplayMods.inverseControls )

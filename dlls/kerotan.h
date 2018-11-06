@@ -20,6 +20,8 @@ public:
 	float			rollAmplitude;
 	int				rollDirection;
 
+	float			nextCallout;
+
 	void EXPORT		OnThink ();
 
 	static TYPEDESCRIPTION m_SaveData[];

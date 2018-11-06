@@ -16,6 +16,7 @@ TYPEDESCRIPTION	CKerotan::m_SaveData[] = {
 	DEFINE_FIELD( CKerotan, rotationDirection, FIELD_INTEGER ),
 	DEFINE_FIELD( CKerotan, rollAmplitude, FIELD_FLOAT ),
 	DEFINE_FIELD( CKerotan, rollDirection, FIELD_INTEGER ),
+	DEFINE_FIELD( CKerotan, nextCallout, FIELD_TIME ),
 };
 
 
@@ -33,6 +34,7 @@ void CKerotan::Spawn( void ) {
 	rotationDirection = 0;
 	rollAmplitude = 0.0f;
 	rollDirection = 0;
+	nextCallout = gpGlobals->time + 1.0f;
 
 	pev->movetype = MOVETYPE_NONE;
 	pev->solid = SOLID_SLIDEBOX;
@@ -135,6 +137,14 @@ void CKerotan::OnThink () {
 	rollAmplitude -= 0.5f;
 	if ( rollAmplitude < 0.0f ) {
 		rollAmplitude = 0.0f;
+	}
+
+	if ( gpGlobals->time > nextCallout && !hasBeenFound ) {
+		if ( gameplayMods.kerotanDetector ) {
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_STATIC, "var/kerotan_alert.wav", 1.0, ATTN_IDLE, 0, 100 );
+		}
+
+		nextCallout = gpGlobals->time + 1.0f;
 	}
 
 	pev->nextthink = gpGlobals->time + 0.01f;

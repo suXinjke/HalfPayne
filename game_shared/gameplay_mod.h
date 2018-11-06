@@ -68,6 +68,7 @@ enum GAMEPLAY_MOD {
 	GAMEPLAY_MOD_INITIAL_CLIP_AMMO,
 	GAMEPLAY_MOD_INSTAGIB,
 	GAMEPLAY_MOD_INVERSE_CONTROLS,
+	GAMEPLAY_MOD_KEROTAN_DETECTOR,
 	GAMEPLAY_MOD_NO_FALL_DAMAGE,
 	GAMEPLAY_MOD_NO_HEALING,
 	GAMEPLAY_MOD_NO_JUMPING,
@@ -334,6 +335,8 @@ public:
 	FieldBool( instaGib, FALSE );
 	
 	FieldBool( inverseControls, FALSE );
+
+	FieldBool( kerotanDetector, FALSE );
 
 	FieldBool( noFallDamage, FALSE );
 	FieldBool( noJumping, FALSE );
