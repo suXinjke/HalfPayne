@@ -425,22 +425,26 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	}
 
 	if ( gameplayMods.randomGameplayMods ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgRandModLen, NULL, pPlayer->pev );
-			WRITE_SHORT( gameplayMods.timedGameplayMods.size() );
-		MESSAGE_END();
 
-		int index = 0;
 
-		for ( const auto &timedMod : gameplayMods.timedGameplayMods ) {
-
-			MESSAGE_BEGIN( MSG_ONE, gmsgRandModVal, NULL, pPlayer->pev );
-				WRITE_SHORT( index );
-				WRITE_FLOAT( gameplayMods.timeForRandomGameplayMod );
-				WRITE_FLOAT( timedMod.second );
-				WRITE_STRING( timedMod.first.name.c_str() );
+		if ( gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgRandModLen, NULL, pPlayer->pev );
+				WRITE_SHORT( gameplayMods.timedGameplayMods.size() );
 			MESSAGE_END();
 
-			index++;
+			int index = 0;
+
+			for ( const auto &timedMod : gameplayMods.timedGameplayMods ) {
+
+				MESSAGE_BEGIN( MSG_ONE, gmsgRandModVal, NULL, pPlayer->pev );
+					WRITE_SHORT( index );
+					WRITE_FLOAT( gameplayMods.timeForRandomGameplayMod );
+					WRITE_FLOAT( timedMod.second );
+					WRITE_STRING( timedMod.first.name.c_str() );
+				MESSAGE_END();
+
+				index++;
+			}
 		}
 
 		if ( pPlayer->pev->deadflag == DEAD_NO ) {
@@ -482,15 +486,19 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			auto eventResults = randomGameplayMod.Init( pPlayer );
 
 			if ( randomGameplayMod.isEvent ) {
-				MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
-					WRITE_STRING( eventResults.first.c_str() );
-					WRITE_STRING( eventResults.second.c_str() );
-				MESSAGE_END();
+				if ( gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
+					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
+						WRITE_STRING( eventResults.first.c_str() );
+						WRITE_STRING( eventResults.second.c_str() );
+					MESSAGE_END();
+				}
 			} else {
 				gameplayMods.timedGameplayMods.push_back( { randomGameplayMod, gameplayMods.timeForRandomGameplayMod } );
-				MESSAGE_BEGIN( MSG_ONE, gmsgCLabelGMod, NULL, pPlayer->pev );
-					WRITE_STRING( randomGameplayMod.id.c_str() );
-				MESSAGE_END();
+				if ( gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
+					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelGMod, NULL, pPlayer->pev );
+						WRITE_STRING( randomGameplayMod.id.c_str() );
+					MESSAGE_END();
+				}
 			}
 		
 			gameplayMods.proposedGameplayMods.clear();
