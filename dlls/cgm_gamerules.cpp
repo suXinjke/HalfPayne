@@ -1193,8 +1193,10 @@ void CCustomGameModeRules::OnChangeLevel() {
 			CBaseEntity *pEntity = NULL;
 			while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, Vector( 0, 0, 0 ), 8192 ) ) != NULL ) {
 				if ( CKerotan *kerotan = dynamic_cast<CKerotan *>( pEntity ) ) {
-					SendGameLogMessage( pPlayer, fmt::sprintf( "%s: %s", STRING( gpGlobals->mapname ), kerotan->hasBeenFound ? "Kerotan has been found" : "Kerotan not found" ) );
-					break;
+					if ( FStrEq( STRING( kerotan->mapName ), STRING( gpGlobals->mapname ) ) ) {
+						SendGameLogMessage( pPlayer, fmt::sprintf( "%s: %s", STRING( gpGlobals->mapname ), kerotan->hasBeenFound ? "Kerotan has been found" : "Kerotan not found" ) );
+						break;
+					}
 				}
 			}
 		} } );

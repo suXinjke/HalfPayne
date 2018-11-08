@@ -22,6 +22,8 @@ public:
 
 	float			nextCallout;
 
+	string_t		mapName;
+
 	void EXPORT		OnThink ();
 
 	static TYPEDESCRIPTION m_SaveData[];

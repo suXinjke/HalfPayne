@@ -17,6 +17,7 @@ TYPEDESCRIPTION	CKerotan::m_SaveData[] = {
 	DEFINE_FIELD( CKerotan, rollAmplitude, FIELD_FLOAT ),
 	DEFINE_FIELD( CKerotan, rollDirection, FIELD_INTEGER ),
 	DEFINE_FIELD( CKerotan, nextCallout, FIELD_TIME ),
+	DEFINE_FIELD( CKerotan, mapName, FIELD_STRING )
 };
 
 
@@ -35,6 +36,7 @@ void CKerotan::Spawn( void ) {
 	rollAmplitude = 0.0f;
 	rollDirection = 0;
 	nextCallout = gpGlobals->time + 1.0f;
+	mapName = gpGlobals->mapname;
 
 	pev->movetype = MOVETYPE_NONE;
 	pev->solid = SOLID_SLIDEBOX;
