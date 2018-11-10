@@ -38,7 +38,7 @@ void CKerotan::Spawn( void ) {
 	nextCallout = gpGlobals->time + 1.0f;
 	mapName = gpGlobals->mapname;
 
-	pev->movetype = MOVETYPE_NONE;
+	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_SLIDEBOX;
 	pev->takedamage = DAMAGE_YES;
 
