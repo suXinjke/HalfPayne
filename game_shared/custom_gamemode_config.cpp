@@ -1055,6 +1055,16 @@ EndCondition::EndCondition( const std::vector<Argument>& args ) : Hookable( args
 	objective = args.at( 3 ).string;
 }
 
+std::string EndCondition::GetHash() {
+	std::ostringstream result;
+
+	result << map << modelIndex << targetName << constant << objective << activationsRequired;
+
+	auto sha1 = SHA1::SHA1();
+	sha1.update( result.str() );
+	return sha1.final();
+}
+
 const std::string CustomGameModeConfig::ConfigSection::OnSectionData( const std::string &configName, const std::string &line, int lineCount, CONFIG_TYPE configType ) {
 
 	auto args = aux::str::getCommandLineArguments( line );

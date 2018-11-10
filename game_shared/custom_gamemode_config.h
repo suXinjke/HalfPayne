@@ -188,6 +188,8 @@ struct EndCondition : Hookable {
 	std::string objective;
 
 	EndCondition( const std::vector<Argument> &args );
+
+	std::string GetHash();
 };
 
 struct StartPosition {

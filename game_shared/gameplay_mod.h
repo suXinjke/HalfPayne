@@ -435,6 +435,9 @@ public:
 	FieldInt( projectileKills, 0 );
 	FieldFloat( secondsInSlowmotion, 0.0f );
 
+	char endConditionsHashes[64][128];
+	int endConditionsActivationCounts[64];
+
 	void Init();
 
 #ifndef CLIENT_DLL

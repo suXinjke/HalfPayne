@@ -48,6 +48,14 @@ extern int g_autoSaved;
 int GameplayMods::Save( CSave &save ) {
 	AddArrayFieldDefinitions();
 
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		for ( int i = 0; i < min( cgm->config.endConditions.size(), ( size_t ) 64 ); i++ ) {
+			auto &endCondition = cgm->config.endConditions.at( i );
+			sprintf( gameplayMods.endConditionsHashes[i], "%s", endCondition.GetHash().c_str() );
+			endConditionsActivationCounts[i] = endCondition.activations;
+		}
+	}
+
 	BOOL previousNoSavingValue = gameplayMods.noSaving;
 	if ( gameplayMods.autosavesOnly && g_autoSaved ) {
 		gameplayMods.noSaving = FALSE;
@@ -107,6 +115,17 @@ void GameplayMods::AddArrayFieldDefinitions() {
 		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfig, FIELD_CHARACTER, 256 ) );
 		fields.push_back( DEFINE_ARRAY( GameplayMods, activeGameModeConfigHash, FIELD_CHARACTER, 128 ) );
 		fields.push_back( DEFINE_ARRAY( GameplayMods, teleportOnKillWeapon, FIELD_CHARACTER, 64 ) );
+
+		fields.push_back( DEFINE_ARRAY( GameplayMods, endConditionsActivationCounts, FIELD_INTEGER, 64 ) );
+		for ( int i = 0; i < 64; i++ ) {
+			fields.push_back( {
+				FIELD_CHARACTER,
+				"stuffToWrite",
+				( int ) offsetof( GameplayMods, endConditionsHashes[i] ),
+				128,
+				0
+			} );
+		}
 
 		addedAdditionalFields = true;
 	}

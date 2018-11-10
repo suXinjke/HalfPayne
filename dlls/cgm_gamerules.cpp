@@ -150,6 +150,13 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	if ( config.record.time == DEFAULT_TIME ) {
 		config.record.time = 0.0f;
 	}
+
+	for ( size_t i = 0; i < min( config.endConditions.size(), ( size_t ) 64 ); i++ ) {
+		auto &endCondition = config.endConditions.at( i );
+		if ( FStrEq( gameplayMods.endConditionsHashes[i], endCondition.GetHash().c_str() ) ) {
+			endCondition.activations = gameplayMods.endConditionsActivationCounts[i];
+		}
+	}
 }
 
 void CCustomGameModeRules::RestartGame() {
@@ -277,10 +284,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 	if ( config.musicPlaylist.size() > 0 ) {
 		gameplayMods.noMapMusic = TRUE;
-	}
-
-	if ( config.hasEndMarkers || !config.endConditions.empty() ) {
-		gameplayMods.noSaving = TRUE;
 	}
 
 	sprintf_s( gameplayMods.activeGameModeConfigHash, config.sha1.c_str() );
