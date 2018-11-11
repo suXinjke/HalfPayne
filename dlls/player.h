@@ -16,6 +16,8 @@
 #define PLAYER_H
 
 #include <string>
+#include <utility>
+#include <vector>
 #include "pm_materials.h"
 #include <SDL2/SDL_timer.h>
 
@@ -360,8 +362,13 @@ public:
 
 	int hookedModelIndexes[MAX_HOOKED_MODEL_INDEXES];
 	int hookedModelIndexesCount;
+	string_t hookedMapsWithKerotans[128];
+	int hookedMapsWithKerotansCount;
 	void RememberHookedModelIndex( string_t string );
 	bool ModelIndexHasBeenHooked( const char *modelIndexKey );
+	void RememberKerotanOnCurrentMap();
+	int GetAmountOfKerotansInCurrentChapter();
+	std::pair<std::string, std::vector<std::string>> GetCurrentChapterMapNames();
 
 	int soundQueueSoundNames[MAX_SOUND_QUEUE];
 	float soundQueueSoundDelays[MAX_SOUND_QUEUE];

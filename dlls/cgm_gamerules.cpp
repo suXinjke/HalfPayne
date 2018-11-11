@@ -397,7 +397,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	int conditionsHeight = 0;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgCountLen, NULL, pPlayer->pev );
-		WRITE_SHORT( config.endConditions.size() );
+		WRITE_SHORT( config.endConditions.size() + ( gameplayMods.kerotanDetector ? 1 : 0 ) );
 	MESSAGE_END();
 
 	for ( size_t i = 0 ; i < config.endConditions.size() ; i++ ) {
@@ -411,6 +411,19 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		MESSAGE_END();
 
 		conditionsHeight += condition.activationsRequired > 1 ? SPACING : SPACING - 34;
+	}
+	
+	if ( gameplayMods.kerotanDetector ) {
+		auto chapterMaps = pPlayer->GetCurrentChapterMapNames();
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
+			WRITE_SHORT( config.endConditions.size() );
+			WRITE_LONG( pPlayer->GetAmountOfKerotansInCurrentChapter() );
+			WRITE_LONG( chapterMaps.second.size() );
+			WRITE_STRING( chapterMaps.first.c_str() );
+		MESSAGE_END();
+
+		conditionsHeight += SPACING;
 	}
 	
 	MESSAGE_BEGIN( MSG_ONE, gmsgCountOffse, NULL, pPlayer->pev );

@@ -163,6 +163,10 @@ void CHalfLifeRules::HookModelIndex( CBaseEntity *activator, int modelIndex, con
 	bool firstTime = !pPlayer->ModelIndexHasBeenHooked( key.c_str() );
 	if ( firstTime ) {
 		pPlayer->RememberHookedModelIndex( ALLOC_STRING( key.c_str() ) ); // sorry for memory leak
+
+		if ( targetName == "kerotan_found" ) {
+			pPlayer->RememberKerotanOnCurrentMap();
+		}
 	}
 
 	OnHookedModelIndex( pPlayer, activator, modelIndex, className, targetName, firstTime );

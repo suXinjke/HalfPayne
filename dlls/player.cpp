@@ -144,6 +144,9 @@ TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 	DEFINE_ARRAY( CBasePlayer, hookedModelIndexes, FIELD_STRING, MAX_HOOKED_MODEL_INDEXES ),
 	DEFINE_FIELD( CBasePlayer, hookedModelIndexesCount, FIELD_INTEGER ),
 
+	DEFINE_ARRAY( CBasePlayer, hookedMapsWithKerotans, FIELD_STRING, 128 ),
+	DEFINE_FIELD( CBasePlayer, hookedMapsWithKerotansCount, FIELD_INTEGER ),
+
 	DEFINE_ARRAY( CBasePlayer, soundQueueSoundNames, FIELD_STRING, MAX_SOUND_QUEUE ),
 	DEFINE_ARRAY( CBasePlayer, soundQueueSoundDelays, FIELD_FLOAT, MAX_SOUND_QUEUE ),
 	DEFINE_ARRAY( CBasePlayer, soundQueueIsMaxPayneCommentarySound, FIELD_BOOLEAN, MAX_SOUND_QUEUE ),
@@ -3794,6 +3797,7 @@ void CBasePlayer::Spawn( void )
 		hookedModelIndexes[i] = 0;
 	}
 	hookedModelIndexesCount = 0;
+	hookedMapsWithKerotansCount = 0;
 
 	ClearSoundQueue();
 
@@ -4141,6 +4145,73 @@ void CBasePlayer::RememberHookedModelIndex( string_t string )
 
 	hookedModelIndexes[hookedModelIndexesCount] = string;
 	hookedModelIndexesCount++;
+}
+
+void CBasePlayer::RememberKerotanOnCurrentMap() {
+	if ( hookedMapsWithKerotansCount + 1 == 128 ) {
+		hookedMapsWithKerotansCount = 0;
+	}
+
+	hookedMapsWithKerotans[hookedMapsWithKerotansCount] = gpGlobals->mapname;
+	hookedMapsWithKerotansCount++;
+}
+
+static std::map<std::string, std::vector<std::string>> chapterMaps = {
+	{ "BLACK MESA INBOUND", { "c0a0", "c0a0a", "c0a0b", "c0a0c", "c0a0d", "c0a0e" } },
+	{ "ANOMALOUS MATERIALS", { "c1a0", "c1a0a", "c1a0b", "c1a0e" } },
+	{ "UNFORESEEN CONSEQUENCES", { "c1a0c", "c1a1", "c1a1a", "c1a1b", "c1a1c", "c1a1d", "c1a1f" } },
+	{ "OFFICE COMPLEX", { "c1a2", "c1a2a", "c1a2b", "c1a2c", "c1a2d" } },
+	{ "WE'VE GOT HOSITLES", { "c1a3", "c1a3a", "c1a3b", "c1a3c", "c1a3d" } },
+	{ "BLAST PIT", { "c1a4", "c1a4b", "c1a4d", "c1a4e", "c1a4f", "c1a4g", "c1a4i", "c1a4j", "c1a4k" } },
+	{ "POWER UP", { "c2a1", "c2a1a", "c2a1b" } },
+	{ "ON A RAIL", { "c2a2", "c2a2a", "c2a2b1", "c2a2b2", "c2a2c", "c2a2d", "c2a2e", "c2a2f", "c2a2g", "c2a2h" } },
+	{ "APPREHENSION", { "c2a3", "c2a3a", "c2a3b", "c2a3c", "c2a3d", "c2a3e" } },
+	{ "RESIDUE PROCESSING", { "c2a4", "c2a4a", "c2a4b", "c2a4c" } },
+	{ "QUESTIONABLE ETHICS", { "c2a4d", "c2a4e", "c2a4f", "c2a4g" } },
+	{ "SURFACE TENSION", { "c2a5", "c2a5a", "c2a5b", "c2a5c", "c2a5d", "c2a5e", "c2a5f", "c2a5g", "c2a5w", "c2a5x" } },
+	{ "FORGET ABOUT FREEMAN", { "c3a1", "c3a1a", "c3a1b" } },
+	{ "LAMBDA CORE", { "c3a2e", "c3a2", "c3a2a", "c3a2b", "c3a2c", "c3a2d", "c3a2f" } },
+	{ "XEN", { "c4a1" } },
+	{ "GONARCH'S LAIR", { "c4a2", "c4a2a", "c4a2b" } },
+	{ "INTERLOPER", { "c4a1a", "c4a1b", "c4a1c", "c4a1d", "c4a1e", "c4a1f" } },
+	{ "NIHILANTH", { "c4a3" } },
+	{ "FINALE", { "c5a1" } },
+};
+
+int CBasePlayer::GetAmountOfKerotansInCurrentChapter() {
+	
+	int result = 0;
+
+	for ( auto &pair : chapterMaps ) {
+		if ( result > 0 ) {
+			break;
+		}
+
+		for ( auto &map : pair.second ) {
+			if ( FStrEq( map.c_str(), STRING( gpGlobals->mapname ) ) ) {
+				for ( int i = 0; i < 128; i++ ) {
+					if ( aux::ctr::includes( pair.second, STRING( hookedMapsWithKerotans[i] ) ) ) {
+						result++;
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+std::pair<std::string, std::vector<std::string>> CBasePlayer::GetCurrentChapterMapNames() {
+	for ( auto &pair : chapterMaps ) {
+
+		for ( auto &map : pair.second ) {
+			if ( FStrEq( map.c_str(), STRING( gpGlobals->mapname ) ) ) {
+				return pair;
+			}
+		}
+	}
+	return { "", { } };
 }
 
 bool CBasePlayer::ModelIndexHasBeenHooked( const char *modelIndexKey )
