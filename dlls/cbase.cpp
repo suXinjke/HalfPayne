@@ -440,10 +440,6 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 		g_pGameRules = new CHalfLifeRules;
 	}
 
-	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-		singlePlayerRules->Precache();
-	}
-
 	return 0;
 }
 

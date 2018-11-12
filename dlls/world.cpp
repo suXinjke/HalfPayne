@@ -696,6 +696,7 @@ void CWorld :: Precache( void )
 
 	if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		singlePlayerRules->OnChangeLevel();
+		singlePlayerRules->Precache();
 	}
 }
 
