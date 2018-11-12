@@ -305,6 +305,10 @@
     <ClInclude Include="..\..\twitch\libirc_options.h" />
     <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h" />
     <ClInclude Include="..\..\twitch\twitch.h" />
+    <ClInclude Include="..\..\utf8\checked.h" />
+    <ClInclude Include="..\..\utf8\core.h" />
+    <ClInclude Include="..\..\utf8\unchecked.h" />
+    <ClInclude Include="..\..\utf8\utf8.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

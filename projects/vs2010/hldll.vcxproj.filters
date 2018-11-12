@@ -191,5 +191,9 @@
     <ClInclude Include="..\..\twitch\twitch.h" />
     <ClInclude Include="..\..\game_shared\cpp_aux.h" />
     <ClInclude Include="..\..\game_shared\fs_aux.h" />
+    <ClInclude Include="..\..\utf8\checked.h" />
+    <ClInclude Include="..\..\utf8\core.h" />
+    <ClInclude Include="..\..\utf8\unchecked.h" />
+    <ClInclude Include="..\..\utf8\utf8.h" />
   </ItemGroup>
 </Project>
