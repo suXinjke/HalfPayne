@@ -172,7 +172,8 @@ int CHudHealth::Draw(float flTime)
 
 	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
 		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )
-		|| gEngfuncs.IsSpectateOnly() ) {
+		|| gEngfuncs.IsSpectateOnly()
+		|| std::string( gEngfuncs.pfnGetLevelName() ) == "maps/nightmare.bsp" ) {
 	
 		return 1;
 	}

@@ -235,30 +235,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		mod.Init( pPlayer );
 	}
 
-	pPlayer->SetEvilImpulse101( true );
-	for ( const auto &item : config.loadout ) {
-
-		for ( int i = 0 ; i < item.amount ; i++ ) {
-			if ( item.name == "all" ) {
-				pPlayer->GiveAll( true );
-				pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
-			} else {
-				if ( item.name == "item_healthkit" ) {
-					pPlayer->TakePainkiller();
-				} else if ( item.name == "item_suit" ) {
-					pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
-				} else if ( item.name == "item_longjump" ) {
-					pPlayer->m_fLongJump = TRUE;
-					g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict( ), "slj", "1" );
-				} else {
-					pPlayer->GiveNamedItem( allowedItems[CustomGameModeConfig::GetAllowedItemIndex( item.name.c_str( ) )], true );
-				}
-			}
-		}
-	}
-	pPlayer->SetEvilImpulse101( false );
-	pPlayer->loadoutReceived = true;
-
 	if (
 		config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ||
 		config.IsGameplayModActive( GAMEPLAY_MOD_NO_SLOWMOTION )

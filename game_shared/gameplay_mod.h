@@ -305,7 +305,7 @@ public:
 	FieldInt( drunkiness, 0 );
 
 	FieldFloat( fovOffsetAmplitude, 0.0f );
-	FieldFloat( fovOffsetChangeFreqency, 0.0f );
+	FieldFloat( fovOffsetChangeFreqency, 1.0f );
 
 	FieldBool( gaussFastCharge, FALSE );
 	FieldBool( gaussJumping, FALSE );

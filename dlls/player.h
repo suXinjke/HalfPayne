@@ -133,10 +133,6 @@ public:
 
 	BOOL				currentMusicPlaylistIndex;
 
-	bool				upsideDownMessageSent;
-
-	bool				drunkMessageSent;
-
 	int					m_afButtonLast;
 	int					m_afButtonPressed;
 	int					m_afButtonReleased;

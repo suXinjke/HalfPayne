@@ -877,18 +877,7 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 
 	{ GAMEPLAY_MOD_UPSIDE_DOWN, GameplayMod( "upside_down", "Upside down" )
 		.Description( "View becomes turned on upside down." )
-		.OnInit( []( CBasePlayer *player, const std::vector<Argument> &args ) {
-#ifndef CLIENT_DLL
-			player->upsideDownMessageSent = false;
-#endif
-			gameplayMods.upsideDown = TRUE;
-		} )
-		.OnDeactivation( []( CBasePlayer *player ) {
-#ifndef CLIENT_DLL
-			player->upsideDownMessageSent = false;
-#endif
-			gameplayMods.upsideDown = FALSE;
-		} )
+		.Toggles( &gameplayMods.upsideDown )
 	},
 
 	{ GAMEPLAY_MOD_TELEPORT_MAINTAIN_VELOCITY, GameplayMod( "teleport_maintain_velocity", "Teleport maintain velocity" )

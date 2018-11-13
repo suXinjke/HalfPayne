@@ -84,6 +84,9 @@ void GameplayMods::SendToClient() {
 		return;
 	}
 
+	BOOL onNightmareMap = FStrEq( STRING( gpGlobals->mapname ), "nightmare" );
+	float fovOffsetAmplitude = onNightmareMap && this->fovOffsetAmplitude == 0.0f ? 5.0f : this->fovOffsetAmplitude;
+
 	MESSAGE_BEGIN( MSG_ALL, gmsgGmplayMod );
 		WRITE_BYTE( automaticShotgun );
 		WRITE_BYTE( instaGib );

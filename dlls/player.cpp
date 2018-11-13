@@ -1504,7 +1504,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 
 	DeathSound();
 
-	if ( ( pev->health < -40 && iGib != GIB_NEVER ) || iGib == GIB_ALWAYS )
+	if ( ( pev->health < -40 && iGib != GIB_NEVER && !FStrEq( STRING( gpGlobals->mapname ), "nightmare" ) ) || iGib == GIB_ALWAYS )
 	{
 		pev->solid			= SOLID_NOT;
 		GibMonster();	// This clears pev->model
@@ -2218,7 +2218,6 @@ void CBasePlayer::Jump()
 		if ( std::string( texture ) != "sky" ) {
 			gameplayMods.reverseGravity = !gameplayMods.reverseGravity;
 			gameplayMods.upsideDown = !gameplayMods.upsideDown;
-			upsideDownMessageSent = false;
 			pev->gravity *= -1.0f;
 
 			return;
@@ -3925,10 +3924,6 @@ void CBasePlayer::Spawn( void )
 	lastDamageTime = 0.0f;
 	healthChargeTime = 1.0f;
 
-	upsideDownMessageSent = false;
-	
-	drunkMessageSent = false;
-
 	lastHealingTime = 0.0f;
 	bleedTime = 0.0f;
 
@@ -4388,9 +4383,6 @@ int CBasePlayer::Restore( CRestore &restore )
 	latestMaxCommentaryTime = 0.0f;
 	latestMaxCommentaryIsImportant = false;
 
-	upsideDownMessageSent = false;
-	drunkMessageSent = false;
-
 	postRestoreDelay = gpGlobals->time + 0.01f;
 
 	return status;
@@ -4805,7 +4797,7 @@ bool CBasePlayer::ActivateSlowMotion()
 
 bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 {
-	if ( !slowMotionEnabled || gameplayMods.slowmotionConstant ) {
+	if ( !slowMotionEnabled || gameplayMods.slowmotionConstant || FStrEq( STRING( gpGlobals->mapname ), "nightmare" ) ) {
 		return false;
 	}
 
@@ -5780,19 +5772,15 @@ void CBasePlayer :: UpdateClientData( void )
 		}	
 	}
 
-	if ( !upsideDownMessageSent ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgUpsideDown, NULL, pev );
-			WRITE_BYTE( gameplayMods.upsideDown );
-		MESSAGE_END();
+	MESSAGE_BEGIN( MSG_ONE, gmsgUpsideDown, NULL, pev );
+		WRITE_BYTE( gameplayMods.upsideDown );
+	MESSAGE_END();
 
-		upsideDownMessageSent = true;
-	}
-
-	if ( !drunkMessageSent ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgConcuss, NULL, pev );
-			WRITE_BYTE( gameplayMods.drunkiness );
-		MESSAGE_END();
-	}
+	BOOL onNightmareMap = FStrEq( STRING( gpGlobals->mapname ), "nightmare" );
+	float drunkiness = onNightmareMap && gameplayMods.drunkiness == 0.0f ? 15.0f : gameplayMods.drunkiness;
+	MESSAGE_BEGIN( MSG_ONE, gmsgConcuss, NULL, pev );
+		WRITE_BYTE( drunkiness );
+	MESSAGE_END();
 
 	if ( CVAR_GET_FLOAT( "print_player_info" ) >= 1.0f ) {
 		TraceResult tr;
@@ -5850,7 +5838,7 @@ void CBasePlayer :: UpdateClientData( void )
 		}
 	}
 	
-	if ( gameplayMods.slowmotionInfinite ) {
+	if ( gameplayMods.slowmotionInfinite || FStrEq( STRING( gpGlobals->mapname ), "nightmare" ) ) {
 		slowMotionCharge = 100;
 	}
 

@@ -1593,6 +1593,15 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	CBasePlayer *player = dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
 	g_latestIntermission.startPos.defined = false;
 
+	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+		for ( const auto &intermission : rules->mapConfig.intermissions ) {
+			if ( intermission.Fits( pev->modelindex, st_szNextMap, st_szNextMap, true ) ) {
+				g_latestIntermission = intermission;
+				break;
+			}
+		}
+	}
+
 	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 		if ( cgm->config.forbiddenLevels.count( st_szNextMap ) ) {
 			return;
@@ -1602,7 +1611,6 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 			cgm->End( player );
 			return;
 		}
-
 		for ( const auto &intermission : cgm->config.intermissions ) {
 			if ( intermission.Fits( pev->modelindex, st_szNextMap, st_szNextMap, true ) ) {
 				g_latestIntermission = intermission;
