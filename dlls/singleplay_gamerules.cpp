@@ -426,32 +426,52 @@ float CHalfLifeRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 	return pPlayer->m_flFallVelocity * DAMAGE_FOR_FALL_SPEED;
 }
 
+void CHalfLifeRules::ApplyStartPositionToEntity( CBaseEntity *entity, const StartPosition &startPosition ) {
+
+	if ( !std::isnan( startPosition.x ) ) {
+		entity->pev->origin.x = startPosition.x;
+		entity->pev->origin.y = std::isnan( startPosition.y ) ? 0 : startPosition.y;
+		entity->pev->origin.z = std::isnan( startPosition.z ) ? 0 : startPosition.z;
+	}
+
+	if ( !std::isnan( startPosition.angle ) ) {
+		entity->pev->angles[1] = startPosition.angle;
+	}
+
+}
+
 //=========================================================
 //=========================================================
 void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 {
 	isSpawning = true;
+
+	for ( auto it = configs.rbegin(); it != configs.rend(); it++ ) {
+		if ( ( *it )->startPosition.defined ) {
+			ApplyStartPositionToEntity( pPlayer, ( *it )->startPosition );
+			break;
+		}
+	}
+
 	HookModelIndex( NULL );
 
 	pPlayer->SetEvilImpulse101( true );
-	for ( auto config : configs ) {
-		for ( const auto &item : config->loadout ) {
+	for ( const auto &item : configs.back()->loadout ) {
 
-			for ( int i = 0; i < item.amount; i++ ) {
-				if ( item.name == "all" ) {
-					pPlayer->GiveAll( true );
-					pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
+		for ( int i = 0; i < item.amount; i++ ) {
+			if ( item.name == "all" ) {
+				pPlayer->GiveAll( true );
+				pPlayer->SetEvilImpulse101( true ); // it was set false by GiveAll
+			} else {
+				if ( item.name == "item_healthkit" ) {
+					pPlayer->TakePainkiller();
+				} else if ( item.name == "item_suit" ) {
+					pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
+				} else if ( item.name == "item_longjump" ) {
+					pPlayer->m_fLongJump = TRUE;
+					g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict(), "slj", "1" );
 				} else {
-					if ( item.name == "item_healthkit" ) {
-						pPlayer->TakePainkiller();
-					} else if ( item.name == "item_suit" ) {
-						pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
-					} else if ( item.name == "item_longjump" ) {
-						pPlayer->m_fLongJump = TRUE;
-						g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict(), "slj", "1" );
-					} else {
-						pPlayer->GiveNamedItem( allowedItems[CustomGameModeConfig::GetAllowedItemIndex( item.name.c_str() )], true );
-					}
+					pPlayer->GiveNamedItem( allowedItems[CustomGameModeConfig::GetAllowedItemIndex( item.name.c_str() )], true );
 				}
 			}
 		}

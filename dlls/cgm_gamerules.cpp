@@ -195,20 +195,6 @@ void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const 
 	MESSAGE_END();
 }
 
-void CCustomGameModeRules::ApplyStartPositionToEntity( CBaseEntity *entity, const StartPosition &startPosition ) {
-
-	if ( !std::isnan( startPosition.x ) ) {
-		entity->pev->origin.x = startPosition.x;
-		entity->pev->origin.y = std::isnan( startPosition.y ) ? 0 : startPosition.y;
-		entity->pev->origin.z = std::isnan( startPosition.z ) ? 0 : startPosition.z;
-	}
-
-	if ( !std::isnan( startPosition.angle ) ) {
-		entity->pev->angles[1] = startPosition.angle;
-	}
-
-}
-
 void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	if ( config.markedForRestart ) {
@@ -240,10 +226,6 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		config.IsGameplayModActive( GAMEPLAY_MOD_NO_SLOWMOTION )
 	) {
 		pPlayer->slowMotionCharge = 0;
-	}
-
-	if ( config.startPosition.defined ) {
-		ApplyStartPositionToEntity( pPlayer, config.startPosition );
 	}
 
 	bool spawningAfterIntermission = false;

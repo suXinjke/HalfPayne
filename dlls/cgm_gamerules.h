@@ -38,8 +38,6 @@ public:
 
 	virtual BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
 
-	virtual void ApplyStartPositionToEntity( CBaseEntity *entity, const StartPosition &startPosition );
-
 	virtual void CheckForCheats( CBasePlayer *pPlayer );
 	virtual void OnCheated( CBasePlayer *pPlayer );
 
