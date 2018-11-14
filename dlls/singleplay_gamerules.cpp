@@ -478,6 +478,21 @@ void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 	}
 	pPlayer->SetEvilImpulse101( false );
 	pPlayer->loadoutReceived = true;
+
+	static std::vector<std::string> xenMaps = {
+		"c4a1a",
+		"c4a1b",
+		"c4a1c",
+		"c4a1d",
+		"c4a1e",
+		"c4a1f",
+		"c4a2",
+		"c4a2a",
+		"c4a2b"
+	};
+	if ( aux::ctr::includes( xenMaps, STRING( gpGlobals->mapname ) ) ) {
+		pPlayer->pev->gravity = 0.6;
+	}
 	isSpawning = false;
 }
 
