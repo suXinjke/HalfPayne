@@ -642,7 +642,7 @@ void CCustomGameModeRules::CalculateScoreForBlackMesaMinute( CBasePlayer *pPlaye
 		timeToAdd = 10;
 		message = "EXPLOSION BONUS";
 	} else if ( killedByCrowbar ) {
-		timeToAdd = 10;
+		timeToAdd = 6;
 		message = "MELEE BONUS";
 	} else if ( isHeadshot ) {
 		timeToAdd = 6;
@@ -746,7 +746,7 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 		additionalMultiplier = 1.0f;
 	} else if ( killedByCrowbar ) {
 		message = "MELEE BONUS";
-		additionalMultiplier = 1.0f;
+		additionalMultiplier = 0.5f;
 	} else if ( isHeadshot ) {
 		message = "HEADSHOT BONUS";
 		additionalMultiplier = 0.5f;
