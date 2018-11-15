@@ -1503,7 +1503,7 @@ void EntityRandomSpawnerController::Think( CBasePlayer *pPlayer ) {
 
 		if (
 			FStrEq( STRING( gpGlobals->mapname ), mapName.c_str() ) ||
-			FStrEq( STRING( gpGlobals->mapname ), "everywhere" )
+			mapName == "everywhere"
 		) {
 			Spawn( pPlayer );
 		}
