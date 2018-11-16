@@ -316,11 +316,25 @@ std::map<GAMEPLAY_MOD, GameplayMod> gameplayModDefs = {
 		.Description( "Gauss charges faster like in multiplayer." )
 		.Toggles( &gameplayMods.gaussFastCharge )
 		.CannotBeActivatedRandomly()
+		.CanOnlyBeActivatedRandomlyWhen( []( CBasePlayer *player ) -> bool {
+#ifndef CLIENT_DLL
+			return player->HasNamedPlayerItem( "weapon_gauss" );
+#else
+			return true;
+#endif
+		} )
 	},	
 	
 	{ GAMEPLAY_MOD_GAUSS_JUMPING, GameplayMod( "gauss_jumping", "Gauss jumping" )
 		.Description( "Allows for easier gauss jumping like in multiplayer." )
 		.Toggles( &gameplayMods.gaussJumping )
+		.CanOnlyBeActivatedRandomlyWhen( []( CBasePlayer *player ) -> bool {
+#ifndef CLIENT_DLL
+			return player->HasNamedPlayerItem( "weapon_gauss" );
+#else
+			return true;
+#endif
+		} )
 	},
 
 	{ GAMEPLAY_MOD_GARBAGE_GIBS, GameplayMod( "garbage_gibs", "Garbage gibs" )
