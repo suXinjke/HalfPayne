@@ -817,8 +817,10 @@ void CHGrunt :: Shoot ( void )
 	EjectBrass ( vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iBrassShell, TE_BOUNCE_SHELL); 
 	Vector spread = VECTOR_CONE_10DEGREES;
 	if ( CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) {
-		if ( gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
-			( player->slowMotionEnabled && gameplayMods.bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ) { 
+		auto bulletPhysicsMode = gameplayMods::bulletPhysics.isActive<BulletPhysicsMode>();
+		if ( bulletPhysicsMode == BulletPhysicsMode::Enabled ||
+			( gameplayMods::IsSlowmotionEnabled() && bulletPhysicsMode != BulletPhysicsMode::Disabled )
+		) { 
 			spread = VECTOR_CONE_3DEGREES;
 		}
 	}

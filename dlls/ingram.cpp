@@ -84,7 +84,7 @@ BOOL CIngram::Deploy( )
 		anim = INGRAM_DRAW_NOSHOT;
 	}
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 
@@ -123,7 +123,7 @@ void CIngram::ItemPostFrame(void) {
 
 		if ( gpGlobals->time > nextStressDecrease ||
 			fabs( nextStressDecrease - gpGlobals->time ) > 0.2f ) { // dumb in case of desync
-			if ( m_pPlayer->slowMotionEnabled ) {
+			if ( gameplayMods::IsSlowmotionEnabled() ) {
 				stress *= 0.6f;
 			} else {
 				stress *= 0.8f;
@@ -142,7 +142,7 @@ void CIngram::ItemPostFrame(void) {
 
 void CIngram::PrimaryAttack( void )
 {
-	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater ) {
+	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive() ) {
 		PlayEmptySound();
 		m_flNextPrimaryAttack = 0.15;
 		return;
@@ -161,7 +161,7 @@ void CIngram::PrimaryAttack( void )
 		return;
 	}
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 
@@ -185,12 +185,12 @@ void CIngram::PrimaryAttack( void )
 	Vector forward = m_pPlayer->GetAimForwardWithOffset();
 
 #ifndef CLIENT_DLL
-	if ( gameplayMods.bulletPhysical ) {
+	if ( gameplayMods::PlayerShouldProducePhysicalBullets() ) {
 
 		float rightOffset = 8;
 
 		vecSrc = vecSrc + forward * 5;
-		if ( gameplayMods.upsideDown ) {
+		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -205,7 +205,7 @@ void CIngram::PrimaryAttack( void )
 
 	// There's not enough room for float type, so it's interpreted as int
 	int stressPacked = *( int * ) &stress;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngram, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, ( m_iClip == 0 ) ? 1 : 0, gameplayMods.bulletPhysical );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngram, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, ( m_iClip == 0 ) ? 1 : 0, gameplayMods::PlayerShouldProducePhysicalBullets() );
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay( delay );
 
@@ -233,7 +233,7 @@ void CIngram::Reload( void )
 	}
 
 	int anim = m_iClip == 0 ? INGRAM_RELOAD : INGRAM_RELOAD_NOT_EMPTY;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 

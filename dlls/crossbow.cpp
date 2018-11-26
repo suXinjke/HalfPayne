@@ -47,17 +47,17 @@ class CCrossbowBolt : public CBaseEntity
 	int activateTrail;
 
 public:
-	static CCrossbowBolt *BoltCreate( BOOL trailActive );
+	static CCrossbowBolt *BoltCreate();
 };
 LINK_ENTITY_TO_CLASS( crossbow_bolt, CCrossbowBolt );
 
-CCrossbowBolt *CCrossbowBolt::BoltCreate( BOOL trailActive )
+CCrossbowBolt *CCrossbowBolt::BoltCreate()
 {
 	// Create a new entity with CCrossbowBolt private data
 	CCrossbowBolt *pBolt = GetClassPtr( (CCrossbowBolt *)NULL );
 	pBolt->pev->classname = MAKE_STRING("bolt");
 	pBolt->Spawn();
-	pBolt->activateTrail = trailActive;
+	pBolt->activateTrail = gameplayMods::bulletTrail.isActive();
 
 	return pBolt;
 }
@@ -167,7 +167,7 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		}
 	}
 
-	if ( gameplayMods.crossbowExplosiveBolts || g_pGameRules->IsMultiplayer() ) {
+	if ( gameplayMods::crossbowExplosiveBolts.isActive() || g_pGameRules->IsMultiplayer() ) {
 		SetThink( &CCrossbowBolt::ExplodeThink );
 		pev->nextthink = gpGlobals->time + 0.1;
 	}
@@ -361,7 +361,7 @@ void CCrossbow::FireSniperBolt()
 	TraceResult tr;
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 
@@ -406,7 +406,7 @@ void CCrossbow::FireBolt()
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 
@@ -430,7 +430,7 @@ void CCrossbow::FireBolt()
 	Vector vecDir	 = m_pPlayer->GetAimForwardWithOffset();
 
 	float rightOffset = 4;
-	if ( gameplayMods.upsideDown ) {
+	if ( gameplayMods::upsideDown.isActive() ) {
 		rightOffset *= -1;
 		vecSrc = vecSrc + Vector( 0, 0, 12 );
 	}
@@ -438,7 +438,7 @@ void CCrossbow::FireBolt()
 	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 
 #ifndef CLIENT_DLL
-	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate( m_pPlayer->slowMotionEnabled || gameplayMods.bulletTrailConstant );
+	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate();
 	pBolt->pev->origin = vecSrc;
 	pBolt->pev->angles = anglesAim;
 	pBolt->pev->owner = m_pPlayer->edict();
@@ -455,7 +455,7 @@ void CCrossbow::FireBolt()
 	}
 	pBolt->pev->avelocity.z = 10;
 
-	if ( gameplayMods.bulletDelayOnSlowmotion && m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() && gameplayMods::bulletDelayOnSlowmotion.isActive() ) {
 		pBolt->pev->velocity = vecDir * 40;
 	}
 #endif
@@ -477,7 +477,7 @@ void CCrossbow::FireBolt()
 
 void CCrossbow::SecondaryAttack()
 {
-	if ( gameplayMods.noSecondaryAttack ) {
+	if ( gameplayMods::noSecondaryAttack.isActive() ) {
 		return;
 	}
 
@@ -508,7 +508,7 @@ void CCrossbow::Reload( void )
 	}
 
 	float reloadTime = 4.5f;
-	if ( DefaultReload( 5, m_pPlayer->slowMotionEnabled ? CROSSBOW_RELOAD_FAST : CROSSBOW_RELOAD, reloadTime, 0, reloadTime / 2.0f ) )
+	if ( DefaultReload( 5, gameplayMods::IsSlowmotionEnabled() ? CROSSBOW_RELOAD_FAST : CROSSBOW_RELOAD, reloadTime, 0, reloadTime / 2.0f ) )
 	{
 		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/xbow_reload1.wav", RANDOM_FLOAT(0.95, 1.0), ATTN_NORM, 0, 93 + RANDOM_LONG(0,0xF));
 	}

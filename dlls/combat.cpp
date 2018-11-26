@@ -58,11 +58,11 @@ void CGib :: LimitVelocity( void )
 void CGib::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	if ( CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( pActivator ) ) {
-		if ( !gameplayMods.gibsEdible ) {
+		if ( !gameplayMods::gibsEdible.isActive() ) {
 			return;
 		}
 
-		if ( gameplayMods.gibsGarbage ) {
+		if ( gameplayMods::gibsGarbage.isActive() ) {
 			UTIL_ScreenFade( pPlayer, Vector( 255, 255, 255 ), 0.08, 0.08, 80.0, 0 );
 		} else {
 			UTIL_ScreenFade( pPlayer, Vector( 255, 0, 0 ), 0.08, 0.08, 120.0, 0 );
@@ -156,7 +156,7 @@ void CGib :: SpawnHeadGib( entvars_t *pevVictim )
 	}
 	else
 	{
-		if ( !gameplayMods.gibsGarbage ) {
+		if ( !gameplayMods::gibsGarbage.isActive() ) {
 			pGib->Spawn( "models/hgibs.mdl" );// throw one head
 			pGib->pev->body = 0;
 		} else {
@@ -225,7 +225,7 @@ void CGib :: SpawnRandomGibs( entvars_t *pevVictim, int cGibs, int human )
 		}
 		else
 		{
-			if ( !gameplayMods.gibsGarbage ) {
+			if ( !gameplayMods::gibsGarbage.isActive() ) {
 				if ( human )
 				{
 					// human pieces
@@ -345,11 +345,11 @@ void CBaseMonster :: GibMonster( void )
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "common/bodysplat.wav", 1, ATTN_NORM);
 
 	int gibCount = 4;
-	if ( gameplayMods.instaGib ) {
+	if ( gameplayMods::instagib.isActive() ) {
 		gibCount *= 4;
 	}
 
-	if ( gameplayMods.snarkInfestation ) {
+	if ( gameplayMods::snarkInfestation.isActive() ) {
 		int snarkCount = RANDOM_LONG( 1, 3 );
 		Vector spawnPos = pev->origin + gpGlobals->v_forward * RANDOM_LONG( -5, 5 ) + gpGlobals->v_right * RANDOM_LONG( -5, 5 );
 		for ( int i = 0 ; i < snarkCount ; i++ ) {
@@ -586,7 +586,7 @@ void CBaseMonster::BecomeDead( void )
 
 BOOL CBaseMonster::ShouldGibMonster( int iGib )
 {
-	if ( gameplayMods.gibsAlways ) {
+	if ( gameplayMods::gibsAlways.isActive() ) {
 		return TRUE;
 	}
 
@@ -708,7 +708,7 @@ void CBaseMonster :: Killed( entvars_t *pevAttacker, int iGib )
 		BecomeDead();
 	}
 
-	if ( gameplayMods.snarkInfestation ) {
+	if ( gameplayMods::snarkInfestation.isActive() ) {
 		if ( !FStrEq( STRING( pev->classname ), "monster_snark" ) ) {
 			CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", pev->origin + Vector( 0, 0, 16 ), Vector( 0, RANDOM_LONG( 0, 360 ), 0 ), NULL );
 			pSqueak->pev->velocity = gpGlobals->v_forward * 100 + gpGlobals->v_up * 50;
@@ -957,7 +957,7 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		PainSound();// "Ouch!"
 	}
 
-	if ( gameplayMods.oneHitKOFromPlayer ) {
+	if ( gameplayMods::oneHitKOFromPlayer.isActive() ) {
 		CBaseEntity *pAttacker = pevAttacker ? CBaseEntity::Instance( pevAttacker ) : NULL;
 		CBaseEntity *pInflctor = pevInflictor ? CBaseEntity::Instance( pevInflictor ) : NULL;
 		
@@ -1006,10 +1006,12 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		}
 	}
 
+	auto weaponImpact = gameplayMods::weaponImpact.isActive<float>();
+
 	// if this is a player, move him around!
-	if ( gameplayMods.weaponImpact > 0.0f || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
+	if ( weaponImpact.has_value() || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
 	{
-		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( max( 1.0f, gameplayMods.weaponImpact ) );
+		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( weaponImpact.has_value() ? *weaponImpact : 1.0f );
 	}
 
 	// do the damage
@@ -1228,7 +1230,7 @@ void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacke
 	}
 	
 	if ( explicitExplosion ) {
-		if ( gameplayMods.snarkFromExplosion ) {
+		if ( gameplayMods::snarkFromExplosion.isActive() ) {
 			for ( int i = 0 ; i < 3 ; i++ ) {	
 				bool ok = false;
 				Vector coords( 0, 0, 0 );
@@ -1477,7 +1479,7 @@ void CBaseMonster :: TraceAttack( entvars_t *pevAttacker, float flDamage, Vector
 		case HITGROUP_GENERIC:
 			break;
 		case HITGROUP_HEAD:
-			flDamage *= gSkillData.monHead;
+			flDamage *= gameplayMods::headshots.isActive() ? 10.0f : gSkillData.monHead;
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.monChest;
@@ -1542,17 +1544,14 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 						x * vecSpread.x * vecRight +
 						y * vecSpread.y * vecUp;
 
-
+		auto bulletPhysicsMode = *gameplayMods::bulletPhysics.isActive<BulletPhysicsMode>();
 		if (
-			gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_CONSTANT ||
-			( pevAttacker != player->pev && player->slowMotionEnabled && gameplayMods.bulletPhysicsMode != BULLET_PHYSICS_DISABLED ) ||
-			( pevAttacker == player->pev && player->slowMotionEnabled && gameplayMods.bulletPhysicsMode == BULLET_PHYSICS_ENEMIES_AND_PLAYER_ON_SLOWMOTION )
+			bulletPhysicsMode == BulletPhysicsMode::Enabled ||
+			( pevAttacker != player->pev && gameplayMods::IsSlowmotionEnabled() && bulletPhysicsMode != BulletPhysicsMode::Disabled ) ||
+			( pevAttacker == player->pev && gameplayMods::IsSlowmotionEnabled() && bulletPhysicsMode == BulletPhysicsMode::ForEnemiesAndPlayerDuringSlowmotion )
 		) {
 
-			CBullet::BulletCreate(
-				vecSrc, vecDir * 2000, iBulletType, player->slowMotionEnabled || gameplayMods.bulletTrailConstant, edict(),
-				gameplayMods.bulletRicochetCount, gameplayMods.bulletRicochetError, gameplayMods.bulletRicochetMaxDotProduct, gameplayMods.bulletSelfHarm
-			);
+			CBullet::BulletCreate( vecSrc, vecDir * 2000, iBulletType, edict() );
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {
 				return;
@@ -1698,10 +1697,12 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 						x * vecSpread.x * vecRight +
 						y * vecSpread.y * vecUp;
 
-		if ( gameplayMods.bulletPhysical ) {
+		if ( gameplayMods::PlayerShouldProducePhysicalBullets() ) {
 			CBullet::BulletCreate(
-				vecSrc, vecDir * ( gameplayMods.bulletDelayOnSlowmotion && player->slowMotionEnabled ? 40 : 2000 ), iBulletType, ( BOOL ) ( player->slowMotionEnabled || gameplayMods.bulletTrailConstant ), edict(),
-				gameplayMods.bulletRicochetCount, gameplayMods.bulletRicochetError, gameplayMods.bulletRicochetMaxDotProduct, gameplayMods.bulletSelfHarm
+				vecSrc,
+				vecDir * ( ( gameplayMods::IsSlowmotionEnabled() && gameplayMods::bulletDelayOnSlowmotion.isActive() ) ? 40 : 2000 ),
+				iBulletType,
+				edict()
 			);
 			bool lastShot = iShot == cShots;
 			if ( lastShot ) {

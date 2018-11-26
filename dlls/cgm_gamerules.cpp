@@ -50,10 +50,7 @@ int gmsgScoreCheat	= 0;
 int gmsgRandModLen = 0;
 int gmsgRandModVal = 0;
 
-int gmsgPropModLen = 0;
-int gmsgPropModVal = 0;
 int gmsgPropModVin = 0;
-int gmsgPropModAni = 0;
 
 int gmsgCLabelVal  = 0;
 int gmsgCLabelGMod  = 0;
@@ -113,14 +110,8 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 
 		gmsgCLabelVal = REG_USER_MSG( "CLabelVal", -1 );
 		gmsgCLabelGMod = REG_USER_MSG( "CLabelGMod", -1 );
-
-		gmsgRandModLen = REG_USER_MSG( "RandModLen", 2 );
-		gmsgRandModVal = REG_USER_MSG( "RandModVal", -1 );
 		
-		gmsgPropModLen = REG_USER_MSG( "PropModLen", 2 );
-		gmsgPropModVal = REG_USER_MSG( "PropModVal", -1 );
 		gmsgPropModVin = REG_USER_MSG( "PropModVin", -1 );
-		gmsgPropModAni = REG_USER_MSG( "PropModAni", 0 );
 
 		gmsgSayText2 = REG_USER_MSG( "SayText2", -1 );
 	}
@@ -147,14 +138,10 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
 	}
 
-	if ( config.record.time == DEFAULT_TIME ) {
-		config.record.time = 0.0f;
-	}
-
 	for ( size_t i = 0; i < min( config.endConditions.size(), ( size_t ) 64 ); i++ ) {
 		auto &endCondition = config.endConditions.at( i );
-		if ( FStrEq( gameplayMods.endConditionsHashes[i], endCondition.GetHash().c_str() ) ) {
-			endCondition.activations = gameplayMods.endConditionsActivationCounts[i];
+		if ( FStrEq( gameplayModsData.endConditionsHashes[i], endCondition.GetHash().c_str() ) ) {
+			endCondition.activations = gameplayModsData.endConditionsActivationCounts[i];
 		}
 	}
 }
@@ -203,29 +190,33 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		return;
 	}
 
-	gameplayMods.Reset();
+	gameplayModsData.Reset();
 
 	CHalfLifeRules::PlayerSpawn( pPlayer );
 
-	gameplayMods.activeGameMode = GAME_MODE_CUSTOM;
+	gameplayModsData.activeGameMode = GAME_MODE_CUSTOM;
 
 	// '\' slashes are getting eaten by ALLOC_STRING? must prevent this by replacing them with '/'
 	std::string sanitizedConfigName = config.configName;
 	std::transform( sanitizedConfigName.begin(), sanitizedConfigName.end(), sanitizedConfigName.begin(), []( auto &letter ) {
 		return letter == '\\' ? '/' : letter;
 	} );
-	sprintf_s( gameplayMods.activeGameModeConfig, sanitizedConfigName.c_str() );
+	sprintf_s( gameplayModsData.activeGameModeConfig, sanitizedConfigName.c_str() );
 
-	for ( auto &pair : config.mods ) {
-		auto &mod = pair.second;
-		mod.Init( pPlayer );
+	if ( auto timeRestriction = gameplayMods::timeRestriction.isActive<float>() ) {
+		gameplayModsData.time = *timeRestriction;
 	}
 
-	if (
-		config.IsGameplayModActive( GAMEPLAY_MOD_EMPTY_SLOWMOTION ) ||
-		config.IsGameplayModActive( GAMEPLAY_MOD_NO_SLOWMOTION )
-	) {
-		pPlayer->slowMotionCharge = 0;
+	if ( auto initialSlowmotionCharge = gameplayMods::slowmotionInitialCharge.isActive<int>() ) {
+		pPlayer->slowMotionCharge = *initialSlowmotionCharge;
+	}	
+	
+	if ( auto initialHealth = gameplayMods::initialHealth.isActive<int>() ) {
+		pPlayer->pev->health = *initialHealth;
+	}	
+
+	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
+		gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod;
 	}
 
 	bool spawningAfterIntermission = false;
@@ -240,11 +231,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		g_latestIntermission.startPos.defined = false;
 	}
 
-	if ( config.musicPlaylist.size() > 0 ) {
-		gameplayMods.noMapMusic = TRUE;
-	}
-
-	sprintf_s( gameplayMods.activeGameModeConfigHash, config.sha1.c_str() );
+	sprintf_s( gameplayModsData.activeGameModeConfigHash, config.sha1.c_str() );
 	
 	// Do not let player cheat by not starting at the [startmap]
 	if ( !spawningAfterIntermission ) {
@@ -255,7 +242,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 
 BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
 {
-	if ( !gameplayMods.weaponRestricted ) {
+	if ( !gameplayMods::weaponRestricted.isActive() ) {
 		return CHalfLifeRules::CanHavePlayerItem( pPlayer, pWeapon );
 	}
 
@@ -269,26 +256,26 @@ BOOL CCustomGameModeRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerI
 void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 {
 	CHalfLifeRules::PlayerThink( pPlayer );
-	
+
 	// This is terribly wrong, it would be better to reset lastGlobalTime on actual change level event
 	// It was made to prevent timer messup during level changes, because each level has it's own local time
-	float proposedTimeDelta = gpGlobals->time - gameplayMods.lastGlobalTime;
+	float proposedTimeDelta = gpGlobals->time - gameplayModsData.lastGlobalTime;
 	float timeDelta = fabs( proposedTimeDelta ) <= 0.1 ? ( proposedTimeDelta ) : 0.0f;
 
-	gameplayMods.lastGlobalTime = gpGlobals->time;
+	gameplayModsData.lastGlobalTime = gpGlobals->time;
 
-	if ( !gameplayMods.timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
+	if ( !gameplayModsData.timerPaused && pPlayer->pev->deadflag == DEAD_NO ) {
 	
-		if ( gameplayMods.timerBackwards ) {
-			gameplayMods.time -= timeDelta;
+		if ( gameplayMods::timeRestriction.isActive() ) {
+			gameplayModsData.time -= timeDelta;
 		} else {
-			gameplayMods.time += timeDelta;
+			gameplayModsData.time += timeDelta;
 		}
 
-		gameplayMods.realTime += timeDelta / pPlayer->desiredTimeScale;
+		gameplayModsData.realTime += timeDelta / pPlayer->desiredTimeScale;
 
-		if ( pPlayer->slowMotionEnabled ) {
-			gameplayMods.secondsInSlowmotion += timeDelta;
+		if ( gameplayMods::IsSlowmotionEnabled() ) {
+			gameplayModsData.secondsInSlowmotion += timeDelta;
 		}
 	}
 
@@ -323,29 +310,29 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	const int SPACING = 56;
 	yOffset = 0;
 
-	if ( gameplayMods.timerShown ) {
+	if ( gameplayMods::timerShown.isActive() ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
 			WRITE_STRING(
-				gameplayMods.timerShowReal ? "REAL TIME" :
-				gameplayMods.timerBackwards ? "TIME LEFT" :
+				gameplayMods::timerShownReal.isActive() ? "REAL TIME" :
+				gameplayMods::timeRestriction.isActive() ? "TIME LEFT" :
 				"TIME"
 			);
-			WRITE_FLOAT( gameplayMods.timerShowReal ? gameplayMods.realTime : gameplayMods.time );
+			WRITE_FLOAT( gameplayMods::timerShownReal.isActive() ? gameplayModsData.realTime : gameplayModsData.time );
 			WRITE_LONG( yOffset );
 		MESSAGE_END();
 
 		yOffset += SPACING;
 
-		if ( gameplayMods.timerBackwards && gameplayMods.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+		if ( gameplayMods::timeRestriction.isActive() && gameplayModsData.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
 			ClientKill( ENT( pPlayer->pev ) );
 		}
 	}
 
-	if ( gameplayMods.scoreAttack ) {
+	if ( gameplayMods::scoreAttack.isActive() ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
-			WRITE_LONG( gameplayMods.score );
-			WRITE_LONG( gameplayMods.comboMultiplier );
-			WRITE_FLOAT( gameplayMods.comboMultiplierReset );
+			WRITE_LONG( gameplayModsData.score );
+			WRITE_LONG( gameplayModsData.comboMultiplier );
+			WRITE_FLOAT( gameplayModsData.comboMultiplierReset );
 			WRITE_LONG( yOffset );
 		MESSAGE_END();
 
@@ -355,7 +342,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	int conditionsHeight = 0;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgCountLen, NULL, pPlayer->pev );
-		WRITE_SHORT( config.endConditions.size() + ( gameplayMods.kerotanDetector ? 1 : 0 ) );
+		WRITE_SHORT( config.endConditions.size() + ( gameplayMods::kerotanDetector.isActive() ? 1 : 0 ) );
 	MESSAGE_END();
 
 	for ( size_t i = 0 ; i < config.endConditions.size() ; i++ ) {
@@ -371,7 +358,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		conditionsHeight += condition.activationsRequired > 1 ? SPACING : SPACING - 34;
 	}
 	
-	if ( gameplayMods.kerotanDetector ) {
+	if ( gameplayMods::kerotanDetector.isActive() ) {
 		auto chapterMaps = pPlayer->GetCurrentChapterMapNames();
 
 		MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
@@ -391,160 +378,145 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	yOffset += conditionsHeight;
 	maxYOffset = max( yOffset, maxYOffset );
 
-	if ( gameplayMods.scoreAttack ) {
-		gameplayMods.comboMultiplierReset -= timeDelta;
-		if ( gameplayMods.comboMultiplierReset < 0.0f ) {
-			gameplayMods.comboMultiplierReset = 0.0f;
-			gameplayMods.comboMultiplier = 1;
+	if ( gameplayMods::scoreAttack.isActive() ) {
+		gameplayModsData.comboMultiplierReset -= timeDelta;
+		if ( gameplayModsData.comboMultiplierReset < 0.0f ) {
+			gameplayModsData.comboMultiplierReset = 0.0f;
+			gameplayModsData.comboMultiplier = 1;
 		}
 	}
 
-	if ( gameplayMods.randomGameplayMods ) {
+	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
+		using namespace gameplayMods;
 
-
-		if ( gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
-			MESSAGE_BEGIN( MSG_ONE, gmsgRandModLen, NULL, pPlayer->pev );
-				WRITE_SHORT( gameplayMods.timedGameplayMods.size() );
-			MESSAGE_END();
-
-			int index = 0;
-
-			for ( const auto &timedMod : gameplayMods.timedGameplayMods ) {
-
-				MESSAGE_BEGIN( MSG_ONE, gmsgRandModVal, NULL, pPlayer->pev );
-					WRITE_SHORT( index );
-					WRITE_FLOAT( gameplayMods.timeForRandomGameplayMod );
-					WRITE_FLOAT( timedMod.second );
-					WRITE_STRING( timedMod.first.name.c_str() );
-				MESSAGE_END();
-
-				index++;
+		for ( const auto &timedMod : timedGameplayMods ) {
+			std::string modString = timedMod.mod->id + "|";
+			for ( auto &arg : timedMod.args ) {
+				modString += arg.string + " ";
 			}
+			aux::str::rtrim( &modString );
+			modString += std::to_string( timedMod.time );
 		}
 
 		if ( pPlayer->pev->deadflag == DEAD_NO ) {
-			gameplayMods.timeLeftUntilNextRandomGameplayMod -= timeDelta;
+			gameplayModsData.timeLeftUntilNextRandomGameplayMod -= timeDelta;
 		}
 
-		if ( gameplayMods.proposedGameplayMods.size() > 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod < 0.0f ) {
-			gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
+		if ( proposedGameplayMods.size() > 0 && gameplayModsData.timeLeftUntilNextRandomGameplayMod < 0.0f ) {
+			gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod;
 
-			GameplayMod randomGameplayMod;
-			if ( std::any_of( gameplayMods.proposedGameplayMods.begin(), gameplayMods.proposedGameplayMods.end(), []( const GameplayMod &mod ) {
-				return mod.votes.size() > 0;
-			} ) ) {
+			bool hasOneVote = false;
+			for ( auto &proposedMod : proposedGameplayMods ) {
+				if ( !proposedMod.votes.empty() ) {
+					hasOneVote = true;
+					break;
+				}
+			}
+
+			ProposedGameplayMod *randomGameplayMod;
+			if ( hasOneVote ) {
 				size_t totalVotes = 0;
 				size_t maxVoteCount = 0;
-				for ( auto &mod : gameplayMods.proposedGameplayMods ) {
+				for ( auto &mod : proposedGameplayMods ) {
 					totalVotes += mod.votes.size();
 					maxVoteCount = max( maxVoteCount, mod.votes.size() );
 				}
 
-				std::vector<double> voteDistributions;
+				auto most_votes_more_likely = std::string( CVAR_GET_STRING( "twitch_integration_random_gameplay_mods_voting_result" ) ) == "most_votes_more_likely";
 
-				if ( std::string( CVAR_GET_STRING( "twitch_integration_random_gameplay_mods_voting_result" ) ) == "most_votes_more_likely" ) {
-					for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
-						voteDistributions.push_back( gameplayMods.proposedGameplayMods.at( i ).voteDistributionPercent );
+				auto voteDistributions = aux::ctr::map<std::vector<double>>( proposedGameplayMods, [most_votes_more_likely, maxVoteCount]( const ProposedGameplayMod &proposedMod ) {
+					if ( most_votes_more_likely ) {
+						return ( double ) proposedMod.voteDistributionPercent;
+					} else {
+						return proposedMod.votes.size() == maxVoteCount ? 1.0 : 0.0;
 					}
-				} else {
-					for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
-						voteDistributions.push_back( gameplayMods.proposedGameplayMods.at( i ).votes.size() == maxVoteCount ? 1.0f : 0.0f );
-					}
-				}
+				} );
 
-				int randomIndex = aux::rand::discreteIndex( voteDistributions );
-				randomGameplayMod = gameplayMods.proposedGameplayMods.at( randomIndex );
+				randomGameplayMod = &proposedGameplayMods.at( aux::rand::discreteIndex( voteDistributions ) );
 			} else {
-				randomGameplayMod = aux::rand::choice( gameplayMods.proposedGameplayMods );
+				randomGameplayMod = aux::rand::choice( proposedGameplayMods.begin(), proposedGameplayMods.end() )._Ptr;
 			}
 			
-			auto eventResults = randomGameplayMod.Init( pPlayer );
-
-			if ( randomGameplayMod.isEvent ) {
-				if ( gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
+			if ( randomGameplayMod->mod->isEvent ) {
+				auto eventResults = randomGameplayMod->mod->EventInit();
+				if ( randomGameplayMods->timeForRandomGameplayMod >= 10.0f ) {
 					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
 						WRITE_STRING( eventResults.first.c_str() );
 						WRITE_STRING( eventResults.second.c_str() );
 					MESSAGE_END();
 				}
 			} else {
-				gameplayMods.timedGameplayMods.push_back( { randomGameplayMod, gameplayMods.timeForRandomGameplayMod } );
-				if ( gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
+				
+				timedGameplayMods.push_back( {
+					randomGameplayMod->mod,
+					randomGameplayMod->args,
+					randomGameplayMods->timeForRandomGameplayMod,
+					randomGameplayMods->timeForRandomGameplayMod
+				} );
+
+				if ( randomGameplayMods->timeForRandomGameplayMod >= 10.0f ) {
 					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelGMod, NULL, pPlayer->pev );
-						WRITE_STRING( randomGameplayMod.id.c_str() );
+						WRITE_STRING( randomGameplayMod->mod->id.c_str() );
 					MESSAGE_END();
 				}
 			}
 		
-			gameplayMods.proposedGameplayMods.clear();
-			MESSAGE_BEGIN( MSG_ONE, gmsgPropModLen, NULL, pPlayer->pev );
-				WRITE_SHORT( 0 );
-			MESSAGE_END();
+			proposedGameplayMods.clear();
 
-		} else if ( gameplayMods.timeLeftUntilNextRandomGameplayMod < 3.0f && gameplayMods.timeForRandomGameplayMod >= 10.0f ) {
-			MESSAGE_BEGIN( MSG_ONE, gmsgPropModAni, NULL, pPlayer->pev );
-			MESSAGE_END();
-		} 
+		}
 		
-		if ( gameplayMods.proposedGameplayMods.size() == 0 && gameplayMods.timeLeftUntilNextRandomGameplayMod <= gameplayMods.timeForRandomGameplayModVoting ) {
+		if ( proposedGameplayMods.empty() && gameplayModsData.timeLeftUntilNextRandomGameplayMod <= randomGameplayMods->timeForRandomGameplayModVoting ) {
 			
-			gameplayMods.proposedGameplayMods = gameplayMods.GetRandomGameplayMod( pPlayer, 3, [this]( const GameplayMod &mod ) -> bool {
-				if (
-					std::any_of( gameplayMods.timedGameplayMods.begin(), gameplayMods.timedGameplayMods.end(), [&mod]( std::pair<GameplayMod, float> &timedGameplayMod ) {
-						return timedGameplayMod.first.id == mod.id;
-					} ) ||
+			auto filteredMods = aux::ctr::filter( allowedForRandom, [this]( GameplayMod *mod ) {
+				
+				for ( auto &timedMod : gameplayMods::timedGameplayMods ) {
+					if ( mod == timedMod.mod ) {
+						return false;
+					}
+				}
 
-					std::any_of( this->config.mods.begin(), this->config.mods.end(), [&mod]( auto &gameplayMod ) {
-						return gameplayMod.second.id == mod.id;
-					} )
-				) {
+				for ( auto &configMod : config.mods ) {
+					if ( mod == configMod.first ) {
+						return false;
+					}
+				}
 
+				if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod->id ) ) {
 					return false;
 				}
 
-				if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod.id ) ) {
+				if ( aux::ctr::includes( config.randomModsBlacklist, mod->id ) ) {
 					return false;
 				}
 
-				if ( aux::ctr::includes( config.randomModsBlacklist, mod.id ) ) {
-					return false;
-				}
-
-				return true;
+				return mod->CanBeActivatedRandomly();
 			} );
+
+			for ( int i = 0; i < 3; i++ ) {
+				if ( filteredMods.empty() ) {
+					break;
+				}
+
+				auto randomMod = aux::rand::choice( filteredMods );
+				filteredMods.erase( randomMod );
+				proposedGameplayMods.push_back( { randomMod, randomMod->GetRandomArguments() } );
+			}
 
 			if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
 				twitch->SendChatMessage( "VOTE FOR NEXT MOD" );
-				for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
-					auto &mod = gameplayMods.proposedGameplayMods.at( i );
-					twitch->SendChatMessage( fmt::sprintf( "%d: %s", i + 1, mod.name ) );
+				for ( size_t i = 0; i < proposedGameplayMods.size(); i++ ) {
+					auto &proposedMod = proposedGameplayMods.at( i );
+					twitch->SendChatMessage( fmt::sprintf( "%d: %s", i + 1, proposedMod.mod->name ) );
 				}
-			}
-		}
-
-		if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
-			MESSAGE_BEGIN( MSG_ONE, gmsgPropModLen, NULL, pPlayer->pev );
-				WRITE_SHORT( gameplayMods.proposedGameplayMods.size() );
-			MESSAGE_END();
-
-			for ( size_t i = 0; i < gameplayMods.proposedGameplayMods.size(); i++ ) {
-				auto &mod = gameplayMods.proposedGameplayMods.at( gameplayMods.proposedGameplayMods.size() - 1 - i );
-				MESSAGE_BEGIN( MSG_ONE, gmsgPropModVal, NULL, pPlayer->pev );
-					WRITE_SHORT( i );
-					WRITE_LONG( mod.votes.size() );
-					WRITE_FLOAT( mod.voteDistributionPercent );
-					WRITE_STRING( mod.name.c_str() );
-				MESSAGE_END();
 			}
 		}
 
 		if ( pPlayer->pev->deadflag == DEAD_NO ) {
-			for ( auto i = gameplayMods.timedGameplayMods.begin(); i != gameplayMods.timedGameplayMods.end(); ) {
-				i->second -= timeDelta;
+			for ( auto i = timedGameplayMods.begin(); i != timedGameplayMods.end(); ) {
+				i->time -= timeDelta;
 
-				if ( i->second <= 0 ) {
-					i->first.Deactivate( pPlayer );
-					i = gameplayMods.timedGameplayMods.erase( i );
+				if ( i->time <= 0 ) {
+					i = timedGameplayMods.erase( i );
 				} else {
 					i++;
 				}
@@ -573,44 +545,42 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
 
-	gameplayMods.kills++;
+	gameplayModsData.kills++;
 
 	if ( killedByExplosion ) {
-		gameplayMods.explosiveKills++;
+		gameplayModsData.explosiveKills++;
 	} else if ( killedByCrowbar ) {
-		gameplayMods.crowbarKills++;
+		gameplayModsData.crowbarKills++;
 	} else if ( isHeadshot ) {
-		gameplayMods.headshotKills++;
+		gameplayModsData.headshotKills++;
 	} else if ( killedEntity == KILLED_ENTITY_GRENADE ) {
-		gameplayMods.projectileKills++;
+		gameplayModsData.projectileKills++;
 	}
 
-	auto teleportOnKillWeapon = std::string( gameplayMods.teleportOnKillWeapon );
-	auto activeItem = pPlayer->m_pActiveItem;
-	if (
-		gameplayMods.teleportOnKill &&
-		( ( teleportOnKillWeapon.empty() ) || ( activeItem && std::string( STRING( activeItem->pev->classname ) ) == teleportOnKillWeapon ) )
-	) {
+	if ( auto teleportOnKillWeapon = gameplayMods::teleportOnKill.isActive<std::string>() ) {
+		if (
+			( pPlayer->m_pActiveItem && FStrEq( STRING( pPlayer->m_pActiveItem->pev->classname ), teleportOnKillWeapon->c_str() ) ) ||
+			*teleportOnKillWeapon == "any"
+		) {
+			TraceResult tr;
+			bool canTeleport = false;
+			Vector destination = victim->pev->origin;
+			for ( int i = 0; i < 73 && !canTeleport; i++ ) {
+				UTIL_TraceHull( destination, destination, dont_ignore_monsters, human_hull, victim->edict(), &tr );
+				if ( tr.fAllSolid ) {
+					destination.z += 1.0f;
+				} else {
+					canTeleport = true;
+				}
+			}
 
-		TraceResult tr;
-		bool canTeleport = false;
-		Vector destination = victim->pev->origin;
-		for ( int i = 0; i < 73 && !canTeleport; i++ ) {
-			UTIL_TraceHull( destination, destination, dont_ignore_monsters, human_hull, victim->edict(), &tr );
-			if ( tr.fAllSolid ) {
-				destination.z += 1.0f;
-			} else {
-				canTeleport = true;
+			if ( canTeleport ) {
+				UTIL_SetOrigin( pPlayer->pev, destination );
+				if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( victim ) ) {
+					monster->GibMonster();
+				}
 			}
 		}
-
-		if ( canTeleport ) {
-			UTIL_SetOrigin( pPlayer->pev, destination );
-			if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( victim ) ) {
-				monster->GibMonster();
-			}
-		}
-
 	}
 
 	if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f && twitch->killfeedMessages.size() > 0 ) {
@@ -623,11 +593,11 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		}
 	}
 
-	if ( gameplayMods.blackMesaMinute ) {
+	if ( gameplayMods::blackMesaMinute.isActive() && pPlayer->pev->deadflag == DEAD_NO ) {
 		CalculateScoreForBlackMesaMinute( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 	}
 
-	if ( gameplayMods.scoreAttack && pPlayer->pev->deadflag == DEAD_NO ) {
+	if ( gameplayMods::scoreAttack.isActive() && pPlayer->pev->deadflag == DEAD_NO ) {
 		CalculateScoreForScoreAttack( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
 	}
 
@@ -776,14 +746,14 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 		break;
 	}
 
-	gameplayMods.score += scoreToAdd * ( gameplayMods.comboMultiplier + additionalMultiplier );
+	gameplayModsData.score += scoreToAdd * ( gameplayModsData.comboMultiplier + additionalMultiplier );
 
 	if ( scoreToAdd != -1 ) {
 
 		if ( scoreToAdd > 0 ) {
 			SendGameLogMessage( pPlayer, message );
 
-			float comboMultiplier = gameplayMods.comboMultiplier + additionalMultiplier;
+			float comboMultiplier = gameplayModsData.comboMultiplier + additionalMultiplier;
 			bool comboMultiplierIsInteger = abs( comboMultiplier - std::lround( comboMultiplier ) ) < 0.00000001f;
 
 			char upperString[128];
@@ -794,7 +764,7 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 			}
 
 			if ( ( twitch && twitch->status != TWITCH_CONNECTED ) || CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) == 0.0f ) {
-				if ( gameplayMods.blackMesaMinute ) {
+				if ( gameplayMods::blackMesaMinute.isActive() ) {
 					SendGameLogWorldMessage( pPlayer, deathPos, "", std::string( upperString ) + " / " + std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ) );
 				} else {
 					SendGameLogWorldMessage( pPlayer, deathPos, std::to_string( ( int ) ( scoreToAdd * comboMultiplier ) ), upperString );
@@ -810,37 +780,39 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 				break;
 
 			default:
-				gameplayMods.comboMultiplier++;
+				gameplayModsData.comboMultiplier++;
 				break;
 		}
 
-		gameplayMods.comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
+		gameplayModsData.comboMultiplierReset = COMBO_MULTIPLIER_DECAY_TIME;
 	}
 }
 
 void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex ) {
-	if ( modIndex < 0 || modIndex > gameplayMods.proposedGameplayMods.size() - 1 ) {
+	using namespace gameplayMods;
+	
+	if ( modIndex < 0 || modIndex > proposedGameplayMods.size() - 1 ) {
 		return;
 	}
 
-	for ( auto &proposedMod : gameplayMods.proposedGameplayMods ) {
+	for ( auto &proposedMod : proposedGameplayMods ) {
 		proposedMod.votes.erase( voter );
 	}
 
-	gameplayMods.proposedGameplayMods.at( modIndex ).votes.insert( voter );
+	proposedGameplayMods.at( modIndex ).votes.insert( voter );
 
 	size_t totalVotes = 0;
 	size_t maxVoteCount = 0;
-	for ( auto &mod : gameplayMods.proposedGameplayMods ) {
+	for ( auto &mod : proposedGameplayMods ) {
 		totalVotes += mod.votes.size();
 		maxVoteCount = max( maxVoteCount, mod.votes.size() );
 	}
-	for ( auto &mod : gameplayMods.proposedGameplayMods ) {
+	for ( auto &mod : proposedGameplayMods ) {
 		mod.voteDistributionPercent = ( mod.votes.size() / ( float ) totalVotes ) * 100;
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgPropModVin, NULL, pPlayer->pev );
-		WRITE_SHORT( gameplayMods.proposedGameplayMods.size() - 1 - modIndex );
+		WRITE_SHORT( proposedGameplayMods.size() - 1 - modIndex );
 		WRITE_STRING( voter.c_str() );
 	MESSAGE_END();
 }
@@ -877,23 +849,24 @@ void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {
 
 void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 {
-	if ( gameplayMods.cheated && cheatedMessageSent || ended ) {
+	if ( gameplayModsData.cheated && cheatedMessageSent || ended ) {
 		return;
 	}
 
-	if ( gameplayMods.cheated ) {
+	if ( gameplayModsData.cheated ) {
 		OnCheated( pPlayer );
 		return;
 	}
 
-	if ( ( pPlayer->pev->flags & FL_GODMODE && !gameplayMods.godConstant ) ||
-		 ( pPlayer->pev->flags & FL_NOTARGET && !gameplayMods.noTargetConstant ) ||
+	if ( ( pPlayer->pev->flags & FL_GODMODE && !gameplayMods::godConstant.isActive() ) ||
+		 ( pPlayer->pev->flags & FL_NOTARGET && !gameplayMods::noTargetConstant.isActive() ) ||
 		 ( pPlayer->pev->movetype & MOVETYPE_NOCLIP ) ||
-		gameplayMods.usedCheat || startMapDoesntMatch ||
-		 std::string( gameplayMods.activeGameModeConfigHash ) != config.sha1
+		gameplayModsData.usedCheat || startMapDoesntMatch ||
+		 std::string( gameplayModsData.activeGameModeConfigHash ) != config.sha1
 	) {
-		SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING - RESULTS WON'T BE SAVED" );
-		gameplayMods.cheated = true;
+		SendGameLogMessage( pPlayer, "RESULTS WON'T BE SAVED" );
+		SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING" );
+		gameplayModsData.cheated = true;
 	}
 
 }
@@ -914,7 +887,9 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	PauseTimer( pPlayer );
 
-	if ( !config.gameFinishedOnce && gameplayMods.timerBackwards ) {
+	auto blackMesaMinute = gameplayMods::blackMesaMinute.isActive();
+
+	if ( !config.gameFinishedOnce && blackMesaMinute ) {
 		config.record.time = 0.0f;
 	}
 
@@ -940,21 +915,21 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
-		WRITE_STRING( "TIME SCORE|PERSONAL BESTS" );
-		WRITE_FLOAT( gameplayMods.time );
+		WRITE_STRING( blackMesaMinute ? "TIME SCORE|PERSONAL BESTS" : "TIME|PERSONAL BESTS" );
+		WRITE_FLOAT( gameplayModsData.time );
 		WRITE_FLOAT( config.record.time );
-		WRITE_BYTE( gameplayMods.timerBackwards ? gameplayMods.time > config.record.time : gameplayMods.time < config.record.time  );
+		WRITE_BYTE( blackMesaMinute ? gameplayModsData.time > config.record.time : gameplayModsData.time < config.record.time  );
 	MESSAGE_END();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
 		WRITE_STRING( "REAL TIME" );
-		WRITE_FLOAT( gameplayMods.realTime );
+		WRITE_FLOAT( gameplayModsData.realTime );
 		WRITE_FLOAT( config.record.realTime );
-		WRITE_BYTE( gameplayMods.realTime < config.record.realTime );
+		WRITE_BYTE( gameplayModsData.realTime < config.record.realTime );
 	MESSAGE_END();
 
-	if ( gameplayMods.timerBackwards ) {
-		float realTimeMinusTime = max( 0.0f, gameplayMods.realTime - gameplayMods.time );
+	if ( blackMesaMinute ) {
+		float realTimeMinusTime = max( 0.0f, gameplayModsData.realTime - gameplayModsData.time );
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
 			WRITE_STRING( "REAL TIME MINUS SCORE" );
 			WRITE_FLOAT( realTimeMinusTime );
@@ -963,60 +938,60 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 		MESSAGE_END();
 	}
 
-	int secondsInSlowmotion = ( int ) roundf( gameplayMods.secondsInSlowmotion );
+	int secondsInSlowmotion = ( int ) roundf( gameplayModsData.secondsInSlowmotion );
 	if ( secondsInSlowmotion > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
 			WRITE_STRING( ( "SECONDS IN SLOWMOTION|" + std::to_string( secondsInSlowmotion ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( gameplayMods.kills > 0 ) {
+	if ( gameplayModsData.kills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "TOTAL KILLS|" + std::to_string( gameplayMods.kills ) ).c_str() );
+			WRITE_STRING( ( "TOTAL KILLS|" + std::to_string( gameplayModsData.kills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( gameplayMods.headshotKills > 0 ) {
+	if ( gameplayModsData.headshotKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "HEADSHOT KILLS|" + std::to_string( gameplayMods.headshotKills ) ).c_str() );
+			WRITE_STRING( ( "HEADSHOT KILLS|" + std::to_string( gameplayModsData.headshotKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( gameplayMods.explosiveKills > 0 ) {
+	if ( gameplayModsData.explosiveKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "EXPLOSION KILLS|" + std::to_string( gameplayMods.explosiveKills ) ).c_str() );
+			WRITE_STRING( ( "EXPLOSION KILLS|" + std::to_string( gameplayModsData.explosiveKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( gameplayMods.crowbarKills > 0 ) {
+	if ( gameplayModsData.crowbarKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "MELEE KILLS|" + std::to_string( gameplayMods.crowbarKills ) ).c_str() );
+			WRITE_STRING( ( "MELEE KILLS|" + std::to_string( gameplayModsData.crowbarKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( gameplayMods.projectileKills > 0 ) {
+	if ( gameplayModsData.projectileKills > 0 ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndStat, NULL, pPlayer->pev );
-			WRITE_STRING( ( "PROJECTILES DESTROYED KILLS|" + std::to_string( gameplayMods.projectileKills ) ).c_str() );
+			WRITE_STRING( ( "PROJECTILES DESTROYED KILLS|" + std::to_string( gameplayModsData.projectileKills ) ).c_str() );
 		MESSAGE_END();
 	}
 
-	if ( gameplayMods.scoreAttack ) {
+	if ( gameplayMods::scoreAttack.isActive() ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgScoreDeact, NULL, pPlayer->pev );
 		MESSAGE_END();
 
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndScore, NULL, pPlayer->pev );
 			WRITE_STRING( "SCORE|PERSONAL BEST" );
-			WRITE_LONG( gameplayMods.score );
+			WRITE_LONG( gameplayModsData.score );
 			WRITE_LONG( config.record.score );
-			WRITE_BYTE( gameplayMods.score > config.record.score );
+			WRITE_BYTE( gameplayModsData.score > config.record.score );
 		MESSAGE_END();
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndActiv, NULL, pPlayer->pev );
-		WRITE_BYTE( gameplayMods.cheated );
+		WRITE_BYTE( gameplayModsData.cheated );
 	MESSAGE_END();
 
-	if ( !gameplayMods.cheated ) {
+	if ( !gameplayModsData.cheated ) {
 		config.record.Save( pPlayer );
 	}
 }
@@ -1039,10 +1014,10 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 	}
 
 	if (
-		config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_PENGUINS ) && 
-		config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_FRIENDLY_TO_PLAYER ) && 
-		config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_FRIENDLY_TO_ALLIES ) &&
-		std::string( STRING( gpGlobals->mapname ) ) == "c1a0e"
+		std::string( STRING( gpGlobals->mapname ) ) == "c1a0e" &&
+		gameplayMods::snarkPenguins.isActive() &&
+		gameplayMods::snarkFriendlyToPlayer.isActive() &&
+		gameplayMods::snarkFriendlyToAllies.isActive()
 	) {
 		CBaseEntity *list[512];
 		int amount = UTIL_MonstersInSphere( list, 512, Vector( 0, 0, 0 ), 8192.0f );
@@ -1072,7 +1047,7 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 		}
 	}
 
-	if ( targetName == "on_map_start" && gameplayMods.preventMonsterSpawn ) {
+	if ( targetName == "on_map_start" && gameplayMods::preventMonsterSpawn.isActive() ) {
 
 		for ( int i = 0 ; i < 1024 ; i++ ) {
 			edict_t *edict = g_engfuncs.pfnPEntityOfEntIndex( i );
@@ -1150,19 +1125,26 @@ void CCustomGameModeRules::OnChangeLevel() {
 		ActivateEndMarkers();
 	}
 
-	if ( gameplayMods.proposedGameplayMods.size() > 0 ) {
-		tasks.push_back( { 0.0f, []( CBasePlayer *pPlayer ) {
-			for ( auto mod = gameplayMods.proposedGameplayMods.begin(); mod != gameplayMods.proposedGameplayMods.end(); ) {
-				if ( mod->canBeCancelledAfterChangeLevel && !mod->CanBeActivatedRandomly( pPlayer ) ) {
-					mod = gameplayMods.proposedGameplayMods.erase( mod );
-				} else {
-					mod++;
-				}
+	using namespace gameplayMods;
+	tasks.push_back( { 0.0f, []( CBasePlayer *pPlayer ) {
+		for ( auto i = proposedGameplayMods.begin(); i != proposedGameplayMods.end(); ) {
+			if ( i->mod->canBeCancelledAfterChangeLevel && !i->mod->CanBeActivatedRandomly() ) {
+				i = proposedGameplayMods.erase( i );
+			} else {
+				i++;
 			}
-		} } );
-	}
+		}
 
-	if ( gameplayMods.kerotanDetector ) {
+		for ( auto i = timedGameplayMods.begin(); i != timedGameplayMods.end(); ) {
+			if ( i->mod->canBeCancelledAfterChangeLevel && !i->mod->CanBeActivatedRandomly() ) {
+				i = timedGameplayMods.erase( i );
+			} else {
+				i++;
+			}
+		}
+	} } );
+
+	if ( kerotanDetector.isActive() ) {
 		tasks.push_back( { 0.0f, [this]( CBasePlayer *pPlayer ) {
 			CBaseEntity *pEntity = NULL;
 			while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, Vector( 0, 0, 0 ), 8192 ) ) != NULL ) {
@@ -1179,7 +1161,7 @@ void CCustomGameModeRules::OnChangeLevel() {
 
 extern int g_autoSaved;
 void CCustomGameModeRules::OnSave( CBasePlayer *pPlayer ) {
-	if ( gameplayMods.noSaving && !g_autoSaved ) {
+	if ( gameplayMods::noSaving.isActive() && !g_autoSaved ) {
 		SendGameLogMessage( pPlayer, "SAVING IS ACTUALLY DISABLED" );
 	}
 	CHalfLifeRules::OnSave( pPlayer );
@@ -1187,11 +1169,11 @@ void CCustomGameModeRules::OnSave( CBasePlayer *pPlayer ) {
 
 void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
 {
-	if ( gameplayMods.timerPaused ) {
+	if ( gameplayModsData.timerPaused ) {
 		return;
 	}
 
-	gameplayMods.timerPaused = true;
+	gameplayModsData.timerPaused = true;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
 		WRITE_BYTE( true );
@@ -1200,11 +1182,11 @@ void CCustomGameModeRules::PauseTimer( CBasePlayer *pPlayer )
 
 void CCustomGameModeRules::ResumeTimer( CBasePlayer *pPlayer )
 {
-	if ( !gameplayMods.timerPaused ) {
+	if ( !gameplayModsData.timerPaused ) {
 		return;
 	}
 
-	gameplayMods.timerPaused = false;
+	gameplayModsData.timerPaused = false;
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgTimerPause, NULL, pPlayer->pev );
 		WRITE_BYTE( false );
@@ -1212,11 +1194,11 @@ void CCustomGameModeRules::ResumeTimer( CBasePlayer *pPlayer )
 }
 
 void CCustomGameModeRules::IncreaseTime( CBasePlayer *pPlayer, const Vector &eventPos, int timeToAdd, const char *message ) {
-	if ( gameplayMods.timerPaused || timeToAdd <= 0 ) {
+	if ( gameplayModsData.timerPaused || timeToAdd <= 0 ) {
 		return;
 	}
 
-	gameplayMods.time += timeToAdd;
+	gameplayModsData.time += timeToAdd;
 
 	SendGameLogMessage( pPlayer, message );
 
@@ -1264,11 +1246,7 @@ void CCustomGameModeRules::RefreshSkillData()
 	gSkillData.healthkitCapacity = 15.0f; // doesn't matter - it's painkiller
 	gSkillData.scientistHeal = 25.0f;
 
-	if ( config.IsGameplayModActive( GAMEPLAY_MOD_HEADSHOTS ) ) {
-		gSkillData.monHead = 10.0f;
-	} else {
-		gSkillData.monHead = 3.0f;
-	}
+	gSkillData.monHead = 3.0f;
 	gSkillData.monChest = 1.0f;
 	gSkillData.monStomach = 1.0f;
 	gSkillData.monLeg = 1.0f;
@@ -1280,7 +1258,7 @@ void CCustomGameModeRules::RefreshSkillData()
 	gSkillData.plrLeg = 1.0f;
 	gSkillData.plrArm = 1.0f;
 
-	if ( config.IsGameplayModActive( GAMEPLAY_MOD_EASY ) ) {
+	if ( gameplayMods::difficultyEasy.isActive() ) {
 		
 		gSkillData.iSkillLevel = 1;
 
@@ -1350,7 +1328,7 @@ void CCustomGameModeRules::RefreshSkillData()
 		gSkillData.batteryCapacity = 15.0f;
 		gSkillData.healthchargerCapacity = 50.0f;
 		
-	} else if ( config.IsGameplayModActive( GAMEPLAY_MOD_HARD ) ) {
+	} else if ( gameplayMods::difficultyHard.isActive() ) {
 		gSkillData.iSkillLevel = 3;
 
 		gSkillData.agruntHealth = 120.0f;

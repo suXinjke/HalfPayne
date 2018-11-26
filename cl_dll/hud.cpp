@@ -117,14 +117,6 @@ int __MsgFunc_SetFOV(const char *pszName, int iSize, void *pbuf)
 	return gHUD.MsgFunc_SetFOV( pszName, iSize, pbuf );
 }
 
-extern int upsideDown;
-int __MsgFunc_UpsideDown(const char *pszName, int iSize, void *pbuf)
-{
-	BEGIN_READ( pbuf, iSize );
-	upsideDown = READ_BYTE();
-	return 1;
-}
-
 int __MsgFunc_Concuss(const char *pszName, int iSize, void *pbuf)
 {
 	return gHUD.MsgFunc_Concuss( pszName, iSize, pbuf );
@@ -312,7 +304,6 @@ void CHud :: Init( void )
 	HOOK_MESSAGE( Concuss );
 	HOOK_MESSAGE( SetSkin );
 	HOOK_MESSAGE( AimOffset );
-	HOOK_MESSAGE( UpsideDown );
 
 	// TFFree CommandMenu
 	HOOK_COMMAND( "+commandmenu", OpenCommandMenu );
@@ -582,6 +573,10 @@ void COM_FileBase ( const char *in, char *out)
 	int len, start, end;
 
 	len = strlen( in );
+	if ( len <= 0 || len > 255 ) {
+		sprintf( out, "" );
+		return;
+	}
 	
 	// scan backward for '.'
 	end = len - 1;

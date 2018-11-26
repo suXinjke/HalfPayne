@@ -145,7 +145,7 @@ void CEgon::UseAmmo( int count )
 {
 	if ( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] >= count ) {
 		m_pPlayer->ApplyWeaponPushback( 190 );
-		if ( !gameplayMods.infiniteAmmo ) {
+		if ( !gameplayMods::infiniteAmmo.isActive() ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= count;
 		}
 	}
@@ -156,7 +156,7 @@ void CEgon::UseAmmo( int count )
 void CEgon::Attack( void )
 {
 	// don't fire underwater
-	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
+	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive() )
 	{
 		
 		if ( m_fireState != FIRE_OFF || m_pBeam )

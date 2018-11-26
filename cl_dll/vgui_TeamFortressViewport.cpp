@@ -1531,7 +1531,6 @@ void TeamFortressViewport::UpdatePlayerMenu(int menuIndex)
 
 
 
-void COM_FileBase ( const char *in, char *out);
 
 void TeamFortressViewport::UpdateSpectatorPanel()
 {

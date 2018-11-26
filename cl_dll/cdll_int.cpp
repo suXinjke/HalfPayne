@@ -194,7 +194,7 @@ int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
 
 	HL_ImGUI_Init();
 
-	gameplayMods.Init();
+	gameplayModsData.Init();
 
 	// get tracker interface, if any
 	return 1;
@@ -506,3 +506,11 @@ public:
 };
 
 EXPOSE_SINGLE_INTERFACE(CClientExports, IGameClientExports, GAMECLIENTEXPORTS_INTERFACE_VERSION);
+
+CBasePlayer* GetPlayer() {
+	return NULL;
+}
+
+float SHARED_CVAR_GET_FLOAT( const char *cvar ) {
+	return gEngfuncs.pfnGetCvarFloat( ( char * ) cvar );
+}

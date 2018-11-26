@@ -82,17 +82,16 @@ int CHudCentralLabel::MsgFunc_CLabelVal( const char *pszName, int iSize, void *p
 
 int CHudCentralLabel::MsgFunc_CLabelGMod( const char *pszName, int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
-	std::string gameplayModId = READ_STRING();
+	std::string modName = READ_STRING();
+	
+	if ( gameplayMods::byString.find( modName ) != gameplayMods::byString.end() ) {
+		auto mod = gameplayMods::byString[modName];
 
-	for ( auto &pair : gameplayModDefs ) {
-		if ( pair.second.id == gameplayModId ) {
-			label = pair.second.name;
-			subLabel = aux::str::split( pair.second.description, '\n' ).at( 0 );
-			m_iFlags |= HUD_ACTIVE;
-			timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 6.0f;
-
-			break;
-		}
+		label = mod->name;
+		auto descriptionSplitted = aux::str::split( mod->description, '\n' );
+		subLabel = descriptionSplitted.size() > 0 ? descriptionSplitted.at( 0 ) : "";
+		m_iFlags |= HUD_ACTIVE;
+		timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 6.0f;
 	}
 
 	return 1;

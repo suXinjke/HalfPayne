@@ -601,4 +601,25 @@ inline float GET_FRAMERATE_BASE() {
 	return GET_TICK_INTERVAL() / 1000.0f;
 }
 
+CBasePlayer* GetPlayer();
+float SHARED_CVAR_GET_FLOAT( const char *cvar );
+
+#ifdef CLIENT_DLL
+#include "wrect.h"
+#include "cl_dll.h"
+#endif
+
+inline std::string GetMapName() {
+#ifdef CLIENT_DLL
+	char szMapName[256];
+	char unformattedLevelName[256];
+	strcpy_s( unformattedLevelName, 256, gEngfuncs.pfnGetLevelName() );
+	unformattedLevelName[255] = '\0';
+	COM_FileBase( unformattedLevelName, szMapName );
+	return szMapName;
+#else
+	return STRING( gpGlobals->mapname );
+#endif
+}
+
 #endif // UTIL_H

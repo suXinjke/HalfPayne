@@ -1460,7 +1460,7 @@ CGib *CGibShooter :: CreateGib ( void )
 
 	CGib *pGib = GetClassPtr( (CGib *)NULL );
 
-	if ( !gameplayMods.gibsGarbage ) {
+	if ( !gameplayMods::gibsGarbage.isActive() ) {
 		pGib->Spawn( "models/hgibs.mdl" );
 		pGib->m_bloodColor = BLOOD_COLOR_RED;
 

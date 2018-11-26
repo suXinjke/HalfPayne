@@ -142,7 +142,7 @@ void CKerotan::OnThink () {
 	}
 
 	if ( gpGlobals->time > nextCallout && !hasBeenFound ) {
-		if ( gameplayMods.kerotanDetector ) {
+		if ( gameplayMods::kerotanDetector.isActive() ) {
 			EMIT_SOUND_DYN( ENT( pev ), CHAN_STATIC, "var/kerotan_alert.wav", 1.0, ATTN_IDLE, 0, 100 );
 		}
 

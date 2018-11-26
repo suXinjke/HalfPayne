@@ -417,26 +417,28 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 	// Gotta initialize custom game mode if you're loading the game but didn't set it up
 
 	if (
-		gameplayMods.activeGameMode == GAME_MODE_CUSTOM &&
+		gameplayModsData.activeGameMode == GAME_MODE_CUSTOM &&
 		( strcmp( CVAR_GET_STRING( "gamemode" ), "cgm" ) != 0 ||
-		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayMods.activeGameModeConfig ) != 0 )
+		strcmp( CVAR_GET_STRING( "gamemode_config" ), gameplayModsData.activeGameModeConfig ) != 0 )
 	) {
 
 		CVAR_SET_STRING( "gamemode", "cgm" );
-		CVAR_SET_STRING( "gamemode_config", gameplayMods.activeGameModeConfig );
+		CVAR_SET_STRING( "gamemode_config", gameplayModsData.activeGameModeConfig );
 
 		// Blatant replacement of gamerules here causes
 		// new CCustomGameModeRules instance to parse specified config file above
 		delete g_pGameRules;
+		g_pGameRules = NULL;
 		g_pGameRules = new CCustomGameModeRules;
 	} else if (
-		gameplayMods.activeGameMode == GAME_MODE_VANILLA &&
+		gameplayModsData.activeGameMode == GAME_MODE_VANILLA &&
 		( strcmp( CVAR_GET_STRING( "gamemode" ), "vanilla" ) != 0 )
 	) {
 		CVAR_SET_STRING( "gamemode", "vanilla" );
 		CVAR_SET_STRING( "gamemode_config", "" );
 
 		delete g_pGameRules;
+		g_pGameRules = NULL;
 		g_pGameRules = new CHalfLifeRules;
 	}
 

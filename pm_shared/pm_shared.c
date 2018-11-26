@@ -161,6 +161,7 @@ int g_playerHasSuit = 0;
 int g_noJumping = 0;
 int g_noWalking = 0;
 int g_upsideDown = 0;
+int g_inverseControls = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;
@@ -2261,6 +2262,10 @@ void PM_LadderMove( physent_t *pLadder )
 			flSpeed *= 2;
 		}
 
+		if ( g_inverseControls ) {
+			flSpeed *= -1;
+		}
+
 		AngleVectors( pmove->angles, vpn, v_right, NULL );
 
 		if ( pmove->flags & FL_DUCKING )
@@ -2846,6 +2851,10 @@ void PM_Dive(void)
 		if (pmove->cmd.buttons & IN_MOVERIGHT) {
 			resultVector[i] += g_upsideDown ? -pmove->right[i] : pmove->right[i];
 		}	
+
+		if ( g_inverseControls ) {
+			resultVector[i] *= -1;
+		}
 	}
 	VectorNormalize(resultVector);
 

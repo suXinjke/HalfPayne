@@ -21,6 +21,7 @@
 #include "cl_util.h"
 #include <stdlib.h>
 #include <memory.h>
+#include "gameplay_mod.h"
 
 int CL_ButtonBits( int );
 void CL_ResetButtonBits( int bits );
@@ -43,7 +44,8 @@ int CHud::UpdateClientData(client_data_t *cdata, float time)
 
 	cdata->fov = m_iFOV;
 	
-	v_idlescale = m_iConcussionEffect;
+	auto drunkLook = gameplayMods::drunkLook.isActive<float>();
+	v_idlescale = drunkLook.has_value() ? ( *drunkLook / 100.0f ) * 255.0f : 0.0f;
 
 	CL_ResetButtonBits( m_iKeyBits );
 

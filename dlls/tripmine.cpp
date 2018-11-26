@@ -145,7 +145,8 @@ void CTripmineGrenade :: Spawn( void )
 
 void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) {
 
-	if ( !gameplayMods.detachableTripmines ) {
+	auto tripminesDetachable = gameplayMods::tripminesDetachable.isActive<std::string>();
+	if ( !tripminesDetachable ) {
 		return;
 	}
 
@@ -168,7 +169,7 @@ void CTripmineGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	UTIL_MakeVectors( pev->angles );
 	CTripmine *tripmine = ( CTripmine * ) CBaseEntity::Create( "weapon_tripmine", pev->origin - gpGlobals->v_up * 2 + gpGlobals->v_forward * 3, pev->angles );
 
-	if ( gameplayMods.detachableTripminesInstantly && tripmine->AddToPlayer( player ) ) {
+	if ( *tripminesDetachable == "instantly" && tripmine->AddToPlayer( player ) ) {
 		UTIL_Remove( tripmine );
 	} else {
 		tripmine->pev->velocity = gpGlobals->v_forward * 50;
@@ -495,11 +496,11 @@ void CTripmine::PrimaryAttack( void )
 			CBaseEntity *pEnt = CBaseEntity::Create( "monster_tripmine", tr.vecEndPos + tr.vecPlaneNormal * 8, angles, m_pPlayer->edict() );
 			pEnt->auxOwner = m_pPlayer->edict();
 
-			if ( gameplayMods.upsideDown ) {
+			if ( gameplayMods::upsideDown.isActive() ) {
 				pEnt->pev->angles[2] = 180;
 			}
 
-			if ( !gameplayMods.infiniteAmmo ) {
+			if ( !gameplayMods::infiniteAmmo.isActive() ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 			}
 

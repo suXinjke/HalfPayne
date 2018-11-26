@@ -83,7 +83,7 @@ void CHalfLifeRules::End( CBasePlayer *pPlayer )
 		return;
 	}
 
-	if ( pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		pPlayer->ToggleSlowMotion();
 	}
 
@@ -183,14 +183,6 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 		}
 	}
 
-	bool mapMusicAllowed = true;
-	for ( const auto &config : configs ) {
-		if ( config->IsGameplayModActive( GAMEPLAY_MOD_NO_MAP_MUSIC ) ) {
-			mapMusicAllowed = false;
-			break;
-		}
-	}
-
 	for ( const auto &config : configs ) {
 
 		for ( const auto &sound : config->sounds ) {
@@ -208,6 +200,8 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 		}
 
 		if ( noPlaylists ) {
+			auto mapMusicAllowed = !gameplayMods::noMapMusic.isActive();
+
 			for ( const auto &music : config->music ) {
 				if ( music.Fits( modelIndex, className, targetName, firstTime ) ) {
 					if (
@@ -286,8 +280,6 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 	}
 
 	if ( FStrEq( STRING( gpGlobals->mapname ), "nightmare" ) && modelIndex == -1 ) {
-		pPlayer->slowMotionCharge = 100;
-		pPlayer->SetSlowMotion( true );
 		UTIL_ScreenFadeAll( Vector( 0, 0, 0 ), 1.0, 0.0, 255, 0 );
 	}
 	if ( FStrEq( STRING( gpGlobals->mapname ), "c2a3e" ) && modelIndex == -1 ) {
@@ -398,7 +390,7 @@ BOOL CHalfLifeRules :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem 
 BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
 
-	if ( gameplayMods.noSaving ) {
+	if ( gameplayModsData.forceDisconnect ) {
 		g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
 		return FALSE;
 	}
@@ -514,7 +506,7 @@ BOOL CHalfLifeRules :: AllowAutoTargetCrosshair( void )
 //=========================================================
 void CHalfLifeRules :: PlayerThink( CBasePlayer *pPlayer )
 {
-	if ( gameplayMods.activeGameMode == GAME_MODE_VANILLA ) {
+	if ( gameplayModsData.activeGameMode == GAME_MODE_VANILLA ) {
 		int currentSkill = CVAR_GET_FLOAT( "skill" );
 		if ( currentSkill != lastSkill ) {
 			RefreshSkillData();

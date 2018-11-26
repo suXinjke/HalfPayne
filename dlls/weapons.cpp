@@ -660,7 +660,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		int j = min( iMaxClip() - m_iClip, ammoPriorToReload );
 		m_iClip += j;
 
-		if ( !gameplayMods.infiniteAmmo ) {
+		if ( !gameplayMods::infiniteAmmo.isActive() ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j;
 			ammoPriorToReload -= j;
 		}
@@ -677,7 +677,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		if ( iMaxClip2() != -1 ) {
 			int j2 = min( iMaxClip2() - m_iClip2, ammoPriorToReload );
 			m_iClip2 += j2;
-			if ( !gameplayMods.infiniteAmmo ) {
+			if ( !gameplayMods::infiniteAmmo.isActive() ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= j2;
 			}
 		}
@@ -686,6 +686,28 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		m_pPlayer->nextAttackSlowmotionOffset = 0.0f;
 
 		m_fInReload = FALSE;
+	}
+
+	if ( gameplayMods::infiniteAmmo.isActive() ) {
+		ItemInfo itemInfo;
+		this->GetItemInfo( &itemInfo );
+		if ( itemInfo.iMaxAmmo1 != -1 ) {
+			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = itemInfo.iMaxAmmo1;
+		}
+		if ( itemInfo.iMaxAmmo2 != -1 ) {
+			if ( !( itemInfo.iId == WEAPON_MP5 && gameplayMods::noSmgGrenadePickup.isActive() ) ) {
+				m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = itemInfo.iMaxAmmo2;
+			}
+		}
+	}
+
+	if ( gameplayMods::infiniteAmmoClip.isActive() ) {
+		if ( iMaxClip() ) {
+			m_iClip = iMaxClip();
+		}
+		if ( iMaxClip2() ) {
+			m_iClip2 = iMaxClip2();
+		}
 	}
 
 	if ( !(m_pPlayer->pev->button & IN_ATTACK ) )
@@ -844,17 +866,6 @@ int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 		m_iSecondaryAmmoType = pPlayer->GetAmmoIndex( pszAmmo2() );
 	}
 
-	if ( gameplayMods.infiniteAmmo ) {
-		ItemInfo itemInfo;
-		this->GetItemInfo( &itemInfo );
-		if ( itemInfo.iMaxAmmo1 != -1 ) {
-			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = itemInfo.iMaxAmmo1;
-		}
-		if ( itemInfo.iMaxAmmo2 != -1 && !gameplayMods.noSmgGrenadePickup ) {
-			m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = itemInfo.iMaxAmmo2;
-		}
-	}
-
 	if (bResult)
 		return AddWeapon( );
 	return FALSE;
@@ -945,8 +956,8 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 
 	bool firstWeaponPickup = !m_pPlayer->HasNamedPlayerItem( STRING( pev->classname ) );
 
-	if ( gameplayMods.initialClipAmmo ) {
-		iCount = max( 1, gameplayMods.initialClipAmmo );
+	if ( auto initialClipAmmo = gameplayMods::initialClipAmmo.isActive<int>() ) {
+		iCount = max( 1, *initialClipAmmo );
 	}
 
 	if (iMaxClip < 1)
@@ -1110,7 +1121,7 @@ BOOL CBasePlayerWeapon :: DefaultDeploy( char *szViewModel, char *szWeaponModel,
 	SendWeaponAnim( iAnim, skiplocal, body );
 
 	float timeUntilAttack = 0.5;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		timeUntilAttack /= 2;
 	}
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + timeUntilAttack;
@@ -1136,8 +1147,8 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay,
 		delayWhenInSlowmotion = fDelay;
 	}
 
-	m_pPlayer->m_flNextAttack = m_pPlayer->slowMotionEnabled ? UTIL_WeaponTimeBase() + delayWhenInSlowmotion : UTIL_WeaponTimeBase() + fDelay;
-	m_pPlayer->nextAttackSlowmotionOffset = m_pPlayer->slowMotionEnabled ? max( 0.0f, fDelay - delayWhenInSlowmotion ) : 0.0f;
+	m_pPlayer->m_flNextAttack = gameplayMods::IsSlowmotionEnabled() ? UTIL_WeaponTimeBase() + delayWhenInSlowmotion : UTIL_WeaponTimeBase() + fDelay;
+	m_pPlayer->nextAttackSlowmotionOffset = gameplayMods::IsSlowmotionEnabled() ? max( 0.0f, fDelay - delayWhenInSlowmotion ) : 0.0f;
 
 	//!!UNDONE -- reload sound goes here !!!
 	SendWeaponAnim( iAnim, UseDecrement() ? 1 : 0 );

@@ -23,20 +23,21 @@ TYPEDESCRIPTION	CBullet::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE( CBullet, CBaseEntity );
 
-CBullet *CBullet::BulletCreate(
-	Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive, edict_t *owner,
-	int ricochetCount, int ricochetError, float ricochetMaxDotProduct, BOOL selfHarm
-) {
+CBullet *CBullet::BulletCreate( Vector vecSrc, Vector velocity, int bulletType, edict_t *owner ) {
 	CBullet *bullet = ( CBullet * ) CBaseEntity::Create( "bullet", vecSrc, UTIL_VecToAngles( velocity ), owner );
 	bullet->pev->velocity = velocity;
 	bullet->lastVelocity = velocity;
 	bullet->bulletType = bulletType;
 	bullet->pev->owner = owner;
-	bullet->activateTrail = trailActive;
-	bullet->ricochetCount = ricochetCount;
-	bullet->ricochetError = ricochetError;
-	bullet->ricochetMaxDotProduct = ricochetMaxDotProduct;
-	bullet->selfHarm = selfHarm;
+	bullet->activateTrail = gameplayMods::bulletTrail.isActive();
+	
+	if ( auto ricochetInfo = gameplayMods::bulletRicochet.isActive<BulletRicochetInfo>() ) {
+		bullet->ricochetCount = ricochetInfo->count;
+		bullet->ricochetError = ricochetInfo->error;
+		bullet->ricochetMaxDotProduct = ricochetInfo->maxDotProduct;
+	}
+
+	bullet->selfHarm = gameplayMods::bulletSelfHarm.isActive();
 	bullet->auxOwner = ENT( owner );
 
 	switch ( bulletType ) {

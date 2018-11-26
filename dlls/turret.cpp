@@ -1016,7 +1016,7 @@ int CBaseTurret::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 	if (!m_iOn)
 		flDamage /= 10.0;
 
-	if ( gameplayMods.oneHitKOFromPlayer ) {
+	if ( gameplayMods::oneHitKOFromPlayer.isActive() ) {
 		flDamage = pev->health + 1;
 	}
 
@@ -1216,7 +1216,7 @@ int CSentry::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float f
 		pev->nextthink = gpGlobals->time + 0.1;
 	}
 
-	if ( gameplayMods.oneHitKOFromPlayer ) {
+	if ( gameplayMods::oneHitKOFromPlayer.isActive() ) {
 		flDamage = pev->health + 1;
 	}
 

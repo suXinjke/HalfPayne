@@ -122,6 +122,7 @@ public:
 	float				m_flFlashLightTime;	// Time until next battery draw/Recharge
 	int					m_iFlashBattery;		// Flashlight Battery Draw
 
+	BOOL				slowMotionWasEnabled;
 	float				slowMotionUpdateTime;
 	int					slowMotionCharge;
 
@@ -222,7 +223,6 @@ public:
 
 	Uint32 nextTime; // required for FPS cap
 	
-	BOOL slowMotionEnabled;
 	float slowMotionNextHeartbeatSound;
 	float desiredTimeScale;
 	float nextSmoothTimeScaleChange;

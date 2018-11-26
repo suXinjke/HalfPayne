@@ -674,7 +674,7 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	view->angles[ROLL]  -= bob * 1;
 	view->angles[PITCH] -= bob * 0.3;
 
-	if ( cl_bobclassic->value > 0.0f && !gameplayMods.holdingTwinWeapons ) {
+	if ( cl_bobclassic->value > 0.0f && !gameplayModsData.holdingTwinWeapons ) {
 		VectorCopy( view->angles, view->curstate.angles );
 	}
 

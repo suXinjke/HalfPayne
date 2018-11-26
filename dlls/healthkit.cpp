@@ -205,8 +205,11 @@ void CWallHealth::Spawn()
         realPos + Vector( RANDOM_FLOAT( -diversity2, diversity2 ), 5 + RANDOM_FLOAT( -diversity, diversity ), 0.6 )
     };
 
-	std::random_shuffle( std::begin( horizontalPainkillerSpots ), std::end( horizontalPainkillerSpots ) );
-	std::random_shuffle( std::begin( verticalPainkillerSpots ), std::end( verticalPainkillerSpots ) );
+	static std::random_device rd;
+	static std::mt19937 g( rd() );
+
+	std::shuffle( std::begin( horizontalPainkillerSpots ), std::end( horizontalPainkillerSpots ), g );
+	std::shuffle( std::begin( verticalPainkillerSpots ), std::end( verticalPainkillerSpots ), g );
 
     // Put painkillers inside the cabinet
     for ( int i = 0; i < painkillersToSpawn; i++ ) {

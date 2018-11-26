@@ -407,12 +407,8 @@ void CMultiManager :: ManagerThink ( void )
 				} else {
 					pPlayer->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_PRE_IMMINENT;
 					pPlayer->untilNextDesperation = gpGlobals->time + 1.4f;
-					gameplayMods.infiniteAmmo = TRUE;
-					gameplayMods.slowmotionInfinite = true;
 					pPlayer->GiveNamedItem( "item_suit", true );
-					if ( !gameplayMods.painkillersForbidden ) {
-						pPlayer->painkillerCount = 9;
-					}
+					pPlayer->painkillerCount = 9;
 					pPlayer->TakeHealth( pPlayer->pev->max_health, DMG_GENERIC );
 					pPlayer->SetSlowMotion( true );
 					pPlayer->pev->gravity = 0.6;
@@ -765,7 +761,7 @@ void PlayCDTrack( int iTrack )
 	{
 		CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( pClient );
 
-		if ( !player || gameplayMods.noMapMusic ) {
+		if ( !player || gameplayMods::noMapMusic.isActive() ) {
 			return;
 		}
 
@@ -2011,7 +2007,6 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 	) {
 		CBasePlayer *player = ( CBasePlayer * ) pOther;
 		player->desperation = CBasePlayer::DESPERATION_TYPE::DESPERATION_ALL_FOR_REVENGE;
-		gameplayMods.slowmotionConstant = true;
 		player->SetSlowMotion( true );
 		player->untilNextDesperation = gpGlobals->time + 1.6f;
 		player->pev->gravity = 1.0;
@@ -2063,7 +2058,7 @@ void CBaseTrigger :: TeleportTouch( CBaseEntity *pOther )
 
 	Vector newVelocity = pevToucher->basevelocity = g_vecZero;
 
-	if ( gameplayMods.teleportMaintainVelocity ) {
+	if ( gameplayMods::teleportMaintainVelocity.isActive() ) {
 		UTIL_MakeVectors( pevToucher->angles );
 		float original = pevToucher->velocity.Length();
 		newVelocity = gpGlobals->v_forward * original;

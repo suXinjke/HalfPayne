@@ -352,9 +352,8 @@ public:
 
 	std::set<std::string> GetSoundsToPrecacheForMap( const std::string &map );
 	std::set<std::string> GetEntitiesToPrecacheForMap( const std::string &map );
-
-	bool IsGameplayModActive( GAMEPLAY_MOD mod );
-	std::map<GAMEPLAY_MOD, GameplayMod> mods;
+	
+	std::map<GameplayMod *, std::vector<Argument>> mods;
 
 	bool musicPlaylistShuffle;
 	

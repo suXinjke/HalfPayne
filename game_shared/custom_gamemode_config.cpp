@@ -380,25 +380,9 @@ void CustomGameModeConfig::InitConfigSections() {
 
 			std::string modName = args.at( 0 ).string;
 
-			bool activatedMod = false;
-			for ( auto &pair : gameplayModDefs ) {
-				if ( pair.second.id == modName ) {
-					auto &mod = pair.second;
-					activatedMod = true;
-
-					for ( size_t i = 0 ; i < min( mod.arguments.size(), args.size() - 1 ) ; i++ ) {
-						auto parsingError = mod.arguments.at( i ).Init( args.at( i + 1 ).string );
-
-						if ( !parsingError.empty() ) {
-							return fmt::sprintf( "%s, argument %d: %s", modName.c_str(), i + 1, parsingError.c_str() );
-						}
-					}
-					mods[pair.first] = mod;
-					break;
-				}
-			}
-
-			if ( !activatedMod ) {
+			if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( line ) ) {
+				mods[modWithArguments->first] = modWithArguments->second;
+			} else {
 				return fmt::sprintf( "incorrect mod specified: %s\n", modName.c_str() );
 			}
 
@@ -414,16 +398,9 @@ void CustomGameModeConfig::InitConfigSections() {
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			std::string modName = args.at( 0 ).string;
 
-			bool activatedMod = false;
-			for ( const auto &pair : gameplayModDefs ) {
-				if ( pair.second.id == modName ) {
-					activatedMod = true;
-					randomModsWhitelist.insert( pair.second.id );
-					break;
-				}
-			}
-
-			if ( !activatedMod ) {
+			if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( modName ) ) {
+				randomModsWhitelist.insert( modWithArguments->first->id );
+			} else {
 				return fmt::sprintf( "incorrect mod specified: %s\n", modName.c_str() );
 			}
 
@@ -439,16 +416,9 @@ void CustomGameModeConfig::InitConfigSections() {
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			std::string modName = args.at( 0 ).string;
 
-			bool activatedMod = false;
-			for ( const auto &pair : gameplayModDefs ) {
-				if ( pair.second.id == modName ) {
-					activatedMod = true;
-					randomModsBlacklist.insert( pair.second.id );
-					break;
-				}
-			}
-
-			if ( !activatedMod ) {
+			if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( modName ) ) {
+				randomModsBlacklist.insert( modWithArguments->first->id );
+			} else {
 				return fmt::sprintf( "incorrect mod specified: %s\n", modName.c_str() );
 			}
 
@@ -653,11 +623,14 @@ std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE confi
 }
 
 std::string CustomGameModeConfig::ConfigTypeToGameModeName( bool uppercase ) {
-	if ( IsGameplayModActive( GAMEPLAY_MOD_BLACK_MESA_MINUTE ) && IsGameplayModActive( GAMEPLAY_MOD_SCORE_ATTACK ) ) {
+	auto blackMesaMinute = gameplayMods::blackMesaMinute.isActive();
+	auto scoreAttack = gameplayMods::scoreAttack.isActive();
+
+	if ( blackMesaMinute && scoreAttack ) {
 		return uppercase ? "BLACK MESA MINUTE SCORE ATTACK" : "Black Mesa Minute Score Attack";
-	} else if ( IsGameplayModActive( GAMEPLAY_MOD_BLACK_MESA_MINUTE ) ) {
+	} else if ( blackMesaMinute ) {
 		return uppercase ? "BLACK MESA MINUTE" : "Black Mesa Minute";
-	} else if ( IsGameplayModActive( GAMEPLAY_MOD_SCORE_ATTACK ) ) {
+	} else if ( scoreAttack ) {
 		return uppercase ? "SCORE ATTACK" : "Score Attack";
 	} else if ( configType == CONFIG_TYPE_CGM ) {
 		return uppercase ? "CUSTOM GAME MODE" : "Custom Game Mode";
@@ -879,10 +852,6 @@ void CustomGameModeConfig::Reset() {
 	entityReplaces.clear();
 	randomModsWhitelist.clear();
 	randomModsBlacklist.clear();
-}
-
-bool CustomGameModeConfig::IsGameplayModActive( GAMEPLAY_MOD mod ) {
-	return mods.count( mod ) > 0;
 }
 
 LoadoutItem::LoadoutItem( const std::vector<Argument> &args ) {

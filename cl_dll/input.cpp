@@ -695,6 +695,7 @@ void CL_AdjustAngles ( float frametime, float *viewangles )
 		viewangles[PITCH] = -cl_pitchup->value;
 
 	float absTime = gEngfuncs.GetAbsoluteTime();
+	upsideDown = gameplayMods::upsideDown.isActive();
 	if ( upsideDown != lastUpsideDown ) {
 		lastUpsideDownTime = absTime;
 	}
@@ -733,6 +734,8 @@ if active == 1 then we are 1) not playing back demos ( where our commands are ig
 2 ) we have finished signing on to server
 ================
 */
+extern int g_inverseControls;
+
 void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int active )
 {	
 //	RecClCL_CreateMove(frametime, cmd, active);
@@ -753,7 +756,7 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 		
 		gEngfuncs.SetViewAngles( (float *)viewangles );
 
-		int inverseMultiplier = gameplayMods.inverseControls ? -1 : 1;
+		int inverseMultiplier = g_inverseControls ? -1 : 1;
 
 		if ( !upsideDown ) {
 			if ( in_strafe.state & 1 )

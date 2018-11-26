@@ -445,7 +445,7 @@ void SaveGlobalState( SAVERESTOREDATA *pSaveData )
 	CSave saveHelper( pSaveData );
 	gGlobalState.Save( saveHelper );
 
-	gameplayMods.Save( saveHelper );
+	gameplayModsData.Save( saveHelper );
 }
 
 void RestoreGlobalState( SAVERESTOREDATA *pSaveData )
@@ -453,24 +453,13 @@ void RestoreGlobalState( SAVERESTOREDATA *pSaveData )
 	CRestore restoreHelper( pSaveData );
 	gGlobalState.Restore( restoreHelper );
 
-	BOOL randomGameplayModsWereActive = gameplayMods.randomGameplayMods;
-	gameplayMods.Restore( restoreHelper );
-
-	if ( gameplayMods.randomGameplayMods && !randomGameplayModsWereActive ) {
-		gameplayMods.timeLeftUntilNextRandomGameplayMod = gameplayMods.timeUntilNextRandomGameplayMod;
-	}
+	gameplayModsData.Restore( restoreHelper );
 }
 
 void ResetGlobalState( void )
 {
 	gGlobalState.ClearStates();
 	gInitHUD = TRUE;	// Init the HUD on a new game / load game
-
-	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-		if ( !cgm->config.IsGameplayModActive( GAMEPLAY_MOD_RANDOM_GAMEPLAY_MODS ) ) {
-			gameplayMods.Reset();
-		}
-	}
 }
 
 // moved CWorld class definition to cbase.h
@@ -515,11 +504,13 @@ void CWorld :: Precache( void )
 	{
 		if ( !g_changeLevelOccured ) {
 			delete g_pGameRules;
+			g_pGameRules = NULL;
 			g_pGameRules = InstallGameRules( );
 		}
 	} else {
 
 		g_pGameRules = InstallGameRules( );
+		g_pGameRules->RefreshSkillData();
 
 	}
 

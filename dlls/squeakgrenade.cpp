@@ -89,7 +89,7 @@ int CSqueakGrenade :: Classify ( void )
 }
 
 int CSqueakGrenade::IRelationship( CBaseEntity *pTarget ) {
-	if ( gameplayMods.snarkFriendlyToPlayer ) {
+	if ( gameplayMods::snarkFriendlyToPlayer.isActive() ) {
 		if ( FStrEq( "player", STRING( pTarget->pev->classname ) ) ) {
 			return R_AL;
 		} else if (
@@ -101,7 +101,7 @@ int CSqueakGrenade::IRelationship( CBaseEntity *pTarget ) {
 		}
 	}
 
-	if ( gameplayMods.snarkFriendlyToAllies &&
+	if ( gameplayMods::snarkFriendlyToAllies.isActive() &&
 			FStrEq( "monster_scientist", STRING( pTarget->pev->classname ) ) ||
 			FStrEq( "monster_barney", STRING( pTarget->pev->classname ) )
 	) {
@@ -118,22 +118,22 @@ void CSqueakGrenade :: Spawn( void )
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
 
-	isPenguin = false;
-	inceptionDepth = 10;
+	inceptionDepth = 0;
 	isStill = false;
 	float health = gSkillData.snarkHealth;
 
 	SET_MODEL(ENT(pev), "models/w_squeak.mdl");
 	UTIL_SetSize(pev, Vector( -4, -4, 0), Vector(4, 4, 8));
 
-	// TODO: access gameplayMods directly where needed instead of duplicating it here
-	inceptionDepth = gameplayMods.snarkInceptionDepth;
-	isPenguin = gameplayMods.snarkPenguins;
+	if ( auto depth = gameplayMods::snarkInception.isActive<int>() ) {
+		inceptionDepth = *depth;
+	}
+	isPenguin = gameplayMods::snarkPenguins.isActive();
 	if ( isPenguin ) {
 		SET_MODEL(ENT(pev), "models/w_pingu.mdl");
 		UTIL_SetSize(pev, Vector( -6, -6, 0), Vector(6, 6, 20));
 		health = gSkillData.headcrabHealth;
-		if ( !gameplayMods.snarkNuclear ) {
+		if ( !gameplayMods::snarkNuclear.isActive() ) {
 			pev->skin = 1;
 			SetBodygroup( 1, 1 );
 		}
@@ -222,7 +222,7 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 
 	CBaseMonster :: Killed( pevAttacker, GIB_ALWAYS );
 
-	if ( gameplayMods.snarkInception && inceptionDepth > 0 ) {
+	if ( inceptionDepth > 0 ) {
 		Vector spawnPos = pev->origin;
 			
 		CSqueakGrenade *snark1 = ( CSqueakGrenade * ) CBaseEntity::Create( "monster_snark", spawnPos + gpGlobals->v_right * 16 + gpGlobals->v_up * 8, pev->angles, NULL );
@@ -234,7 +234,7 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 		snark2->pev->velocity = -gpGlobals->v_right * ( 160 + RANDOM_LONG( -60, 200 ) ) + gpGlobals->v_up * ( 50 + RANDOM_LONG( -10, 100 ) );
 	}
 
-	if ( gameplayMods.snarkNuclear ) {
+	if ( gameplayMods::snarkNuclear.isActive() ) {
 		float damage = gSkillData.plrDmgHandGrenade;
 		RadiusDamage ( pev, pev, damage, CLASS_NONE, DMG_BLAST, false );
 
@@ -276,7 +276,7 @@ void CSqueakGrenade::HuntThink( void )
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	// explode when ready
-	if ( !gameplayMods.snarkStayAlive && gpGlobals->time >= m_flDie)
+	if ( !gameplayMods::snarkStayAlive.isActive() && gpGlobals->time >= m_flDie)
 	{
 		g_vecAttackDir = pev->velocity.Normalize( );
 		pev->health = -1;
@@ -331,7 +331,7 @@ void CSqueakGrenade::HuntThink( void )
 	}
 
 	// squeek if it's about time blow up
-	if ( !gameplayMods.snarkStayAlive && (m_flDie - gpGlobals->time <= 0.5) && (m_flDie - gpGlobals->time >= 0.3))
+	if ( !gameplayMods::snarkStayAlive.isActive() && (m_flDie - gpGlobals->time <= 0.5) && (m_flDie - gpGlobals->time >= 0.3))
 	{
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_die1.wav", 1, ATTN_NORM, 0, 100 + RANDOM_LONG(0,0x3F));
 		CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, 256, 0.25 );
@@ -414,7 +414,7 @@ void CSqueakGrenade::SuperBounceTouch( CBaseEntity *pOther )
 		return;
 
 	// higher pitch as squeeker gets closer to detonation time
-	flpitch = gameplayMods.snarkStayAlive ? RANDOM_LONG( 90, 160 ) : 155.0 - 60.0 * ((m_flDie - gpGlobals->time) / SQUEEK_DETONATE_DELAY);
+	flpitch = gameplayMods::snarkStayAlive.isActive() ? RANDOM_LONG( 90, 160 ) : 155.0 - 60.0 * ((m_flDie - gpGlobals->time) / SQUEEK_DETONATE_DELAY);
 
 	if ( pOther->pev->takedamage && m_flNextAttack < gpGlobals->time )
 	{
@@ -493,21 +493,9 @@ void CSqueak::Spawn( )
 	Precache( );
 	m_iId = WEAPON_SNARK;
 
-	bool isPenguin = false;
-	bool isNuclear = false;
-#ifndef CLIENT_DLL
-	if ( CCustomGameModeRules *rules = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
-		if ( rules->config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_PENGUINS ) ) {
-			isPenguin = true;
-		}
-		if ( rules->config.IsGameplayModActive( GAMEPLAY_MOD_SNARK_NUCLEAR ) ) {
-			isNuclear = true;
-		}
-	}
-#endif
-	if ( isPenguin ) {
+	if ( gameplayMods::snarkPenguins.isActive() ) {
 		SET_MODEL(ENT(pev), "models/w_pingu.mdl");
-		if ( !isNuclear ) {
+		if ( !gameplayMods::snarkNuclear.isActive() ) {
 			SetBodygroup( 1, 1 );
 			pev->skin = 1;
 		}
@@ -567,13 +555,13 @@ BOOL CSqueak::Deploy( )
 	float flRndSound = RANDOM_FLOAT ( 0 , 1 );
 
 	if ( flRndSound <= 0.5 )
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods.snarkPenguins ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 100);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 100);
 	else 
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods.snarkPenguins ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 100);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 100);
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
-	if ( gameplayMods.snarkPenguins ) {
+	if ( gameplayMods::snarkPenguins.isActive() ) {
 		return DefaultDeploy( "models/v_pingu.mdl", "models/p_squeak.mdl", SQUEAK_UP, "squeak" );
 	} else {
 		return DefaultDeploy( "models/v_squeak.mdl", "models/p_squeak.mdl", SQUEAK_UP, "squeak" );
@@ -593,7 +581,7 @@ void CSqueak::Holster( int skiplocal /* = 0 */ )
 		return;
 	}
 	
-	SendWeaponAnim( SQUEAK_DOWN, 1, !gameplayMods.snarkNuclear );
+	SendWeaponAnim( SQUEAK_DOWN, 1, !gameplayMods::snarkNuclear.isActive() );
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 }
 
@@ -643,13 +631,13 @@ void CSqueak::PrimaryAttack()
 			float flRndSound = RANDOM_FLOAT ( 0 , 1 );
 
 			if ( flRndSound <= 0.5 )
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods.snarkPenguins ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 105);
+				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 105);
 			else 
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods.snarkPenguins ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 105);
+				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 105);
 
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
-			if ( !gameplayMods.infiniteAmmo ) {
+			if ( !gameplayMods::infiniteAmmo.isActive() ) {
 				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 			}
 
@@ -671,9 +659,9 @@ void CSqueak::SecondaryAttack( void )
 void CSqueak::WeaponIdle( void )
 {
 #ifndef CLIENT_DLL
-	if ( gameplayMods.snarkPenguins ) {
+	if ( gameplayMods::snarkPenguins.isActive() ) {
 		MESSAGE_BEGIN( MSG_ONE, gmsgSetSkin, NULL, m_pPlayer->pev );
-			WRITE_BYTE( gameplayMods.snarkNuclear ? 0 : 1 );
+			WRITE_BYTE( gameplayMods::snarkNuclear.isActive() ? 0 : 1 );
 		MESSAGE_END();
 	}
 #endif
@@ -691,7 +679,7 @@ void CSqueak::WeaponIdle( void )
 			return;
 		}
 
-		SendWeaponAnim( SQUEAK_UP, 1, !gameplayMods.snarkNuclear );
+		SendWeaponAnim( SQUEAK_UP, 1, !gameplayMods::snarkNuclear.isActive() );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );
 		return;
 	}
@@ -713,7 +701,7 @@ void CSqueak::WeaponIdle( void )
 		iAnim = SQUEAK_FIDGETNIP;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 80.0 / 16.0;
 	}
-	SendWeaponAnim( iAnim, 1, !gameplayMods.snarkNuclear );
+	SendWeaponAnim( iAnim, 1, !gameplayMods::snarkNuclear.isActive() );
 }
 
 #endif

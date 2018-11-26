@@ -114,7 +114,7 @@ BOOL CPython::Deploy( )
 	}
 
 	int drawAnimation = m_iClip > 0 ? PYTHON_DRAW : PYTHON_DRAW_NOSHOT;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		drawAnimation++;
 	}
 
@@ -176,7 +176,7 @@ void CPython::PrimaryAttack()
 	}
 
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive())
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;
@@ -199,7 +199,7 @@ void CPython::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 
@@ -215,10 +215,10 @@ void CPython::PrimaryAttack()
 	Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
 
 #ifndef CLIENT_DLL
-	if ( gameplayMods.bulletPhysical ) {
+	if ( gameplayMods::PlayerShouldProducePhysicalBullets() ) {
 		float rightOffset = 3;
 
-		if ( gameplayMods.upsideDown ) {
+		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -241,8 +241,8 @@ void CPython::PrimaryAttack()
 
 	int empty = m_iClip == 0;
 
-	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods.upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, gameplayMods.bulletPhysical );
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods::upsideDown.isActive() ? -1 : 1 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFirePython, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, empty, gameplayMods::PlayerShouldProducePhysicalBullets() );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
@@ -274,7 +274,7 @@ void CPython::Reload( void )
 
 	float reloadTime = 2.0f;
 	int anim = m_iClip > 0 ? PYTHON_RELOAD : PYTHON_RELOAD_NOSHOT;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 

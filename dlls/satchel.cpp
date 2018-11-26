@@ -464,7 +464,7 @@ void CSatchel::Throw( void )
 
 		m_chargeReady = 1;
 		
-		if ( !gameplayMods.infiniteAmmo ) {
+		if ( !gameplayMods::infiniteAmmo.isActive() ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 		}
 

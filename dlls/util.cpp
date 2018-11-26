@@ -617,7 +617,6 @@ CBaseEntity	*UTIL_PlayerByIndex( int playerIndex )
 	return pPlayer;
 }
 
-
 void UTIL_MakeVectors( const Vector &vecAngles )
 {
 	MAKE_VECTORS( vecAngles );
@@ -2684,3 +2683,10 @@ int	CRestore::BufferCheckZString( const char *string )
 	return 0;
 }
 
+CBasePlayer* GetPlayer() {
+	 return dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
+}
+
+float SHARED_CVAR_GET_FLOAT( const char *cvar ) {
+	return g_engfuncs.pfnCVarGetFloat( cvar );
+}

@@ -659,42 +659,15 @@ private:
 	std::vector<CounterValue> values;
 };
 
-struct ProposedRandomGameplayModVoter {
-	int alpha;
-	std::string name;
-};
-
-struct ProposedRandomGameplayMod {
-	int votes;
-	float percent;
-	std::string name;
-	std::vector<ProposedRandomGameplayModVoter> voters;
-};
-
-struct ActiveRandomGameplayMod {
-	float initialTime;
-	float timeLeft;
-	std::string name;
-};
-
 class CHudRandomGameplayMods : public CHudBase {
 public:
 	virtual int Init( void );
 	virtual void Reset( void );
 	virtual int Draw( float fTime );
 
-	int MsgFunc_RandModLen( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_RandModVal( const char *pszName, int iSize, void *pbuf );
-	
-	int MsgFunc_PropModLen( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_PropModVal( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_PropModVin( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_PropModAni( const char *pszName, int iSize, void *pbuf );
 
 private:
-	std::vector<ProposedRandomGameplayMod> proposedMods;
-	std::vector<ActiveRandomGameplayMod> mods;
-	
 	int highlightIndex;
 	float timeUntilNextHighlight;
 

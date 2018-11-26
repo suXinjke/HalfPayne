@@ -134,7 +134,7 @@ BOOL CGlock::Deploy( )
 		anim = GLOCK_DRAW_NOSHOT;
 	}
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 
@@ -171,7 +171,7 @@ void CGlock::ItemPostFrame(void) {
 
 		if ( gpGlobals->time > nextStressDecrease ||
 			fabs( nextStressDecrease - gpGlobals->time ) > 0.2f ) { // dumb in case of desync
-			if ( m_pPlayer->slowMotionEnabled ) {
+			if ( gameplayMods::IsSlowmotionEnabled() ) {
 				stress *= 0.6f;
 			} else {
 				stress *= 0.8f;
@@ -197,7 +197,7 @@ void CGlock::SecondaryAttack( void )
 void CGlock::PrimaryAttack( void )
 {
 	float delay = 0.215f;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		delay *= 0.75f;
 	}
 	GlockFire( 0.01, delay, TRUE );
@@ -220,7 +220,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		return;
 	}
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 	UTIL_SetWeaponClip( WEAPON_GLOCK_TWIN, m_iClip );
@@ -264,13 +264,15 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 		vecAiming = forward;
 	}
 
+	auto bulletPhysical = gameplayMods::PlayerShouldProducePhysicalBullets();
+
 #ifndef CLIENT_DLL
-	if ( gameplayMods.bulletPhysical ) {
+	if ( bulletPhysical ) {
 
 		float rightOffset = 8;
 
 		vecSrc = vecSrc + forward * 5;
-		if ( gameplayMods.upsideDown ) {
+		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -283,7 +285,7 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 	Vector vecDir;
 	vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_2DEGREES * stress, 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), fUseAutoAim ? m_usFireGlock1 : m_usFireGlock2, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, ( m_iClip == 0 ) ? 1 : 0, gameplayMods.bulletPhysical );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), fUseAutoAim ? m_usFireGlock1 : m_usFireGlock2, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, ( m_iClip == 0 ) ? 1 : 0, bulletPhysical );
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = GetNextAttackDelay(flCycleTime);
 	shotOnce = true;
@@ -310,7 +312,7 @@ void CGlock::Reload( void )
 	float reloadTime = 1.5f;
 
 	int anim = m_iClip == 0 ? GLOCK_RELOAD : GLOCK_RELOAD_NOT_EMPTY;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 

@@ -640,7 +640,7 @@ BOOL CBaseMonster :: FRouteClear ( void )
 //=========================================================
 BOOL CBaseMonster :: FRefreshRoute ( void )
 {
-	if ( gameplayMods.preventMonsterMovement ) {
+	if ( gameplayMods::preventMonsterMovement.isActive() ) {
 		return FALSE;
 	}
 
@@ -2111,13 +2111,8 @@ void CBaseMonster :: StartMonster ( void )
 		if (!WALK_MOVE ( ENT(pev), 0, 0, WALKMOVE_NORMAL ) )
 		{
 			ALERT(at_error, "Monster %s stuck in wall--level design error", STRING(pev->classname));
-			bool shouldApplyEffect = true;
-			
-			if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
-				shouldApplyEffect = !gameplayMods.preventMonsterStuckEffect;
-			}
 
-			if ( shouldApplyEffect ) {
+			if ( CVAR_GET_FLOAT( "developer" ) >= 1.0f ) {
 				pev->effects = EF_BRIGHTFIELD;
 			}
 		}
@@ -3448,7 +3443,7 @@ CBaseEntity* CBaseMonster :: DropItem ( char *pszItemName, const Vector &vecPos,
 		return NULL;
 	}
 
-	if ( gameplayMods.preventMonsterDrops ) {
+	if ( gameplayMods::preventMonsterDrops.isActive() ) {
 		return NULL;
 	}
 

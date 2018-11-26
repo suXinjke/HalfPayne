@@ -78,7 +78,7 @@ BOOL CIngramTwin::Deploy() {
 		anim = drawingFromSingle ? INGRAM_TWIN_DRAW_NOSHOT_LEFT_ONLY_LEFT : INGRAM_TWIN_DRAW_NOSHOT_LEFT;
 	}
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 
@@ -91,7 +91,7 @@ void CIngramTwin::ItemPostFrame( void ) {
 
 		if ( gpGlobals->time > nextStressDecrease ||
 			fabs( nextStressDecrease - gpGlobals->time ) > 0.2f ) { // dumb in case of desync
-			if ( m_pPlayer->slowMotionEnabled ) {
+			if ( gameplayMods::IsSlowmotionEnabled() ) {
 				stress *= 0.6f;
 			} else {
 				stress *= 0.8f;
@@ -110,7 +110,7 @@ void CIngramTwin::ItemPostFrame( void ) {
 
 void CIngramTwin::PrimaryAttack( void )
 {
-	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater ) {
+	if ( m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive() ) {
 		PlayEmptySound();
 		m_flNextPrimaryAttack = 0.15;
 		return;
@@ -141,7 +141,7 @@ void CIngramTwin::PrimaryAttack( void )
 		m_iClip2--;
 	}
 	
-	if ( gameplayMods.infiniteAmmoClip ) {
+	if ( gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip += shootingRight;
 		m_iClip2 += shootingLeft;
 	}
@@ -165,6 +165,8 @@ void CIngramTwin::PrimaryAttack( void )
 	Vector vecDir;
 	Vector vecDir2;
 
+	auto bulletPhysical = gameplayMods::PlayerShouldProducePhysicalBullets();
+
 	for ( int i = 0 ; i < 2 ; i++ ) {
 		Vector vecSrc = m_pPlayer->GetGunPosition();
 		Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
@@ -178,12 +180,12 @@ void CIngramTwin::PrimaryAttack( void )
 		}
 
 #ifndef CLIENT_DLL
-		if ( gameplayMods.bulletPhysical ) {
+		if ( bulletPhysical ) {
 
 			float rightOffset = i == 0 ? 8 : -8;
 
 			vecSrc = vecSrc + forward * 5;
-			if ( gameplayMods.upsideDown ) {
+			if ( gameplayMods::upsideDown.isActive() ) {
 				rightOffset *= -1;
 				vecSrc = vecSrc + Vector( 0, 0, 6 );
 			}
@@ -215,8 +217,8 @@ void CIngramTwin::PrimaryAttack( void )
 
 	// There's not enough room for float type, so it's interpreted as int
 	int stressPacked = *( int * ) &stress;
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngram, 0.0, ( float * ) &g_vecZero, ( float * ) &g_vecZero, 0.0f, 0.0f, emptyFlag, stressPacked, gameplayMods.bulletPhysical, shootingBoth ? 2 : shootingLeft ? 1 : 0 );
-	if ( !gameplayMods.bulletPhysical ) {
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngram, 0.0, ( float * ) &g_vecZero, ( float * ) &g_vecZero, 0.0f, 0.0f, emptyFlag, stressPacked, bulletPhysical, shootingBoth ? 2 : shootingLeft ? 1 : 0 );
+	if ( !bulletPhysical ) {
 		if ( shootingRight ) {
 			PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usFireIngramTracer, 0.0, ( float * ) &g_vecZero, ( float * ) &g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, true /* shooting right */ );
 		}
@@ -277,7 +279,7 @@ void CIngramTwin::Reload( void )
 		realodingOnlyOneGun = true;
 	}
 
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		anim++;
 	}
 

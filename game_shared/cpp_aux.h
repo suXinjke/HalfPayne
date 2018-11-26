@@ -58,12 +58,6 @@ namespace aux {
 			return str;
 		}
 
-		inline void replace( std::string *str, const std::regex &re, const std::string &newSubstring ) {
-			std::regex_replace( str->begin(), str->begin(), str->end(), re, newSubstring );
-		}
-		inline void replace( std::string *str, const std::string &re, const std::string &newSubstring ) {
-			replace( str, std::regex( re ), newSubstring );
-		}
 		inline std::string replace( const std::string &str, const std::regex &re, const std::string &newSubstring ) {
 			return std::regex_replace( str, re, newSubstring );
 		}

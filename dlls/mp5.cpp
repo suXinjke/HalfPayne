@@ -124,7 +124,7 @@ void CMP5::ItemPostFrame()
 	{
 		if ( gpGlobals->time > nextStressDecrease ||
 			 fabs( nextStressDecrease - gpGlobals->time ) > 0.2f ) { // dumb in case of desync
-			if ( m_pPlayer->slowMotionEnabled ) {
+			if ( gameplayMods::IsSlowmotionEnabled() ) {
 				stress *= 0.5f;
 			} else {
 				stress *= 0.8f;
@@ -145,7 +145,7 @@ void CMP5::ItemPostFrame()
 void CMP5::PrimaryAttack()
 {
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive())
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;
@@ -162,7 +162,7 @@ void CMP5::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 
@@ -180,10 +180,10 @@ void CMP5::PrimaryAttack()
 	Vector vecBullet = VECTOR_CONE_2DEGREES * stress;
 
 #ifndef CLIENT_DLL
-	if ( gameplayMods.bulletPhysical ) {
+	if ( gameplayMods::PlayerShouldProducePhysicalBullets() ) {
 
 		float rightOffset = 2;
-		if ( gameplayMods.upsideDown ) {
+		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -219,14 +219,14 @@ void CMP5::PrimaryAttack()
 	// There's not enough room for float type, so it's interpreted as int
 	int stressPacked = *( int * ) &stress;
 
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usMP5, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, gameplayMods.bulletPhysical, 0 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usMP5, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, stressPacked, 0, gameplayMods::PlayerShouldProducePhysicalBullets(), 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
 	float delay = 0.1;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		delay *= 0.85f;
 	}
 	m_flNextPrimaryAttack = GetNextAttackDelay( delay );
@@ -245,11 +245,11 @@ void CMP5::PrimaryAttack()
 
 void CMP5::SecondaryAttack( void )
 {
-	if ( gameplayMods.noSecondaryAttack ) {
+	if ( gameplayMods::noSecondaryAttack.isActive() ) {
 		return;
 	}
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater)
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive() )
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;
@@ -268,7 +268,7 @@ void CMP5::SecondaryAttack( void )
 	m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
 	m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
 			
-	if ( !gameplayMods.infiniteAmmo ) {
+	if ( !gameplayMods::infiniteAmmo.isActive() ) {
 		m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
 	}
 
@@ -293,7 +293,7 @@ void CMP5::SecondaryAttack( void )
 	flags = 0;
 #endif
 
-	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods.upsideDown ? -1 : 1 );
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods::upsideDown.isActive() ? -1 : 1 );
 	PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usMP52 );
 	
 	m_flNextPrimaryAttack = GetNextAttackDelay(1);
@@ -312,7 +312,7 @@ void CMP5::Reload( void )
 
 	float reloadTime = 1.5f;
 
-	DefaultReload( MP5_MAX_CLIP, m_pPlayer->slowMotionEnabled ? MP5_RELOAD_FAST : MP5_RELOAD, reloadTime, 0, reloadTime / 2.0f );
+	DefaultReload( MP5_MAX_CLIP, gameplayMods::IsSlowmotionEnabled() ? MP5_RELOAD_FAST : MP5_RELOAD, reloadTime, 0, reloadTime / 2.0f );
 	stress = 0.0f;
 }
 
@@ -415,7 +415,7 @@ class CMP5AmmoGrenade : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo( CBaseEntity *pOther ) 
 	{ 
-		if ( gameplayMods.noSmgGrenadePickup ) {
+		if ( gameplayMods::noSmgGrenadePickup.isActive() ) {
 			return FALSE;
 		}
 

@@ -176,14 +176,14 @@ void GameModeGUI_DrawGamemodeConfigTable( std::vector<CustomGameModeConfig> &con
 			if ( config.gameFinishedOnce && ImGui::IsItemHovered() ) {
 				ImGui::BeginTooltip();
 
-				bool timerBackwards = config.IsGameplayModActive( GAMEPLAY_MOD_BLACK_MESA_MINUTE ) || config.IsGameplayModActive( GAMEPLAY_MOD_TIME_RESTRICTION );
+				bool timerBackwards = gameplayMods::timeRestriction.isActive();
 
 				ImGui::Text( timerBackwards ? "Time score: %s" : "Time: %s", GameModeGUI_GetFormattedTime( config.record.time ).c_str() );
 				ImGui::Text( "Real time: %s", GameModeGUI_GetFormattedTime( config.record.realTime ).c_str() );
 				if ( timerBackwards ) {
 					ImGui::Text( "Real time minus score: %s", GameModeGUI_GetFormattedTime( config.record.realTimeMinusTime ).c_str() );
 				}
-				if ( config.IsGameplayModActive( GAMEPLAY_MOD_SCORE_ATTACK ) ) {
+				if ( config.mods.find( &gameplayMods::scoreAttack ) != config.mods.end() ) {
 					ImGui::Text( "Score: %d", config.record.score );
 				}
 
@@ -278,12 +278,12 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 		}
 
 		for ( const auto &pair : config.mods ) {
-			const auto &mod = pair.second;
+			auto &mod = *pair.first;
 
 			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( "\n" + mod.name + "\n" ).c_str() );
 			ImGui::Text( mod.description.c_str() );
 
-			for ( const auto &arg : mod.arguments ) {
+			for ( const auto &arg : pair.second ) {
 				if ( !arg.description.empty() ) {
 					ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), "   %s", ICON_FA_WRENCH ); ImGui::SameLine();
 					ImGui::Text( arg.description.c_str() );

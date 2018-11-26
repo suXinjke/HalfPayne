@@ -546,7 +546,7 @@ void GameDLLInit( void )
 		g_engfuncs.pfnServerPrint( "Failed to register sys_timescale cvar, falling back to old slowmotion implementation\n" );
 	}
 
-	gameplayMods.Init();
+	gameplayModsData.Init();
 
 	InitializeTracks();
 
@@ -581,7 +581,7 @@ void GameDLLInit( void )
 		twitch->OnMessage = []( const std::string &sender, const std::string &message ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-					if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
+					if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() ) {
 						cgm->VoteForRandomGameplayMod( pPlayer, sender, message );
 					}
 

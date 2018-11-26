@@ -163,14 +163,16 @@ void respawn(entvars_t* pev, BOOL fCopyCorpse)
 	else
 	{   
 
-		if ( gameplayMods.noSaving ) {
+		if ( gameplayMods::autoSavesOnly.isActive() ) {
+			SERVER_COMMAND( "reload\n" );
+		} else if ( gameplayMods::noSaving.isActive() ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 				cgm->RestartGame();
 				return;
 			}
+		} else {
+			SERVER_COMMAND( "reload\n" );
 		}
-
-		SERVER_COMMAND( "reload\n" );
 	}
 }
 
@@ -512,6 +514,11 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	}
 }
 
+extern int gmsgGmplayFDC;
+extern int gmsgGmplayFD;
+extern int gmsgGmplayFEC;
+extern int gmsgGmplayFE;
+
 /*
 ===========
 ClientCommand
@@ -621,10 +628,36 @@ void ClientCommand( edict_t *pEntity )
 			return;
 		}
 
-		if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
-			auto gameplay_mod = ( char * ) CMD_ARGS();
-			gameplayMods.SetGameplayModActiveByString( std::string( gameplay_mod ), true );
-			gameplayMods.cheated = true;
+		using namespace gameplayMods;
+
+		std::string gameplayModName = CMD_ARGS();
+		if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( gameplayModName ) ) {
+
+			auto mod = modWithArguments->first;
+			auto &args = modWithArguments->second;
+
+			if ( forceEnabledMods.find( mod ) != forceEnabledMods.end() ) {
+				forceEnabledMods.erase( mod );
+				ALERT( at_notice, "Removed force enabled mod %s\n", mod->id.c_str() );
+			} else {
+				forceEnabledMods[ mod ] = args;
+				ALERT( at_notice, "Added force enabled mod %s\n", mod->id.c_str() );
+			}
+
+			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFEC, NULL );
+			MESSAGE_END();
+
+			for ( auto &enabledMod : forceEnabledMods ) {
+				std::string modString = enabledMod.first->id + "|";
+				for ( auto &arg : args ) {
+					modString += arg.string + " ";
+				}
+				aux::str::rtrim( &modString );
+
+				MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFE, NULL );
+					WRITE_STRING( modString.c_str() );
+				MESSAGE_END();
+			}
 		}
 	}
 	else if ( FStrEq( pcmd, "gameplay_demod" ) )
@@ -633,10 +666,29 @@ void ClientCommand( edict_t *pEntity )
 			return;
 		}
 
-		if ( CCustomGameModeRules *cgm = dynamic_cast<CCustomGameModeRules *>( g_pGameRules ) ) {
-			auto gameplay_mod = ( char * ) CMD_ARGS();
-			gameplayMods.SetGameplayModActiveByString( std::string( gameplay_mod ), false );
-			gameplayMods.cheated = true;
+		using namespace gameplayMods;
+
+		std::string gameplayModName = CMD_ARGS();
+		if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( gameplayModName ) ) {
+			
+			auto mod = modWithArguments->first;
+
+			if ( forceDisabledMods.find( mod ) != forceDisabledMods.end() ) {
+				forceDisabledMods.erase( mod );
+				ALERT( at_notice, "Removed force disabled mod %s\n", mod->id.c_str() );
+			} else {
+				forceDisabledMods.insert( mod );
+				ALERT( at_notice, "Added force disabled mod %s\n", mod->id.c_str() );
+			}
+
+			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFDC, NULL );
+			MESSAGE_END();
+
+			for ( auto &disabledMod : forceDisabledMods ) {
+				MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFD, NULL );
+					WRITE_STRING( disabledMod->id.c_str() );
+				MESSAGE_END();
+			}
 		}
 	}
 	else if ( FStrEq( pcmd, "gameplay_mod_can_be_activated_randomly" ) ) {
@@ -644,19 +696,10 @@ void ClientCommand( edict_t *pEntity )
 			return;
 		}
 
-		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-			auto gameplay_mod = std::string( CMD_ARGS() );
-
-			for ( auto &pair : gameplayModDefs ) {
-				auto &mod = pair.second;
-				if ( mod.id != gameplay_mod ) {
-					continue;
-				}
-				
-				if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-					ALERT( at_notice, "%s: %d\n", mod.id.c_str(), mod.CanBeActivatedRandomly( player ) );
-				}
-			}
+		std::string line = CMD_ARGS();
+		if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( line ) ) {
+			auto mod = modWithArguments->first;
+			ALERT( at_notice, "%s: %d\n", mod->id.c_str(), mod->CanBeActivatedRandomly() );
 		}
 	}
 	else if ( FStrEq( pcmd, "gameplay_mod_vote" ) ) {
@@ -669,9 +712,9 @@ void ClientCommand( edict_t *pEntity )
 			auto modIndex = std::string( CMD_ARGV( 2 ) );
 
 			if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				if ( gameplayMods.AllowedToVoteOnRandomGameplayMods() ) {
+				if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() ) {
 					cgm->VoteForRandomGameplayMod( player, sender, modIndex );
-					gameplayMods.cheated = true;
+					gameplayModsData.cheated = true;
 				}
 			}
 		}
@@ -813,31 +856,6 @@ void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 
 	// Link user messages here to make sure first client can get them...
 	LinkUserMessages();
-
-	if ( gameplayMods.randomGameplayMods ) {
-		if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-			if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-				auto filteredGameplayMods = gameplayMods.FilterGameplayMods( gameplayModDefs, player );
-
-				for ( auto &mod : filteredGameplayMods ) {
-					mod.second.Deactivate( player );
-				}
-
-				auto filteredConfigFileGameplayMods = gameplayMods.FilterGameplayMods( cgm->config.mods, player );
-				for ( auto &mod : filteredConfigFileGameplayMods ) {
-					mod.second.Init( player );
-				}
-
-				for ( auto &mod : gameplayMods.timedGameplayMods ) {
-					mod.first.Init( player );
-				}
-
-				if ( std::string( gameplayMods.activeGameModeConfigHash ) != cgm->config.sha1 ) {
-					gameplayMods.usedCheat = TRUE;
-				}
-			}
-		}
-	}
 }
 
 

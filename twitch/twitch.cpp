@@ -114,9 +114,9 @@ void event_channel( irc_session_t *session, const char *event, const char *origi
 		utf8::advance( it, 1, originalMessage.end() );
 	}
 
-	aux::str::replace( &message, "[^ -~]", "" );
-	aux::str::replace( &message, "\\s+", " " );
-	aux::str::replace( &message, "^[#!0]*([1-9]{1})", "" );
+	message = aux::str::replace( message, "[^ -~]", "" );
+	message = aux::str::replace( message, "\\s+", " " );
+	message = aux::str::replace( message, "^[#!0]*([1-9]{1})", "" );
 
 	aux::str::trim( &message );
 

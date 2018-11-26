@@ -43,4 +43,6 @@
 
 #define WEAPON_SUIT			31
 
+void COM_FileBase( const char *in, char *out );
+
 #endif

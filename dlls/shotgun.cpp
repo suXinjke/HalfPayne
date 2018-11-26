@@ -142,7 +142,7 @@ void CShotgun::PrimaryAttack()
 		return;
 	}
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive())
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.15);
@@ -160,7 +160,7 @@ void CShotgun::PrimaryAttack()
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip--;
 	}
 
@@ -179,12 +179,14 @@ void CShotgun::PrimaryAttack()
 
 	Vector vecDir;
 
+	auto bulletPhysical = gameplayMods::PlayerShouldProducePhysicalBullets();
+
 #ifndef CLIENT_DLL
-	if ( gameplayMods.bulletPhysical ) {
+	if ( bulletPhysical ) {
 
 		float rightOffset = 2;
 
-		if ( gameplayMods.upsideDown ) {
+		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -208,23 +210,25 @@ void CShotgun::PrimaryAttack()
 		// regular old, untouched spread. 
 		vecDir = m_pPlayer->FireBulletsPlayer( 6, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
+	
+	auto shotgunAutomatic = gameplayMods::shotgunAutomatic.isActive();
 
-	m_pPlayer->pev->punchangle[0] -= 2.5f * ( gameplayMods.upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, gameplayMods.bulletPhysical, gameplayMods.automaticShotgun );
+	m_pPlayer->pev->punchangle[0] -= 2.5f * ( gameplayMods::upsideDown.isActive() ? -1 : 1 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usSingleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, bulletPhysical, shotgunAutomatic );
 
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	if ( !gameplayMods.automaticShotgun ) {
-		float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.25 : 0.5;
+	if ( !shotgunAutomatic ) {
+		float pumpDelay = gameplayMods::IsSlowmotionEnabled() ? 0.25 : 0.5;
 		if (m_iClip != 0)
 			m_flPumpTime = gpGlobals->time + pumpDelay;
 	}
 
-	float attackDelay = gameplayMods.automaticShotgun ? 0.25 : 0.75f;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	float attackDelay = shotgunAutomatic ? 0.25 : 0.75f;
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		attackDelay /= 1.6f;
 	}
 
@@ -243,11 +247,11 @@ void CShotgun::PrimaryAttack()
 
 void CShotgun::SecondaryAttack( void )
 {
-	if ( gameplayMods.automaticShotgun || shotSecondaryOnce || gameplayMods.noSecondaryAttack ) {
+	if ( shotSecondaryOnce || gameplayMods::noSecondaryAttack.isActive() || gameplayMods::shotgunAutomatic.isActive() ) {
 		return;
 	}
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods.shootUnderwater )
+	if (m_pPlayer->pev->waterlevel == 3 && !gameplayMods::shootUnderwater.isActive() )
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.15);
@@ -264,7 +268,7 @@ void CShotgun::SecondaryAttack( void )
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	if ( !gameplayMods.infiniteAmmoClip ) {
+	if ( !gameplayMods::infiniteAmmoClip.isActive() ) {
 		m_iClip -= 2;
 	}
 
@@ -286,12 +290,14 @@ void CShotgun::SecondaryAttack( void )
 
 	Vector vecDir;
 
+	auto bulletPhysical = gameplayMods::PlayerShouldProducePhysicalBullets();
+
 #ifndef CLIENT_DLL
-	if ( gameplayMods.bulletPhysical ) {
+	if ( bulletPhysical ) {
 		
 		float rightOffset = 2;
 
-		if ( gameplayMods.upsideDown ) {
+		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
 		}
@@ -318,19 +324,19 @@ void CShotgun::SecondaryAttack( void )
 		vecDir = m_pPlayer->FireBulletsPlayer( 12, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 		
-	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods.upsideDown ? -1 : 1 );
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, gameplayMods.bulletPhysical, 0 );
+	m_pPlayer->pev->punchangle[0] -= 5.0f * ( gameplayMods::upsideDown.isActive() ? -1 : 1 );
+	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, bulletPhysical, 0 );
 
 	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	float pumpDelay = m_pPlayer->slowMotionEnabled ? 0.6 : 0.95;
+	float pumpDelay = gameplayMods::IsSlowmotionEnabled() ? 0.6 : 0.95;
 	if (m_iClip != 0)
 		m_flPumpTime = gpGlobals->time + pumpDelay;
 
 	float attackDelay = 1.5f;
-	if ( m_pPlayer->slowMotionEnabled ) {
+	if ( gameplayMods::IsSlowmotionEnabled() ) {
 		attackDelay /= 1.6f;
 	}
 
@@ -362,12 +368,12 @@ void CShotgun::Reload( void )
 	{
 		float delay1 = 0.2;
 		float delay2 = 0.5;
-		if ( m_pPlayer->slowMotionEnabled ) {
+		if ( gameplayMods::IsSlowmotionEnabled() ) {
 			delay1 /= 2.0f;
 			delay2 /= 2.0f;
 		}
 
-		SendWeaponAnim( m_pPlayer->slowMotionEnabled ? SHOTGUN_START_RELOAD_FAST : SHOTGUN_START_RELOAD );
+		SendWeaponAnim( gameplayMods::IsSlowmotionEnabled() ? SHOTGUN_START_RELOAD_FAST : SHOTGUN_START_RELOAD );
 		m_fInSpecialReload = 1;
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + delay1;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + delay1;
@@ -396,7 +402,7 @@ void CShotgun::Reload( void )
 	{
 		// Add them to the clip
 		m_iClip += 1;
-		if ( !gameplayMods.infiniteAmmo ) {
+		if ( !gameplayMods::infiniteAmmo.isActive() ) {
 			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] -= 1;
 		}
 		m_fInSpecialReload = 1;
@@ -434,7 +440,7 @@ void CShotgun::WeaponIdle( void )
 				float pumpTime = 1.5f;
 				int anim = SHOTGUN_PUMP;
 
-				if ( m_pPlayer->slowMotionEnabled ) {
+				if ( gameplayMods::IsSlowmotionEnabled() ) {
 					pumpTime /= 2.0f;
 					anim = SHOTGUN_PUMP_FAST;
 				}

@@ -25,6 +25,8 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "parsemsg.h"
+#include "extdll.h"
+#include "util.h"
 #include <string.h>
 
 
@@ -173,7 +175,8 @@ int CHudHealth::Draw(float flTime)
 	if ( !( gHUD.m_iWeaponBits & ( 1 << ( WEAPON_SUIT ) ) )
 		|| ( gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH )
 		|| gEngfuncs.IsSpectateOnly()
-		|| std::string( gEngfuncs.pfnGetLevelName() ) == "maps/nightmare.bsp" ) {
+		|| GetMapName() == "nightmare"
+	) {
 	
 		return 1;
 	}

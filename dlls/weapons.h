@@ -1259,7 +1259,7 @@ class CBullet : public CBaseEntity
 
 public:
 	Vector lastVelocity;
-	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, BOOL trailActive = false, edict_t *owner = NULL, int ricochetCount = 0, int ricochetError = 5, float ricochetMaxDotProduct = 0.5, BOOL selfHarm = false );
+	static CBullet *BulletCreate( Vector vecSrc, Vector velocity, int bulletType, edict_t *owner = NULL );
 	static TYPEDESCRIPTION m_SaveData[];
 	void ActivateTrail( int life = 2 );
 };

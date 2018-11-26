@@ -160,7 +160,7 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay,
 		return FALSE;
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
-	m_pPlayer->nextAttackSlowmotionOffset = m_pPlayer->slowMotionEnabled ? max( 0.0f, fDelay - delayWhenInSlowmotion ) : 0.0f;
+	m_pPlayer->nextAttackSlowmotionOffset = m_pPlayer->slowMotionWasEnabled ? max( 0.0f, fDelay - delayWhenInSlowmotion ) : 0.0f;
 
 	//!!UNDONE -- reload sound goes here !!!
 	SendWeaponAnim( iAnim, UseDecrement(), body );

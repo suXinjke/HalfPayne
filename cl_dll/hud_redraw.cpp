@@ -21,6 +21,7 @@
 #include "cl_util.h"
 #include "bench.h"
 #include "flash.h"
+#include "gameplay_mod.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -37,8 +38,6 @@ int grgLogoFrame[MAX_LOGO_FRAMES] =
 float HUD_GetFOV( void );
 
 extern cvar_t *sensitivity;
-extern float g_fovOffsetAmplitude;
-extern float g_fovOffsetChangeFreqency;
 
 // Think
 void CHud::Think(void)
@@ -91,8 +90,10 @@ void CHud::Think(void)
 		m_iFOV = gHUD.m_Spectator.GetFOV();	// default_fov->value;
 	}
 
-	float phi = gEngfuncs.GetClientTime() * g_fovOffsetChangeFreqency;
-	m_iFOV = m_iFOV + sin( phi ) * g_fovOffsetAmplitude;
+	if ( auto drunkFOV = gameplayMods::drunkFOV.isActive<DrunkFOVInfo>() ) {
+		float phi = gEngfuncs.GetClientTime() * drunkFOV->offsetFrequency;
+		m_iFOV = m_iFOV + sin( phi ) * drunkFOV->offsetAmplitude;
+	}
 
 	Bench_CheckStart();
 }
