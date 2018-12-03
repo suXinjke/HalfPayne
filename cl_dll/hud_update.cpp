@@ -42,6 +42,11 @@ int CHud::UpdateClientData(client_data_t *cdata, float time)
 
 	Think();
 
+	if ( auto drunkFOV = gameplayMods::drunkFOV.isActive<DrunkFOVInfo>() ) {
+		float phi = gEngfuncs.GetClientTime() * drunkFOV->offsetFrequency;
+		m_iFOV = m_iFOV + sin( phi ) * drunkFOV->offsetAmplitude;
+	}
+
 	cdata->fov = m_iFOV;
 	
 	auto drunkLook = gameplayMods::drunkLook.isActive<float>();

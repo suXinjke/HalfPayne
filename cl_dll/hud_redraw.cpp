@@ -21,7 +21,6 @@
 #include "cl_util.h"
 #include "bench.h"
 #include "flash.h"
-#include "gameplay_mod.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -88,11 +87,6 @@ void CHud::Think(void)
 	if ( gEngfuncs.IsSpectateOnly() )
 	{
 		m_iFOV = gHUD.m_Spectator.GetFOV();	// default_fov->value;
-	}
-
-	if ( auto drunkFOV = gameplayMods::drunkFOV.isActive<DrunkFOVInfo>() ) {
-		float phi = gEngfuncs.GetClientTime() * drunkFOV->offsetFrequency;
-		m_iFOV = m_iFOV + sin( phi ) * drunkFOV->offsetAmplitude;
 	}
 
 	Bench_CheckStart();
