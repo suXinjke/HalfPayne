@@ -145,7 +145,7 @@ void CHudRandomGameplayMods::HighlightRandomProposedMod() {
 	timeUntilNextHighlight = gEngfuncs.GetAbsoluteTime() + 0.1f;
 	
 	int lastHighlightIndex = highlightIndex;
-	while ( highlightIndex == lastHighlightIndex && !proposedGameplayModsClient.empty() ) {
+	while ( highlightIndex == lastHighlightIndex && proposedGameplayModsClient.size() > 1 ) {
 		highlightIndex = aux::rand::uniformInt<int>( 0, proposedGameplayModsClient.size() - 1 );
 	}
 }
