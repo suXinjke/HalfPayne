@@ -131,8 +131,7 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 
 	musicSwitchDelay = 0.0f;
 
-	yOffset = 0;
-	maxYOffset = 0;
+	maxYOffset = -1;
 
 	for ( const auto &spawner : config.entityRandomSpawners ) {
 		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
@@ -160,6 +159,10 @@ void CCustomGameModeRules::RestartGame() {
 std::mutex gameLogMutex;
 void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message, bool logToConsole ) {
 	std::lock_guard<std::mutex> guard( gameLogMutex );
+
+	if ( maxYOffset == -1 ) {
+		SendHUDMessages( pPlayer );
+	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgGLogMsg, NULL, pPlayer->pev );
 		WRITE_STRING( message.c_str() );
@@ -307,76 +310,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		musicSwitchDelay = gpGlobals->time + 0.2f;
 	}
 
-	const int SPACING = 56;
-	yOffset = 0;
-
-	if ( gameplayMods::timerShown.isActive() ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
-			WRITE_STRING(
-				gameplayMods::timerShownReal.isActive() ? "REAL TIME" :
-				gameplayMods::timeRestriction.isActive() ? "TIME LEFT" :
-				"TIME"
-			);
-			WRITE_FLOAT( gameplayMods::timerShownReal.isActive() ? gameplayModsData.realTime : gameplayModsData.time );
-			WRITE_LONG( yOffset );
-		MESSAGE_END();
-
-		yOffset += SPACING;
-
-		if ( gameplayMods::timeRestriction.isActive() && gameplayModsData.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
-			ClientKill( ENT( pPlayer->pev ) );
-		}
-	}
-
-	if ( gameplayMods::scoreAttack.isActive() ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
-			WRITE_LONG( gameplayModsData.score );
-			WRITE_LONG( gameplayModsData.comboMultiplier );
-			WRITE_FLOAT( gameplayModsData.comboMultiplierReset );
-			WRITE_LONG( yOffset );
-		MESSAGE_END();
-
-		yOffset += SPACING;
-	}
-
-	int conditionsHeight = 0;
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgCountLen, NULL, pPlayer->pev );
-		WRITE_SHORT( config.endConditions.size() + ( gameplayMods::kerotanDetector.isActive() ? 1 : 0 ) );
-	MESSAGE_END();
-
-	for ( size_t i = 0 ; i < config.endConditions.size() ; i++ ) {
-		auto &condition = config.endConditions.at( i );
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
-			WRITE_SHORT( i );
-			WRITE_LONG( condition.activations );
-			WRITE_LONG( condition.activationsRequired );
-			WRITE_STRING( condition.objective.c_str() );
-		MESSAGE_END();
-
-		conditionsHeight += condition.activationsRequired > 1 ? SPACING : SPACING - 34;
-	}
-	
-	if ( gameplayMods::kerotanDetector.isActive() ) {
-		auto chapterMaps = pPlayer->GetCurrentChapterMapNames();
-
-		MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
-			WRITE_SHORT( config.endConditions.size() );
-			WRITE_LONG( pPlayer->GetAmountOfKerotansInCurrentChapter() );
-			WRITE_LONG( chapterMaps.second.size() );
-			WRITE_STRING( chapterMaps.first.c_str() );
-		MESSAGE_END();
-
-		conditionsHeight += SPACING;
-	}
-	
-	MESSAGE_BEGIN( MSG_ONE, gmsgCountOffse, NULL, pPlayer->pev );
-		WRITE_LONG( yOffset );
-	MESSAGE_END();
-
-	yOffset += conditionsHeight;
-	maxYOffset = max( yOffset, maxYOffset );
+	SendHUDMessages( pPlayer );
 
 	if ( gameplayMods::scoreAttack.isActive() ) {
 		gameplayModsData.comboMultiplierReset -= timeDelta;
@@ -826,6 +760,91 @@ void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const
 			VoteForRandomGameplayMod( pPlayer, voter, modIndex );
 		}
 	}
+}
+
+void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
+	const int SPACING = 56;
+	int yOffset = 0;
+
+	if ( gameplayMods::timerShown.isActive() ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgTimerValue, NULL, pPlayer->pev );
+			WRITE_STRING(
+				gameplayMods::timerShownReal.isActive() ? "REAL TIME" :
+				gameplayMods::timeRestriction.isActive() ? "TIME LEFT" :
+				"TIME"
+			);
+			WRITE_FLOAT( gameplayMods::timerShownReal.isActive() ? gameplayModsData.realTime : gameplayModsData.time );
+			WRITE_LONG( yOffset );
+		MESSAGE_END();
+
+		yOffset += SPACING;
+
+		if ( gameplayMods::timeRestriction.isActive() && gameplayModsData.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+			ClientKill( ENT( pPlayer->pev ) );
+		}
+	}
+
+	if ( gameplayMods::scoreAttack.isActive() ) {
+		MESSAGE_BEGIN( MSG_ONE, gmsgScoreValue, NULL, pPlayer->pev );
+			WRITE_LONG( gameplayModsData.score );
+			WRITE_LONG( gameplayModsData.comboMultiplier );
+			WRITE_FLOAT( gameplayModsData.comboMultiplierReset );
+			WRITE_LONG( yOffset );
+		MESSAGE_END();
+
+		yOffset += SPACING;
+	}
+
+	struct CounterData {
+		int count;
+		int maxCount;
+		std::string text;
+		int offset;
+	};
+
+	std::vector<CounterData> counterData;
+	for ( auto &endCondition : config.endConditions ) {
+		counterData.push_back( {
+			endCondition.activations,
+			endCondition.activationsRequired,
+			endCondition.objective,
+			endCondition.activationsRequired > 1 ? SPACING : SPACING - 34
+		} );
+	}
+	if ( gameplayMods::kerotanDetector.isActive() ) {
+		auto chapterMaps = pPlayer->GetCurrentChapterMapNames();
+		counterData.push_back( {
+			pPlayer->GetAmountOfKerotansInCurrentChapter(),
+			( int ) chapterMaps.second.size(),
+			chapterMaps.first.c_str(),
+			SPACING
+		} );
+	}
+
+	int conditionsHeight = 0;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgCountLen, NULL, pPlayer->pev );
+		WRITE_SHORT( counterData.size() );
+	MESSAGE_END();
+
+	for ( size_t i = 0 ; i < counterData.size() ; i++ ) {
+		auto &counter = counterData.at( i );
+		MESSAGE_BEGIN( MSG_ONE, gmsgCountValue, NULL, pPlayer->pev );
+			WRITE_SHORT( i );
+			WRITE_LONG( counter.count );
+			WRITE_LONG( counter.maxCount );
+			WRITE_STRING( counter.text.c_str() );
+		MESSAGE_END();
+
+		conditionsHeight += counter.offset;
+	}
+	
+	MESSAGE_BEGIN( MSG_ONE, gmsgCountOffse, NULL, pPlayer->pev );
+		WRITE_LONG( yOffset );
+	MESSAGE_END();
+
+	yOffset += conditionsHeight;
+	maxYOffset = max( yOffset, maxYOffset );
 }
 
 void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {

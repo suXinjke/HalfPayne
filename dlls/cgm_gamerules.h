@@ -52,6 +52,8 @@ public:
 	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex );
 	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
 
+	void SendHUDMessages( CBasePlayer *pPlayer );
+
 	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );
 	bool endMarkersActive;
 
@@ -60,7 +62,6 @@ public:
 
 	float musicSwitchDelay;
 
-	int yOffset;
 	int maxYOffset;
 
 	CustomGameModeConfig config;
