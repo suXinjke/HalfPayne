@@ -248,6 +248,24 @@ GameplayMod &::godConstant = GameplayMod::Define( "god", "God mode" )
 .Description( "You are invincible and it doesn't count as a cheat." )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::gungame = GameplayMod::Define( "gungame", "Gungame" )
+.Description( "Kill enemies to switch weapons" )
+.Arguments( {
+	Argument( "amount_of_kills" ).IsOptional().MinMax( 0 ).RandomMinMax( 1, 5 ).Default( "1" ).Description( []( const std::string string, float value ) {
+		return "Amount of kills required to get next weapon: " + std::to_string( value ) + "\n";
+	} ),
+	Argument( "weapon_switch_time" ).IsOptional().MinMax( 0 ).Default( "0" ).Description( []( const std::string string, float value ) {
+		if ( value <= 0.0f ) {
+			return std::string( "Weapon won't be switched until you do enough kills\n" );
+		} else {
+			return "Amount of kills required to get next weapon: " + std::to_string( value ) + "\n";
+		}
+	} ),
+	Argument( "sequential" ).IsOptional().Default( "" ).Description( []( const std::string string, float value ) {
+		return string == "sequential" ? "Weapons will change sequentially" : "Weapons will change randomly";
+	} ),
+} );
+
 GameplayMod &::headshots = GameplayMod::Define( "headshots", "Headshots" )
 .Description( "Headshots dealt to enemies become much more deadly." )
 .CannotBeActivatedRandomly();
@@ -293,6 +311,10 @@ GameplayMod &::instagib = GameplayMod::Define( "instagib", "Instagib" )
 GameplayMod &::infiniteAmmo = GameplayMod::Define( "infinite_ammo", "Infinite ammo" )
 .Description( "All weapons get infinite ammo." )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::gungame.isActive() ) {
+		return "";
+	}
+
 	if ( auto player = GetPlayer() ) {
 		static std::vector< CBasePlayer::DESPERATION_TYPE> desperations = {
 			CBasePlayer::DESPERATION_TYPE::DESPERATION_FIGHTING,

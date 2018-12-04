@@ -443,6 +443,9 @@ TYPEDESCRIPTION	CBasePlayerItem::m_SaveData[] =
 	DEFINE_FIELD( CBasePlayerItem, m_iId, FIELD_INTEGER ),
 	// DEFINE_FIELD( CBasePlayerItem, m_iIdPrimary, FIELD_INTEGER ),
 	// DEFINE_FIELD( CBasePlayerItem, m_iIdSecondary, FIELD_INTEGER ),
+
+	DEFINE_FIELD( CBasePlayerWeapon, locked, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayerWeapon, isGungameWeapon, FIELD_INTEGER ),
 };
 IMPLEMENT_SAVERESTORE( CBasePlayerItem, CBaseAnimating );
 
@@ -1081,6 +1084,10 @@ BOOL CBasePlayerWeapon :: IsUseable( void )
 
 BOOL CBasePlayerWeapon :: CanDeploy( void )
 {
+	if ( locked ) {
+		return FALSE;
+	}
+
 	BOOL bHasAmmo = 0;
 
 	if ( !pszAmmo1() )

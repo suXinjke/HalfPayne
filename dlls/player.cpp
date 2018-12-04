@@ -254,6 +254,8 @@ int gmsgResetHUD = 0;
 int gmsgInitHUD = 0;
 int gmsgShowGameTitle = 0;
 int gmsgCurWeapon = 0;
+int gmsgLckWeapon = 0;
+int gmsgRemWeapon = 0;
 int gmsgHealth = 0;
 int gmsgSlowMotion = 0;
 int gmsgPainkillerCount = 0;
@@ -320,6 +322,7 @@ void LinkUserMessages( void )
 
 	gmsgSelAmmo = REG_USER_MSG("SelAmmo", sizeof(SelAmmo));
 	gmsgCurWeapon = REG_USER_MSG("CurWeapon", 4);
+	gmsgLckWeapon = REG_USER_MSG("LckWeapon", 2);
 	gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
@@ -1364,7 +1367,24 @@ void CBasePlayer::ApplyWeaponPushback( float impulse ) {
 	if ( auto pushBackMultiplier = gameplayMods::weaponPushBack.isActive<float>() ) {
 		pev->velocity = pev->velocity - ( GetAimForwardWithOffset() * impulse * *pushBackMultiplier );
 	}
+}
 
+void CBasePlayer::SendWeaponLockInfo() {
+	CBasePlayerItem *pItem;
+
+	for ( int i = 0; i < MAX_ITEM_TYPES; i++ ) {
+		pItem = m_rgpPlayerItems[i];
+
+		while ( pItem ) {
+			if ( CBasePlayerWeapon *weapon = dynamic_cast< CBasePlayerWeapon * >( pItem ) ) {
+				MESSAGE_BEGIN( MSG_ONE, gmsgLckWeapon, NULL, pev );
+					WRITE_BYTE( weapon->m_iId );
+					WRITE_BYTE( weapon->locked );
+				MESSAGE_END();
+			}
+			pItem = pItem->m_pNext;
+		}
+	}
 }
 
 void CBasePlayer::RemoveAllItems( BOOL removeSuit )
@@ -4549,6 +4569,10 @@ void CBasePlayer::SelectItem(const char *pstr)
 	if (pItem == m_pActiveItem)
 		return;
 
+	if ( pItem->locked ) {
+		return;
+	}
+
 	ResetAutoaim( );
 
 	// FIX, this needs to queue them up and delay
@@ -4565,7 +4589,6 @@ void CBasePlayer::SelectItem(const char *pstr)
 	}
 }
 
-
 void CBasePlayer::SelectLastItem(void)
 {
 	if (!m_pLastItem)
@@ -4575,6 +4598,10 @@ void CBasePlayer::SelectLastItem(void)
 
 	if ( m_pActiveItem && !m_pActiveItem->CanHolster() )
 	{
+		return;
+	}
+
+	if ( m_pLastItem->locked ) {
 		return;
 	}
 
@@ -5243,12 +5270,18 @@ int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem )
 		pItem->m_pNext = m_rgpPlayerItems[pItem->iItemSlot()];
 		m_rgpPlayerItems[pItem->iItemSlot()] = pItem;
 
+		if ( auto gungame = gameplayMods::gungame.isActive() ) {
+			if ( pItem->m_iId != WEAPON_CROWBAR && !FStrEq( gameplayModsData.gungameWeapon, STRING( pItem->pev->classname ) ) ) {
+				pItem->locked = TRUE;
+				SendWeaponLockInfo();
+			}
+		}
+
 		// should we switch to this item?
 		if ( g_pGameRules->FShouldSwitchWeapon( this, pItem ) )
 		{
 			SwitchWeapon( pItem );
 		}
-
 		return TRUE;
 	}
 	else if (gEvilImpulse101)
@@ -5281,6 +5314,7 @@ int CBasePlayer::RemovePlayerItem( CBasePlayerItem *pItem )
 	if (pPrev == pItem)
 	{
 		m_rgpPlayerItems[pItem->iItemSlot()] = pItem->m_pNext;
+		pev->weapons &= ~( 1 << pPrev->m_iId );
 		return TRUE;
 	}
 	else
@@ -5292,6 +5326,7 @@ int CBasePlayer::RemovePlayerItem( CBasePlayerItem *pItem )
 		if (pPrev)
 		{
 			pPrev->m_pNext = pItem->m_pNext;
+			pev->weapons &= ~( 1 << pItem->m_iId );
 			return TRUE;
 		}
 	}
@@ -5959,6 +5994,8 @@ void CBasePlayer :: UpdateClientData( void )
 				WRITE_BYTE(II.iFlags);					// byte		Flags
 			MESSAGE_END();
 		}
+
+		SendWeaponLockInfo();
 	}
 
 
@@ -6436,6 +6473,23 @@ BOOL CBasePlayer::HasPlayerItem( CBasePlayerItem *pCheckItem )
 	return FALSE;
 }
 
+CBasePlayerItem * CBasePlayer::GetPlayerItem( const char *pszItemName ) {
+
+	for ( int i = 0; i < MAX_ITEM_TYPES; i++ ) {
+		CBasePlayerItem *pItem = m_rgpPlayerItems[i];
+
+		while ( pItem ) {
+			if ( FStrEq( pszItemName, STRING( pItem->pev->classname ) ) ) {
+				return pItem;
+			}
+			pItem = pItem->m_pNext;
+		}
+
+	}
+
+	return 0;
+}
+
 //=========================================================
 // HasNamedPlayerItem Does the player already have this item?
 //=========================================================
@@ -6468,6 +6522,10 @@ BOOL CBasePlayer :: SwitchWeapon( CBasePlayerItem *pWeapon )
 {
 	if ( !pWeapon->CanDeploy() )
 	{
+		return FALSE;
+	}
+
+	if ( pWeapon->locked ) {
 		return FALSE;
 	}
 	

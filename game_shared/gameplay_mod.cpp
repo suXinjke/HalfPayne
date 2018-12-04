@@ -312,8 +312,12 @@ bool gameplayMods::AllowedToVoteOnRandomGameplayMods() {
 void GameplayModData::AddArrayFieldDefinitions() {
 	if ( !addedAdditionalFields ) {
 		// HACK: didn't figure out simple macro to avoid defining these fields in this place
+
 		fields.push_back( DEFINE_ARRAY( GameplayModData, activeGameModeConfig, FIELD_CHARACTER, 256 ) );
 		fields.push_back( DEFINE_ARRAY( GameplayModData, activeGameModeConfigHash, FIELD_CHARACTER, 128 ) );
+
+		fields.push_back( DEFINE_ARRAY( GameplayModData, gungameWeapon, FIELD_CHARACTER, 128 ) );
+		fields.push_back( DEFINE_ARRAY( GameplayModData, gungamePriorWeapon, FIELD_CHARACTER, 128 ) );
 
 		fields.push_back( DEFINE_ARRAY( GameplayModData, endConditionsActivationCounts, FIELD_INTEGER, 64 ) );
 		for ( int i = 0; i < 64; i++ ) {

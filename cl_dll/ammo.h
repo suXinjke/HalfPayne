@@ -36,6 +36,7 @@ struct WEAPON
 	int		iId;
 	int		iClip;
 	int		iClip2;
+	int		locked;
 
 	int		iCount;		// # of itesm in plist
 

@@ -263,6 +263,7 @@ public:
 	BOOL SwitchWeapon( CBasePlayerItem *pWeapon );
 
 	void ApplyWeaponPushback( float impulse );
+	void SendWeaponLockInfo();
 
 	// JOHN:  sends custom messages if player HUD data has changed  (eg health, ammo)
 	virtual void UpdateClientData( void );
@@ -303,6 +304,7 @@ public:
 	BOOL RemovePlayerItem( CBasePlayerItem *pItem );
 	void DropPlayerItem ( char *pszItemName );
 	BOOL HasPlayerItem( CBasePlayerItem *pCheckItem );
+	CBasePlayerItem * GetPlayerItem( const char *pszItemName );
 	BOOL HasNamedPlayerItem( const char *pszItemName );
 	BOOL HasWeapons( void );// do I have ANY weapons?
 	void SelectPrevItem( int iItem );

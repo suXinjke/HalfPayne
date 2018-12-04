@@ -290,6 +290,9 @@ public:
 
 	// int		m_iIdPrimary;										// Unique Id for primary ammo
 	// int		m_iIdSecondary;										// Unique Id for secondary ammo
+
+	int		locked = 0;
+	int		isGungameWeapon = 0;
 };
 
 
@@ -749,7 +752,7 @@ class CIngram : public CBasePlayerWeapon
 public:
 	void Spawn( void );
 	void Precache( void );
-	int iItemSlot( void ) { return 2; }
+	int iItemSlot( void ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
 	int AddDuplicate( CBasePlayerItem *pItem );
 	int	Restore( CRestore &restore ) override;
@@ -783,7 +786,7 @@ class CIngramTwin : public CBasePlayerWeapon
 public:
 	void Spawn( void );
 	void Precache( void );
-	int iItemSlot( void ) { return 2; }
+	int iItemSlot( void ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
 
 	void ItemPostFrame(void);

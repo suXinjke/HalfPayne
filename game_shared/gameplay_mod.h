@@ -103,6 +103,18 @@ struct RandomGameplayModsInfo {
 	}
 };
 
+struct GunGameInfo {
+	int killsRequired = 1;
+	float changeTime = 0.0f;
+	bool isSequential = false;
+
+	GunGameInfo( const std::vector<Argument> &args ) {
+		killsRequired = args.at( 0 ).number;
+		changeTime = max( 0, args.at( 1 ).number );
+		isSequential = args.at( 2 ).string == "sequential";
+	}
+};
+
 class GameplayMod;
 
 struct ProposedGameplayMod {
@@ -161,6 +173,13 @@ public:
 	char activeGameModeConfigHash[128];
 
 	FieldBool( forceDisconnect, FALSE );
+
+	FieldInt( gungameKillsLeft, 0 );
+	char gungameWeapon[128];
+	char gungamePriorWeapon[128];
+	FieldFloat( gungameTimeLeftUntilNextWeapon, 0.0f );
+	FieldInt( gungameSeed, 0 );
+	FieldInt( gungameWeaponSelection, 0 );
 
 	FieldInt( fade, 255 );
 	
@@ -325,6 +344,8 @@ namespace gameplayMods {
 	extern GameplayMod& frictionOverride;
 
 	extern GameplayMod& godConstant;
+	
+	extern GameplayMod& gungame;
 
 	extern GameplayMod& gaussFastCharge;
 	extern GameplayMod& gaussJumping;

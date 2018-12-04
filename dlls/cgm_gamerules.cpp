@@ -198,6 +198,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	CHalfLifeRules::PlayerSpawn( pPlayer );
 
 	gameplayModsData.activeGameMode = GAME_MODE_CUSTOM;
+	gameplayModsData.gungameSeed = aux::rand::uniformInt( 0, 10000 );
 
 	// '\' slashes are getting eaten by ALLOC_STRING? must prevent this by replacing them with '/'
 	std::string sanitizedConfigName = config.configName;
@@ -459,6 +460,139 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
+	auto gungameInfo = gameplayMods::gungame.isActive<GunGameInfo>();
+
+	static bool lastGunGame = gungameInfo.has_value();
+	gameplayMods::OnFlagChange<bool>( lastGunGame, gungameInfo.has_value(), [this, pPlayer, gungameInfo]( bool on ) {
+		if ( on ) {
+			gameplayModsData.gungameKillsLeft = 0;
+			gameplayModsData.gungameTimeLeftUntilNextWeapon = gungameInfo->changeTime;
+
+			if ( pPlayer->m_pActiveItem ) {
+				snprintf( gameplayModsData.gungamePriorWeapon, 128, "%s", STRING( pPlayer->m_pActiveItem->pev->classname ) );
+			}
+
+			CBasePlayerItem *pItem;
+
+			for ( int i = 0; i < MAX_ITEM_TYPES; i++ ) {
+				pItem = pPlayer->m_rgpPlayerItems[i];
+
+				while ( pItem ) {
+					if ( CBasePlayerWeapon *weapon = dynamic_cast< CBasePlayerWeapon * >( pItem ) ) {
+						if ( pItem->m_iId != WEAPON_CROWBAR ) {
+							weapon->locked = TRUE;
+						}
+					}
+					pItem = pItem->m_pNext;
+				}
+			}
+
+			pPlayer->SendWeaponLockInfo();
+		}
+	} );
+
+	if ( gungameInfo ) {
+		bool shouldChangeWeapon =
+			( gungameInfo->killsRequired > 0 && gameplayModsData.gungameKillsLeft <= 0 ) ||
+			( gungameInfo->changeTime > 0.0f && gameplayModsData.gungameTimeLeftUntilNextWeapon <= 0.0f );
+
+		if ( shouldChangeWeapon ) {
+			static std::vector<std::string> gungameWeapons = {
+				"weapon_9mmhandgun",
+				"weapon_9mmhandgun_twin",
+				"weapon_357",
+				"weapon_9mmAR",
+				"weapon_shotgun",
+				"weapon_crossbow",
+				"weapon_ingram",
+				"weapon_ingram_twin",
+				"weapon_rpg",
+				"weapon_gauss",
+				"weapon_egon",
+				"weapon_hornetgun",
+				"weapon_handgrenade",
+				"weapon_satchel",
+				"weapon_tripmine",
+				"weapon_snark",
+			};
+
+			std::mt19937 gen( gameplayModsData.gungameSeed );
+
+			static std::vector<std::string> gungameWeaponsQueue;
+			gungameWeaponsQueue = gungameWeapons;
+			if ( !gungameInfo->isSequential ) {
+				std::shuffle( gungameWeaponsQueue.begin(), gungameWeaponsQueue.end(), gen );
+			}
+
+			if ( auto previousGungameWeapon = pPlayer->GetPlayerItem( gameplayModsData.gungameWeapon ) ) {
+				if ( previousGungameWeapon->isGungameWeapon ) {
+					pPlayer->RemovePlayerItem( previousGungameWeapon );
+				} else {
+					if ( previousGungameWeapon->m_iId != WEAPON_CROWBAR ) {
+						previousGungameWeapon->locked = TRUE;
+					}
+				}
+			}
+
+			auto allowedIndex = CustomGameModeConfig::GetAllowedItemIndex( gungameWeaponsQueue.at( gameplayModsData.gungameWeaponSelection ).c_str() );
+			auto nextGungameWeapon = allowedItems[allowedIndex];
+
+			gameplayModsData.gungameWeaponSelection++;
+			if ( gameplayModsData.gungameWeaponSelection >= gungameWeaponsQueue.size() ) {
+				gameplayModsData.gungameWeaponSelection = 0;
+				gameplayModsData.gungameSeed++;
+			}
+
+			snprintf( gameplayModsData.gungameWeapon, 128, "%s", nextGungameWeapon );
+
+			auto existingWeapon = pPlayer->GetPlayerItem( nextGungameWeapon );
+			if ( existingWeapon ) {
+				existingWeapon->locked = FALSE;
+				pPlayer->SelectItem( nextGungameWeapon );
+			} else {
+				pPlayer->GiveNamedItem( nextGungameWeapon, true );
+				if ( auto gungameWeapon = pPlayer->GetPlayerItem( nextGungameWeapon ) ) {
+					gungameWeapon->isGungameWeapon = TRUE;
+				}
+			}
+
+			gameplayModsData.gungameKillsLeft = gungameInfo->killsRequired;
+			gameplayModsData.gungameTimeLeftUntilNextWeapon = gungameInfo->changeTime;
+			pPlayer->SendWeaponLockInfo();
+		}
+
+		if ( gungameInfo->changeTime > 0.0f ) {
+			gameplayModsData.gungameTimeLeftUntilNextWeapon -= timeDelta;
+		}
+	} else {
+		if ( !FStrEq( gameplayModsData.gungameWeapon, "" ) ) {
+			snprintf( gameplayModsData.gungameWeapon, 128, "" );
+
+			CBasePlayerItem *pItem;
+
+			for ( int i = 0; i < MAX_ITEM_TYPES; i++ ) {
+				pItem = pPlayer->m_rgpPlayerItems[i];
+
+				while ( pItem ) {
+					if ( CBasePlayerWeapon *weapon = dynamic_cast< CBasePlayerWeapon * >( pItem ) ) {
+						weapon->locked = FALSE;
+						if ( weapon->isGungameWeapon ) {
+							pPlayer->RemovePlayerItem( weapon );
+						}
+					}
+					pItem = pItem->m_pNext;
+				}
+			}
+
+			pPlayer->SendWeaponLockInfo();
+
+			if ( !FStrEq( gameplayModsData.gungamePriorWeapon, "" ) ) {
+				pPlayer->SelectItem( gameplayModsData.gungamePriorWeapon );
+				snprintf( gameplayModsData.gungamePriorWeapon, 128, "" );
+			}
+		}
+	}
+
 	if ( twitch && twitch->status == TWITCH_DISCONNECTED && ShouldInitializeTwitch() ) {
 
 		auto twitch_credentials = aux::twitch::readCredentialsFromFile();
@@ -533,6 +667,10 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 
 	if ( gameplayMods::scoreAttack.isActive() && pPlayer->pev->deadflag == DEAD_NO ) {
 		CalculateScoreForScoreAttack( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+	}
+
+	if ( gameplayMods::gungame.isActive() ) {
+		gameplayModsData.gungameKillsLeft--;
 	}
 
 	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
@@ -819,6 +957,27 @@ void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
 			chapterMaps.first.c_str(),
 			SPACING
 		} );
+	}
+	
+	if ( auto gungame = gameplayMods::gungame.isActive<GunGameInfo>() ) {
+		auto chapterMaps = pPlayer->GetCurrentChapterMapNames();
+		if ( gungame->killsRequired ) {
+			counterData.push_back( {
+				gungame->killsRequired > 1 ? gungame->killsRequired - gameplayModsData.gungameKillsLeft : -1,
+				gungame->killsRequired > 1 ? gungame->killsRequired : -1,
+				gungame->killsRequired > 1 ? "KILLS UNTIL NEXT WEAPON" : "KILL TO GET THE NEXT WEAPON",
+				SPACING
+			} );
+		}
+		
+		if ( gungame->changeTime ) {
+			counterData.push_back( {
+				( int ) std::ceil( gameplayModsData.gungameTimeLeftUntilNextWeapon ),
+				-1,
+				"TIME LEFT UNTIL NEXT WEAPON",
+				SPACING
+			} );
+		}
 	}
 
 	int conditionsHeight = 0;

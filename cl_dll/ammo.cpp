@@ -63,6 +63,10 @@ int WeaponsResource :: HasAmmo( WEAPON *p )
 	if ( !p )
 		return FALSE;
 
+	if ( p->locked ) {
+		return FALSE;
+	}
+
 	// weapons with no max ammo can always be selected
 	if ( p->iMax1 == -1 )
 		return TRUE;
@@ -243,6 +247,7 @@ int giBucketHeight, giBucketWidth, giABHeight, giABWidth; // Ammo Bar width and 
 SPRITE_HANDLE ghsprBuckets;					// Sprite for top row of weapons menu
 
 DECLARE_MESSAGE(m_Ammo, CurWeapon );	// Current weapon and clip
+DECLARE_MESSAGE(m_Ammo, LckWeapon );	
 DECLARE_MESSAGE(m_Ammo, WeaponList);	// new weapon type
 DECLARE_MESSAGE(m_Ammo, AmmoX);			// update known ammo type's count
 DECLARE_MESSAGE(m_Ammo, AmmoPickup);	// flashes an ammo pickup record
@@ -277,6 +282,7 @@ int CHudAmmo::Init(void)
 	gHUD.AddHudElem(this);
 
 	HOOK_MESSAGE(CurWeapon);
+	HOOK_MESSAGE(LckWeapon);
 	HOOK_MESSAGE(WeaponList);
 	HOOK_MESSAGE(AmmoPickup);
 	HOOK_MESSAGE(WeapPickup);
@@ -629,6 +635,20 @@ int CHudAmmo::MsgFunc_AimCoords( const char *pszName, int iSize, void *pbuf )
 	return 1;
 }
 
+int CHudAmmo::MsgFunc_LckWeapon( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+	
+	int iId = READ_BYTE();
+	int locked = READ_BYTE();
+
+	if ( WEAPON *pWeapon = gWR.GetWeapon( iId ) ) {
+		pWeapon->locked = locked;
+	}
+
+	return 1;
+}
+
 // 
 //  CurWeapon: Update hud state with the current weapon and clip count. Ammo
 //  counts are updated with AmmoX. Server assures that the Weapon ammo type 
@@ -685,7 +705,6 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 		pWeapon->iClip2 = abs( iClip2 );
 	else
 		pWeapon->iClip2 = iClip2;
-
 
 	if ( iState == 0 )	// we're not the current weapon, so update no more
 		return 1;
@@ -778,6 +797,7 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 	Weapon.iFlags = READ_BYTE();
 	Weapon.iClip = 0;
 	Weapon.iClip2 = 0;
+	Weapon.locked = 0;
 
 	gWR.AddWeapon( &Weapon );
 
