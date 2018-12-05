@@ -290,7 +290,6 @@ int gmsgFlash = 0;
 int gmsgBassPlay = 0;
 int gmsgBassStop = 0;
 int gmsgBassStopSm = 0;
-int gmsgBassSlowmo = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -370,7 +369,6 @@ void LinkUserMessages( void )
 
 	gmsgBassPlay = REG_USER_MSG( "BassPlay", -1 );
 	gmsgBassStop = REG_USER_MSG( "BassStop", 1 );
-	gmsgBassSlowmo = REG_USER_MSG( "BassSlowmo", 1 );
 
 	gmsgSubtClear = REG_USER_MSG( "SubtClear", 0 );
 	gmsgSubtRemove = REG_USER_MSG( "SubtRemove", -1 );
@@ -4889,12 +4887,6 @@ void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 			desiredTimeScale = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
 		}
 		this->slowMotionWasEnabled = false;
-	}
-
-	if ( gmsgBassSlowmo ) {
-		MESSAGE_BEGIN( MSG_ONE, gmsgBassSlowmo, NULL, pev );
-			WRITE_BYTE( slowMotionEnabled && !musicNoSlowmotionEffects );
-		MESSAGE_END();
 	}
 }
 

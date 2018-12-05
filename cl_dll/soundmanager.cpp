@@ -14,6 +14,7 @@
 #include <regex>
 
 extern cl_enginefunc_t gEngfuncs;
+extern int g_musicSlowmotion;
 
 extern cvar_t *slowmotion_effect_change_duration;
 
@@ -53,7 +54,6 @@ void SM_Init() {
 
 	gEngfuncs.pfnHookUserMsg( "BassPlay", SM_OnBassPlay );
 	gEngfuncs.pfnHookUserMsg( "BassStop", SM_OnBassStop );
-	gEngfuncs.pfnHookUserMsg( "BassSlowmo", SM_OnBassSlowmo );
 	
 	MP3Volume = gEngfuncs.pfnGetCvarPointer( "MP3Volume" );
 	MP3Volume_last_value = MP3Volume->value;
@@ -242,20 +242,6 @@ int SM_OnBassStop( const char *pszName,  int iSize, void *pbuf ) {
 	return 1;
 }
 
-int SM_OnBassSlowmo( const char *pszName,  int iSize, void *pbuf ) {
-	BEGIN_READ( pbuf, iSize );
-
-	int slowmotion = READ_BYTE();
-
-	if ( !stream ) {
-		return 1;
-	}
-
-	SM_SetSlowmotion( slowmotion );
-
-	return 1;
-}
-
 void SM_SetSlowmotion( int slowmotion ) {
 	if ( slowmotion ) {
 		float value = slowmotion_negative_pitch->value;
@@ -390,6 +376,8 @@ void SM_Think( double time ) {
 			SM_Stop();
 		}
 	}
+
+	SM_SetSlowmotion( g_musicSlowmotion );
 }
 
 void SM_CheckError() {

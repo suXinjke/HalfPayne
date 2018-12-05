@@ -8,6 +8,7 @@ GameplayModData gameplayModsData;
 #ifdef CLIENT_DLL
 #include "parsemsg.h"
 int g_inverseControls = 0;
+int g_musicSlowmotion = 0;
 CustomGameModeConfig clientConfig( CONFIG_TYPE_CGM );
 #else
 int gmsgGmplayMod = 0;
@@ -51,6 +52,7 @@ void GameplayModData::Init() {
 		gameplayModsData.reverseGravity = READ_BYTE();
 		gameplayModsData.holdingTwinWeapons = READ_BYTE();
 		g_inverseControls = READ_BYTE();
+		g_musicSlowmotion = READ_BYTE();
 		gameplayModsData.timeLeftUntilNextRandomGameplayMod = READ_FLOAT();
 
 		return 1;
@@ -229,10 +231,16 @@ void GameplayModData::SendToClient() {
 		return;
 	}
 
+	int musicSlowmotion = 0;
+	if ( auto player = GetPlayer() ) {
+		musicSlowmotion = player->slowMotionWasEnabled && !player->musicNoSlowmotionEffects;
+	}
+
 	MESSAGE_BEGIN( MSG_ALL, gmsgGmplayMod );
 		WRITE_BYTE( reverseGravity );
 		WRITE_BYTE( holdingTwinWeapons );
 		WRITE_BYTE( gameplayMods::inverseControls.isActive() );
+		WRITE_BYTE( musicSlowmotion );
 		WRITE_FLOAT( timeLeftUntilNextRandomGameplayMod );
 	MESSAGE_END();
 
