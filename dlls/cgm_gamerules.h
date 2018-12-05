@@ -69,7 +69,7 @@ public:
 	std::vector<EntityRandomSpawnerController> entityRandomSpawnerControllers;
 
 	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message, bool logToConsole = false );
-	void SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 = "" );
+	void SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 = "", float flashTime = 1.3f );
 
 protected:
 	virtual void OnEnd( CBasePlayer *pPlayer );

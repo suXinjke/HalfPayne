@@ -174,11 +174,12 @@ void CCustomGameModeRules::SendGameLogMessage( CBasePlayer *pPlayer, const std::
 	}
 }
 
-void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 ) {
+void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2, float flashTime ) {
 	MESSAGE_BEGIN( MSG_ONE, gmsgGLogWMsg, NULL, pPlayer->pev );
 		WRITE_COORD( location.x );
 		WRITE_COORD( location.y );
 		WRITE_COORD( location.z );
+		WRITE_FLOAT( flashTime );
 
 		// You cant send TWO strings - they overwrite each other, so split them with |
 		WRITE_STRING( ( message + "|" + message2 ).c_str() );
@@ -656,7 +657,7 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		deathPos.z += victim->pev->size.z + 5.0f;
 		auto it = aux::rand::choice( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
 		if ( it != twitch->killfeedMessages.end() ) {
-			SendGameLogWorldMessage( pPlayer, deathPos, *it );
+			SendGameLogWorldMessage( pPlayer, deathPos, *it, "", 3.0f );
 			twitch->killfeedMessages.erase( it );
 		}
 	}

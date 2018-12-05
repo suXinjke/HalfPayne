@@ -738,9 +738,10 @@ struct GameLogWorldMessage {
 	std::string message;
 	std::string message2;
 
-	float timeAddedRemovalTime;
-	float timeAddedFlash1Time;
-	float timeAddedFlash2Time;
+	float time;
+	float removalTime;
+	float flashTime1;
+	float flashTime2;
 };
 
 class CHudGameLogWorld : public CHudBase

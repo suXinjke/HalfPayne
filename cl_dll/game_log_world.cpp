@@ -8,7 +8,6 @@
 DECLARE_MESSAGE( m_GameLogWorld, GLogWDeact )
 DECLARE_MESSAGE( m_GameLogWorld, GLogWMsg )
 
-#define TIME_ADDED_REMOVAL_TIME 1.0f
 #define TIME_ADDED_FLASHING_TIME 0.1f
 
 extern globalvars_t *gpGlobals;
@@ -46,20 +45,17 @@ int CHudGameLogWorld::Draw( float flTime )
 	int y = CORNER_OFFSET + numberSpriteHeight;
 
 	for ( int i = messages.size() - 1; i >= 0; i-- ) {
-		GameLogWorldMessage timerMessage = messages.at( i );
+		GameLogWorldMessage &timerMessage = messages.at( i );
 
-		if ( fabs( timerMessage.timeAddedRemovalTime - gEngfuncs.GetAbsoluteTime() ) >= TIME_ADDED_REMOVAL_TIME ) {
+		if ( fabs( timerMessage.removalTime - gEngfuncs.GetAbsoluteTime() ) >= timerMessage.time ) {
 			messages.erase( messages.begin() + i );
+			continue;
 		}
-	}
 
-	for ( int i = messages.size( ) - 1; i >= 0; i-- ) {
-		GameLogWorldMessage timerMessage = messages.at( i );
+		float timePassed = timerMessage.time - max( 0.0f, timerMessage.removalTime - gEngfuncs.GetAbsoluteTime() );
 
-		float timePassed = TIME_ADDED_REMOVAL_TIME - max( 0.0f, timerMessage.timeAddedRemovalTime - gEngfuncs.GetAbsoluteTime() );
-
-		if ( ( timePassed >= timerMessage.timeAddedFlash1Time && timePassed <= timerMessage.timeAddedFlash2Time ) 
-			|| ( timePassed >= TIME_ADDED_REMOVAL_TIME ) ) {
+		if ( ( timePassed >= timerMessage.flashTime1 && timePassed <= timerMessage.flashTime2 ) 
+			|| ( timePassed >= timerMessage.time ) ) {
 			continue;
 		}
 
@@ -69,13 +65,13 @@ int CHudGameLogWorld::Draw( float flTime )
 			continue;
 		}
 
-		int alpha = MESSAGE_BRIGHTENESS - ( ( timePassed - TIME_ADDED_FLASHING_TIME * 2 ) / ( TIME_ADDED_REMOVAL_TIME - TIME_ADDED_FLASHING_TIME * 2 ) ) * MESSAGE_BRIGHTENESS;
+		int alpha = MESSAGE_BRIGHTENESS - ( ( timePassed - TIME_ADDED_FLASHING_TIME * 2 ) / ( timerMessage.time - TIME_ADDED_FLASHING_TIME * 2 ) ) * MESSAGE_BRIGHTENESS;
 		int r2 = r;
 		int g2 = g;
 		int b2 = b;
 
 		// fade out
-		if ( timePassed >= timerMessage.timeAddedFlash2Time ) {
+		if ( timePassed >= timerMessage.flashTime2 ) {
 			ScaleColors( r2, g2, b2, alpha );
 		}
 		int timeAddedStringWidth = max( gHUD.GetStringWidth( timerMessage.message.c_str() ), gHUD.GetStringWidth( timerMessage.message2.c_str() ) );
@@ -110,13 +106,15 @@ int CHudGameLogWorld::MsgFunc_GLogWMsg( const char *pszName, int iSize, void *pb
 	float x = READ_COORD();
 	float y = READ_COORD();
 	float z = READ_COORD();
+	float time = READ_FLOAT();
 	auto messageParts = aux::str::split( READ_STRING(), '|' );
 	
 	messages.push_back( {
 		{ x, y, z },
 		messageParts.at( 0 ),
 		messageParts.size() > 1 ? messageParts.at( 1 ) : "",
-		( float ) gEngfuncs.GetAbsoluteTime() + TIME_ADDED_REMOVAL_TIME,
+		time,
+		( float ) gEngfuncs.GetAbsoluteTime() + time,
 		TIME_ADDED_FLASHING_TIME,
 		TIME_ADDED_FLASHING_TIME * 2
 	} );
