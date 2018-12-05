@@ -392,6 +392,7 @@ BOOL CHalfLifeRules :: ClientConnected( edict_t *pEntity, const char *pszName, c
 
 	if ( gameplayModsData.forceDisconnect ) {
 		g_engfuncs.pfnServerPrint( "You're not allowed to load this savefile.\n" );
+		gameplayModsData.forceDisconnect = FALSE;
 		return FALSE;
 	}
 	

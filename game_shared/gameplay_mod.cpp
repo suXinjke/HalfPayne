@@ -204,13 +204,9 @@ int GameplayModData::Save( CSave &save ) {
 		}
 	}
 
-	if ( g_autoSaved && gameplayMods::autoSavesOnly.isActive() ) {
-		gameplayModsData.forceDisconnect = FALSE;
-	} else {
-		gameplayModsData.forceDisconnect = gameplayMods::noSaving.isActive();
-	}
-	auto saveResult = save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
 	gameplayModsData.forceDisconnect = gameplayMods::noSaving.isActive();
+	auto saveResult = save.WriteFields( "GAMEPLAY_MODS", this, fields.data(), fields.size() );
+	gameplayModsData.forceDisconnect = FALSE;
 	g_autoSaved = FALSE;
 
 	return saveResult;

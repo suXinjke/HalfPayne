@@ -13,6 +13,7 @@ extern CustomGameModeConfig clientConfig;
 #endif
 
 using namespace gameplayMods;
+int g_autoSaved = 0;
 
 GameplayMod &::autoSavesOnly = GameplayMod::Define( "autosaves_only", "Autosaves only" )
 .Description( "Only autosaves are allowed. You are not allowed to quicksave." )
@@ -425,6 +426,13 @@ GameplayMod &::noPainkillers = GameplayMod::Define( "no_pills", "No painkillers"
 
 GameplayMod &::noSaving = GameplayMod::Define( "no_saving", "No saving" )
 .Description( "Don't allow to load saved files." )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( gameplayMods::autoSavesOnly.isActive() && !g_autoSaved ) {
+		return "";
+	}
+
+	return std::nullopt;
+} )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noSecondaryAttack = GameplayMod::Define( "no_secondary_attack", "No secondary attack" )
