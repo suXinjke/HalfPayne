@@ -750,6 +750,16 @@ GameplayMod &::timerShownReal = GameplayMod::Define( "show_timer_real_time", "Sh
 .Description( "Time will be shown and it's not affected by slowmotion, which is useful for speedruns." )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
+.Description( "Changes default timescale" )
+.Arguments( {
+	Argument( "timescale" ).IsOptional().MinMax( 0.1, 10 ).Default( "1" ).Description( []( const std::string string, float value ) {
+		return "Timescale: " + std::to_string( value ) + "\n";
+	} ),
+} )
+.ForceDefaultArguments( "1" )
+.CannotBeActivatedRandomly();
+
 GameplayMod &::tripminesDetachable = GameplayMod::Define( "detachable_tripmines", "Detachable tripmines" )
 .Description( "Pressing USE button on attached tripmines will detach them." )
 .Arguments( {

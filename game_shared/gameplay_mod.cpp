@@ -483,11 +483,13 @@ GameplayMod &GameplayMod::CanBeCancelledAfterChangeLevel() {
 }
 
 bool gameplayMods::IsSlowmotionEnabled() {
+	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+
 	float sys_timescale = SHARED_CVAR_GET_FLOAT( "sys_timescale" );
 	bool using_sys_timescale = sys_timescale != 0.0f; // dirty way
 
 	if ( using_sys_timescale ) {
-		return sys_timescale < 1.0f;
+		return sys_timescale <= ( timescale_multiplier / 4.0f );
 	} else {
 		float host_framerate = SHARED_CVAR_GET_FLOAT( "host_framerate" );
 		float g_fps_max = SHARED_CVAR_GET_FLOAT( "fps_max" );

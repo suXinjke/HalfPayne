@@ -428,6 +428,8 @@ namespace gameplayMods {
 	extern GameplayMod& timeRestriction;
 	extern GameplayMod& timerShown;
 	extern GameplayMod& timerShownReal;
+
+	extern GameplayMod& timescale;
 	
 	extern GameplayMod& tripminesDetachable;
 	

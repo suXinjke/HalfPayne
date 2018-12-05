@@ -3949,7 +3949,8 @@ void CBasePlayer::Spawn( void )
 	showCredits = FALSE;
 
 	slowMotionNextHeartbeatSound = 0;
-	desiredTimeScale = 1.0f;
+	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+	desiredTimeScale = 1.0f * timescale_multiplier;
 	SetSlowMotion( false );
 
 	lastDamageTime = 0.0f;
@@ -4876,15 +4877,17 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 }
 
 void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
+	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+
 	if ( slowMotionEnabled ) {
-		desiredTimeScale = using_sys_timescale ? 0.25f : GET_FRAMERATE_BASE() / 4.0f;
+		desiredTimeScale = using_sys_timescale ? 0.25f * timescale_multiplier : GET_FRAMERATE_BASE() / 4.0f;
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 		this->slowMotionWasEnabled = true;
 		nextSmoothTimeScaleChange = 0.0f;
 	}
 	else {
 		if ( !nextSmoothTimeScaleChange ) {
-			desiredTimeScale = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+			desiredTimeScale = using_sys_timescale ? 1.0f * timescale_multiplier : GET_FRAMERATE_BASE();
 		}
 		this->slowMotionWasEnabled = false;
 	}
@@ -5752,7 +5755,9 @@ void CBasePlayer :: UpdateClientData( void )
 		SetSlowMotion( false );
 	} );
 	if ( lastSuperHotConstant ) {
-		float base = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+
+		float base = using_sys_timescale ? 1.0f * timescale_multiplier : GET_FRAMERATE_BASE();
 
 		if ( pev->deadflag == DEAD_NO ) {
 			bool afterMP5Fire = false;
@@ -5764,24 +5769,24 @@ void CBasePlayer :: UpdateClientData( void )
 				}
 			}
 
-			nextSuperHotMultiplierUpdate = using_sys_timescale ? 0.01 : superHotMultiplier + gpGlobals->time;
+			nextSuperHotMultiplierUpdate = using_sys_timescale ? 0.01 * timescale_multiplier : superHotMultiplier + gpGlobals->time;
 			if ( superHotJumping && gpGlobals->time >= superHotJumping ) {
 				superHotJumping = 0.0f;
 			}
 
 			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) || ( jumpedOnce && superHotJumping && gpGlobals->time < superHotJumping ) || afterMP5Fire ) {
-				superHotMultiplier += using_sys_timescale ? 0.05 : ( base / 40.0f );
+				superHotMultiplier += using_sys_timescale ? 0.05 * timescale_multiplier : ( base / 40.0f );
 				if ( superHotMultiplier > base ) {
 					superHotMultiplier = base;
 				}
 			} else {
-				superHotMultiplier -= using_sys_timescale ? 0.1 : base / 2.0f;
-				if ( superHotMultiplier < ( using_sys_timescale ? 0.1 : ( base / 20.0f ) ) ) {
-					superHotMultiplier = using_sys_timescale ? 0.1 : ( base / 20.0f );
+				superHotMultiplier -= using_sys_timescale ? 0.1 * timescale_multiplier : base / 2.0f;
+				if ( superHotMultiplier < ( using_sys_timescale ? 0.1 * timescale_multiplier : ( base / 20.0f ) ) ) {
+					superHotMultiplier = using_sys_timescale ? 0.1 * timescale_multiplier : ( base / 20.0f );
 				}
 			}
 		} else {
-			superHotMultiplier = using_sys_timescale ? 0.25 : base / 4.0f;
+			superHotMultiplier = using_sys_timescale ? 0.25 * timescale_multiplier : base / 4.0f;
 		}
 
 		desiredTimeScale = superHotMultiplier;
@@ -5793,7 +5798,8 @@ void CBasePlayer :: UpdateClientData( void )
 	gameplayModsData.holdingTwinWeapons = m_pActiveItem && ( m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN || m_pActiveItem->m_iId == WEAPON_INGRAM_TWIN );
 
 	if ( nextSmoothTimeScaleChange && nextSmoothTimeScaleChange <= gpGlobals->time ) {
-		float cap = using_sys_timescale ? 1.0f : GET_FRAMERATE_BASE();
+		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+		float cap = using_sys_timescale ? 1.0f * timescale_multiplier : GET_FRAMERATE_BASE();
 		
 		desiredTimeScale *= 1.08f;
 		if ( desiredTimeScale >= cap ) {
