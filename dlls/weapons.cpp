@@ -695,20 +695,42 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		ItemInfo itemInfo;
 		this->GetItemInfo( &itemInfo );
 		if ( itemInfo.iMaxAmmo1 != -1 ) {
-			m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = itemInfo.iMaxAmmo1;
+			if ( iMaxClip() != WEAPON_NOCLIP ) {
+				if ( iMaxClip2() != WEAPON_NOCLIP ) {
+					m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = max( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType], itemInfo.iMaxClip2 * 2 );
+				} else {
+					m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = max( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType], itemInfo.iMaxClip );
+				}
+			} else {
+				int ammo = 2;
+				switch ( itemInfo.iId ) {
+					case WEAPON_GAUSS:
+					case WEAPON_EGON:
+						ammo = 2;
+						break;
+
+					case WEAPON_HANDGRENADE:
+					case WEAPON_SATCHEL:
+					case WEAPON_TRIPMINE:
+					case WEAPON_SNARK:
+						ammo = 1;
+						break;
+				}
+				m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = max( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType], ammo );
+			}
 		}
 		if ( itemInfo.iMaxAmmo2 != -1 ) {
 			if ( !( itemInfo.iId == WEAPON_MP5 && gameplayMods::noSmgGrenadePickup.isActive() ) ) {
-				m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = itemInfo.iMaxAmmo2;
+				m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = max( m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType], 1 );
 			}
 		}
 	}
 
 	if ( gameplayMods::infiniteAmmoClip.isActive() ) {
-		if ( iMaxClip() ) {
+		if ( iMaxClip() != WEAPON_NOCLIP ) {
 			m_iClip = iMaxClip();
 		}
-		if ( iMaxClip2() ) {
+		if ( iMaxClip2() != WEAPON_NOCLIP ) {
 			m_iClip2 = iMaxClip2();
 		}
 	}
