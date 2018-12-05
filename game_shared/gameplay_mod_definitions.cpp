@@ -753,12 +753,14 @@ GameplayMod &::timerShownReal = GameplayMod::Define( "show_timer_real_time", "Sh
 GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 .Description( "Changes default timescale" )
 .Arguments( {
-	Argument( "timescale" ).IsOptional().MinMax( 0.1, 10 ).Default( "1" ).Description( []( const std::string string, float value ) {
+	Argument( "timescale" ).MinMax( 0.1, 10 ).RandomMinMax( 1.3, 2.0 ).Default( "1" ).Description( []( const std::string string, float value ) {
 		return "Timescale: " + std::to_string( value ) + "\n";
 	} ),
 } )
-.ForceDefaultArguments( "1" )
-.CannotBeActivatedRandomly();
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::superHot.isActive();
+} )
+.ForceDefaultArguments( "1" );
 
 GameplayMod &::tripminesDetachable = GameplayMod::Define( "detachable_tripmines", "Detachable tripmines" )
 .Description( "Pressing USE button on attached tripmines will detach them." )
