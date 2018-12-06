@@ -521,6 +521,18 @@ GameplayMod &::preventMonsterDrops = GameplayMod::Define( "prevent_monster_drops
 .Description( "Monsters won't drop anything when dying." )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::quakeRockets = GameplayMod::Define( "quake_rockets", "Quake rockets" )
+.Description( "RPG is much more fast and rockets are shot instantly." )
+.Arguments( {
+	Argument( "fire_delay" ).IsOptional().MinMax( 0.1 ).Default( "0.8" ).Description( []( const std::string string, float value ) {
+		return "Fire delay: " + std::to_string( value ) + " sec \n";
+	} ),
+	Argument( "speed" ).IsOptional().MinMax( 10, 2000 ).Default( "1500" ).Description( []( const std::string string, float value ) {
+		return "Rocket speed: " + std::to_string( value ) + " units \n";
+	} ),
+} )
+.CannotBeActivatedRandomly();
+
 GameplayMod &::randomGameplayMods = GameplayMod::Define( "random_gameplay_mods", "Random gameplay mods" )
 .Description( "Random gameplay mods." )
 .Arguments( {

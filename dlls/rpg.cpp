@@ -171,6 +171,24 @@ void CRpgRocket :: Precache( void )
 	PRECACHE_SOUND ("weapons/rocket1.wav");
 }
 
+void CRpgRocket::QuakeThink( void ) {
+	// rocket trail
+	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+
+		WRITE_BYTE( TE_BEAMFOLLOW );
+		WRITE_SHORT(entindex());	// entity
+		WRITE_SHORT(m_iTrail );	// model
+		WRITE_BYTE( 5 ); // life
+		WRITE_BYTE( 1 );  // width
+		WRITE_BYTE( 224 );   // r, g, b
+		WRITE_BYTE( 224 );   // r, g, b
+		WRITE_BYTE( 255 );   // r, g, b
+		WRITE_BYTE( 100 );	// brightness
+
+	MESSAGE_END(); 
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
 
 void CRpgRocket :: IgniteThink( void  )
 {
@@ -293,6 +311,10 @@ void CRpg::Reload( void )
 {
 	int iResult;
 
+	if ( gameplayMods::quakeRockets.isActive() ) {
+		return;
+	}
+
 	if ( m_iClip == 1 )
 	{
 		// don't bother with any of this if don't need to reload.
@@ -385,7 +407,7 @@ int CRpg::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "rockets";
-	p->iMaxAmmo1 = ROCKET_MAX_CARRY;
+	p->iMaxAmmo1 = gameplayMods::quakeRockets.isActive() ? 25 : ROCKET_MAX_CARRY;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = RPG_MAX_CLIP;
@@ -401,9 +423,9 @@ int CRpg::GetItemInfo(ItemInfo *p)
 
 BOOL CRpg::Deploy( )
 {
-	if ( m_iClip == 0 )
+	if ( m_iClip == 0 || gameplayMods::quakeRockets.isActive() )
 	{
-		return DefaultDeploy( "models/v_rpg.mdl", "models/p_rpg.mdl", RPG_DRAW_UL, "rpg" );
+		return DefaultDeploy( "models/v_rpg.mdl", "models/p_rpg.mdl", RPG_HOLSTER2, "rpg" );
 	}
 
 	return DefaultDeploy( "models/v_rpg.mdl", "models/p_rpg.mdl", RPG_DRAW1, "rpg" );
@@ -472,6 +494,18 @@ void CRpg::PrimaryAttack()
 
 		UTIL_MakeVectors( forwardDeg );// RpgRocket::Create stomps on globals, so remake.
 		pRocket->pev->velocity = pRocket->pev->velocity + forward * DotProduct( m_pPlayer->pev->velocity, forward );
+
+		if ( auto quakeRockets = gameplayMods::quakeRockets.isActive<QuakeRocketsInfo>() ) {
+			pRocket->pev->movetype = MOVETYPE_FLY;
+			pRocket->pev->gravity = 0;
+
+			UTIL_MakeVectors( forwardDeg );
+			pRocket->pev->velocity = gpGlobals->v_forward * quakeRockets->speed;
+
+			pRocket->SetThink( &CRpgRocket::QuakeThink );
+			pRocket->pev->nextthink = gpGlobals->time + 0.01;
+			EMIT_SOUND( ENT( pRocket->pev ), CHAN_VOICE, "weapons/rocket1.wav", 1, 0.5 );
+		}
 #endif
 
 		// firing RPG no longer turns on the designator. ALT fire is a toggle switch for the LTD.
@@ -493,6 +527,11 @@ void CRpg::PrimaryAttack()
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
 
 		m_pPlayer->ApplyWeaponPushback( 1000 );
+
+		if ( auto quakeRockets = gameplayMods::quakeRockets.isActive<QuakeRocketsInfo>() ) {
+			m_flNextPrimaryAttack = GetNextAttackDelay( quakeRockets->delay );
+			DefaultReload( RPG_MAX_CLIP, RPG_IDLE, quakeRockets->delay );
+		}
 	}
 	else
 	{
@@ -539,6 +578,8 @@ void CRpg::WeaponIdle( void )
 		{
 			if ( m_iClip == 0 )
 				iAnim = RPG_IDLE_UL;
+			else if ( gameplayMods::quakeRockets.isActive() )
+				iAnim = RPG_DRAW_UL;
 			else
 				iAnim = RPG_IDLE;
 
@@ -548,6 +589,8 @@ void CRpg::WeaponIdle( void )
 		{
 			if ( m_iClip == 0 )
 				iAnim = RPG_FIDGET_UL;
+			else if ( gameplayMods::quakeRockets.isActive() )
+				iAnim = RPG_DRAW_UL;
 			else
 				iAnim = RPG_FIDGET;
 
@@ -570,6 +613,11 @@ void CRpg::UpdateSpot( void )
 #ifndef CLIENT_DLL
 	if (m_fSpotActive)
 	{
+		if ( gameplayMods::quakeRockets.isActive() ) {
+			SecondaryAttack();
+			return;
+		}
+
 		if (!m_pSpot)
 		{
 			m_pSpot = CLaserSpot::CreateSpot();

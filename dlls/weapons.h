@@ -958,6 +958,7 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	void EXPORT FollowThink( void );
+	void EXPORT QuakeThink( void );
 	void EXPORT IgniteThink( void );
 	void EXPORT RocketTouch( CBaseEntity *pOther );
 	static CRpgRocket *CreateRpgRocket( Vector vecOrigin, Vector vecAngles, CBaseEntity *pOwner, CRpg *pLauncher );

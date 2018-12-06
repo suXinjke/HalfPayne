@@ -115,6 +115,16 @@ struct GunGameInfo {
 	}
 };
 
+struct QuakeRocketsInfo {
+	float delay = 0.8f;
+	float speed = 1500.0f;
+
+	QuakeRocketsInfo( const std::vector<Argument> &args ) {
+		delay = args.at( 0 ).number;
+		speed = args.at( 1 ).number;
+	}
+};
+
 class GameplayMod;
 
 struct ProposedGameplayMod {
@@ -394,6 +404,8 @@ namespace gameplayMods {
 	extern GameplayMod& preventMonsterDrops;
 	extern GameplayMod& preventMonsterMovement;
 	extern GameplayMod& preventMonsterSpawn;
+
+	extern GameplayMod& quakeRockets;
 
 	extern GameplayMod& randomGameplayMods;
 
