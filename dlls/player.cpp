@@ -5775,14 +5775,14 @@ void CBasePlayer :: UpdateClientData( void )
 			}
 
 			if ( pev->button & ( IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT ) || ( jumpedOnce && superHotJumping && gpGlobals->time < superHotJumping ) || afterMP5Fire ) {
-				superHotMultiplier += using_sys_timescale ? 0.05 * timescale_multiplier : ( base / 40.0f );
+				superHotMultiplier += using_sys_timescale ? 0.02 * timescale_multiplier : ( base / 40.0f );
 				if ( superHotMultiplier > base ) {
 					superHotMultiplier = base;
 				}
 			} else {
-				superHotMultiplier -= using_sys_timescale ? 0.1 * timescale_multiplier : base / 2.0f;
-				if ( superHotMultiplier < ( using_sys_timescale ? 0.1 * timescale_multiplier : ( base / 20.0f ) ) ) {
-					superHotMultiplier = using_sys_timescale ? 0.1 * timescale_multiplier : ( base / 20.0f );
+				superHotMultiplier -= using_sys_timescale ? 0.05 * timescale_multiplier : base / 2.0f;
+				if ( superHotMultiplier < ( using_sys_timescale ? 0.015 * timescale_multiplier : ( base / 20.0f ) ) ) {
+					superHotMultiplier = using_sys_timescale ? 0.015 * timescale_multiplier : ( base / 20.0f );
 				}
 			}
 		} else {

@@ -483,6 +483,10 @@ GameplayMod &GameplayMod::CanBeCancelledAfterChangeLevel() {
 }
 
 bool gameplayMods::IsSlowmotionEnabled() {
+	if ( gameplayMods::superHot.isActive() ) {
+		return false;
+	}
+
 	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
 
 	float sys_timescale = SHARED_CVAR_GET_FLOAT( "sys_timescale" );

@@ -52,6 +52,10 @@ GameplayMod &::bulletPhysics = GameplayMod::Define( "bullet_physics", "Bullet ph
 	} ),
 } )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::randomGameplayMods.isActive() && ::superHot.isActive() ) {
+		return "constant";
+	}
+
 	auto bulletPhysicsFromConfig = ::bulletPhysics.GetArgumentsFromCustomGameplayModeConfig();
 
 	if ( ::bulletDelayOnSlowmotion.isActive() ) {
@@ -105,7 +109,7 @@ GameplayMod &::bulletTrail = GameplayMod::Define( "bullet_trail_constant", "Bull
 		}
 	}
 
-	if ( ::randomGameplayMods.isActive() && ::bulletRicochet.isActive() ) {
+	if ( ::randomGameplayMods.isActive() && ( ::bulletRicochet.isActive() || ::superHot.isActive() ) ) {
 		return "";
 	}
 
@@ -470,10 +474,24 @@ GameplayMod &::oneHitKO = GameplayMod::Define( "one_hit_ko", "One hit KO" )
 .Description(
 	"Any hit from an enemy will kill you instantly.\n"
 	"You still get proper damage from falling and environment."
-);
+)
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::randomGameplayMods.isActive() && ::superHot.isActive() ) {
+		return "";
+	}
+
+	return std::nullopt;
+} );
 
 GameplayMod &::oneHitKOFromPlayer = GameplayMod::Define( "one_hit_ko_from_player", "One hit KO from player" )
 .Description( "All enemies die in one hit." )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::randomGameplayMods.isActive() && ::superHot.isActive() ) {
+		return "";
+	}
+
+	return std::nullopt;
+} )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::painkillersInfinite = GameplayMod::Define( "infinite_painkillers", "Infinite painkillers" )
@@ -693,7 +711,10 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 .Description(
 	"Time moves forward only when you move around.\n"
 	"Inspired by the game SUPERHOT."
-);
+)
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::timescale.isActive<float>( true );
+} );
 
 GameplayMod &::swearOnKill = GameplayMod::Define( "swear_on_kill", "Swear on kill" )
 .Description( "Max will swear when killing an enemy. He will still swear even if Max's commentary is turned off." );
