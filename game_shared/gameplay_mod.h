@@ -267,8 +267,8 @@ public:
 	GameplayMod& ForceDefaultArguments( const std::string &arguments );
 	GameplayMod& OnEventInit( const EventInitFunction &func );
 
-	std::optional<std::vector<Argument>> getActiveArguments();
-	bool isActive();
+	std::optional<std::vector<Argument>> getActiveArguments( bool discountForcedArguments = false );
+	bool isActive( bool discountForcedArguments = false );
 	std::vector<Argument> ParseStringArguments( const std::vector<std::string> &argsParsed );
 	std::vector<Argument> ParseStringArguments( const std::string &args );
 	std::vector<Argument> GetRandomArguments();
@@ -276,8 +276,8 @@ public:
 	std::optional<std::vector<Argument>> GetArgumentsFromCustomGameplayModeConfig();
 	
 	template <typename T>
-	std::optional<T> isActive() {
-		auto args = getActiveArguments();
+	std::optional<T> isActive( bool discountForcedArguments = false ) {
+		auto args = getActiveArguments( discountForcedArguments );
 
 		if constexpr ( std::is_same<T, int>::value || std::is_same<T, float>::value ) {
 			return args ? T( args->at( 0 ).number ) : std::optional<T> {};

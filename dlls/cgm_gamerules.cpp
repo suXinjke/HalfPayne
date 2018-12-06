@@ -404,24 +404,16 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		if ( proposedGameplayMods.empty() && gameplayModsData.timeLeftUntilNextRandomGameplayMod <= randomGameplayMods->timeForRandomGameplayModVoting ) {
 			
 			auto filteredMods = aux::ctr::filter( allowedForRandom, [this]( GameplayMod *mod ) {
-				
-				for ( auto &timedMod : gameplayMods::timedGameplayMods ) {
-					if ( mod == timedMod.mod ) {
-						return false;
-					}
-				}
-
-				for ( auto &configMod : config.mods ) {
-					if ( mod == configMod.first ) {
-						return false;
-					}
-				}
 
 				if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod->id ) ) {
 					return false;
 				}
 
 				if ( aux::ctr::includes( config.randomModsBlacklist, mod->id ) ) {
+					return false;
+				}
+
+				if ( mod->isActive( true ) ) {
 					return false;
 				}
 

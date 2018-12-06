@@ -429,7 +429,7 @@ std::optional<std::vector<Argument>> GameplayMod::GetArgumentsFromCustomGameplay
 	return std::nullopt;
 }
 
-std::optional<std::vector<Argument>> GameplayMod::getActiveArguments() {
+std::optional<std::vector<Argument>> GameplayMod::getActiveArguments( bool discountForcedArguments ) {
 	using namespace gameplayMods;
 
 	if ( aux::ctr::includes( forceDisabledMods, this ) ) {
@@ -454,15 +454,15 @@ std::optional<std::vector<Argument>> GameplayMod::getActiveArguments() {
 		return args;
 	}
 
-	if ( forcedDefaultArguments.empty() ) {
+	if ( forcedDefaultArguments.empty() || discountForcedArguments ) {
 		return std::nullopt;
 	} else {
 		return ParseStringArguments( forcedDefaultArguments );
 	}
 }
 
-bool GameplayMod::isActive() {
-	auto args = getActiveArguments();
+bool GameplayMod::isActive( bool discountForcedArguments ) {
+	auto args = getActiveArguments( discountForcedArguments );
 	return args.has_value();
 }
 
