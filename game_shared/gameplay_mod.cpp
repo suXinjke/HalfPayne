@@ -487,7 +487,7 @@ bool gameplayMods::IsSlowmotionEnabled() {
 		return false;
 	}
 
-	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
 
 	float sys_timescale = SHARED_CVAR_GET_FLOAT( "sys_timescale" );
 	bool using_sys_timescale = sys_timescale != 0.0f; // dirty way

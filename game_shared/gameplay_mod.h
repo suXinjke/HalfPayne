@@ -183,6 +183,8 @@ public:
 
 	FieldInt( fade, 255 );
 	
+	FieldFloat( timescaleAdditive, 0.0f );
+	
 	FieldBool( holdingTwinWeapons, FALSE );
 
 	FieldBool( reverseGravity, FALSE );
@@ -430,6 +432,7 @@ namespace gameplayMods {
 	extern GameplayMod& timerShownReal;
 
 	extern GameplayMod& timescale;
+	extern GameplayMod& timescaleOnDamage;
 	
 	extern GameplayMod& tripminesDetachable;
 	

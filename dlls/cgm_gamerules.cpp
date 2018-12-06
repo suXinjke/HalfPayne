@@ -972,6 +972,16 @@ void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
 			} );
 		}
 	}
+	if ( gameplayMods::timescaleOnDamage.isActive() ) {
+		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
+
+		counterData.push_back( {
+			-1,
+			-1,
+			fmt::sprintf( "TIMESCALE BASE: %.2f", timescale_multiplier ),
+			SPACING - 34
+		} );
+	}
 
 	int conditionsHeight = 0;
 

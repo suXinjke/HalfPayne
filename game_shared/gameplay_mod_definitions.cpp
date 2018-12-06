@@ -713,7 +713,7 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 	"Inspired by the game SUPERHOT."
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::timescale.isActive<float>( true );
+	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive();
 } );
 
 GameplayMod &::swearOnKill = GameplayMod::Define( "swear_on_kill", "Swear on kill" )
@@ -779,9 +779,15 @@ GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 	} ),
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::superHot.isActive();
+	return !::superHot.isActive() && !::timescaleOnDamage.isActive();
 } )
 .ForceDefaultArguments( "1" );
+
+GameplayMod &::timescaleOnDamage = GameplayMod::Define( "timescale_on_damage", "Timescale on damage" )
+.Description( "Timescale will be increased with each kill you do, and decreased as you get damage." )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::superHot.isActive() && !::timescale.isActive( true );
+} );
 
 GameplayMod &::tripminesDetachable = GameplayMod::Define( "detachable_tripmines", "Detachable tripmines" )
 .Description( "Pressing USE button on attached tripmines will detach them." )

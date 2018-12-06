@@ -805,6 +805,13 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 
 		if ( auto healOnKillPercent = gameplayMods::healOnKill.isActive<float>() ) {
 			TakeHealth( max( 1, victim->pev->max_health * ( *healOnKillPercent * 0.01f ) ), DMG_GENERIC );
+		}	
+		
+		if ( gameplayMods::timescaleOnDamage.isActive() ) {
+			gameplayModsData.timescaleAdditive += 0.33f;
+			if ( gameplayModsData.timescaleAdditive > 1.0f ) {
+				gameplayModsData.timescaleAdditive = 1.0f;
+			}
 		}
 
 		MESSAGE_BEGIN( MSG_ONE, gmsgKillConfirmed, NULL, pev );
@@ -1028,6 +1035,17 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pInflctor ) ) {
 			if ( flDamage > 0 && ( bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_CLUB | DMG_SHOCK | DMG_SONIC | DMG_ENERGYBEAM ) ) ) {
 				TakeSlowmotionCharge( max( 1, flDamage / 2.0f ) );
+			}
+		}
+	}
+
+	if ( gameplayMods::timescaleOnDamage.isActive() ) {
+		if ( CBaseMonster *monster = dynamic_cast<CBaseMonster *>( pInflctor ) ) {
+			if ( flDamage > 0 && ( bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_CLUB | DMG_SHOCK | DMG_SONIC | DMG_ENERGYBEAM ) ) ) {
+				gameplayModsData.timescaleAdditive -= ( flDamage / 50.0f );
+				if ( gameplayModsData.timescaleAdditive < -0.25f ) {
+					gameplayModsData.timescaleAdditive = -0.25f;
+				}
 			}
 		}
 	}
@@ -3950,7 +3968,7 @@ void CBasePlayer::Spawn( void )
 
 	slowMotionNextHeartbeatSound = 0;
 	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
-	desiredTimeScale = 1.0f * timescale_multiplier;
+	desiredTimeScale = 1.0f * timescale_multiplier + gameplayModsData.timescaleAdditive;
 	SetSlowMotion( false );
 
 	lastDamageTime = 0.0f;
@@ -4877,7 +4895,7 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 }
 
 void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
-	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
 
 	if ( slowMotionEnabled ) {
 		desiredTimeScale = using_sys_timescale ? 0.25f * timescale_multiplier : GET_FRAMERATE_BASE() / 4.0f;
@@ -5755,7 +5773,7 @@ void CBasePlayer :: UpdateClientData( void )
 		SetSlowMotion( false );
 	} );
 	if ( lastSuperHotConstant ) {
-		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
 
 		float base = using_sys_timescale ? 1.0f * timescale_multiplier : GET_FRAMERATE_BASE();
 
@@ -5798,7 +5816,7 @@ void CBasePlayer :: UpdateClientData( void )
 	gameplayModsData.holdingTwinWeapons = m_pActiveItem && ( m_pActiveItem->m_iId == WEAPON_GLOCK_TWIN || m_pActiveItem->m_iId == WEAPON_INGRAM_TWIN );
 
 	if ( nextSmoothTimeScaleChange && nextSmoothTimeScaleChange <= gpGlobals->time ) {
-		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>();
+		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
 		float cap = using_sys_timescale ? 1.0f * timescale_multiplier : GET_FRAMERATE_BASE();
 		
 		desiredTimeScale *= 1.08f;
@@ -5934,6 +5952,18 @@ void CBasePlayer :: UpdateClientData( void )
 	static bool lastSnarkPenguins = false;
 	gameplayMods::OnFlagChange<bool>( lastSnarkPenguins, gameplayMods::snarkPenguins.isActive(), [this]( bool on ) {
 		m_fKnownItem = FALSE;
+	} );
+
+	static bool lastTimescaleOnDamage = false;
+	gameplayMods::OnFlagChange<bool>( lastTimescaleOnDamage, gameplayMods::timescaleOnDamage.isActive(), []( bool on ) {
+		if ( !on ) {
+			gameplayModsData.timescaleAdditive = 0.0f;
+		}
+	} );
+	
+	static float lastTimescaleAdditive = 0.0f;
+	gameplayMods::OnFlagChange<float>( lastTimescaleAdditive, gameplayModsData.timescaleAdditive, [this]( float value ) {
+		SetSlowMotion( slowMotionWasEnabled );
 	} );
 
 	//
