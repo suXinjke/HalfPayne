@@ -201,6 +201,14 @@ public:
 
 	FieldBool( slowmotionInfiniteCheat, FALSE );
 
+	FieldBool( lastGodConstant, FALSE );
+	FieldBool( lastNoTargetConstant, FALSE );
+	FieldBool( lastSuperHotConstant, FALSE );
+	FieldBool( lastSnarkPenguins, FALSE );
+	FieldFloat( lastTimescaleMultiplier, 1.0f );
+	FieldBool( lastTimescaleOnDamage, FALSE );
+	FieldFloat( lastTimescaleAdditive, 0.0f );
+
 	// Statistics and game state
 	FieldBool( cheated, FALSE );
 	FieldBool( usedCheat, FALSE );

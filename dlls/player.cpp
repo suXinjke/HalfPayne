@@ -2570,8 +2570,7 @@ void CBasePlayer::PreThink(void)
 		return;
 	}
 
-	static bool lastGodConstant = false;
-	gameplayMods::OnFlagChange<bool>( lastGodConstant, gameplayMods::godConstant.isActive(), [this]( bool on ) {
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastGodConstant, gameplayMods::godConstant.isActive(), [this]( BOOL on ) {
 		if ( on ) {
 			pev->flags |= FL_GODMODE;
 		} else {
@@ -2579,8 +2578,7 @@ void CBasePlayer::PreThink(void)
 		}
 	} );
 
-	static bool lastNoTargetConstant = false;
-	gameplayMods::OnFlagChange<bool>( lastNoTargetConstant, gameplayMods::noTargetConstant.isActive(), [this]( bool on ) {
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastNoTargetConstant, gameplayMods::noTargetConstant.isActive(), [this]( BOOL on ) {
 		if ( on ) {
 			pev->flags |= FL_NOTARGET;
 		} else {
@@ -5768,11 +5766,10 @@ void CBasePlayer :: UpdateClientData( void )
 		jumpedOnce = FALSE;
 	}
 	
-	static bool lastSuperHotConstant = false;
-	gameplayMods::OnFlagChange<bool>( lastSuperHotConstant, gameplayMods::superHot.isActive(), [this]( bool on ) {
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastSuperHotConstant, gameplayMods::superHot.isActive(), [this]( bool on ) {
 		SetSlowMotion( false );
 	} );
-	if ( lastSuperHotConstant ) {
+	if ( gameplayModsData.lastSuperHotConstant ) {
 		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
 
 		float base = using_sys_timescale ? 1.0f * timescale_multiplier : GET_FRAMERATE_BASE();
@@ -5949,20 +5946,21 @@ void CBasePlayer :: UpdateClientData( void )
 		m_iTrain &= ~TRAIN_NEW;
 	}
 
-	static bool lastSnarkPenguins = false;
-	gameplayMods::OnFlagChange<bool>( lastSnarkPenguins, gameplayMods::snarkPenguins.isActive(), [this]( bool on ) {
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastSnarkPenguins, gameplayMods::snarkPenguins.isActive(), [this]( BOOL on ) {
 		m_fKnownItem = FALSE;
 	} );
 
-	static bool lastTimescaleOnDamage = false;
-	gameplayMods::OnFlagChange<bool>( lastTimescaleOnDamage, gameplayMods::timescaleOnDamage.isActive(), []( bool on ) {
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastTimescaleOnDamage, gameplayMods::timescaleOnDamage.isActive(), []( BOOL on ) {
 		if ( !on ) {
 			gameplayModsData.timescaleAdditive = 0.0f;
 		}
 	} );
 	
-	static float lastTimescaleAdditive = 0.0f;
-	gameplayMods::OnFlagChange<float>( lastTimescaleAdditive, gameplayModsData.timescaleAdditive, [this]( float value ) {
+	gameplayMods::OnFlagChange<float>( gameplayModsData.lastTimescaleMultiplier, *gameplayMods::timescale.isActive<float>(), [this]( float value ) {
+		SetSlowMotion( slowMotionWasEnabled );
+	} );
+
+	gameplayMods::OnFlagChange<float>( gameplayModsData.lastTimescaleAdditive, gameplayModsData.timescaleAdditive, [this]( float value ) {
 		SetSlowMotion( slowMotionWasEnabled );
 	} );
 
