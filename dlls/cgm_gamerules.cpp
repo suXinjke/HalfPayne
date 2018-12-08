@@ -541,13 +541,14 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			auto existingWeapon = pPlayer->GetPlayerItem( nextGungameWeapon );
 			if ( existingWeapon ) {
 				existingWeapon->locked = FALSE;
-				pPlayer->SelectItem( nextGungameWeapon );
 			} else {
 				pPlayer->GiveNamedItem( nextGungameWeapon, true );
 				if ( auto gungameWeapon = pPlayer->GetPlayerItem( nextGungameWeapon ) ) {
 					gungameWeapon->isGungameWeapon = TRUE;
 				}
 			}
+			
+			pPlayer->SelectItem( nextGungameWeapon );
 
 			gameplayModsData.gungameKillsLeft = gungameInfo->killsRequired;
 			gameplayModsData.gungameTimeLeftUntilNextWeapon = gungameInfo->changeTime;
