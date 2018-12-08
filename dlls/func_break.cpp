@@ -28,6 +28,7 @@
 #include "explode.h"
 #include "player.h"
 #include "weapons.h"
+#include "gameplay_mod.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 
@@ -975,10 +976,11 @@ void CPushable :: Move( CBaseEntity *pOther, int push )
 		return;
 	}
 
+	auto forward_flag = gameplayMods::inverseControls.isActive() ? IN_BACK : IN_FORWARD;
 
 	if ( pOther->IsPlayer() )
 	{
-		if ( push && !(pevToucher->button & (IN_FORWARD|IN_USE)) )	// Don't push unless the player is pushing forward and NOT use (pull)
+		if ( push && !(pevToucher->button & ( forward_flag |IN_USE)) )	// Don't push unless the player is pushing forward and NOT use (pull)
 			return;
 		playerTouch = 1;
 	}
