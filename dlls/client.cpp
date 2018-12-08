@@ -719,6 +719,19 @@ void ClientCommand( edict_t *pEntity )
 			}
 		}
 	}
+	else if ( FStrEq( pcmd, "psp" ) ) {
+		auto models = ( char ** ) ( STRING( gpGlobals->startspot ) - 0xB0 + 0x32350 );
+
+		int total = 0;
+		for ( int i = 0; i < 512; i++ ) {
+			if ( models[i] ) {
+				ALERT( at_notice, "[%d] %s\n", i, models[i] );
+				total++;
+			}
+		}
+		
+		ALERT( at_notice, "precached %d of 512\n", total );
+	}
 	else if ( g_pGameRules->ClientCommand( GetClassPtr((CBasePlayer *)pev), pcmd ) )
 	{
 		// MenuSelect returns true only if the command is properly handled,  so don't print a warning
