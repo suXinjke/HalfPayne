@@ -266,6 +266,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	// It was made to prevent timer messup during level changes, because each level has it's own local time
 	float proposedTimeDelta = gpGlobals->time - gameplayModsData.lastGlobalTime;
 	float timeDelta = fabs( proposedTimeDelta ) <= 0.1 ? ( proposedTimeDelta ) : 0.0f;
+	float realTimeDelta = timeDelta / pPlayer->desiredTimeScale;
 
 	gameplayModsData.lastGlobalTime = gpGlobals->time;
 
@@ -277,7 +278,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			gameplayModsData.time += timeDelta;
 		}
 
-		gameplayModsData.realTime += timeDelta / pPlayer->desiredTimeScale;
+		gameplayModsData.realTime += realTimeDelta;
 
 		if ( gameplayMods::IsSlowmotionEnabled() ) {
 			gameplayModsData.secondsInSlowmotion += timeDelta;
@@ -315,7 +316,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	SendHUDMessages( pPlayer );
 
 	if ( gameplayMods::scoreAttack.isActive() ) {
-		gameplayModsData.comboMultiplierReset -= timeDelta;
+		gameplayModsData.comboMultiplierReset -= realTimeDelta;
 		if ( gameplayModsData.comboMultiplierReset < 0.0f ) {
 			gameplayModsData.comboMultiplierReset = 0.0f;
 			gameplayModsData.comboMultiplier = 1;
@@ -335,7 +336,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 
 		if ( pPlayer->pev->deadflag == DEAD_NO ) {
-			gameplayModsData.timeLeftUntilNextRandomGameplayMod -= timeDelta;
+			gameplayModsData.timeLeftUntilNextRandomGameplayMod -= realTimeDelta;
 		}
 
 		if ( proposedGameplayMods.size() > 0 && gameplayModsData.timeLeftUntilNextRandomGameplayMod < 0.0f ) {
@@ -441,7 +442,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 		if ( pPlayer->pev->deadflag == DEAD_NO ) {
 			for ( auto i = timedGameplayMods.begin(); i != timedGameplayMods.end(); ) {
-				i->time -= timeDelta;
+				i->time -= realTimeDelta;
 
 				if ( i->time <= 0 ) {
 					i = timedGameplayMods.erase( i );
@@ -556,7 +557,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 
 		if ( gungameInfo->changeTime > 0.0f ) {
-			gameplayModsData.gungameTimeLeftUntilNextWeapon -= timeDelta;
+			gameplayModsData.gungameTimeLeftUntilNextWeapon -= realTimeDelta;
 		}
 	} else {
 		if ( !FStrEq( gameplayModsData.gungameWeapon, "" ) ) {
