@@ -289,7 +289,8 @@ int gmsgFadeOut = 0;
 int gmsgFlash = 0;
 int gmsgBassPlay = 0;
 int gmsgBassStop = 0;
-int gmsgBassStopSm = 0;
+int gmsgBassStopC = 0;
+int gmsgBassComm = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -369,6 +370,8 @@ void LinkUserMessages( void )
 
 	gmsgBassPlay = REG_USER_MSG( "BassPlay", -1 );
 	gmsgBassStop = REG_USER_MSG( "BassStop", 1 );
+	gmsgBassStopC = REG_USER_MSG( "BassStopC", 0 );
+	gmsgBassComm = REG_USER_MSG( "BassComm", -1 );
 
 	gmsgSubtClear = REG_USER_MSG( "SubtClear", 0 );
 	gmsgSubtRemove = REG_USER_MSG( "SubtRemove", -1 );
@@ -2721,6 +2724,9 @@ void CBasePlayer::PreThink(void)
 		MESSAGE_BEGIN( MSG_ALL, gmsgSubtClear );
 		MESSAGE_END();
 
+		MESSAGE_BEGIN( MSG_ALL, gmsgBassStopC );
+		MESSAGE_END();
+
 		musicGoingThroughChangeLevel = FALSE;
 		postRestoreDelay = 0.0f;
 	}
@@ -3400,17 +3406,21 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 void CBasePlayer::TryToPlayMaxCommentary( string_t string, BOOL isImportant )
 {
 	bool isCommentaryPresent = latestMaxCommentaryTime && ( gpGlobals->time - latestMaxCommentaryTime < 10.0f );
-	if ( isImportant ) {
-		if ( isCommentaryPresent ) {
-			STOP_SOUND( edict(), CHAN_STATIC, latestMaxCommentary.c_str() );
-		}
-	} else {
-		if ( isCommentaryPresent ) {
-			return;
-		}
+	if ( !isImportant && isCommentaryPresent ) {
+		return;
 	}
 
-	EMIT_SOUND( edict(), CHAN_STATIC, STRING( string ), 1.0, ATTN_STATIC, true );
+	MESSAGE_BEGIN( MSG_ONE, gmsgBassComm, NULL, this->pev );
+		WRITE_STRING( STRING( string ) );
+	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
+		WRITE_STRING( STRING( string ) );
+		WRITE_BYTE( 0 );
+		WRITE_COORD( pev->origin.x );
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z );
+	MESSAGE_END();
 
 	latestMaxCommentary = STRING( string );
 	latestMaxCommentaryIsImportant = isImportant;

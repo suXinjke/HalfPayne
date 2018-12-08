@@ -1059,12 +1059,12 @@ void MP3Play()
 		return;
 	}
 
-	SM_Play( gEngfuncs.Cmd_Argv( 1 ) );
+	SM_PlayMusic( gEngfuncs.Cmd_Argv( 1 ) );
 }
 
 void MP3Stop()
 {
-	SM_Stop();
+	SM_StopMusic();
 }
 
 void MP3Seek()
@@ -1077,7 +1077,7 @@ void MP3Seek()
 
 	try {
 		double pos = std::stod( gEngfuncs.Cmd_Argv( 1 ) );
-		SM_Seek( pos );
+		SM_SeekMusic( pos );
 	} catch ( std::invalid_argument ) {
 		gEngfuncs.Con_Printf( "MP3Seek <seconds>\n" );
 	}

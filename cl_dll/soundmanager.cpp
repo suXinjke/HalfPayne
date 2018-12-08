@@ -1,8 +1,5 @@
 #include "soundmanager.h"
 
-#include "bass.h"
-#include "bass_fx.h"
-
 #include "cvardef.h"
 #include "wrect.h"
 #include "cl_dll.h"
@@ -31,17 +28,12 @@ extern int isPaused;
 int lastIsPaused = 1;
 
 cvar_t *MP3Volume = 0;
-float MP3Volume_last_value = 0.0f;
+cvar_t *volume = 0;
 
 int initialised = 0;
-HSTREAM stream = 0;
-BASS_CHANNELINFO channelInfo;
-QWORD channelLength;
-std::string loadedSoundPath;
 
-HFX bqfEffect = 0;
-BASS_BFX_BQF bqfParams;
-bool sliding = false;
+ManagedStream music;
+ManagedStream commentary;
 
 void SM_Init() {
 	initialised = BASS_Init( -1, 44100, 0, NULL, NULL );
@@ -54,14 +46,22 @@ void SM_Init() {
 
 	gEngfuncs.pfnHookUserMsg( "BassPlay", SM_OnBassPlay );
 	gEngfuncs.pfnHookUserMsg( "BassStop", SM_OnBassStop );
+	gEngfuncs.pfnHookUserMsg( "BassStopC", SM_OnBassStopC );
+	gEngfuncs.pfnHookUserMsg( "BassComm", SM_OnBassComm );
 	
 	MP3Volume = gEngfuncs.pfnGetCvarPointer( "MP3Volume" );
-	MP3Volume_last_value = MP3Volume->value;
+	volume = gEngfuncs.pfnGetCvarPointer( "volume" );
+
+	music.volume = MP3Volume->value;
+	music.lastVolume = MP3Volume->value;
+
+	commentary.volume = volume->value;
+	commentary.lastVolume = volume->value;
 
 	lastIsPaused = isPaused;
 }
 
-void SM_Play( const char *soundPath, int looping ) {
+void SM_Play( ManagedStream &stream, const char *soundPath, int looping ) {
 	if ( !initialised ) {
 		return;
 	}
@@ -69,135 +69,147 @@ void SM_Play( const char *soundPath, int looping ) {
 	static std::regex backslashRegex( "\\\\+" );
 	std::string sanitizedSoundPath = std::regex_replace( soundPath, backslashRegex, "/" );
 
-	if ( stream ) {
-		if ( loadedSoundPath == sanitizedSoundPath ) {
+	if ( stream.handle ) {
+		if ( stream.loadedSoundPath == sanitizedSoundPath ) {
 			return;
 		}
 
-		if ( !SM_Stop() ) {
+		if ( !SM_Stop( music ) ) {
 			SM_CheckError();
 			return;
 		}
 	}
 
-	stream = BASS_StreamCreateFile( false, sanitizedSoundPath.c_str(), 0, 0, BASS_STREAM_DECODE | BASS_STREAM_PRESCAN );
-	sliding = false;
+	stream.handle = BASS_StreamCreateFile( false, sanitizedSoundPath.c_str(), 0, 0, BASS_STREAM_DECODE | BASS_STREAM_PRESCAN );
+	stream.sliding = false;
 
-	if ( !stream ) {
+	if ( !stream.handle ) {
 		SM_CheckError();
 		return;
 	}
 
-	channelLength = BASS_ChannelGetLength( stream, BASS_POS_BYTE );
-	if ( channelLength == -1 ) {
+	stream.channelLength = BASS_ChannelGetLength( stream.handle, BASS_POS_BYTE );
+	if ( stream.channelLength == -1 ) {
 		SM_CheckError();
 		return;
 	}
 
-	if ( !BASS_ChannelGetInfo( stream, &channelInfo ) ) {
+	if ( !BASS_ChannelGetInfo( stream.handle, &stream.channelInfo ) ) {
 		SM_CheckError();
 		return;
 	}
 	
-	bqfEffect = BASS_ChannelSetFX( stream, BASS_FX_BFX_BQF, 1 );
-	if ( !bqfEffect ) {
+	stream.bqfEffect = BASS_ChannelSetFX( stream.handle, BASS_FX_BFX_BQF, 1 );
+	if ( !stream.bqfEffect ) {
 		// TODO: show error that there won't be slowmo music effects
 		SM_CheckError();
 		return;
 	} else {
-		BASS_FXGetParameters( bqfEffect, &bqfParams );
+		BASS_FXGetParameters( stream.bqfEffect, &stream.bqfParams );
 
-		bqfParams.lFilter = BASS_BFX_BQF_LOWPASS;
-		bqfParams.fCenter = ( float ) ( ( channelInfo.freq / 2 ) - 1 );
-		bqfParams.fGain = 0.0f;
-		bqfParams.fBandwidth = 1.0f;
+		stream.bqfParams.lFilter = BASS_BFX_BQF_LOWPASS;
+		stream.bqfParams.fCenter = ( float ) ( ( stream.channelInfo.freq / 2 ) - 1 );
+		stream.bqfParams.fGain = 0.0f;
+		stream.bqfParams.fBandwidth = 1.0f;
 	}
 
-	stream = BASS_FX_TempoCreate( stream, BASS_FX_FREESOURCE );
-	if ( !stream ) {
+	stream.handle = BASS_FX_TempoCreate( stream.handle, BASS_FX_FREESOURCE );
+	if ( !stream.handle ) {
 		SM_CheckError();
 		return;
 	}
 
-	BASS_ChannelSetAttribute( stream, BASS_ATTRIB_VOL, MP3Volume->value );
+	BASS_ChannelSetAttribute( stream.handle, BASS_ATTRIB_VOL, MP3Volume->value );
 
-	if ( !BASS_ChannelPlay( stream, false ) ) {
+	if ( !BASS_ChannelPlay( stream.handle, false ) ) {
 		SM_CheckError();
 		return;
 	}
 
-	loadedSoundPath = sanitizedSoundPath;
+	stream.loadedSoundPath = sanitizedSoundPath;
+}
+
+void SM_PlayMusic( const char *soundPath, int looping ) {
+	SM_Play( music, soundPath, looping );
 }
 
 void SM_PlayRandomMainMenuMusic() {
 	std::vector<std::string> musicFiles = FS_GetAllFilesInDirectory( ".\\half_payne\\media\\menu" );
 
 	if ( !musicFiles.empty() ) {
-		SM_Play( aux::rand::choice( musicFiles ).c_str() );
+		SM_Play( music, aux::rand::choice( musicFiles ).c_str() );
 	}
 }
 
-void SM_SetPaused( bool paused ) {
-	if ( !stream || !initialised ) {
+void SM_SetPaused( ManagedStream &stream, bool paused ) {
+	if ( !stream.handle || !initialised ) {
 		return;
 	}
 
 	if ( paused ) {
-		if ( !BASS_ChannelPause( stream ) ) {
+		if ( !BASS_ChannelPause( stream.handle ) ) {
 			SM_CheckError();
 			return;
 		}
 	} else {
-		if ( !BASS_ChannelPlay( stream, false ) ) {
+		if ( !BASS_ChannelPlay( stream.handle, false ) ) {
 			SM_CheckError();
 			return;
 		}
 	}
 }
 
-bool SM_Stop() {
-	if ( !stream || !initialised ) {
+bool SM_Stop( ManagedStream &stream ) {
+	if ( !stream.handle || !initialised ) {
 		return true;
 	}
 
-	BASS_ChannelStop( stream );
+	BASS_ChannelStop( stream.handle );
 
-	int success = BASS_StreamFree( stream );
-	stream = 0;
-	loadedSoundPath = "";
+	int success = BASS_StreamFree( stream.handle );
+	stream.handle = 0;
+	stream.loadedSoundPath = "";
 
 	return success > 0;
 }
 
-void SM_StopSmooth() {
-	if ( !stream || !initialised ) {
+bool SM_StopMusic() {
+	return SM_Stop( music );
+}
+
+void SM_StopSmooth( ManagedStream &stream ) {
+	if ( !stream.handle || !initialised ) {
 		return;
 	}
 
-	BASS_ChannelSlideAttribute( stream, BASS_ATTRIB_VOL, -1.0f, 2000 );
-	sliding = true;
+	BASS_ChannelSlideAttribute( stream.handle, BASS_ATTRIB_VOL, -1.0f, 2000 );
+	stream.sliding = true;
 
 	return;
 }
 
-void SM_Seek( double positionSeconds ) {
-	if ( !stream || !initialised ) {
+void SM_Seek( ManagedStream &stream, double positionSeconds ) {
+	if ( !stream.handle || !initialised ) {
 		return;
 	}
 
-	QWORD audioPos = BASS_ChannelSeconds2Bytes( stream, positionSeconds );
-	if ( !BASS_ChannelSetPosition( stream, audioPos, BASS_POS_BYTE ) ) {
+	QWORD audioPos = BASS_ChannelSeconds2Bytes( stream.handle, positionSeconds );
+	if ( !BASS_ChannelSetPosition( stream.handle, audioPos, BASS_POS_BYTE ) ) {
 		SM_CheckError();
 		return;
 	}
 }
 
-void SM_SetPitch( float pitch ) {
-	if ( !stream || !initialised ) {
+void SM_SeekMusic( double positionSeconds ) {
+	SM_Seek( music, positionSeconds );
+}
+
+void SM_SetPitch( ManagedStream &stream, float pitch ) {
+	if ( !stream.handle || !initialised ) {
 		return;
 	}
 
-	if ( !BASS_ChannelSetAttribute( stream, BASS_ATTRIB_TEMPO_PITCH, pitch ) ) {
+	if ( !BASS_ChannelSetAttribute( stream.handle, BASS_ATTRIB_TEMPO_PITCH, pitch ) ) {
 		SM_CheckError();
 		return;
 	}
@@ -210,20 +222,20 @@ int SM_OnBassPlay( const char *pszName,  int iSize, void *pbuf ) {
 	int slowmotion = READ_BYTE();
 	int looping = READ_BYTE();
 
-	SM_Play( soundPath, looping );
-	if ( stream ) {
+	SM_Play( music, soundPath, looping );
+	if ( music.handle ) {
 		if ( looping ) {
-			BASS_ChannelFlags( stream, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP );
+			BASS_ChannelFlags( music.handle, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP );
 		} else {
-			BASS_ChannelFlags( stream, 0, BASS_SAMPLE_LOOP ); 
+			BASS_ChannelFlags( music.handle, 0, BASS_SAMPLE_LOOP ); 
 		}
 	}
-	SM_Seek( pos );
-	SM_SetSlowmotion( slowmotion );
+	SM_Seek( music, pos );
+	SM_SetSlowmotion( music, slowmotion );
 
 	if ( slowmotion ) {
-		SM_ApplyLowPassEffects();
-		SM_ApplyPitchEffects();
+		SM_ApplyLowPassEffects( music );
+		SM_ApplyPitchEffects( music );
 	}
 
 	return 1;
@@ -234,15 +246,35 @@ int SM_OnBassStop( const char *pszName,  int iSize, void *pbuf ) {
 
 	int smooth = READ_BYTE();
 	if ( smooth ) {
-		SM_StopSmooth();
+		SM_StopSmooth( music );
 	} else {
-		SM_Stop();
+		SM_Stop( music );
 	}
 
 	return 1;
 }
 
-void SM_SetSlowmotion( int slowmotion ) {
+int SM_OnBassStopC( const char *pszName,  int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+
+	SM_Stop( commentary );
+
+	return 1;
+}
+
+int SM_OnBassComm( const char *pszName,  int iSize, void *pbuf ) {
+	BEGIN_READ( pbuf, iSize );
+
+	std::string soundPath = std::string( "./half_payne/sound/" ) + READ_STRING();
+
+	SM_Play( commentary, soundPath.c_str() );
+	BASS_ChannelSetAttribute( commentary.handle, BASS_ATTRIB_VOL, volume->value );
+	commentary.loadedSoundPath = "";
+
+	return 1;
+}
+
+void SM_SetSlowmotion( ManagedStream &stream, int slowmotion ) {
 	if ( slowmotion ) {
 		float value = slowmotion_negative_pitch->value;
 		if ( value > 0 ) {
@@ -253,11 +285,11 @@ void SM_SetSlowmotion( int slowmotion ) {
 		slowmotion_low_pass_cutoff_desired_value = slowmotion_low_pass_cutoff->value;
 	} else {
 		slowmotion_pitch_desired_value = 0;
-		slowmotion_low_pass_cutoff_desired_value = ( float ) ( ( channelInfo.freq / 2 ) - 1 );
+		slowmotion_low_pass_cutoff_desired_value = ( float ) ( ( stream.channelInfo.freq / 2 ) - 1 );
 	}
 }
 
-void SM_ApplyLowPassEffects() {
+void SM_ApplyLowPassEffects( ManagedStream &stream ) {
 	float absoluteTime = ( float ) gEngfuncs.GetAbsoluteTime();
 
 	float c = slowmotion_low_pass_cutoff_desired_value - slowmotion_low_pass_cutoff_desired_last_value;
@@ -267,35 +299,50 @@ void SM_ApplyLowPassEffects() {
 
 	if ( c >= 0 ) {
 		t /= d;
-		bqfParams.fCenter = c * t * t * t * t * t + b;
+		stream.bqfParams.fCenter = c * t * t * t * t * t + b;
 	} else {
 		t /= d;
 		t--;
-		bqfParams.fCenter = c * ( t * t * t * t * t + 1 ) + b;
+		stream.bqfParams.fCenter = c * ( t * t * t * t * t + 1 ) + b;
 	}
 
-	float max_cutoff = ( float ) ( ( channelInfo.freq / 2 ) - 1 );
+	float max_cutoff = ( float ) ( ( stream.channelInfo.freq / 2 ) - 1 );
 
 	if ( absoluteTime >= slowmotion_low_pass_cutoff_time_end ) {
 		slowmotion_low_pass_cutoff_time_end = 0.0f;
 		slowmotion_low_pass_cutoff_desired_last_value = slowmotion_low_pass_cutoff_desired_value;
-		bqfParams.fCenter = slowmotion_low_pass_cutoff_desired_value;
+		stream.bqfParams.fCenter = slowmotion_low_pass_cutoff_desired_value;
 	}
 
-	if ( bqfParams.fCenter < 1 ) {
-		bqfParams.fCenter = 1;
-	} else if ( bqfParams.fCenter > max_cutoff ) {
-		bqfParams.fCenter = max_cutoff;
+	if ( stream.bqfParams.fCenter < 1 ) {
+		stream.bqfParams.fCenter = 1;
+	} else if ( stream.bqfParams.fCenter > max_cutoff ) {
+		stream.bqfParams.fCenter = max_cutoff;
 	}
 
-	bqfParams.lChannel = bqfParams.fCenter > 12000 ? BASS_BFX_CHANNONE : BASS_BFX_CHANALL;
+	stream.bqfParams.lChannel = stream.bqfParams.fCenter > 12000 ? BASS_BFX_CHANNONE : BASS_BFX_CHANALL;
 
-	BASS_FXSetParameters( bqfEffect, &bqfParams );
+	BASS_FXSetParameters( stream.bqfEffect, &stream.bqfParams );
 }
 
-void SM_ApplyPitchEffects() {
-	BASS_ChannelSlideAttribute( stream, BASS_ATTRIB_TEMPO_PITCH, slowmotion_pitch_desired_value, ( DWORD ) slowmotion_effect_change_duration->value * 1000 );
+void SM_ApplyPitchEffects( ManagedStream &stream ) {
+	BASS_ChannelSlideAttribute( stream.handle, BASS_ATTRIB_TEMPO_PITCH, slowmotion_pitch_desired_value, ( DWORD ) slowmotion_effect_change_duration->value * 1000 );
 	slowmotion_pitch_desired_last_value = slowmotion_pitch_desired_value;
+}
+
+void SM_Think( double time ) {
+	if ( isPaused != lastIsPaused ) {
+		if ( music.handle ) {
+			SM_SetPaused( music, isPaused > 0 );
+		}
+		if ( commentary.handle ) {
+			SM_SetPaused( commentary, isPaused > 0 );
+		}
+		lastIsPaused = isPaused;
+	}
+
+	SM_ThinkMusic( time );
+	SM_ThinkCommentary( time );
 }
 
 void SM_SetConsoleVarState( double pos, const char *soundPath, int looping ) {
@@ -304,8 +351,8 @@ void SM_SetConsoleVarState( double pos, const char *soundPath, int looping ) {
 	gEngfuncs.Cvar_SetValue( "sm_looping", looping ? 1.0f : 0.0f );
 }
 
-void SM_Think( double time ) {
-	if ( !stream ) {
+void SM_ThinkMusic( double time ) {
+	if ( !music.handle ) {
 		SM_SetConsoleVarState( 0, "", false );
 		return;
 	}
@@ -314,24 +361,16 @@ void SM_Think( double time ) {
 
 	// CONSOLE VARS STATE
 	{
-		QWORD posInBytes = BASS_ChannelGetPosition( stream, BASS_POS_BYTE );
-		DWORD looping = BASS_ChannelFlags( stream, 0, 0 ) & BASS_SAMPLE_LOOP;
-		if ( posInBytes >= channelLength ) {
+		QWORD posInBytes = BASS_ChannelGetPosition( music.handle, BASS_POS_BYTE );
+		DWORD looping = BASS_ChannelFlags( music.handle, 0, 0 ) & BASS_SAMPLE_LOOP;
+		if ( posInBytes >= music.channelLength ) {
 			SM_SetConsoleVarState( 0, "", false );
 			if ( !looping ) {
-				SM_Stop();
+				SM_Stop( music );
 			}
 		} else {
-			float pos = ( float ) BASS_ChannelBytes2Seconds( stream, posInBytes );
-			SM_SetConsoleVarState( pos, loadedSoundPath.c_str(), looping );
-		}
-	}
-
-	// PAUSED
-	{
-		if ( isPaused != lastIsPaused ) {
-			SM_SetPaused( isPaused > 0 );
-			lastIsPaused = isPaused;
+			float pos = ( float ) BASS_ChannelBytes2Seconds( music.handle, posInBytes );
+			SM_SetConsoleVarState( pos, music.loadedSoundPath.c_str(), looping );
 		}
 	}
 
@@ -342,42 +381,57 @@ void SM_Think( double time ) {
 		}
 
 		if ( slowmotion_low_pass_cutoff_time_end ) {
-			SM_ApplyLowPassEffects();
-		}
-	}
-
-	// PITCH
-	{
-		if ( slowmotion_pitch_desired_value != slowmotion_pitch_desired_last_value ) {
-			SM_ApplyPitchEffects();
+			SM_ApplyLowPassEffects( music );
 		}
 	}
 
 	// VOLUME
 	{
-		if ( MP3Volume->value != MP3Volume_last_value ) {
-			float appliedValue = MP3Volume->value;
-			if ( appliedValue < 0.0f ) {
-				appliedValue = 0.0f;
-			}
-			if ( appliedValue > 1.0f ) {
-				appliedValue = 1.0f;
-			}
+		music.volume = MP3Volume->value;
+		SM_ThinkVolume( music );
+	}
 
-			BASS_ChannelSlideAttribute( stream, BASS_ATTRIB_VOL, appliedValue, 500 );
-			MP3Volume_last_value = appliedValue;
+	// PITCH
+	{
+		if ( slowmotion_pitch_desired_value != slowmotion_pitch_desired_last_value ) {
+			SM_ApplyPitchEffects( music );
 		}
 	}
 
 	// AFTER FADE OUT
 	{
-		if ( sliding && !BASS_ChannelIsSliding( stream, BASS_ATTRIB_VOL ) ) {
-			sliding = false;
-			SM_Stop();
+		if ( music.sliding && !BASS_ChannelIsSliding( music.handle, BASS_ATTRIB_VOL ) ) {
+			music.sliding = false;
+			SM_Stop( music );
 		}
 	}
 
-	SM_SetSlowmotion( g_musicSlowmotion );
+	SM_SetSlowmotion( music, g_musicSlowmotion );
+}
+
+void SM_ThinkCommentary( double time ) {
+	{
+		QWORD posInBytes = BASS_ChannelGetPosition( commentary.handle, BASS_POS_BYTE );
+		DWORD looping = BASS_ChannelFlags( commentary.handle, 0, 0 ) & BASS_SAMPLE_LOOP;
+		if ( posInBytes >= commentary.channelLength ) {
+			SM_Stop( commentary );
+		}
+	}
+}
+
+void SM_ThinkVolume( ManagedStream &stream, float min, float max ) {
+	if ( stream.volume != stream.lastVolume ) {
+		float appliedVolume = stream.volume;
+		if ( appliedVolume < min ) {
+			appliedVolume = min;
+		}
+		if ( appliedVolume > max ) {
+			appliedVolume = max;
+		}
+
+		BASS_ChannelSlideAttribute( stream.handle, BASS_ATTRIB_VOL, appliedVolume, 500 );
+		stream.lastVolume = stream.volume;
+	}
 }
 
 void SM_CheckError() {

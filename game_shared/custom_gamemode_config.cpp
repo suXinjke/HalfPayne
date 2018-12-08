@@ -566,12 +566,6 @@ std::set<std::string> CustomGameModeConfig::GetSoundsToPrecacheForMap( const std
 		}
 	}
 
-	for ( const auto &commentary : maxCommentary ) {
-		if ( commentary.map == map ) {
-			soundsToPrecache.insert( commentary.path );
-		}
-	}
-
 	return soundsToPrecache;
 }
 

@@ -317,7 +317,7 @@ void CL_DLLEXPORT HUD_Frame( double time )
 	inMainMenu = ( ( unsigned int ) gEngfuncs.GetLocalPlayer() ) <= 4098 && gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 2.0f;
 	if ( inMainMenu != lastInMainMenu ) {
 		if ( inMainMenu ) { // IF DISCONNECT
-			SM_Stop();
+			SM_StopMusic();
 			SM_PlayRandomMainMenuMusic();
 		}
 		lastInMainMenu = inMainMenu;

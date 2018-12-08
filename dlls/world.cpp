@@ -574,32 +574,38 @@ void CWorld :: Precache( void )
 	PRECACHE_SOUND ("weapons/ric4.wav");
 	PRECACHE_SOUND ("weapons/ric5.wav");
 
-	PRECACHE_SOUND( "payned/alert1.wav" );
-	PRECACHE_SOUND( "payned/alert2.wav" );
-	PRECACHE_SOUND( "payned/alert3.wav" );
-	PRECACHE_SOUND( "payned/alert4.wav" );
-	PRECACHE_SOUND( "payned/alert5.wav" );
-	PRECACHE_SOUND( "payned/alert6.wav" );
-	PRECACHE_SOUND( "payned/alert7.wav" );
-	PRECACHE_SOUND( "payned/attack1.wav" );
-	PRECACHE_SOUND( "payned/attack2.wav" );
-	PRECACHE_SOUND( "payned/attack3.wav" );
-	PRECACHE_SOUND( "payned/die1.wav" );
-	PRECACHE_SOUND( "payned/die2.wav" );
-	PRECACHE_SOUND( "payned/die3.wav" );
-	PRECACHE_SOUND( "payned/die4.wav" );
-	PRECACHE_SOUND( "payned/die5.wav" );
-	PRECACHE_SOUND( "payned/die6.wav" );
-	PRECACHE_SOUND( "payned/die7.wav" );
-	PRECACHE_SOUND( "payned/pain1.wav" );
-	PRECACHE_SOUND( "payned/pain2.wav" );
-	PRECACHE_SOUND( "payned/pain3.wav" );
-	PRECACHE_SOUND( "payned/pain4.wav" );
-	PRECACHE_SOUND( "payned/pain5.wav" );
-	PRECACHE_SOUND( "payned/pain6.wav" );
-	PRECACHE_SOUND( "payned/pain7.wav" );
-	PRECACHE_SOUND( "payned/pain8.wav" );
-	PRECACHE_SOUND( "payned/pain9.wav" );
+	if (
+		gameplayMods::randomGameplayMods.isActive() ||
+		gameplayMods::paynedSoundsHumans.isActive() ||
+		gameplayMods::paynedSoundsMonsters.isActive()
+	) {
+		PRECACHE_SOUND( "payned/alert1.wav" );
+		PRECACHE_SOUND( "payned/alert2.wav" );
+		PRECACHE_SOUND( "payned/alert3.wav" );
+		PRECACHE_SOUND( "payned/alert4.wav" );
+		PRECACHE_SOUND( "payned/alert5.wav" );
+		PRECACHE_SOUND( "payned/alert6.wav" );
+		PRECACHE_SOUND( "payned/alert7.wav" );
+		PRECACHE_SOUND( "payned/attack1.wav" );
+		PRECACHE_SOUND( "payned/attack2.wav" );
+		PRECACHE_SOUND( "payned/attack3.wav" );
+		PRECACHE_SOUND( "payned/die1.wav" );
+		PRECACHE_SOUND( "payned/die2.wav" );
+		PRECACHE_SOUND( "payned/die3.wav" );
+		PRECACHE_SOUND( "payned/die4.wav" );
+		PRECACHE_SOUND( "payned/die5.wav" );
+		PRECACHE_SOUND( "payned/die6.wav" );
+		PRECACHE_SOUND( "payned/die7.wav" );
+		PRECACHE_SOUND( "payned/pain1.wav" );
+		PRECACHE_SOUND( "payned/pain2.wav" );
+		PRECACHE_SOUND( "payned/pain3.wav" );
+		PRECACHE_SOUND( "payned/pain4.wav" );
+		PRECACHE_SOUND( "payned/pain5.wav" );
+		PRECACHE_SOUND( "payned/pain6.wav" );
+		PRECACHE_SOUND( "payned/pain7.wav" );
+		PRECACHE_SOUND( "payned/pain8.wav" );
+		PRECACHE_SOUND( "payned/pain9.wav" );
+	}
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is maxbright.
 //
