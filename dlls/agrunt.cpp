@@ -339,7 +339,7 @@ void CAGrunt :: DeathSound ( void )
 {
 	StopTalking();
 
-	EMIT_SOUND ( ENT(pev), CHAN_VOICE, pDieSounds[RANDOM_LONG(0,ARRAYSIZE(pDieSounds)-1)], 1.0, ATTN_NORM );
+	EMIT_SOUND ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDieSounds ), 1.0, ATTN_NORM );
 }
 
 //=========================================================
@@ -349,7 +349,7 @@ void CAGrunt :: AlertSound ( void )
 {
 	StopTalking();
 
-	EMIT_SOUND ( ENT(pev), CHAN_VOICE, pAlertSounds[RANDOM_LONG(0,ARRAYSIZE(pAlertSounds)-1)], 1.0, ATTN_NORM );
+	EMIT_SOUND ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1.0, ATTN_NORM );
 }
 
 //=========================================================
@@ -376,7 +376,7 @@ void CAGrunt :: PainSound ( void )
 
 	StopTalking();
 
-	EMIT_SOUND ( ENT(pev), CHAN_VOICE, pPainSounds[RANDOM_LONG(0,ARRAYSIZE(pPainSounds)-1)], 1.0, ATTN_NORM );
+	EMIT_SOUND ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, ATTN_NORM );
 }
 
 //=========================================================
@@ -468,14 +468,14 @@ void CAGrunt :: HandleAnimEvent( MonsterEvent_t *pEvent )
 			UTIL_MakeVectors ( pHornet->pev->angles );
 			pHornet->pev->velocity = gpGlobals->v_forward * 300;
 			
-			
-			
-			switch ( RANDOM_LONG ( 0 , 2 ) )
+			static const char *pFireSounds[] =
 			{
-				case 0:	EMIT_SOUND_DYN ( ENT(pev), CHAN_WEAPON, "agrunt/ag_fire1.wav", 1.0, ATTN_NORM, 0, 100 );	break;
-				case 1:	EMIT_SOUND_DYN ( ENT(pev), CHAN_WEAPON, "agrunt/ag_fire2.wav", 1.0, ATTN_NORM, 0, 100 );	break;
-				case 2:	EMIT_SOUND_DYN ( ENT(pev), CHAN_WEAPON, "agrunt/ag_fire3.wav", 1.0, ATTN_NORM, 0, 100 );	break;
-			}
+				"agrunt/ag_fire1.wav",
+				"agrunt/ag_fire2.wav",
+				"agrunt/ag_fire3.wav",
+			};
+			
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_WEAPON, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pFireSounds ), 1.0, ATTN_NORM, 0, 100 );
 
 			CBaseMonster *pHornetMonster = pHornet->MyMonsterPointer();
 

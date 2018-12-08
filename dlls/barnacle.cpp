@@ -275,7 +275,12 @@ void CBarnacle :: BarnacleThink ( void )
 				if ( FClassnameIs( pTouchEnt->pev, "player" ) ) {
 					pTouchEnt->pev->flags &= ~FL_DIVING;
 				}
-				EMIT_SOUND( ENT(pev), CHAN_WEAPON, "barnacle/bcl_alert2.wav", 1, ATTN_NORM );	
+
+				static const char *pAlertSounds[] = {
+					"barnacle/bcl_alert2.wav"
+				};
+
+				EMIT_SOUND( ENT( pev ), CHAN_WEAPON, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1, ATTN_NORM );
 
 				SetSequenceByName ( "attack1" );
 				m_flTongueAdj = -20;
@@ -359,11 +364,12 @@ void CBarnacle :: Killed( entvars_t *pevAttacker, int iGib )
 
 //	CGib::SpawnRandomGibs( pev, 4, 1 );
 
-	switch ( RANDOM_LONG ( 0, 1 ) )
-	{
-	case 0:	EMIT_SOUND( ENT(pev), CHAN_WEAPON, "barnacle/bcl_die1.wav", 1, ATTN_NORM );	break;
-	case 1:	EMIT_SOUND( ENT(pev), CHAN_WEAPON, "barnacle/bcl_die3.wav", 1, ATTN_NORM );	break;
-	}
+	static const char *pDeathSounds[] = {
+		"barnacle/bcl_die1.wav",
+		"barnacle/bcl_die3.wav"
+	};
+
+	EMIT_SOUND( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1.0f, ATTN_NORM );
 	
 	SetActivity ( ACT_DIESIMPLE );
 	SetBoneController( 0, 0 );

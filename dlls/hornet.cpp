@@ -399,13 +399,14 @@ void CHornet::DieTouch ( CBaseEntity *pOther )
 {
 	if ( pOther && pOther->pev->takedamage )
 	{// do the damage
+		static const char *pHitSounds[] =
+		{
+			"agrunt/ag_hornethit1.wav",
+			"agrunt/ag_hornethit2.wav",
+			"agrunt/ag_hornethit3.wav",
+		};
 
-		switch (RANDOM_LONG(0,2))
-		{// buzz when you plug someone
-			case 0:	EMIT_SOUND( ENT(pev), CHAN_VOICE, "hornet/ag_hornethit1.wav", 1, ATTN_NORM);	break;
-			case 1:	EMIT_SOUND( ENT(pev), CHAN_VOICE, "hornet/ag_hornethit2.wav", 1, ATTN_NORM);	break;
-			case 2:	EMIT_SOUND( ENT(pev), CHAN_VOICE, "hornet/ag_hornethit3.wav", 1, ATTN_NORM);	break;
-		}
+		EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pHitSounds ), 1, ATTN_NORM );
 			
 		pOther->TakeDamage( pev, VARS( pev->owner ), pev->dmg, DMG_BULLET );
 	}

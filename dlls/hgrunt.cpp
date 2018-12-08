@@ -987,7 +987,14 @@ void CHGrunt :: HandleAnimEvent( MonsterEvent_t *pEvent )
 		{
 			if ( FOkToSpeak() )
 			{
-				SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+				if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+					static const char *dummy[] = {
+						""
+					};
+					EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_HUMAN( dummy ), HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch );
+				} else {
+					SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, GRUNT_ATTN, 0, m_voicePitch);
+				}
 				 JustSpoke();
 			}
 
@@ -1203,24 +1210,16 @@ void CHGrunt :: PainSound ( void )
 			}
 		}
 #endif 
-		switch ( RANDOM_LONG(0,6) )
+		static const char *pPainSounds[] =
 		{
-		case 0:	
-			EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_pain3.wav", 1, ATTN_NORM );	
-			break;
-		case 1:
-			EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_pain4.wav", 1, ATTN_NORM );	
-			break;
-		case 2:
-			EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_pain5.wav", 1, ATTN_NORM );	
-			break;
-		case 3:
-			EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_pain1.wav", 1, ATTN_NORM );	
-			break;
-		case 4:
-			EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_pain2.wav", 1, ATTN_NORM );	
-			break;
-		}
+			"headcrab/gr_pain1.wav",
+			"headcrab/gr_pain2.wav",
+			"headcrab/gr_pain3.wav",
+			"headcrab/gr_pain4.wav",
+			"headcrab/gr_pain5.wav",
+		};
+
+		EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_HUMAN( pPainSounds ), 1, ATTN_NORM );
 
 		m_flNextPainTime = gpGlobals->time + 1;
 	}
@@ -1231,18 +1230,14 @@ void CHGrunt :: PainSound ( void )
 //=========================================================
 void CHGrunt :: DeathSound ( void )
 {
-	switch ( RANDOM_LONG(0,2) )
+	static const char *pDeathSounds[] =
 	{
-	case 0:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_die1.wav", 1, ATTN_IDLE );	
-		break;
-	case 1:
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_die2.wav", 1, ATTN_IDLE );	
-		break;
-	case 2:
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "hgrunt/gr_die3.wav", 1, ATTN_IDLE );	
-		break;
-	}
+		"headcrab/gr_die1.wav",
+		"headcrab/gr_die2.wav",
+		"headcrab/gr_die3.wav",
+	};
+
+	EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_HUMAN( pDeathSounds ), 1, ATTN_IDLE );
 }
 
 //=========================================================

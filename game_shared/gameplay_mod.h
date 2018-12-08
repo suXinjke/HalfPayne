@@ -409,6 +409,9 @@ namespace gameplayMods {
 	extern GameplayMod& painkillersInfinite;
 	extern GameplayMod& painkillersSlow;
 	
+	extern GameplayMod& paynedSoundsHumans;
+	extern GameplayMod& paynedSoundsMonsters;
+	
 	extern GameplayMod& preventMonsterDrops;
 	extern GameplayMod& preventMonsterMovement;
 	extern GameplayMod& preventMonsterSpawn;

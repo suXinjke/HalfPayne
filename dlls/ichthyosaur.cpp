@@ -191,7 +191,7 @@ void CIchthyosaur :: IdleSound( void )
 
 void CIchthyosaur :: AlertSound( void ) 
 { 
-	EMIT_ICKY_SOUND( CHAN_VOICE, pAlertSounds ); 
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1.0, 0.6, 0, RANDOM_LONG( 95, 105 ) );
 }
 
 void CIchthyosaur :: AttackSound( void ) 
@@ -206,12 +206,12 @@ void CIchthyosaur :: BiteSound( void )
 
 void CIchthyosaur :: DeathSound( void ) 
 { 
-	EMIT_ICKY_SOUND( CHAN_VOICE, pDieSounds ); 
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDieSounds ), 1.0, 0.6, 0, RANDOM_LONG( 95, 105 ) );
 }
 
 void CIchthyosaur :: PainSound( void )	
 { 
-	EMIT_ICKY_SOUND( CHAN_VOICE, pPainSounds ); 
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, 0.6, 0, RANDOM_LONG( 95, 105 ) );
 }
 
 //=========================================================

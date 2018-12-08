@@ -236,12 +236,12 @@ void CController::GibMonster( void )
 void CController :: PainSound( void )
 {
 	if (RANDOM_LONG(0,5) < 2)
-		EMIT_SOUND_ARRAY_DYN( CHAN_VOICE, pPainSounds ); 
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 }	
 
 void CController :: AlertSound( void )
 {
-	EMIT_SOUND_ARRAY_DYN( CHAN_VOICE, pAlertSounds ); 
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 }
 
 void CController :: IdleSound( void )
@@ -256,7 +256,7 @@ void CController :: AttackSound( void )
 
 void CController :: DeathSound( void )
 {
-	EMIT_SOUND_ARRAY_DYN( CHAN_VOICE, pDeathSounds ); 
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 }
 
 //=========================================================

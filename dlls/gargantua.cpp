@@ -838,7 +838,7 @@ void CGargantua::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vec
 	{
 		if ( m_painSoundTime < gpGlobals->time )
 		{
-			EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, pPainSounds[ RANDOM_LONG(0,ARRAYSIZE(pPainSounds)-1) ], 1.0, ATTN_GARG, 0, PITCH_NORM );
+			EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, ATTN_GARG, 0, PITCH_NORM );
 			m_painSoundTime = gpGlobals->time + RANDOM_FLOAT( 2.5, 4 );
 		}
 	}

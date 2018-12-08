@@ -491,11 +491,11 @@ void CBigMomma :: HandleAnimEvent( MonsterEvent_t *pEvent )
 		break;
 		
 		case BIG_AE_SCREAM:
-			EMIT_SOUND_ARRAY_DYN( CHAN_VOICE, pAlertSounds );
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pAlertSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 			break;
 		
 		case BIG_AE_PAIN_SOUND:
-			EMIT_SOUND_ARRAY_DYN( CHAN_VOICE, pPainSounds );
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 			break;
 		
 		case BIG_AE_ATTACK_SOUND:
@@ -503,16 +503,16 @@ void CBigMomma :: HandleAnimEvent( MonsterEvent_t *pEvent )
 			break;
 
 		case BIG_AE_BIRTH_SOUND:
-			EMIT_SOUND_ARRAY_DYN( CHAN_BODY, pBirthSounds );
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_BODY, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pBirthSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 			break;
 
 		case BIG_AE_SACK:
 			if ( RANDOM_LONG(0,100) < 30 )
-				EMIT_SOUND_ARRAY_DYN( CHAN_BODY, pSackSounds );
+				EMIT_SOUND_DYN( ENT( pev ), CHAN_BODY, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pSackSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 			break;
 
 		case BIG_AE_DEATHSOUND:
-			EMIT_SOUND_ARRAY_DYN( CHAN_VOICE, pDeathSounds );
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1.0, ATTN_NORM, 0, RANDOM_LONG( 95, 105 ) );
 			break;
 
 		case BIG_AE_STEP1:		// Footstep left

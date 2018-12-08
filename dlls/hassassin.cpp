@@ -27,6 +27,7 @@
 #include	"weapons.h"
 #include	"soundent.h"
 #include	"game.h"
+#include	"gameplay_mod.h"
 
 extern DLL_GLOBAL int  g_iSkillLevel;
 
@@ -81,6 +82,7 @@ public:
 	void RunAI( void );
 	void RunTask ( Task_t *pTask );
 	void DeathSound ( void );
+	void PainSound ( void );
 	void IdleSound ( void );
 	CUSTOM_SCHEDULES;
 
@@ -131,6 +133,22 @@ IMPLEMENT_SAVERESTORE( CHAssassin, CBaseMonster );
 //=========================================================
 void CHAssassin :: DeathSound ( void )
 {
+	if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+		static const char *dummy[] = {
+			""
+		};
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_HUMAN( dummy ), 1, ATTN_NORM, 0, 120 );
+	}
+}
+
+void CHAssassin :: PainSound ( void )
+{
+	if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+		static const char *dummy[] = {
+			""
+		};
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_HUMAN( dummy ), 1, ATTN_NORM, 0, 130 );
+	}
 }
 
 //=========================================================

@@ -26,6 +26,7 @@
 #include	"decals.h"
 #include	"soundent.h"
 #include	"game.h"
+#include	"gameplay_mod.h"
 
 #define		SQUID_SPRINT_DIST	256 // how close the squid has to get before starting to sprint and refusing to swerve
 
@@ -461,21 +462,14 @@ void CBullsquid :: PainSound ( void )
 {
 	int iPitch = RANDOM_LONG( 85, 120 );
 
-	switch ( RANDOM_LONG(0,3) )
-	{
-	case 0:	
-		EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "bullchicken/bc_pain1.wav", 1, ATTN_NORM, 0, iPitch );	
-		break;
-	case 1:	
-		EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "bullchicken/bc_pain2.wav", 1, ATTN_NORM, 0, iPitch );	
-		break;
-	case 2:	
-		EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "bullchicken/bc_pain3.wav", 1, ATTN_NORM, 0, iPitch );	
-		break;
-	case 3:	
-		EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "bullchicken/bc_pain4.wav", 1, ATTN_NORM, 0, iPitch );	
-		break;
-	}
+	static const char *pPainSounds[] = {
+		"bullchicken/bc_pain1.wav",
+		"bullchicken/bc_pain2.wav",
+		"bullchicken/bc_pain3.wav",
+		"bullchicken/bc_pain4.wav"
+	};
+
+	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1, ATTN_NORM, 0, iPitch );
 }
 
 //=========================================================
@@ -483,17 +477,14 @@ void CBullsquid :: PainSound ( void )
 //=========================================================
 void CBullsquid :: AlertSound ( void )
 {
-	int iPitch = RANDOM_LONG( 140, 160 );
+	int iPitch = gameplayMods::paynedSoundsMonsters.isActive() ? 90 : RANDOM_LONG( 140, 160 );
 
-	switch ( RANDOM_LONG ( 0, 1  ) )
-	{
-	case 0:
-		EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "bullchicken/bc_idle1.wav", 1, ATTN_NORM, 0, iPitch );	
-		break;
-	case 1:
-		EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "bullchicken/bc_idle2.wav", 1, ATTN_NORM, 0, iPitch );	
-		break;
-	}
+	static const char *pAlertSounds[] = {
+		"bullchicken/bc_idle1.wav",
+		"bullchicken/bc_idle2.wav",
+	};
+
+	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1, ATTN_NORM, 0, iPitch );
 }
 
 //=========================================================
@@ -737,18 +728,13 @@ void CBullsquid :: Precache()
 //=========================================================
 void CBullsquid :: DeathSound ( void )
 {
-	switch ( RANDOM_LONG(0,2) )
-	{
-	case 0:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "bullchicken/bc_die1.wav", 1, ATTN_NORM );	
-		break;
-	case 1:
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "bullchicken/bc_die2.wav", 1, ATTN_NORM );	
-		break;
-	case 2:
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "bullchicken/bc_die3.wav", 1, ATTN_NORM );	
-		break;
-	}
+	static const char *pDeathSounds[] = {
+		"bullchicken/bc_die1.wav",
+		"bullchicken/bc_die2.wav",
+		"bullchicken/bc_die3.wav"
+	};
+
+	EMIT_SOUND( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1, ATTN_NORM );
 }
 
 //=========================================================

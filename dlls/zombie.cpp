@@ -23,7 +23,7 @@
 #include	"cbase.h"
 #include	"monsters.h"
 #include	"schedule.h"
-
+#include	"gameplay_mod.h"
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -50,6 +50,7 @@ public:
 	void AlertSound( void );
 	void IdleSound( void );
 	void AttackSound( void );
+	void DeathSound( void );
 
 	static const char *pAttackSounds[];
 	static const char *pIdleSounds[];
@@ -157,14 +158,14 @@ void CZombie :: PainSound( void )
 	int pitch = 95 + RANDOM_LONG(0,9);
 
 	if (RANDOM_LONG(0,5) < 2)
-		EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, pPainSounds[ RANDOM_LONG(0,ARRAYSIZE(pPainSounds)-1) ], 1.0, ATTN_NORM, 0, pitch );
+		EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, ATTN_NORM, 0, pitch );
 }
 
 void CZombie :: AlertSound( void )
 {
 	int pitch = 95 + RANDOM_LONG(0,9);
 
-	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, pAlertSounds[ RANDOM_LONG(0,ARRAYSIZE(pAlertSounds)-1) ], 1.0, ATTN_NORM, 0, pitch );
+	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pPainSounds ), 1.0, ATTN_NORM, 0, pitch );
 }
 
 void CZombie :: IdleSound( void )
@@ -181,6 +182,16 @@ void CZombie :: AttackSound( void )
 
 	// Play a random attack sound
 	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, pAttackSounds[ RANDOM_LONG(0,ARRAYSIZE(pAttackSounds)-1) ], 1.0, ATTN_NORM, 0, pitch );
+}
+
+void CZombie :: DeathSound( void )
+{
+	if ( gameplayMods::paynedSoundsMonsters.isActive() ) {
+		static const char *dummy[] = {
+			""
+		};
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( dummy ), 1.0, ATTN_NORM, 0, 100 );
+	}
 }
 
 

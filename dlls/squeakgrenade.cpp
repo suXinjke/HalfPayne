@@ -43,7 +43,19 @@ enum squeak_e {
 
 #ifndef CLIENT_DLL
 
+static const char *pHuntSounds[] =
+{
+	"squeek/sqk_hunt1.wav",
+	"squeek/sqk_hunt2.wav",
+	"squeek/sqk_hunt3.wav",
+};
 
+static const char *pPinguHuntSounds[] =
+{
+	"pingu/pingu_hunt1.wav",
+	"pingu/pingu_hunt2.wav",
+	"pingu/pingu_hunt3.wav",
+};
 
 float CSqueakGrenade::m_flNextBounceSoundTime = 0;
 
@@ -438,7 +450,12 @@ void CSqueakGrenade::SuperBounceTouch( CBaseEntity *pOther )
 				// m_flDie += 2.0; // add more life
 
 				// make bite sound
-				EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, isPenguin ? "pingu/pingu_deploy.wav" : "squeek/sqk_deploy1.wav", 1.0, ATTN_NORM, 0, (int)flpitch);
+				static const char *pDeploySounds[] =
+				{
+					"squeek/sqk_deploy1.wav",
+				};
+
+				EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, isPenguin ? "pingu/pingu_deploy.wav" : RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pDeploySounds ), 1.0, ATTN_NORM, 0, (int)flpitch);
 				m_flNextAttack = gpGlobals->time + 0.5;
 			}
 		}
@@ -466,12 +483,8 @@ void CSqueakGrenade::SuperBounceTouch( CBaseEntity *pOther )
 		// play bounce sound
 		float flRndSound = RANDOM_FLOAT ( 0 , 1 );
 
-		if ( flRndSound <= 0.33 )
-			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, isPenguin ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt1.wav", 1, ATTN_NORM, 0, (int)flpitch);		
-		else if (flRndSound <= 0.66)
-			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, isPenguin ? "pingu/pingu_hunt2.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, (int)flpitch);
-		else 
-			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, isPenguin ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, (int)flpitch);
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, isPenguin ? RANDOM_SOUND_ARRAY( pPinguHuntSounds ) : RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pHuntSounds ), 1, ATTN_NORM, 0, ( int ) flpitch );
+
 		CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, 256, 0.25 );
 	}
 	else
@@ -554,10 +567,9 @@ BOOL CSqueak::Deploy( )
 	// play hunt sound
 	float flRndSound = RANDOM_FLOAT ( 0 , 1 );
 
-	if ( flRndSound <= 0.5 )
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 100);
-	else 
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 100);
+#ifndef CLIENT_DLL
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? RANDOM_SOUND_ARRAY( pPinguHuntSounds ) : RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pHuntSounds ), 1, ATTN_NORM, 0, 100 );
+#endif // !CLIENT_DLL
 
 	m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 
@@ -628,12 +640,9 @@ void CSqueak::PrimaryAttack()
 #endif
 
 			// play hunt sound
-			float flRndSound = RANDOM_FLOAT ( 0 , 1 );
-
-			if ( flRndSound <= 0.5 )
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt1.wav" : "squeek/sqk_hunt2.wav", 1, ATTN_NORM, 0, 105);
-			else 
-				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? "pingu/pingu_hunt3.wav" : "squeek/sqk_hunt3.wav", 1, ATTN_NORM, 0, 105);
+#ifndef CLIENT_DLL
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? RANDOM_SOUND_ARRAY( pPinguHuntSounds ) : RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pHuntSounds ), 1, ATTN_NORM, 0, 100 );
+#endif // !CLIENT_DLL
 
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;
 

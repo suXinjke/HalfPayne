@@ -361,13 +361,13 @@ void CNihilanth :: PainSound( void )
 	}
 	else if (m_irritation >= 2)
 	{
-		EMIT_SOUND( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY( pPainSounds ), 1.0, 0.2 ); 
+		EMIT_SOUND( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, 0.2 );
 	}
 }	
 
 void CNihilanth :: DeathSound( void )
 {
-	EMIT_SOUND( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY( pDeathSounds ), 1.0, 0.1 ); 
+	EMIT_SOUND( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1.0, 0.1 ); 
 }
 
 

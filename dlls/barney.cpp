@@ -564,12 +564,14 @@ void CBarney :: PainSound ( void )
 	
 	m_painTime = gpGlobals->time + RANDOM_FLOAT(0.5, 0.75);
 
-	switch (RANDOM_LONG(0,2))
+	static const char *pPainSounds[] =
 	{
-	case 0: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "barney/ba_pain1.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 1: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "barney/ba_pain2.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 2: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "barney/ba_pain3.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	}
+		"barney/ba_pain1.wav",
+		"barney/ba_pain2.wav",
+		"barney/ba_pain3.wav",
+	};
+
+	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_HUMAN( pPainSounds ), 1, ATTN_IDLE, 0, GetVoicePitch() );
 }
 
 //=========================================================
@@ -577,12 +579,14 @@ void CBarney :: PainSound ( void )
 //=========================================================
 void CBarney :: DeathSound ( void )
 {
-	switch (RANDOM_LONG(0,2))
+	static const char *pDeathSounds[] =
 	{
-	case 0: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "barney/ba_die1.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 1: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "barney/ba_die2.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 2: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "barney/ba_die3.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	}
+		"barney/ba_die1.wav",
+		"barney/ba_die2.wav",
+		"barney/ba_die3.wav",
+	};
+
+	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_HUMAN( pDeathSounds ), 1, ATTN_IDLE, 0, GetVoicePitch() );
 }
 
 

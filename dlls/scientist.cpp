@@ -26,6 +26,7 @@
 #include	"scripted.h"
 #include	"animation.h"
 #include	"soundent.h"
+#include	"gameplay_mod.h"
 
 
 #define		NUM_SCIENTIST_HEADS		4 // four heads available for scientist model
@@ -792,14 +793,15 @@ void CScientist :: PainSound ( void )
 	
 	m_painTime = gpGlobals->time + RANDOM_FLOAT(0.5, 0.75);
 
-	switch (RANDOM_LONG(0,4))
-	{
-	case 0: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "scientist/sci_pain1.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 1: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "scientist/sci_pain2.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 2: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "scientist/sci_pain3.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 3: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "scientist/sci_pain4.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	case 4: EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "scientist/sci_pain5.wav", 1, ATTN_NORM, 0, GetVoicePitch()); break;
-	}
+	static const char *pPainSounds[] = {
+		"scientist/sci_pain1.wav",
+		"scientist/sci_pain2.wav",
+		"scientist/sci_pain3.wav",
+		"scientist/sci_pain4.wav",
+		"scientist/sci_pain5.wav",
+	};
+
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_HUMAN( pPainSounds ), 1, ATTN_NORM, 0, GetVoicePitch() );
 }
 
 //=========================================================
@@ -807,7 +809,14 @@ void CScientist :: PainSound ( void )
 //=========================================================
 void CScientist :: DeathSound ( void )
 {
-	PainSound();
+	if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+		static const char *dummy[] = {
+			""
+		};
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_HUMAN( dummy ), 1, ATTN_NORM, 0, GetVoicePitch() );
+	} else {
+		PainSound();
+	}
 }
 
 

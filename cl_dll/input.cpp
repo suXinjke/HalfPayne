@@ -639,6 +639,7 @@ float CL_KeyState (kbutton_t *key)
 	return val;
 }
 
+int paynedSoundsMonsters = FALSE;
 int upsideDown = FALSE;
 int lastUpsideDown = FALSE;
 float lastUpsideDownTime = 0.0f;
@@ -693,6 +694,8 @@ void CL_AdjustAngles ( float frametime, float *viewangles )
 		viewangles[PITCH] = cl_pitchdown->value;
 	if (viewangles[PITCH] < -cl_pitchup->value)
 		viewangles[PITCH] = -cl_pitchup->value;
+	
+	paynedSoundsMonsters = gameplayMods::paynedSoundsMonsters.isActive();
 
 	float absTime = gEngfuncs.GetAbsoluteTime();
 	upsideDown = gameplayMods::upsideDown.isActive();

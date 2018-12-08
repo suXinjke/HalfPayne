@@ -451,18 +451,14 @@ void CHoundeye :: AlertSound ( void )
 		return; // only leader makes ALERT sound.
 	}
 
-	switch ( RANDOM_LONG(0,2) )
+	static const char *pAlertSounds[] =
 	{
-	case 0:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_alert1.wav", 1, ATTN_NORM );	
-		break;
-	case 1:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_alert2.wav", 1, ATTN_NORM );	
-		break;
-	case 2:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_alert3.wav", 1, ATTN_NORM );	
-		break;
-	}
+		"houndeye/he_alert1.wav",
+		"houndeye/he_alert2.wav",
+		"houndeye/he_alert3.wav",
+	};
+
+	EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1, ATTN_NORM );
 }
 
 //=========================================================
@@ -470,18 +466,14 @@ void CHoundeye :: AlertSound ( void )
 //=========================================================
 void CHoundeye :: DeathSound ( void )
 {
-	switch ( RANDOM_LONG(0,2) )
+	static const char *pDeathSounds[] =
 	{
-	case 0:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_die1.wav", 1, ATTN_NORM );	
-		break;
-	case 1:
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_die2.wav", 1, ATTN_NORM );	
-		break;
-	case 2:
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_die3.wav", 1, ATTN_NORM );	
-		break;
-	}
+		"houndeye/he_die1.wav",
+		"houndeye/he_die2.wav",
+		"houndeye/he_die3.wav",
+	};
+
+	EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1, ATTN_NORM );
 }
 
 //=========================================================
@@ -489,18 +481,14 @@ void CHoundeye :: DeathSound ( void )
 //=========================================================
 void CHoundeye :: PainSound ( void )
 {
-	switch ( RANDOM_LONG(0,2) )
+	static const char *pPainSounds[] =
 	{
-	case 0:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_pain3.wav", 1, ATTN_NORM );	
-		break;
-	case 1:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_pain4.wav", 1, ATTN_NORM );	
-		break;
-	case 2:	
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, "houndeye/he_pain5.wav", 1, ATTN_NORM );	
-		break;
-	}
+		"houndeye/he_pain3.wav",
+		"houndeye/he_pain4.wav",
+		"houndeye/he_pain5.wav",
+	};
+
+	EMIT_SOUND( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1, ATTN_NORM );
 }
 
 //=========================================================

@@ -2690,3 +2690,54 @@ CBasePlayer* GetPlayer() {
 float SHARED_CVAR_GET_FLOAT( const char *cvar ) {
 	return g_engfuncs.pfnCVarGetFloat( cvar );
 }
+
+std::vector<const char *> paynedAlertSounds = {
+	"payned/alert1.wav",
+	"payned/alert2.wav",
+	"payned/alert3.wav",
+	"payned/alert4.wav",
+	"payned/alert5.wav",
+	"payned/alert6.wav",
+	"payned/alert7.wav",
+};
+std::vector<const char *> paynedDieSounds = {
+	"payned/die1.wav",
+	"payned/die2.wav",
+	"payned/die3.wav",
+	"payned/die4.wav",
+	"payned/die5.wav",
+	"payned/die6.wav",
+	"payned/die7.wav",
+};
+std::vector<const char *> paynedPainSounds = {
+	"payned/pain1.wav",
+	"payned/pain2.wav",
+	"payned/pain3.wav",
+	"payned/pain4.wav",
+	"payned/pain5.wav",
+	"payned/pain6.wav",
+	"payned/pain7.wav",
+	"payned/pain8.wav",
+	"payned/pain9.wav",
+};
+
+const char * RANDOM_SOUND_ARRAY_PAYNED( const char *originalSound, PaynedSound soundGroup, bool isMonster ) {
+	if ( isMonster && !gameplayMods::paynedSoundsMonsters.isActive() ) {
+		return originalSound;
+	}
+
+	if ( !isMonster && !gameplayMods::paynedSoundsHumans.isActive() ) {
+		return originalSound;
+	}
+
+	switch ( soundGroup ) {
+	case PaynedSound::Alert:
+		return aux::rand::choice( paynedAlertSounds );
+	case PaynedSound::Die:
+		return aux::rand::choice( paynedDieSounds );
+	case PaynedSound::Pain:
+		return aux::rand::choice( paynedPainSounds );
+	}
+
+	return originalSound;
+}

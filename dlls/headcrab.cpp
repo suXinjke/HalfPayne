@@ -447,7 +447,7 @@ void CHeadCrab :: IdleSound ( void )
 //=========================================================
 void CHeadCrab :: AlertSound ( void )
 {
-	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY(pAlertSounds), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch() );
+	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER(pAlertSounds), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch() );
 }
 
 //=========================================================
@@ -455,7 +455,7 @@ void CHeadCrab :: AlertSound ( void )
 //=========================================================
 void CHeadCrab :: PainSound ( void )
 {
-	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY(pPainSounds), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch() );
+	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER(pPainSounds), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch() );
 }
 
 //=========================================================
@@ -463,7 +463,7 @@ void CHeadCrab :: PainSound ( void )
 //=========================================================
 void CHeadCrab :: DeathSound ( void )
 {
-	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY(pDeathSounds), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch() );
+	EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER(pDeathSounds), GetSoundVolue(), ATTN_IDLE, 0, GetVoicePitch() );
 }
 
 Schedule_t* CHeadCrab :: GetScheduleOfType ( int Type )

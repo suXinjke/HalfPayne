@@ -563,6 +563,22 @@ void EMIT_GROUPNAME_SUIT(edict_t *entity, const char *groupname);
 
 #define RANDOM_SOUND_ARRAY( array ) (array) [ RANDOM_LONG(0,ARRAYSIZE( (array) )-1) ]
 
+enum class PaynedSound {
+	Alert,
+	Die,
+	Pain
+};
+
+const char * RANDOM_SOUND_ARRAY_PAYNED( const char *originalSound, PaynedSound soundGroup, bool isMonster );
+
+#define RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( array ) RANDOM_SOUND_ARRAY_PAYNED( RANDOM_SOUND_ARRAY( array ), PaynedSound::Alert, true )
+#define RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( array ) RANDOM_SOUND_ARRAY_PAYNED( RANDOM_SOUND_ARRAY( array ), PaynedSound::Pain, true )
+#define RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( array ) RANDOM_SOUND_ARRAY_PAYNED( RANDOM_SOUND_ARRAY( array ), PaynedSound::Die, true )
+
+#define RANDOM_SOUND_ARRAY_PAYNED_ALERT_HUMAN( array ) RANDOM_SOUND_ARRAY_PAYNED( RANDOM_SOUND_ARRAY( array ), PaynedSound::Alert, false )
+#define RANDOM_SOUND_ARRAY_PAYNED_PAIN_HUMAN( array ) RANDOM_SOUND_ARRAY_PAYNED( RANDOM_SOUND_ARRAY( array ), PaynedSound::Pain, false )
+#define RANDOM_SOUND_ARRAY_PAYNED_DIE_HUMAN( array ) RANDOM_SOUND_ARRAY_PAYNED( RANDOM_SOUND_ARRAY( array ), PaynedSound::Die, false )
+
 #define PLAYBACK_EVENT( flags, who, index ) PLAYBACK_EVENT_FULL( flags, who, index, 0, (float *)&g_vecZero, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
 #define PLAYBACK_EVENT_DELAY( flags, who, index, delay ) PLAYBACK_EVENT_FULL( flags, who, index, delay, (float *)&g_vecZero, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
 

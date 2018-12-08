@@ -25,6 +25,7 @@
 #include	"effects.h"
 #include	"weapons.h"
 #include	"soundent.h"
+#include	"gameplay_mod.h"
 
 extern DLL_GLOBAL int		g_iSkillLevel;
 
@@ -193,7 +194,14 @@ void CISlave :: AlertSound( void )
 {
 	if ( m_hEnemy != NULL )
 	{
-		SENTENCEG_PlayRndSz(ENT(pev), "SLV_ALERT", 0.85, ATTN_NORM, 0, m_voicePitch);
+		if ( gameplayMods::paynedSoundsMonsters.isActive() ) {
+			static const char *dummy[] = {
+				""
+			};
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( dummy ), 0.85, ATTN_NORM, 0, m_voicePitch );
+		} else {
+			SENTENCEG_PlayRndSz( ENT( pev ), "SLV_ALERT", 0.85, ATTN_NORM, 0, m_voicePitch );
+		}
 
 		CallForHelp( "monster_alien_slave", 512, m_hEnemy, m_vecEnemyLKP );
 	}
@@ -239,10 +247,7 @@ void CISlave :: IdleSound( void )
 //=========================================================
 void CISlave :: PainSound( void )
 {
-	if (RANDOM_LONG( 0, 2 ) == 0)
-	{
-		EMIT_SOUND_DYN ( ENT(pev), CHAN_WEAPON, pPainSounds[ RANDOM_LONG(0,ARRAYSIZE(pPainSounds)-1) ], 1.0, ATTN_NORM, 0, m_voicePitch );
-	}
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_WEAPON, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pPainSounds ), 1.0, ATTN_NORM, 0, m_voicePitch );
 }
 
 //=========================================================
@@ -251,7 +256,7 @@ void CISlave :: PainSound( void )
 
 void CISlave :: DeathSound( void )
 {
-	EMIT_SOUND_DYN ( ENT(pev), CHAN_WEAPON, pDeathSounds[ RANDOM_LONG(0,ARRAYSIZE(pDeathSounds)-1) ], 1.0, ATTN_NORM, 0, m_voicePitch );
+	EMIT_SOUND_DYN ( ENT(pev), CHAN_WEAPON, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDeathSounds ), 1.0, ATTN_NORM, 0, m_voicePitch );
 }
 
 

@@ -286,7 +286,7 @@ void CLeech::AttackSound( void )
 
 void CLeech::AlertSound( void )
 {
-	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, pAlertSounds[ RANDOM_LONG(0,ARRAYSIZE(pAlertSounds)-1) ], 1.0, ATTN_NORM * 0.5, 0, PITCH_NORM );
+	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1.0, ATTN_NORM * 0.5, 0, PITCH_NORM );
 }
 
 

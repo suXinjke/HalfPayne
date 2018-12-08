@@ -41,6 +41,7 @@ extern engine_studio_api_t IEngineStudio;
 static int tracerCount[ 32 ];
 
 extern int upsideDown;
+extern int paynedSoundsMonsters;
 
 extern "C"
 {
@@ -1960,11 +1961,32 @@ void EV_HornetGunFire( event_args_t *args )
 		gEngfuncs.pEventAPI->EV_WeaponAnimation ( HGUN_SHOOT, 1 );
 	}
 
-	switch ( gEngfuncs.pfnRandomLong ( 0 , 2 ) )
-	{
-		case 0:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "agrunt/ag_fire1.wav", 1, ATTN_NORM, 0, 100 );	break;
-		case 1:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "agrunt/ag_fire2.wav", 1, ATTN_NORM, 0, 100 );	break;
-		case 2:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "agrunt/ag_fire3.wav", 1, ATTN_NORM, 0, 100 );	break;
+	if ( paynedSoundsMonsters ) {
+		switch ( gEngfuncs.pfnRandomLong ( 0, 14 ) ) {
+			case 0:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain1.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 1:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain2.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 2:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain3.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 3:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain4.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 4:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain5.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 5:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain6.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 6:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain7.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 7:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain8.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 8:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/pain9.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 9:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die1.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 10:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die2.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 11:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die3.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 12:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die4.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 13:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die5.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 14:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die6.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 15:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "payned/die7.wav", 1, ATTN_NORM, 0, 100 );	break;
+		}
+	} else {
+		switch ( gEngfuncs.pfnRandomLong ( 0, 2 ) )
+		{
+			case 0:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "agrunt/ag_fire1.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 1:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "agrunt/ag_fire2.wav", 1, ATTN_NORM, 0, 100 );	break;
+			case 2:	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "agrunt/ag_fire3.wav", 1, ATTN_NORM, 0, 100 );	break;
+		}
 	}
 }
 //======================
