@@ -1212,11 +1212,11 @@ void CHGrunt :: PainSound ( void )
 #endif 
 		static const char *pPainSounds[] =
 		{
-			"headcrab/gr_pain1.wav",
-			"headcrab/gr_pain2.wav",
-			"headcrab/gr_pain3.wav",
-			"headcrab/gr_pain4.wav",
-			"headcrab/gr_pain5.wav",
+			"hgrunt/gr_pain1.wav",
+			"hgrunt/gr_pain2.wav",
+			"hgrunt/gr_pain3.wav",
+			"hgrunt/gr_pain4.wav",
+			"hgrunt/gr_pain5.wav",
 		};
 
 		EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_HUMAN( pPainSounds ), 1, ATTN_NORM );
@@ -1232,9 +1232,9 @@ void CHGrunt :: DeathSound ( void )
 {
 	static const char *pDeathSounds[] =
 	{
-		"headcrab/gr_die1.wav",
-		"headcrab/gr_die2.wav",
-		"headcrab/gr_die3.wav",
+		"hgrunt/gr_die1.wav",
+		"hgrunt/gr_die2.wav",
+		"hgrunt/gr_die3.wav",
 	};
 
 	EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_HUMAN( pDeathSounds ), 1, ATTN_IDLE );
