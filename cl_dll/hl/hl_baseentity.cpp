@@ -282,6 +282,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse ) { }
 int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem ) { return FALSE; }
 int CBasePlayer::RemovePlayerItem( CBasePlayerItem *pItem ) { return FALSE; }
 BOOL CBasePlayer::HasNamedPlayerItem( const char *name ) { return FALSE; }
+CBasePlayerItem * CBasePlayer::GetPlayerItem( const char *name ) { return NULL; }
 void CBasePlayer::GiveNamedItem( const char *szName, bool nonCheat ) {}
 void CBasePlayer::ItemPreFrame() { }
 void CBasePlayer::ItemPostFrame() { }

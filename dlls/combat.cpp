@@ -1251,6 +1251,24 @@ void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacke
 				pSqueak->pev->velocity = Vector( RANDOM_LONG( -200, 200 ), RANDOM_LONG( -200, 200 ), RANDOM_LONG( 10, 500 ) );
 			}
 		}
+
+		if ( FStrEq( STRING( pevInflictor->classname ), "grenade" ) || FStrEq( STRING( pevAttacker->classname ), "grenade" ) ) {
+			if ( auto grenadePellets = gameplayMods::grenadePellets.isActive<float>() ) {
+				float phi_offset = RANDOM_FLOAT( 0, 360 );
+				for ( int i = 0; i < *grenadePellets; i++ ) {
+
+					float step = 360.0f / 16.0f;
+					float phi = i * step + phi_offset;
+
+					Vector offset = Vector( cos( phi ), sin( phi ), 0 );
+
+					Vector origin = vecSrc + ( offset * 20 ) + Vector( 0, 0, 1 );
+					Vector vel = ( offset + Vector( 0, 0, RANDOM_FLOAT( -0.3, 0.3 ) ) ) * 1000;
+
+					CBullet::BulletCreate( origin, vel, BULLET_PLAYER_BUCKSHOT, ENT( pevInflictor ) );
+				}
+			}
+		}
 	} 
 }
 

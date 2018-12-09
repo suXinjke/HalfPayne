@@ -249,6 +249,41 @@ GameplayMod &::gibsEdible = GameplayMod::Define( "edible_gibs", "Edible gibs" )
 GameplayMod &::gibsGarbage = GameplayMod::Define( "garbage_gibs", "Garbage gibs" )
 .Description( "Replaces all gibs with garbage." );
 
+GameplayMod &::grenadePellets = GameplayMod::Define( "grenade_pellets", "Grenade pellets" )
+.Description( "Additional pellets will emerge after grenade explosion" )
+.Arguments( {
+	Argument( "pellet_amount" ).IsOptional().MinMax( 4, 64 ).RandomMinMax( 48, 64 ).Default( "48" ).Description( []( const std::string string, float value ) {
+		return "Pellet amount: " + std::to_string( value ) + " \n";
+	} )
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() -> bool {
+	if ( auto player = GetPlayer() ) {
+		if ( auto mp5 = player->GetPlayerItem( "weapon_9mmAR" ) ) {
+			auto grenadeAmmoIndex = mp5->SecondaryAmmoIndex();
+			if ( player->m_rgAmmo[grenadeAmmoIndex] > 0 ) {
+				return true;
+			}
+		}
+		
+		if ( player->HasNamedPlayerItem( "weapon_handgrenade" ) ) {
+			return true;
+		}
+
+		CBaseEntity *pEntity = NULL;
+		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, player->pev->origin, 8192.0f ) ) != NULL ) {
+			if (
+				FStrEq( STRING( pEntity->pev->classname ), "monster_human_grunt" ) &&
+				pEntity->pev->weapons & ( 1 << 2 ) // HGRUNT_GRENADELAUNCHER flag
+			) {
+				return true;
+			}
+		}
+	}
+
+
+	return false;
+} );
+
 GameplayMod &::godConstant = GameplayMod::Define( "god", "God mode" )
 .Description( "You are invincible and it doesn't count as a cheat." )
 .CannotBeActivatedRandomly();
