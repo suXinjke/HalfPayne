@@ -345,7 +345,12 @@ void CSqueakGrenade::HuntThink( void )
 	// squeek if it's about time blow up
 	if ( !gameplayMods::snarkStayAlive.isActive() && (m_flDie - gpGlobals->time <= 0.5) && (m_flDie - gpGlobals->time >= 0.3))
 	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "squeek/sqk_die1.wav", 1, ATTN_NORM, 0, 100 + RANDOM_LONG(0,0x3F));
+		static const char *pDieSounds[] =
+		{
+			"squeek/sqk_die1.wav",
+		};
+
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pDieSounds ), 1.0, ATTN_NORM, 0, 100 + RANDOM_LONG( 0, 0x3F ) );
 		CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, 256, 0.25 );
 	}
 
@@ -641,7 +646,7 @@ void CSqueak::PrimaryAttack()
 
 			// play hunt sound
 #ifndef CLIENT_DLL
-			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? RANDOM_SOUND_ARRAY( pPinguHuntSounds ) : RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pHuntSounds ), 1, ATTN_NORM, 0, 100 );
+			EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, gameplayMods::snarkPenguins.isActive() ? RANDOM_SOUND_ARRAY( pPinguHuntSounds ) : RANDOM_SOUND_ARRAY_PAYNED_DIE_MONSTER( pHuntSounds ), 1, ATTN_NORM, 0, 100 );
 #endif // !CLIENT_DLL
 
 			m_pPlayer->m_iWeaponVolume = QUIET_GUN_VOLUME;

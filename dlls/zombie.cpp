@@ -165,7 +165,7 @@ void CZombie :: AlertSound( void )
 {
 	int pitch = 95 + RANDOM_LONG(0,9);
 
-	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pPainSounds ), 1.0, ATTN_NORM, 0, pitch );
+	EMIT_SOUND_DYN ( ENT(pev), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_ALERT_MONSTER( pAlertSounds ), 1.0, ATTN_NORM, 0, pitch );
 }
 
 void CZombie :: IdleSound( void )
