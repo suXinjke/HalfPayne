@@ -247,7 +247,7 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 	}
 
 	if ( gameplayMods::snarkNuclear.isActive() ) {
-		float damage = gSkillData.plrDmgHandGrenade;
+		float damage = gSkillData.plrDmgHandGrenade / 1.8f;
 		RadiusDamage ( pev, pev, damage, CLASS_NONE, DMG_BLAST, false );
 
 
@@ -255,7 +255,7 @@ void CSqueakGrenade :: Killed( entvars_t *pevAttacker, int iGib )
 			WRITE_BYTE( TE_EXPLOSION );		// This makes a dynamic light and the explosion sprites/sound
 			WRITE_COORD( pev->origin.x );	// Send to PAS because of the sound
 			WRITE_COORD( pev->origin.y );
-			WRITE_COORD( pev->origin.z + 36 );
+			WRITE_COORD( pev->origin.z );
 			if ( UTIL_PointContents ( pev->origin ) != CONTENTS_WATER) {
 				WRITE_SHORT( g_sModelIndexFireball );
 			} else {
