@@ -4019,7 +4019,7 @@ void CBasePlayer::SayRandomSwear()
 	} while ( lastSwearingLine == fileName );
 	lastSwearingLine = fileName;
 
-	EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+	TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 
 	allowedToSwear = gpGlobals->time + 1.5f;
 }
@@ -5934,7 +5934,7 @@ void CBasePlayer :: UpdateClientData( void )
 	if ( readyToComplainAboutDumbShots && !( this->pev->button & IN_ATTACK ) ) {
 		char fileName[256];
 		sprintf_s( fileName, "max/dumb_shoot/SHOOT_THING_%d.wav", RANDOM_LONG( 1, 22 ) );
-		EMIT_SOUND( ENT( pev ), CHAN_STATIC, fileName, 1, ATTN_NORM, true );
+		TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
 		readyToComplainAboutDumbShots = false;
 		dumbShots = 0;
 
