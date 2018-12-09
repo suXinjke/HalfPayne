@@ -987,7 +987,7 @@ void CHGrunt :: HandleAnimEvent( MonsterEvent_t *pEvent )
 		{
 			if ( FOkToSpeak() )
 			{
-				if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+				if ( gameplayMods::PaynedSoundsEnabled( false ) ) {
 					static const char *dummy[] = {
 						""
 					};

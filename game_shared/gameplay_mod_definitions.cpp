@@ -117,6 +117,12 @@ GameplayMod &::bulletTrail = GameplayMod::Define( "bullet_trail_constant", "Bull
 } )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::cncSounds = GameplayMod::Define( "cnc_sounds", "Command & Conquer death sounds" )
+.Description( "Tribute to one of the best death sounds." )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::deusExSounds.isActive();
+} );
+
 GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive_bolts", "Crossbow explosive bolts" )
 .Description( "Crossbow bolts explode when they hit the wall." )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
@@ -124,6 +130,12 @@ GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive
 		return player->HasNamedPlayerItem( "weapon_crossbow" );
 	}
 	return false;
+} );
+
+GameplayMod &::deusExSounds = GameplayMod::Define( "deus_ex_sounds", "Deus EX death sounds" )
+.Description( "Self explanatory." )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::cncSounds.isActive();
 } );
 
 GameplayMod &::difficultyEasy = GameplayMod::Define( "easy", "Easy difficulty" )

@@ -347,7 +347,11 @@ namespace gameplayMods {
 	extern GameplayMod& bulletSelfHarm;
 	extern GameplayMod& bulletTrail;
 
+	extern GameplayMod& cncSounds;
+
 	extern GameplayMod& crossbowExplosiveBolts;
+
+	extern GameplayMod& deusExSounds;
 	
 	extern GameplayMod& difficultyEasy;
 	extern GameplayMod& difficultyHard;
@@ -475,6 +479,7 @@ namespace gameplayMods {
 	bool PlayerShouldProducePhysicalBullets();
 	bool IsSlowmotionEnabled();
 	bool AllowedToVoteOnRandomGameplayMods();
+	bool PaynedSoundsEnabled( bool isMonster );
 
 	template<class T = bool>
 	void OnFlagChange( T &flag, T newValue, const std::function<void( T )> &func ) {

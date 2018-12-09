@@ -606,6 +606,34 @@ void CWorld :: Precache( void )
 		PRECACHE_SOUND( "payned/pain8.wav" );
 		PRECACHE_SOUND( "payned/pain9.wav" );
 	}
+
+	if (
+		gameplayMods::randomGameplayMods.isActive() ||
+		gameplayMods::cncSounds.isActive()
+	) {
+		PRECACHE_SOUND( "cnc/cnc_ded01.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded02.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded03.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded04.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded05.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded06.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded07.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded08.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded09.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded10.wav" );
+		PRECACHE_SOUND( "cnc/cnc_ded11.wav" );
+	}
+
+	if (
+		gameplayMods::randomGameplayMods.isActive() ||
+		gameplayMods::deusExSounds.isActive()
+	) {
+		PRECACHE_SOUND( "deusex/dead01.wav" );
+		PRECACHE_SOUND( "deusex/dead02.wav" );
+		PRECACHE_SOUND( "deusex/dead03.wav" );
+		PRECACHE_SOUND( "deusex/pain01.wav" );
+		PRECACHE_SOUND( "deusex/pain02.wav" );
+	}
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is maxbright.
 //

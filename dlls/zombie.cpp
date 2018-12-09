@@ -186,7 +186,7 @@ void CZombie :: AttackSound( void )
 
 void CZombie :: DeathSound( void )
 {
-	if ( gameplayMods::paynedSoundsMonsters.isActive() ) {
+	if ( gameplayMods::PaynedSoundsEnabled( true ) ) {
 		static const char *dummy[] = {
 			""
 		};

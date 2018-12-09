@@ -809,7 +809,7 @@ void CScientist :: PainSound ( void )
 //=========================================================
 void CScientist :: DeathSound ( void )
 {
-	if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+	if ( gameplayMods::PaynedSoundsEnabled( false ) ) {
 		static const char *dummy[] = {
 			""
 		};

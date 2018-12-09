@@ -133,7 +133,7 @@ IMPLEMENT_SAVERESTORE( CHAssassin, CBaseMonster );
 //=========================================================
 void CHAssassin :: DeathSound ( void )
 {
-	if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+	if ( gameplayMods::PaynedSoundsEnabled( false ) ) {
 		static const char *dummy[] = {
 			""
 		};
@@ -143,7 +143,7 @@ void CHAssassin :: DeathSound ( void )
 
 void CHAssassin :: PainSound ( void )
 {
-	if ( gameplayMods::paynedSoundsHumans.isActive() ) {
+	if ( gameplayMods::PaynedSoundsEnabled( false ) ) {
 		static const char *dummy[] = {
 			""
 		};

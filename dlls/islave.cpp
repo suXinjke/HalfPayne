@@ -194,7 +194,7 @@ void CISlave :: AlertSound( void )
 {
 	if ( m_hEnemy != NULL )
 	{
-		if ( gameplayMods::paynedSoundsMonsters.isActive() ) {
+		if ( gameplayMods::PaynedSoundsEnabled( true ) ) {
 			static const char *dummy[] = {
 				""
 			};

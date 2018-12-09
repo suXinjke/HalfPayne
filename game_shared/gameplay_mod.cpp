@@ -313,6 +313,14 @@ bool gameplayMods::AllowedToVoteOnRandomGameplayMods() {
 		gameplayModsData.timeLeftUntilNextRandomGameplayMod < randomGameplayMods->timeForRandomGameplayModVoting;
 }
 
+bool gameplayMods::PaynedSoundsEnabled( bool isMonster ) {
+	return
+		( !isMonster && gameplayMods::paynedSoundsHumans.isActive() ) ||
+		( isMonster && gameplayMods::paynedSoundsMonsters.isActive() ) ||
+		gameplayMods::deusExSounds.isActive() ||
+		gameplayMods::cncSounds.isActive();
+}
+
 void GameplayModData::AddArrayFieldDefinitions() {
 	if ( !addedAdditionalFields ) {
 		// HACK: didn't figure out simple macro to avoid defining these fields in this place

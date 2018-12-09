@@ -2721,22 +2721,60 @@ std::vector<const char *> paynedPainSounds = {
 	"payned/pain9.wav",
 };
 
+std::vector<const char *> deusExDieSounds = {
+	"deusex/dead01.wav",
+	"deusex/dead02.wav",
+	"deusex/dead03.wav",
+};
+
+std::vector<const char *> deusExPainSounds = {
+	"deusex/pain01.wav",
+	"deusex/pain02.wav",
+};
+
+std::vector<const char *> cncDieSounds = {
+	"cnc/cnc_ded01.wav",
+	"cnc/cnc_ded02.wav",
+	"cnc/cnc_ded03.wav",
+	"cnc/cnc_ded04.wav",
+	"cnc/cnc_ded05.wav",
+	"cnc/cnc_ded06.wav",
+	"cnc/cnc_ded07.wav",
+	"cnc/cnc_ded08.wav",
+	"cnc/cnc_ded09.wav",
+	"cnc/cnc_ded10.wav",
+	"cnc/cnc_ded11.wav",
+};
+
 const char * RANDOM_SOUND_ARRAY_PAYNED( const char *originalSound, PaynedSound soundGroup, bool isMonster ) {
-	if ( isMonster && !gameplayMods::paynedSoundsMonsters.isActive() ) {
-		return originalSound;
+
+	if ( gameplayMods::cncSounds.isActive() && soundGroup == PaynedSound::Die ) {
+		return aux::rand::choice( cncDieSounds );
+	}
+	
+	if ( gameplayMods::deusExSounds.isActive() ) {
+		switch ( soundGroup ) {
+		case PaynedSound::Die:
+			return aux::rand::choice( deusExDieSounds );
+		case PaynedSound::Pain:
+			return aux::rand::choice( deusExPainSounds );
+		default:
+			break;
+		}
 	}
 
-	if ( !isMonster && !gameplayMods::paynedSoundsHumans.isActive() ) {
-		return originalSound;
-	}
-
-	switch ( soundGroup ) {
-	case PaynedSound::Alert:
-		return aux::rand::choice( paynedAlertSounds );
-	case PaynedSound::Die:
-		return aux::rand::choice( paynedDieSounds );
-	case PaynedSound::Pain:
-		return aux::rand::choice( paynedPainSounds );
+	if (
+		( isMonster && gameplayMods::paynedSoundsMonsters.isActive() ) ||
+		( !isMonster && gameplayMods::paynedSoundsHumans.isActive() )
+	) {
+		switch ( soundGroup ) {
+		case PaynedSound::Alert:
+			return aux::rand::choice( paynedAlertSounds );
+		case PaynedSound::Die:
+			return aux::rand::choice( paynedDieSounds );
+		case PaynedSound::Pain:
+			return aux::rand::choice( paynedPainSounds );
+		}
 	}
 
 	return originalSound;
