@@ -14,6 +14,8 @@ extern cl_enginefunc_t gEngfuncs;
 extern int g_musicSlowmotion;
 
 extern cvar_t *slowmotion_effect_change_duration;
+extern cvar_t *sm_buffer;
+float sm_buffer_last_value = 0.0f;
 
 extern cvar_t *slowmotion_low_pass_cutoff;
 float slowmotion_low_pass_cutoff_desired_last_value = 22049.0f;
@@ -42,7 +44,7 @@ void SM_Init() {
 	}
 
 	BASS_SetConfig( BASS_CONFIG_UPDATEPERIOD, 5 );
-	BASS_SetConfig( BASS_CONFIG_BUFFER, 64 );
+	BASS_SetConfig( BASS_CONFIG_BUFFER, ( DWORD ) sm_buffer->value );
 
 	gEngfuncs.pfnHookUserMsg( "BassPlay", SM_OnBassPlay );
 	gEngfuncs.pfnHookUserMsg( "BassStop", SM_OnBassStop );
@@ -339,6 +341,13 @@ void SM_Think( double time ) {
 			SM_SetPaused( commentary, isPaused > 0 );
 		}
 		lastIsPaused = isPaused;
+	}
+
+	{
+		if ( sm_buffer->value != sm_buffer_last_value ) {
+			BASS_SetConfig( BASS_CONFIG_BUFFER, ( DWORD ) sm_buffer->value );
+			sm_buffer_last_value = sm_buffer->value;
+		}
 	}
 
 	SM_ThinkMusic( time );
