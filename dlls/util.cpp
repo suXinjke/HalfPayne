@@ -2769,7 +2769,7 @@ const char * RANDOM_SOUND_ARRAY_PAYNED( const char *originalSound, PaynedSound s
 	) {
 		switch ( soundGroup ) {
 		case PaynedSound::Alert:
-			return aux::rand::choice( paynedAlertSounds );
+			return gameplayMods::payned.isActive() ? aux::rand::choice( paynedAlertSounds ) : originalSound;
 		case PaynedSound::Die:
 			return aux::rand::choice( paynedDieSounds );
 		case PaynedSound::Pain:
@@ -2778,4 +2778,36 @@ const char * RANDOM_SOUND_ARRAY_PAYNED( const char *originalSound, PaynedSound s
 	}
 
 	return originalSound;
+}
+
+std::set<std::string> originalModels;
+std::set<std::string> paynedModels;
+std::set<std::string> paynedClasses;
+
+void PRECACHE_MODEL_PAYNED( CBaseEntity *monster, char *path ) {
+	PRECACHE_MODEL( path );
+	originalModels.insert( path );
+
+	if (
+		( !gameplayMods::payned.isActive() && !gameplayMods::randomGameplayMods.isActive() ) ||
+		FStrEq( STRING( monster->pev->classname ), "monster_babycrab" ) // dumb exception because baby crabs call inherited headcrab precache and put theirselves on the list
+	) {
+		return;
+	}
+
+	auto payned_model = aux::str::replace( path, "models", "models/payned" ).c_str();
+	paynedModels.insert( payned_model );
+
+	PRECACHE_MODEL( ( char * ) paynedModels.find( payned_model )->c_str() );
+	paynedClasses.insert( STRING( monster->pev->classname ) );
+}
+
+void SET_MODEL_PAYNED( edict_t *e, const char *path ) {
+	if ( !gameplayMods::payned.isActive() ) {
+		auto original_model = aux::str::replace( path, "models/payned", "models" );
+		SET_MODEL( e, originalModels.find( original_model )->c_str() );
+	} else {
+		auto payned_model = aux::str::replace( path, "models", "models/payned" );
+		SET_MODEL( e, paynedModels.find( payned_model )->c_str() );
+	}
 }

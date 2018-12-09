@@ -116,7 +116,7 @@ namespace aux {
 		}
 
 		inline bool includes( const std::string &str, const std::string &containedStr ) {
-			return str.find_first_of( containedStr ) != std::string::npos;
+			return str.find( containedStr ) != std::string::npos;
 		}
 
 		inline std::vector<std::string> getCommandLineArguments( const std::string &input ) {

@@ -1013,7 +1013,7 @@ void CHGrunt :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL(ENT(pev), "models/hgrunt.mdl");
+	SET_MODEL_PAYNED(ENT(pev), "models/hgrunt.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -1080,7 +1080,7 @@ void CHGrunt :: Spawn()
 //=========================================================
 void CHGrunt :: Precache()
 {
-	PRECACHE_MODEL("models/hgrunt.mdl");
+	PRECACHE_MODEL_PAYNED( this, "models/hgrunt.mdl" );
 
 	PRECACHE_SOUND( "hgrunt/gr_mgun1.wav" );
 	PRECACHE_SOUND( "hgrunt/gr_mgun2.wav" );
@@ -2489,8 +2489,8 @@ LINK_ENTITY_TO_CLASS( monster_hgrunt_dead, CDeadHGrunt );
 //=========================================================
 void CDeadHGrunt :: Spawn( void )
 {
-	PRECACHE_MODEL("models/hgrunt.mdl");
-	SET_MODEL(ENT(pev), "models/hgrunt.mdl");
+	PRECACHE_MODEL_PAYNED( this, "models/hgrunt.mdl" );
+	SET_MODEL_PAYNED(ENT(pev), "models/hgrunt.mdl");
 
 	pev->effects		= 0;
 	pev->yaw_speed		= 8;

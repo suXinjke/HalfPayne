@@ -93,7 +93,7 @@ void CXenPLight :: Spawn( void )
 {
 	Precache();
 
-	SET_MODEL( ENT(pev), "models/light.mdl" );
+	SET_MODEL_PAYNED( ENT(pev), "models/light.mdl" );
 	pev->movetype	= MOVETYPE_NONE;
 	pev->solid		= SOLID_TRIGGER;
 
@@ -110,7 +110,7 @@ void CXenPLight :: Spawn( void )
 
 void CXenPLight :: Precache( void )
 {
-	PRECACHE_MODEL( "models/light.mdl" );
+	PRECACHE_MODEL_PAYNED( this, "models/light.mdl" );
 	PRECACHE_MODEL( XEN_PLANT_GLOW_SPRITE );
 }
 
@@ -294,7 +294,7 @@ void CXenTree :: Spawn( void )
 {
 	Precache();
 
-	SET_MODEL( ENT(pev), "models/tree.mdl" );
+	SET_MODEL_PAYNED( ENT(pev), "models/tree.mdl" );
 	pev->movetype	= MOVETYPE_NONE;
 	pev->solid		= SOLID_BBOX;
 
@@ -329,7 +329,7 @@ const char *CXenTree::pAttackMissSounds[] =
 
 void CXenTree :: Precache( void )
 {
-	PRECACHE_MODEL( "models/tree.mdl" );
+	PRECACHE_MODEL_PAYNED( this, "models/tree.mdl" );
 	PRECACHE_MODEL( XEN_PLANT_GLOW_SPRITE );
 	PRECACHE_SOUND_ARRAY( pAttackHitSounds );
 	PRECACHE_SOUND_ARRAY( pAttackMissSounds );

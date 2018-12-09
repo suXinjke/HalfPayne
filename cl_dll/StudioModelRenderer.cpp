@@ -21,6 +21,7 @@
 
 #include "StudioModelRenderer.h"
 #include "GameStudioModelRenderer.h"
+#include "cpp_aux.h"
 
 extern cvar_t *tfc_newmodels;
 
@@ -381,8 +382,14 @@ mstudioanim_t *CStudioModelRenderer::StudioGetAnim( model_t *m_pSubModel, mstudi
 
 	if (!IEngineStudio.Cache_Check( (struct cache_user_s *)&(paSequences[pseqdesc->seqgroup])))
 	{
-		gEngfuncs.Con_DPrintf("loading %s\n", pseqgroup->name );
-		IEngineStudio.LoadCacheFile( pseqgroup->name, (struct cache_user_s *)&paSequences[pseqdesc->seqgroup] );
+		std::string betterName = pseqgroup->name;
+
+		// TODO: care for any relative paths, not just this one
+		if ( aux::str::includes( m_pSubModel->name, "/payned" ) ) {
+			betterName = aux::str::replace( betterName, "models\\\\", "models\\payned\\" );
+		}
+		gEngfuncs.Con_Printf("loading %s but its %s\n", pseqgroup->name, betterName.c_str() );
+		IEngineStudio.LoadCacheFile( ( char * ) betterName.c_str(), (struct cache_user_s *)&paSequences[pseqdesc->seqgroup] );
 	}
 	return (mstudioanim_t *)((byte *)paSequences[pseqdesc->seqgroup].data + pseqdesc->animindex);
 }

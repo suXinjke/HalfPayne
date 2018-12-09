@@ -553,8 +553,18 @@ GameplayMod &::painkillersSlow = GameplayMod::Define( "slow_painkillers", "Slow 
 	} )
 } );
 
+GameplayMod &::payned = GameplayMod::Define( "payned", "Payned" )
+.Description( "Payne to the max!" );
+
 GameplayMod &::paynedSoundsHumans = GameplayMod::Define( "payned_sounds_humans", "Payned sounds - humans" )
 .Description( "Humans make sounds of thugs from Max Payne" )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::randomGameplayMods.isActive() && ::payned.isActive() ) {
+		return "";
+	}
+
+	return std::nullopt;
+} )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	static std::vector<std::string> allowedEntities = {
 		"monster_barney",
@@ -578,6 +588,13 @@ GameplayMod &::paynedSoundsHumans = GameplayMod::Define( "payned_sounds_humans",
 
 GameplayMod &::paynedSoundsMonsters = GameplayMod::Define( "payned_sounds_monsters", "Payned sounds - monsters" )
 .Description( "Monsters make sounds of thugs from Max Payne" )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::randomGameplayMods.isActive() && ::payned.isActive() ) {
+		return "";
+	}
+
+	return std::nullopt;
+} )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	static std::vector<std::string> allowedEntities = {
 		"monster_alien_controller",

@@ -531,7 +531,7 @@ void CISlave :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL(ENT(pev), "models/islave.mdl");
+	SET_MODEL_PAYNED(ENT(pev), "models/islave.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -556,7 +556,7 @@ void CISlave :: Precache()
 {
 	int i;
 
-	PRECACHE_MODEL("models/islave.mdl");
+	PRECACHE_MODEL_PAYNED( this, "models/islave.mdl" );
 	PRECACHE_MODEL("sprites/lgtning.spr");
 	PRECACHE_SOUND("debris/zap1.wav");
 	PRECACHE_SOUND("debris/zap4.wav");

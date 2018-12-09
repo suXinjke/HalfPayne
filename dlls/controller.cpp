@@ -361,7 +361,7 @@ void CController :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL(ENT(pev), "models/controller.mdl");
+	SET_MODEL_PAYNED(ENT(pev), "models/controller.mdl");
 	UTIL_SetSize( pev, Vector( -32, -32, 0 ), Vector( 32, 32, 64 ));
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -381,7 +381,7 @@ void CController :: Spawn()
 //=========================================================
 void CController :: Precache()
 {
-	PRECACHE_MODEL("models/controller.mdl");
+	PRECACHE_MODEL_PAYNED( this, "models/controller.mdl" );
 
 	PRECACHE_SOUND_ARRAY( pAttackSounds );
 	PRECACHE_SOUND_ARRAY( pIdleSounds );

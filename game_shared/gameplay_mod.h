@@ -203,6 +203,7 @@ public:
 
 	FieldBool( lastGodConstant, FALSE );
 	FieldBool( lastNoTargetConstant, FALSE );
+	FieldBool( lastPayned, FALSE );
 	FieldBool( lastSuperHotConstant, FALSE );
 	FieldBool( lastSnarkPenguins, FALSE );
 	FieldFloat( lastTimescaleMultiplier, 1.0f );
@@ -415,6 +416,7 @@ namespace gameplayMods {
 	extern GameplayMod& painkillersInfinite;
 	extern GameplayMod& painkillersSlow;
 	
+	extern GameplayMod& payned;
 	extern GameplayMod& paynedSoundsHumans;
 	extern GameplayMod& paynedSoundsMonsters;
 	

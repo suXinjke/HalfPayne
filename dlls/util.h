@@ -617,6 +617,9 @@ inline float GET_FRAMERATE_BASE() {
 	return GET_TICK_INTERVAL() / 1000.0f;
 }
 
+void PRECACHE_MODEL_PAYNED( CBaseEntity *monster, char *path );
+void SET_MODEL_PAYNED( edict_t *e, const char *path );
+
 CBasePlayer* GetPlayer();
 float SHARED_CVAR_GET_FLOAT( const char *cvar );
 
