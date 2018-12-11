@@ -69,6 +69,7 @@ CTripmine g_Tripmine;
 CSqueak g_Snark;
 CIngram g_Ingram;
 CIngramTwin g_IngramTwin;
+CM249 g_m249;
 
 
 /*
@@ -635,6 +636,7 @@ void HUD_InitClientWeapons( void )
 	HUD_PrepEntity( &g_Snark	, &player );
 	HUD_PrepEntity( &g_Ingram	, &player );
 	HUD_PrepEntity( &g_IngramTwin, &player );
+	HUD_PrepEntity( &g_m249, &player );
 }
 
 /*
@@ -767,6 +769,10 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		case WEAPON_INGRAM_TWIN:
 			pWeapon = &g_IngramTwin;
 			break;
+
+		case WEAPON_M249:
+			pWeapon = &g_m249;
+			break;
 	}
 
 	// Store pointer to our destination entity_state_t so we can get our origin, etc. from it
@@ -889,6 +895,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		( ( CIngramTwin * ) player.m_pActiveItem )->m_iClip2 = (int) from->client.vuser2[2];
 	}
 
+	if ( player.m_pActiveItem->m_iId == WEAPON_M249 )
+	{
+		player.m_pActiveItem->pev->body = (int) from->client.vuser2[2];
+	}
+
 	// Don't go firing anything if we have died or are spectating
 	// Or if we don't have a weapon model deployed
 	if ( ( player.pev->deadflag != ( DEAD_DISCARDBODY + 1 ) ) && 
@@ -967,6 +978,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		from->client.vuser2[2] = ( ( CIngramTwin * ) player.m_pActiveItem )->m_iClip2;
 	}
 
+	if ( player.m_pActiveItem->m_iId == WEAPON_M249 )
+	{
+		from->client.vuser2[2] = player.m_pActiveItem->pev->body;
+	}
+
 	// Make sure that weapon animation matches what the game .dll is telling us
 	//  over the wire ( fixes some animation glitches )
 	if ( g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) )
@@ -980,6 +996,10 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		//Show laser sight/scope combo
 		if ( pWeapon == &g_Python && bIsMultiplayer() )
 			 body = 1;
+
+		if ( pWeapon == &g_m249 ) {
+			body = g_m249.pev->body;
+		}
 		
 		// Force a fixed anim down to viewmodel
 		HUD_SendWeaponAnim( to->client.weaponanim, body, 1 );

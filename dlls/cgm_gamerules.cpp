@@ -500,6 +500,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				"weapon_crossbow",
 				"weapon_ingram",
 				"weapon_ingram_twin",
+				"weapon_m249",
 				"weapon_rpg",
 				"weapon_gauss",
 				"weapon_egon",

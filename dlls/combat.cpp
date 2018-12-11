@@ -1756,6 +1756,10 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 				pEntity->TraceAttack(pevAttacker, gSkillData.plrDmg9MM, vecDir, &tr, DMG_BULLET); 
 				break;
 
+			case BULLET_PLAYER_M249:		
+				pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgMP5 + 1, vecDir, &tr, DMG_BULLET);
+				break;
+
 			case BULLET_PLAYER_MP5:		
 				pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgMP5, vecDir, &tr, DMG_BULLET); 
 				break;

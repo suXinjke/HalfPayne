@@ -629,6 +629,7 @@ void CBasePlayer::GiveAll( bool nonCheat ) {
 	GiveNamedItem( "ammo_buckshot", nonCheat );
 	GiveNamedItem( "weapon_9mmAR", nonCheat );
 	GiveNamedItem( "ammo_9mmAR", nonCheat );
+	GiveNamedItem( "weapon_m249", nonCheat );
 	GiveNamedItem( "ammo_ARgrenades", nonCheat );
 	GiveNamedItem( "weapon_handgrenade", nonCheat );
 	GiveNamedItem( "weapon_tripmine", nonCheat );

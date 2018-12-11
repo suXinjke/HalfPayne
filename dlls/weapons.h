@@ -82,6 +82,7 @@ public:
 #define	WEAPON_GLOCK_TWIN		16
 #define	WEAPON_INGRAM			17
 #define	WEAPON_INGRAM_TWIN		18
+#define	WEAPON_M249				19
 
 #define WEAPON_ALLWEAPONS		(~(1<<WEAPON_SUIT))
 
@@ -98,6 +99,7 @@ public:
 #define GLOCK_WEIGHT		10
 #define PYTHON_WEIGHT		15
 #define MP5_WEIGHT			15
+#define M249_WEIGHT			15
 #define INGRAM_WEIGHT		15
 #define SHOTGUN_WEIGHT		15
 #define CROSSBOW_WEIGHT		10
@@ -132,7 +134,7 @@ public:
 #define GLOCK_MAX_CLIP			17
 #define PYTHON_MAX_CLIP			7
 #define MP5_MAX_CLIP			50
-#define MP5_DEFAULT_AMMO		50
+#define M249_MAX_CLIP			50
 #define INGRAM_MAX_CLIP			32
 #define INGRAM_DEFAULT_AMMO		32
 #define SHOTGUN_MAX_CLIP		8
@@ -152,6 +154,7 @@ public:
 #define PYTHON_DEFAULT_GIVE			7
 #define MP5_DEFAULT_GIVE			50
 #define MP5_M203_DEFAULT_GIVE		0
+#define M249_DEFAULT_GIVE			50
 #define INGRAM_DEFAULT_GIVE			32
 #define INGRAM_DEFAULT_AMMO			32
 #define SHOTGUN_DEFAULT_GIVE		8
@@ -183,6 +186,7 @@ typedef	enum
 {
 	BULLET_NONE = 0,
 	BULLET_PLAYER_9MM, // glock
+	BULLET_PLAYER_M249,
 	BULLET_PLAYER_MP5, // mp5
 	BULLET_PLAYER_357, // python
 	BULLET_PLAYER_BUCKSHOT, // shotgun
@@ -1303,5 +1307,57 @@ public:
 	BOOL isPanic;
 };
 
+enum m249_e {
+	M249_SLOWIDLE = 0,
+	M249_IDLE2,
+	M249_LAUNCH,
+	M249_RELOAD1,
+	M249_HOLSTER,
+	M249_DEPLOY,
+	M249_SHOOT1,
+	M249_SHOOT2,
+	M249_SHOOT3,
+};
+
+class CM249 : public CBasePlayerWeapon {
+public:
+
+#ifndef CLIENT_DLL
+	virtual int		Save( CSave &save );
+	virtual int		Restore( CRestore &restore );
+	static	TYPEDESCRIPTION m_SaveData[];
+#endif
+
+	void Spawn( void );
+	void Precache( void );
+	int iItemSlot( void ) { return 4; }
+	void ItemPostFrame( void );
+	int GetItemInfo( ItemInfo *p );
+	void UpdateBody();
+
+	void PrimaryAttack( void );
+	BOOL Deploy( void );
+	void WeaponIdle( void );
+	virtual BOOL ShouldWeaponIdle( void ) { return TRUE; }
+	float m_flNextAnimTime;
+	int m_iShell;
+	int m_iLink;
+
+	virtual BOOL UseDecrement( void ) {
+#if defined( CLIENT_WEAPONS )
+		return TRUE;
+#else
+		return FALSE;
+#endif
+	}
+
+	float stress;
+	float nextStressDecrease;
+
+	float stress2;
+	float nextStress2Decrease;
+private:
+	unsigned short m_usM249;
+};
 
 #endif // WEAPONS_H

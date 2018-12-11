@@ -1000,6 +1000,7 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 		{ "weapon_9mmhandgun", "Beretta" },
 		{ "weapon_shotgun", "Shotgun" },
 		{ "weapon_9mmAR", "SMG" },
+		{ "weapon_m249", "M249" },
 		{ "weapon_handgrenade", "Hand grenades" },
 		{ "weapon_tripmine", "Tripmine" },
 		{ "weapon_357", "Deagle" },

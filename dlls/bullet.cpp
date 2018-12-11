@@ -129,6 +129,10 @@ void CBullet::BulletTouch( CBaseEntity *pOther )
 				damage = gSkillData.plrDmg357;
 				break;
 
+			case BULLET_PLAYER_M249:
+				damage = gSkillData.plrDmgMP5 + 1;
+				break;
+
 			case BULLET_PLAYER_MP5:
 				damage = gSkillData.plrDmgBuckshot;
 				break;

@@ -335,6 +335,9 @@ void W_Precache(void)
 	UTIL_PrecacheOtherWeapon( "weapon_ingram" );
 	UTIL_PrecacheOtherWeapon( "weapon_ingram_twin" );
 
+	// m249
+	UTIL_PrecacheOtherWeapon( "weapon_m249" );
+
 	// mp5
 	UTIL_PrecacheOtherWeapon( "weapon_9mmAR" );
 	UTIL_PrecacheOther( "ammo_9mmAR" );
@@ -1792,3 +1795,11 @@ TYPEDESCRIPTION	CSatchel::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE( CSatchel, CBasePlayerWeapon );
 
+TYPEDESCRIPTION	CM249::m_SaveData[] = 
+{
+	DEFINE_FIELD( CSatchel, stress, FIELD_FLOAT ),
+	DEFINE_FIELD( CSatchel, nextStressDecrease, FIELD_TIME ),
+	DEFINE_FIELD( CSatchel, stress2, FIELD_FLOAT ),
+	DEFINE_FIELD( CSatchel, nextStress2Decrease, FIELD_TIME ),
+};
+IMPLEMENT_SAVERESTORE( CM249, CBasePlayerWeapon );

@@ -68,6 +68,7 @@ void EV_FireIngramTwin( struct event_args_s *args );
 void EV_FireIngramTwinTracer( struct event_args_s *args );
 void EV_FireMP5( struct event_args_s *args  );
 void EV_FireMP52( struct event_args_s *args  );
+void EV_FireM249( struct event_args_s *args  );
 void EV_FirePython( struct event_args_s *args  );
 void EV_FireGauss( struct event_args_s *args  );
 void EV_SpinGauss( struct event_args_s *args  );
@@ -1131,6 +1132,60 @@ void EV_FireMP52( event_args_t *args )
 }
 //======================
 //		 MP5 END
+//======================
+
+//======================
+//	    M249 START
+//======================
+
+void EV_FireM249( event_args_t *args ) {
+	if ( !AllowedToFireRapidEvent( latestShoot ) ) {
+		return;
+	}
+
+	float stress = max( 0.4f, ( ( *( float * ) &args->iparam2 ) ) );
+	int iBody = args->iparam1;
+	int shouldProducePhysicalBullets = args->bparam1;
+
+	static bool bAlternatingEject = false;
+	bAlternatingEject = !bAlternatingEject;
+
+	Vector up, right, forward;
+
+	AngleVectors( args->angles, forward, right, up );
+
+	int iShell = bAlternatingEject ?
+		gEngfuncs.pEventAPI->EV_FindModelIndex( "models/saw_link.mdl" ) :
+		gEngfuncs.pEventAPI->EV_FindModelIndex( "models/saw_shell.mdl" );
+
+	if ( EV_IsLocal( args->entindex ) ) {
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( gEngfuncs.pfnRandomLong( 0, 2 ) + M249_SHOOT1, iBody );
+		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -0.8, 0.8 ) * stress );
+		V_PunchAxis( 1, gEngfuncs.pfnRandomFloat( -0.4, 0.4 ) * stress );
+	}
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+
+	EV_GetDefaultShellInfo( args, args->origin, args->velocity, ShellVelocity, ShellOrigin, forward, right, up, -28.0, 24.0, 4.0 );
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, args->angles[1], iShell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( args->entindex, args->origin, CHAN_WEAPON, "weapons/saw_fire1.wav", VOL_NORM, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 15 ) );
+
+	if ( shouldProducePhysicalBullets ) {
+		return;
+	}
+
+	Vector vecSrc;
+	EV_GetGunPosition( args, vecSrc, args->origin );
+
+	EV_HLDM_FireBullets( args->entindex, forward, right, up, 1, vecSrc, forward, 8192.0, BULLET_PLAYER_9MM, 0, 0, args->fparam1, args->fparam2 );
+}
+
+//======================
+//	   M249 END
 //======================
 
 //======================
