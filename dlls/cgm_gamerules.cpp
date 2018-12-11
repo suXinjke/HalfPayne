@@ -1231,6 +1231,19 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 		}
 	}
 
+	if (
+		targetName == "on_map_start" &&
+		std::string( STRING( gpGlobals->mapname ) ) == "c2a3d" &&
+		!gameplayMods::preserveNightmare.isActive()
+	) {
+		for ( auto it = mapConfig.intermissions.begin(); it != mapConfig.intermissions.end(); it++ ) {
+			if ( it->entityName == "nightmare" ) {
+				mapConfig.intermissions.erase( it );
+				break;
+			}
+		}
+	}
+
 	if ( targetName == "on_map_start" && gameplayMods::preventMonsterSpawn.isActive() ) {
 
 		for ( int i = 0 ; i < 1024 ; i++ ) {

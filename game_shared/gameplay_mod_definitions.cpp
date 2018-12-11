@@ -637,6 +637,10 @@ GameplayMod &::preventMonsterDrops = GameplayMod::Define( "prevent_monster_drops
 .Description( "Monsters won't drop anything when dying." )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::preserveNightmare = GameplayMod::Define( "preserve_nightmare", "Preserve nightmare" )
+.Description( "Nightmare additional chapter will not be skipped" )
+.CannotBeActivatedRandomly();
+
 GameplayMod &::quakeRockets = GameplayMod::Define( "quake_rockets", "Quake rockets" )
 .Description( "RPG is much more fast and rockets are shot instantly." )
 .Arguments( {

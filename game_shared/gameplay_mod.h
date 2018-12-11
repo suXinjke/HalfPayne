@@ -423,6 +423,8 @@ namespace gameplayMods {
 	extern GameplayMod& preventMonsterDrops;
 	extern GameplayMod& preventMonsterMovement;
 	extern GameplayMod& preventMonsterSpawn;
+	
+	extern GameplayMod& preserveNightmare;
 
 	extern GameplayMod& quakeRockets;
 
