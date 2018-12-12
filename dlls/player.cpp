@@ -4818,13 +4818,14 @@ CBaseEntity *FindEntityForward( CBaseEntity *pMe )
 }
 
 void CBasePlayer::ToggleSlowMotion() {
-	if ( gameplayMods::superHot.isActive() ) {
+	if ( gameplayMods::superHot.isActive() && !gameplayMods::superHotToggleable.isActive() ) {
 		return;
 	}
 
 	if ( slowMotionWasEnabled ) {
 		DeactivateSlowMotion();
 	} else {
+
 		if ( !gameplayMods::slowmotionOnlyDiving.isActive() && ActivateSlowMotion() ) {
 			if ( slowMotionWasEnabled ) {
 				MESSAGE_BEGIN( MSG_ONE, gmsgFlash, NULL, pev );
@@ -4850,6 +4851,14 @@ bool CBasePlayer::ActivateSlowMotion()
 		if ( rules->ended ) {
 			return false;
 		}
+	}
+
+	if ( gameplayMods::superHotToggleable.isActive() ) {
+		if ( slowMotionCharge < 12 ) {
+			return false;
+		}
+
+		slowMotionCharge -= 10;
 	}
 
 	if ( slowMotionCharge <= 0 ) {
@@ -4909,7 +4918,9 @@ void CBasePlayer::SetSlowMotion( BOOL slowMotionEnabled ) {
 	auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
 
 	if ( slowMotionEnabled ) {
-		desiredTimeScale = using_sys_timescale ? 0.25f * timescale_multiplier : GET_FRAMERATE_BASE() / 4.0f;
+		if ( !gameplayMods::superHotToggleable.isActive() ) {
+			desiredTimeScale = using_sys_timescale ? 0.25f * timescale_multiplier : GET_FRAMERATE_BASE() / 4.0f;	
+		}
 		slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
 		this->slowMotionWasEnabled = true;
 		nextSmoothTimeScaleChange = 0.0f;
@@ -5780,7 +5791,9 @@ void CBasePlayer :: UpdateClientData( void )
 	}
 	
 	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastSuperHotConstant, gameplayMods::superHot.isActive(), [this]( bool on ) {
-		SetSlowMotion( false );
+		if ( !gameplayMods::superHotToggleable.isActive() ) {
+			SetSlowMotion( false );
+		}
 	} );
 	if ( gameplayModsData.lastSuperHotConstant ) {
 		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
@@ -5841,9 +5854,9 @@ void CBasePlayer :: UpdateClientData( void )
 	// Update slowmotion meter
 	if ((slowMotionUpdateTime) && (slowMotionUpdateTime <= gpGlobals->time) && !( pev->flags & FL_DIVING ) && pev->deadflag == DEAD_NO)
 	{
-		if ( gameplayMods::IsSlowmotionEnabled() && !gameplayMods::superHot.isActive() )
+		if ( slowMotionWasEnabled )
 		{
-			slowMotionUpdateTime = SLOWMOTION_DRAIN_TIME + gpGlobals->time;
+			slowMotionUpdateTime = ( gameplayMods::superHotToggleable.isActive() ? SLOWMOTION_DRAIN_TIME * 1.33f : SLOWMOTION_DRAIN_TIME ) + gpGlobals->time;
 			slowMotionCharge--;
 
 			if ( slowMotionCharge <= 0 ) 

@@ -844,8 +844,26 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 	"Time moves forward only when you move around.\n"
 	"Inspired by the game SUPERHOT."
 )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( auto player = GetPlayer() ) {
+		if ( gameplayMods::superHotToggleable.isActive() && player->slowMotionWasEnabled ) {
+			return "";
+		}
+	}
+
+	return std::nullopt;
+} )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive();
+} );
+
+GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", "SUPERHOT Toggleable" )
+.Description(
+	"After you activate slowmotion, time moves forward only when you move around.\n"
+	"Inspired by the game SUPERHOT."
+)
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHot.isActive();
 } );
 
 GameplayMod &::swearOnKill = GameplayMod::Define( "swear_on_kill", "Swear on kill" )

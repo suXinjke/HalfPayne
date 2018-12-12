@@ -456,6 +456,7 @@ namespace gameplayMods {
 	extern GameplayMod& swearOnKill;
 	
 	extern GameplayMod& superHot;
+	extern GameplayMod& superHotToggleable;
 	
 	extern GameplayMod& teleportMaintainVelocity;
 	extern GameplayMod& teleportOnKill;
