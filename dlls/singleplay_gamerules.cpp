@@ -256,6 +256,20 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 			}
 		}
 
+		for ( auto &entitySpawn : config->entityRandomSpawners ) {
+			if (
+				entitySpawn.spawnOnce &&
+				modelIndex == -1 &&
+				firstTime &&
+				( STRING( gpGlobals->mapname ) == entitySpawn.mapName || entitySpawn.mapName == "everywhere" )
+			) {
+				for ( int i = 0; i < entitySpawn.maxAmount; i++ ) {
+					entitySpawn.entity.DetermineBestSpawnPosition( pPlayer );
+					SpawnBySpawnData( entitySpawn.entity );
+				}
+			}
+		}
+
 		for ( const auto &entityReplace : config->entityReplaces ) {
 			if ( entityReplace.Fits( modelIndex, className, targetName, firstTime ) ) {
 				CBaseEntity *pEntity = NULL;
@@ -323,6 +337,7 @@ CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData 
 	int dropResult = DROP_TO_FLOOR( ENT( entity->pev ) );
 	if ( dropResult <= 0 && !WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
 		g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
+		return NULL;
 	}
 
 	return entity;

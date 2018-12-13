@@ -134,7 +134,9 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 	maxYOffset = -1;
 
 	for ( const auto &spawner : config.entityRandomSpawners ) {
-		entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
+		if ( !spawner.spawnOnce ) {
+			entityRandomSpawnerControllers.push_back( EntityRandomSpawnerController( spawner ) );
+		}
 	}
 
 	for ( size_t i = 0; i < min( config.endConditions.size(), ( size_t ) 64 ); i++ ) {

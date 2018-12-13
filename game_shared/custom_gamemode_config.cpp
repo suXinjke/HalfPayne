@@ -477,9 +477,9 @@ void CustomGameModeConfig::InitConfigSections() {
 		"entity_random_spawner",
 		{
 			Argument( "map_name" ),
-			Argument( "model_index | target_name" ).CanBeNumber(),
+			Argument( "entity_name" ),
 			Argument( "max_amount" ).IsOptional().IsNumber().MinMax( 1 ).Default( "50" ),
-			Argument( "spawn_period" ).IsOptional().IsNumber().MinMax( 0.1 ).Default( "2" )
+			Argument( "spawn_period" ).IsOptional().CanBeNumber().MinMax( 0.1 ).Default( "2" )
 		},
 		[this]( const std::vector<Argument> &args, const std::string &line ) {
 			std::string entityName = args.at( 1 ).string;
@@ -492,7 +492,8 @@ void CustomGameModeConfig::InitConfigSections() {
 			spawner.entity.originalName = entityName;
 			spawner.entity.name = entityName;
 			spawner.maxAmount = args.at( 2 ).number;
-			spawner.spawnPeriod = args.at( 3 ).number;
+			spawner.spawnOnce = args.at( 3 ).string == "once";
+			spawner.spawnPeriod = std::isnan( args.at( 3 ).number ) ? 2.0f : args.at( 3 ).number;
 			spawner.entity.UpdateSpawnFlags();
 				
 			entityRandomSpawners.push_back( spawner );

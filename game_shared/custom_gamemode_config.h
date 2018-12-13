@@ -241,6 +241,7 @@ struct EntityRandomSpawner
 	std::string mapName;
 	EntitySpawnData entity;
 	int maxAmount;
+	bool spawnOnce;
 	float spawnPeriod;
 };
 

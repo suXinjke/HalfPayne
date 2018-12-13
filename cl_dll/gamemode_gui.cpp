@@ -503,14 +503,23 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 		ImGui::TextWrapped( "\nRandom spawners\n" );
 		ImGui::Separator();
 		for ( auto &spawner : config.entityRandomSpawners ) {
-			ImGui::TextWrapped(
-				"(%s) %s", "up to %d every %.0f %s",
-				spawner.mapName.c_str(),
-				spawner.entity.originalName.c_str(),
-				spawner.maxAmount,
-				spawner.spawnPeriod,
-				spawner.spawnPeriod > 1 ? "seconds" : "second"
-			);
+			if ( spawner.spawnOnce ) {
+				ImGui::TextWrapped(
+					"(%s) %s up to %d on first map visit",
+					spawner.mapName.c_str(),
+					spawner.entity.originalName.c_str(),
+					spawner.maxAmount
+				);
+			} else {
+				ImGui::TextWrapped(
+					"(%s) %s up to %d every %.0f %s",
+					spawner.mapName.c_str(),
+					spawner.entity.originalName.c_str(),
+					spawner.maxAmount,
+					spawner.spawnPeriod,
+					spawner.spawnPeriod > 1 ? "seconds" : "second"
+				);
+			}
 		}
 	}
 }
