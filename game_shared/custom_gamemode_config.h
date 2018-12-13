@@ -157,6 +157,7 @@ struct HookableWithTarget : Hookable {
 };
 
 struct EntitySpawnData {
+	std::string originalName;
 	std::string name;
 	std::string targetName;
 	float		x;
@@ -279,7 +280,8 @@ enum CONFIG_FILE_SECTION {
 
 enum CONFIG_TYPE {
 	CONFIG_TYPE_MAP,
-	CONFIG_TYPE_CGM
+	CONFIG_TYPE_CGM,
+	CONFIG_TYPE_VANILLA
 };
 
 class CustomGameModeConfig {

@@ -489,6 +489,7 @@ void CustomGameModeConfig::InitConfigSections() {
 
 			EntityRandomSpawner spawner;
 			spawner.mapName = args.at( 0 ).string;
+			spawner.entity.originalName = entityName;
 			spawner.entity.name = entityName;
 			spawner.maxAmount = args.at( 2 ).number;
 			spawner.spawnPeriod = args.at( 3 ).number;
@@ -609,7 +610,10 @@ std::string CustomGameModeConfig::ConfigTypeToDirectoryName( CONFIG_TYPE configT
 std::string CustomGameModeConfig::ConfigTypeToGameModeCommand( CONFIG_TYPE configType ) {
 	switch ( configType ) {
 		case CONFIG_TYPE_CGM:
-			return "cgm";
+			return "cgm";	
+		
+		case CONFIG_TYPE_VANILLA:
+			return "vanilla";
 
 		default:
 			return "";
