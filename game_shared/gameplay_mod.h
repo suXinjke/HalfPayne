@@ -243,11 +243,15 @@ public:
 	void SendToClient();
 	int Save( CSave &save );
 	int Restore( CRestore &restore );
+
+	static void ToggleForceEnabledGameplayMod( const std::string &mod );
+	static void ToggleForceDisabledGameplayMod( const std::string &mod );
 #endif // CLIENT_DLL
 
 	void AddArrayFieldDefinitions();
 
 	static void Reset();
+
 };
 
 extern GameplayModData gameplayModsData;

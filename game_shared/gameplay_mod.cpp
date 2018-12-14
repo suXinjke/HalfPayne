@@ -437,6 +437,71 @@ std::optional<std::vector<Argument>> GameplayMod::GetArgumentsFromCustomGameplay
 	return std::nullopt;
 }
 
+#ifndef CLIENT_DLL
+void GameplayModData::ToggleForceEnabledGameplayMod( const std::string &mod ) {
+	using namespace gameplayMods;
+
+	if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( mod ) ) {
+
+		auto mod = modWithArguments->first;
+		auto &args = modWithArguments->second;
+
+		if ( forceEnabledMods.find( mod ) != forceEnabledMods.end() ) {
+			forceEnabledMods.erase( mod );
+			ALERT( at_notice, "Removed force enabled mod %s\n", mod->id.c_str() );
+		} else {
+			forceEnabledMods[mod] = args;
+			ALERT( at_notice, "Added force enabled mod %s\n", mod->id.c_str() );
+		}
+
+		MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFEC, NULL );
+		MESSAGE_END();
+
+		for ( auto &enabledMod : forceEnabledMods ) {
+			std::string modString = enabledMod.first->id + "|";
+			for ( auto &arg : args ) {
+				modString += arg.string + " ";
+			}
+			aux::str::rtrim( &modString );
+
+			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFE, NULL );
+				WRITE_STRING( modString.c_str() );
+			MESSAGE_END();
+		}
+	} else {
+		ALERT( at_notice, "Mod doesn't exist: %s\n", mod.c_str() );
+	}
+}
+
+void GameplayModData::ToggleForceDisabledGameplayMod( const std::string &mod ) {
+	using namespace gameplayMods;
+
+	if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( mod ) ) {
+
+		auto mod = modWithArguments->first;
+
+		if ( forceDisabledMods.find( mod ) != forceDisabledMods.end() ) {
+			forceDisabledMods.erase( mod );
+			ALERT( at_notice, "Removed force disabled mod %s\n", mod->id.c_str() );
+		} else {
+			forceDisabledMods.insert( mod );
+			ALERT( at_notice, "Added force disabled mod %s\n", mod->id.c_str() );
+		}
+
+		MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFDC, NULL );
+		MESSAGE_END();
+
+		for ( auto &disabledMod : forceDisabledMods ) {
+			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFD, NULL );
+				WRITE_STRING( disabledMod->id.c_str() );
+			MESSAGE_END();
+		}
+	} else {
+		ALERT( at_notice, "Mod doesn't exist: %s\n", mod.c_str() );
+	}
+}
+#endif
+
 std::optional<std::vector<Argument>> GameplayMod::getActiveArguments( bool discountForcedArguments ) {
 	using namespace gameplayMods;
 

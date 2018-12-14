@@ -514,11 +514,6 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	}
 }
 
-extern int gmsgGmplayFDC;
-extern int gmsgGmplayFD;
-extern int gmsgGmplayFEC;
-extern int gmsgGmplayFE;
-
 /*
 ===========
 ClientCommand
@@ -628,37 +623,7 @@ void ClientCommand( edict_t *pEntity )
 			return;
 		}
 
-		using namespace gameplayMods;
-
-		std::string gameplayModName = CMD_ARGS();
-		if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( gameplayModName ) ) {
-
-			auto mod = modWithArguments->first;
-			auto &args = modWithArguments->second;
-
-			if ( forceEnabledMods.find( mod ) != forceEnabledMods.end() ) {
-				forceEnabledMods.erase( mod );
-				ALERT( at_notice, "Removed force enabled mod %s\n", mod->id.c_str() );
-			} else {
-				forceEnabledMods[ mod ] = args;
-				ALERT( at_notice, "Added force enabled mod %s\n", mod->id.c_str() );
-			}
-
-			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFEC, NULL );
-			MESSAGE_END();
-
-			for ( auto &enabledMod : forceEnabledMods ) {
-				std::string modString = enabledMod.first->id + "|";
-				for ( auto &arg : args ) {
-					modString += arg.string + " ";
-				}
-				aux::str::rtrim( &modString );
-
-				MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFE, NULL );
-					WRITE_STRING( modString.c_str() );
-				MESSAGE_END();
-			}
-		}
+		GameplayModData::ToggleForceEnabledGameplayMod( CMD_ARGS() );
 	}
 	else if ( FStrEq( pcmd, "gameplay_demod" ) )
 	{
@@ -666,30 +631,7 @@ void ClientCommand( edict_t *pEntity )
 			return;
 		}
 
-		using namespace gameplayMods;
-
-		std::string gameplayModName = CMD_ARGS();
-		if ( auto modWithArguments = gameplayMods::GetModAndParseArguments( gameplayModName ) ) {
-			
-			auto mod = modWithArguments->first;
-
-			if ( forceDisabledMods.find( mod ) != forceDisabledMods.end() ) {
-				forceDisabledMods.erase( mod );
-				ALERT( at_notice, "Removed force disabled mod %s\n", mod->id.c_str() );
-			} else {
-				forceDisabledMods.insert( mod );
-				ALERT( at_notice, "Added force disabled mod %s\n", mod->id.c_str() );
-			}
-
-			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFDC, NULL );
-			MESSAGE_END();
-
-			for ( auto &disabledMod : forceDisabledMods ) {
-				MESSAGE_BEGIN( MSG_ALL, gmsgGmplayFD, NULL );
-					WRITE_STRING( disabledMod->id.c_str() );
-				MESSAGE_END();
-			}
-		}
+		GameplayModData::ToggleForceDisabledGameplayMod( CMD_ARGS() );
 	}
 	else if ( FStrEq( pcmd, "gameplay_mod_can_be_activated_randomly" ) ) {
 		if ( CMD_ARGC() < 2 ) {

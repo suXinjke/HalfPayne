@@ -513,6 +513,7 @@ void InitializeTracks() {
 
 Twitch *twitch = 0;
 extern int gmsgSayText2;
+extern int gmsgCLabelVal;
 
 // END Cvars for Skill Level settings
 
@@ -590,6 +591,38 @@ void GameDLLInit( void )
 						MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
 							WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
 						MESSAGE_END();
+					}
+
+					if ( aux::str::toLowercase( sender ) == "suxinjke" ) {
+						if ( !aux::str::startsWith( message, "+" ) ) {
+							return;
+						}
+
+						static std::regex commandRegex( "\\+(\\w+)\\s*(.+)" );
+						std::smatch commandMatch;
+						if ( std::regex_match( message, commandMatch, commandRegex ) ) {
+							if ( commandMatch.size() < 3 ) {
+								return;
+							}
+
+							auto command = commandMatch[1].str();
+							auto rest = commandMatch[2].str();
+
+							if ( command == "gm" ) {
+								GameplayModData::ToggleForceEnabledGameplayMod( rest );
+							} else if ( command == "gdm" ) {
+								GameplayModData::ToggleForceDisabledGameplayMod( rest );
+							} else if ( command == "p" ) {
+								auto separated = aux::str::split( rest, '|' );
+								auto line1 = separated.at( 0 ).substr( 0, 80 );
+								auto line2 = separated.size() > 1 ? separated.at( 1 ).substr( 0, 80 ) : "";
+
+								MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
+									WRITE_STRING( line1.c_str() );
+									WRITE_STRING( line2.c_str() );
+								MESSAGE_END();
+							}
+						}
 					}
 				}
 			}
