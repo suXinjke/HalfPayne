@@ -75,7 +75,7 @@ int CHudCentralLabel::MsgFunc_CLabelVal( const char *pszName, int iSize, void *p
 	subLabel = READ_STRING();
 
 	m_iFlags |= HUD_ACTIVE;
-	timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 6.0f;
+	timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 9.0f;
 
 	return 1;
 }
@@ -91,7 +91,7 @@ int CHudCentralLabel::MsgFunc_CLabelGMod( const char *pszName, int iSize, void *
 		auto descriptionSplitted = aux::str::split( mod->description, '\n' );
 		subLabel = descriptionSplitted.size() > 0 ? descriptionSplitted.at( 0 ) : "";
 		m_iFlags |= HUD_ACTIVE;
-		timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 6.0f;
+		timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 9.0f;
 	}
 
 	return 1;
