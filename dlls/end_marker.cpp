@@ -42,6 +42,10 @@ void CEndMarker::OnTouch( CBaseEntity *pOther ) {
 		return;
 	}
 
+	if ( pOther->pev->deadflag != DEAD_NO ) {
+		return;
+	}
+
 	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
 		rules->End( ( CBasePlayer * ) pOther );
 	}
