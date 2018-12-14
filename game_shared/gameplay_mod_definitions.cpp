@@ -370,7 +370,7 @@ GameplayMod &::infiniteAmmo = GameplayMod::Define( "infinite_ammo", "Infinite am
 	if ( auto player = GetPlayer() ) {
 		static std::vector< CBasePlayer::DESPERATION_TYPE> desperations = {
 			CBasePlayer::DESPERATION_TYPE::DESPERATION_FIGHTING,
-			CBasePlayer::DESPERATION_TYPE::DESPERATION_ALL_FOR_REVENGE
+			CBasePlayer::DESPERATION_TYPE::DESPERATION_REVENGE
 		};
 
 		if ( aux::ctr::includes( desperations, player->desperation ) ) {
