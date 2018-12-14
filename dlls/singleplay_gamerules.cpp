@@ -452,6 +452,8 @@ void CHalfLifeRules::ApplyStartPositionToEntity( CBaseEntity *entity, const Star
 //=========================================================
 void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 {
+	gameplayModsData.Reset();
+
 	isSpawning = true;
 
 	for ( auto it = configs.rbegin(); it != configs.rend(); it++ ) {

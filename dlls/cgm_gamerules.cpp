@@ -196,16 +196,15 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 		return;
 	}
 
-	gameplayModsData.Reset();
+	CHalfLifeRules::PlayerSpawn( pPlayer );
 
 	gameplayModsData.activeGameMode = GAME_MODE_CUSTOM;
 	gameplayModsData.gungameSeed = aux::rand::uniformInt( 0, 10000 );
-
+	
 	if ( auto timeRestriction = gameplayMods::timeRestriction.isActive<float>() ) {
 		gameplayModsData.time = *timeRestriction;
 	}
 	
-	CHalfLifeRules::PlayerSpawn( pPlayer );
 
 	// '\' slashes are getting eaten by ALLOC_STRING? must prevent this by replacing them with '/'
 	std::string sanitizedConfigName = config.configName;
@@ -323,6 +322,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			gameplayModsData.comboMultiplierReset = 0.0f;
 			gameplayModsData.comboMultiplier = 1;
 		}
+	}
+
+	if ( gameplayMods::timeRestriction.isActive() && gameplayModsData.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
+		ClientKill( ENT( pPlayer->pev ) );
 	}
 
 	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
@@ -914,10 +917,6 @@ void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
 		MESSAGE_END();
 
 		yOffset += SPACING;
-
-		if ( gameplayMods::timeRestriction.isActive() && gameplayModsData.time <= 0.0f && pPlayer->pev->deadflag == DEAD_NO ) {
-			ClientKill( ENT( pPlayer->pev ) );
-		}
 	}
 
 	if ( gameplayMods::scoreAttack.isActive() ) {
