@@ -965,7 +965,7 @@ GameplayMod &::vvvvvv = GameplayMod::Define( "vvvvvv", "VVVVVV" )
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	std::vector<std::string> allowedMaps = {
-		"c1a0", "c1a0a", "c1a0b", "c1a0e",
+		"c1a0", "c1a0d", "c1a0a", "c1a0b", "c1a0e",
 		"c1a0c", "c1a1", "c1a1a", "c1a1b", "c1a1c", "c1a1d", "c1a1f",
 		"c1a2", "c1a2a", "c1a2b", "c1a2c", "c1a2d",
 		"c1a3", "c1a3a", "c1a3d",
