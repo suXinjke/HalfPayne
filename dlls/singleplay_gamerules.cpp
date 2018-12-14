@@ -335,7 +335,7 @@ CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData 
 	}
 
 	int dropResult = DROP_TO_FLOOR( ENT( entity->pev ) );
-	if ( dropResult <= 0 && !WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) {
+	if ( dropResult <= 0 && ( entity->pev->movetype == MOVETYPE_STEP && !WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) ) {
 		g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
 		return NULL;
 	}
