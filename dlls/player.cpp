@@ -5916,7 +5916,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 	// Play heartbeat sounds during slowmotion
 	if ( gameplayMods::IsSlowmotionEnabled() && !gameplayMods::superHot.isActive() && pev->deadflag == DEAD_NO ) {
-		if ( slowMotionNextHeartbeatSound <= gpGlobals->time )
+		if ( slowMotionNextHeartbeatSound && slowMotionNextHeartbeatSound <= gpGlobals->time )
 		{
 			slowMotionNextHeartbeatSound = gpGlobals->time + 0.3;
 			EMIT_SOUND( ENT( pev ), CHAN_AUTO, "slowmo/slowmo_heartbeat.wav", 1.0, ATTN_NORM, true );
