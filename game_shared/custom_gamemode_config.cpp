@@ -919,24 +919,24 @@ void EntitySpawnData::UpdateSpawnFlags() {
 	}
 }
 
-void EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
+bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
 #ifndef CLIENT_DLL
 
-	while ( true ) {
+	static std::mt19937 gen;
+	static std::uniform_real_distribution<float> posDis( -4096, 4096 );
+	static std::uniform_real_distribution<float> angDis( 0, 360 );
+
+	if ( auto randomSpawnerSeed = gameplayMods::randomSpawnerSeed.isActive<std::string>() ) {
+		auto seed = std::to_string( gameplayModsData.randomSpawnerCalls ) + *randomSpawnerSeed + STRING( gpGlobals->mapname );
+		gen.seed( std::seed_seq( seed.begin(), seed.end() ) );
+
+		gameplayModsData.randomSpawnerCalls++;
+	}
+
+	for ( int i = 0 ; i < 10000 ; i++ ) {
 		TraceResult tr;
 		char bottomTexture[256] = "(null)";
 		char upperTexture[256] = "(null)";
-
-
-		static std::mt19937 gen;
-		static std::uniform_real_distribution<float> posDis( -4096, 4096 );
-		static std::uniform_real_distribution<float> angDis( 0, 360 );
-		if ( auto randomSpawnerSeed = gameplayMods::randomSpawnerSeed.isActive<std::string>() ) {
-			auto seed = std::to_string( gameplayModsData.randomSpawnerCalls ) + *randomSpawnerSeed + STRING( gpGlobals->mapname );
-			gen.seed( std::seed_seq( seed.begin(), seed.end() ) );
-
-			gameplayModsData.randomSpawnerCalls++;
-		}
 
 		float x = posDis( gen );
 		float y = posDis( gen );
@@ -998,11 +998,12 @@ void EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
 			this->angle = angDis( gen );
 		}
 
-		break;
+		return true;
 
 	}
 
 #endif
+	return false;
 }
 
 EntitySpawn::EntitySpawn( const std::vector<Argument> &args ) : Hookable( args ) {

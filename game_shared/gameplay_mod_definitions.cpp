@@ -1122,9 +1122,9 @@ GameplayMod &::eventSpawnRandomMonsters = GameplayMod::Define( "event_spawn_rand
 			spawnData.name = randomMonsterName;
 			spawnData.UpdateSpawnFlags();
 			do {
-				spawnData.DetermineBestSpawnPosition( player );
-
-				entity = rules->SpawnBySpawnData( spawnData );
+				if ( spawnData.DetermineBestSpawnPosition( player ) ) {
+					entity = rules->SpawnBySpawnData( spawnData );
+				}
 			} while ( !entity );
 			spawnedEntities.insert( spawnData.name );
 		}

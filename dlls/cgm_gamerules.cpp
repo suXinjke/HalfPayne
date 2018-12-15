@@ -1709,7 +1709,8 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 		return;
 	}
 
-	spawnData.DetermineBestSpawnPosition( pPlayer );
-	CCustomGameModeRules::SpawnBySpawnData( spawnData );
+	if ( spawnData.DetermineBestSpawnPosition( pPlayer ) ) {
+		CCustomGameModeRules::SpawnBySpawnData( spawnData );
+	}
 }
 

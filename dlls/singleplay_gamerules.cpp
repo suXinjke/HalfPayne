@@ -264,8 +264,9 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 				( STRING( gpGlobals->mapname ) == entitySpawn.mapName || entitySpawn.mapName == "everywhere" )
 			) {
 				for ( int i = 0; i < entitySpawn.maxAmount; i++ ) {
-					entitySpawn.entity.DetermineBestSpawnPosition( pPlayer );
-					SpawnBySpawnData( entitySpawn.entity );
+					if ( entitySpawn.entity.DetermineBestSpawnPosition( pPlayer ) ) {
+						SpawnBySpawnData( entitySpawn.entity );
+					}
 				}
 			}
 		}
