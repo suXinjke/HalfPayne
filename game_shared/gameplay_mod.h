@@ -370,6 +370,8 @@ namespace gameplayMods {
 	extern GameplayMod& drunkFOV;
 	extern GameplayMod& drunkLook;
 	
+	extern GameplayMod& explosionJumping;
+	
 	extern GameplayMod& fadingOut;
 
 	extern GameplayMod& frictionOverride;

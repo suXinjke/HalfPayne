@@ -207,6 +207,30 @@ GameplayMod &::drunkLook = GameplayMod::Define( "drunk_look", "Drunk look" )
 	return std::nullopt;
 } );
 
+GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Explosion jumping" )
+.Description( "Your explosives don't harm you, but you can still do jumps with that." )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	if ( auto player = GetPlayer() ) {
+		if (
+			player->HasNamedPlayerItem( "weapon_handgrenade" ) ||
+			player->HasNamedPlayerItem( "weapon_satchel" ) ||
+			player->HasNamedPlayerItem( "weapon_tripmine" ) ||
+			player->HasNamedPlayerItem( "weapon_rpg" )
+		) {
+			return true;
+		}
+
+		if ( auto mp5 = player->GetPlayerItem( "weapon_9mmAR" ) ) {
+			auto grenadeAmmoIndex = mp5->SecondaryAmmoIndex();
+			if ( player->m_rgAmmo[grenadeAmmoIndex] > 0 ) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+} );
+
 GameplayMod &::fadingOut = GameplayMod::Define( "fading_out", "Fading out" )
 .Description(
 	"View is fading out, or in other words it's blacking out until you can't see almost anything.\n"

@@ -1015,8 +1015,21 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( weaponImpact.has_value() ? *weaponImpact : 1.0f );
 	}
 
+	auto explosionJumping = gameplayMods::explosionJumping.isActive();
+	auto auxOwnerInstance = CBaseEntity::Instance( CBaseEntity::Instance( pevInflictor )->auxOwner );
+
 	// do the damage
-	pev->health -= flTake;
+	if (
+		!explosionJumping || (
+			explosionJumping && !(
+				this->IsPlayer() &&
+				( bitsDamageType & DMG_BLAST ) &&
+				auxOwnerInstance && auxOwnerInstance->IsPlayer()
+			)
+		)
+	) {
+		pev->health -= flTake;
+	}
 
 	
 	// HACKHACK Don't kill monsters in a script.  Let them break their scripts first
