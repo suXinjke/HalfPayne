@@ -1035,6 +1035,10 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		{
 			Killed( pevAttacker, GIB_ALWAYS );
 		}
+		else if ( bitsDamageType & DMG_FALL )
+		{
+			Killed( pevAttacker, GIB_NEVER );
+		}
 		else if ( bitsDamageType & DMG_NEVERGIB )
 		{
 			Killed( pevAttacker, GIB_NEVER );
