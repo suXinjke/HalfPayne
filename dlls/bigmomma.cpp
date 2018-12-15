@@ -597,7 +597,7 @@ int CBigMomma :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 				if ( !HasMemory( bits_MEMORY_ADVANCE_NODE ) ) {
 					CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 					if ( player ) {
-						cgm->OnKilledEntityByPlayer( player, this, KILLED_ENTITY_GONARCH_SACK, false, false, false );
+						cgm->OnKilledEntityByPlayer( player, this, KILLED_ENTITY_GONARCH_SACK, false, false, false, false );
 					}
 				}
 			}

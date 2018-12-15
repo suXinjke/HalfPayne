@@ -377,6 +377,7 @@ public:
 	BOOL killedOrCausedByPlayer;
 
 	BOOL killedByExplosion;
+	BOOL killedByEnvExplosion;
 	BOOL killedByCrowbar;
 };
 

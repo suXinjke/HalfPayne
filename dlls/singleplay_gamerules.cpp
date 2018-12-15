@@ -125,7 +125,7 @@ void CHalfLifeRules::OnChangeLevel()
 void CHalfLifeRules::OnSave( CBasePlayer *pPlayer ) {
 }
 
-void CHalfLifeRules::OnKilledEntityByPlayer( CBasePlayer * pPlayer, CBaseEntity * victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+void CHalfLifeRules::OnKilledEntityByPlayer( CBasePlayer * pPlayer, CBaseEntity * victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) {
 	HookModelIndex( victim->edict() );
 }
 

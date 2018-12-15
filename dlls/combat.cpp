@@ -658,6 +658,7 @@ void CBaseMonster::KilledTryToNotifyPlayer( entvars_s *pevAttacker ) {
 					player->OnKilledEntity( this );
 				} else if ( attacker->killedOrCausedByPlayer || attacker->auxOwner == player->edict() ) {
 					this->killedByExplosion = attacker->killedOrCausedByPlayer;
+					this->killedByEnvExplosion = attacker->killedOrCausedByPlayer && FStrEq( STRING( pevAttacker->classname ), "env_explosion" );
 
 					player->OnKilledEntity( this );
 				} else if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {

@@ -2054,6 +2054,7 @@ void CBaseMonster :: MonsterInit ( void )
 	m_flDistLook		= 2048.0;
 
 	killedByExplosion = false;
+	killedByEnvExplosion = false;
 	killedByCrowbar = false;
 
 	lastInflictorDuringScript = NULL;

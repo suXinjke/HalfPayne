@@ -802,11 +802,12 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 	}
 	
 	BOOL killedByExplosion = victim->killedByExplosion;
+	BOOL killedByEnvExplosion = victim->killedByEnvExplosion;
 	BOOL killedByCrowbar = victim->killedByCrowbar;
 
 	if ( killedEntity != KILLED_ENTITY_UNDEFINED ) {
 		if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
-			rules->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+			rules->OnKilledEntityByPlayer( this, victim, killedEntity, isHeadshot, killedByExplosion, killedByEnvExplosion, killedByCrowbar );
 		}
 
 		if ( auto healOnKillPercent = gameplayMods::healOnKill.isActive<float>() ) {

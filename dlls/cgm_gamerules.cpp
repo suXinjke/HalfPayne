@@ -612,7 +612,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	}
 }
 
-void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) {
 
 	gameplayModsData.kills++;
 
@@ -663,26 +663,26 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 	}
 
 	if ( gameplayMods::blackMesaMinute.isActive() && pPlayer->pev->deadflag == DEAD_NO ) {
-		CalculateScoreForBlackMesaMinute( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+		CalculateScoreForBlackMesaMinute( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByEnvExplosion, killedByCrowbar );
 	}
 
 	if ( gameplayMods::scoreAttack.isActive() && pPlayer->pev->deadflag == DEAD_NO ) {
-		CalculateScoreForScoreAttack( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+		CalculateScoreForScoreAttack( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByEnvExplosion, killedByCrowbar );
 	}
 
 	if ( gameplayMods::gungame.isActive() ) {
 		gameplayModsData.gungameKillsLeft--;
 	}
 
-	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByCrowbar );
+	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByEnvExplosion, killedByCrowbar );
 }
 
-void CCustomGameModeRules::CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+void CCustomGameModeRules::CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) {
 	int timeToAdd = 0;
 	std::string message;
 
 	if ( killedByExplosion ) {
-		timeToAdd = 10;
+		timeToAdd = killedByEnvExplosion ? 10 : 6;
 		message = "EXPLOSION BONUS";
 	} else if ( killedByCrowbar ) {
 		timeToAdd = 6;
@@ -730,7 +730,7 @@ void CCustomGameModeRules::CalculateScoreForBlackMesaMinute( CBasePlayer *pPlaye
 	IncreaseTime( pPlayer, deathPos, timeToAdd, message.c_str() );
 }
 
-void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByCrowbar ) {
+void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) {
 	int scoreToAdd = -1;
 	float additionalMultiplier = 0.0f;
 
@@ -786,7 +786,7 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 
 	if ( killedByExplosion ) {
 		message = "EXPLOSION BONUS";
-		additionalMultiplier = 1.0f;
+		additionalMultiplier = killedByEnvExplosion ? 1.0f : 0.5f;
 	} else if ( killedByCrowbar ) {
 		message = "MELEE BONUS";
 		additionalMultiplier = 0.5f;
