@@ -37,6 +37,12 @@ int CHudRandomGameplayMods::Draw( float flTime )
 		return 1;
 	}
 
+	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
+		if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f || gameplayModsData.timeLeftUntilNextRandomGameplayMod > randomGameplayMods->timeForRandomGameplayModVoting ) {
+			return 1;
+		}
+	}
+
 	const int ITEM_WIDTH = 180;
 	const int ITEM_HEIGHT = 40;
 	const int SPACING = 10;
@@ -59,12 +65,6 @@ int CHudRandomGameplayMods::Draw( float flTime )
 
 		int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
 		FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
-	}
-
-	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
-		if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f || gameplayModsData.timeLeftUntilNextRandomGameplayMod > randomGameplayMods->timeForRandomGameplayModVoting ) {
-			return 1;
-		}
 	}
 
 	int colAmount = min( 3, ( ScreenWidth - ITEM_WIDTH * 2 ) / ( ITEM_WIDTH + SPACING ) );
