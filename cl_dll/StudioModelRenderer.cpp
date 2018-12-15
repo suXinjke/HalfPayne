@@ -388,7 +388,6 @@ mstudioanim_t *CStudioModelRenderer::StudioGetAnim( model_t *m_pSubModel, mstudi
 		if ( aux::str::includes( m_pSubModel->name, "/payned" ) ) {
 			betterName = aux::str::replace( betterName, "models\\\\", "models\\payned\\" );
 		}
-		gEngfuncs.Con_Printf("loading %s but its %s\n", pseqgroup->name, betterName.c_str() );
 		IEngineStudio.LoadCacheFile( ( char * ) betterName.c_str(), (struct cache_user_s *)&paSequences[pseqdesc->seqgroup] );
 	}
 	return (mstudioanim_t *)((byte *)paSequences[pseqdesc->seqgroup].data + pseqdesc->animindex);
