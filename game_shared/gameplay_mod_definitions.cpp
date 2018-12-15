@@ -668,6 +668,16 @@ GameplayMod &::randomGameplayMods = GameplayMod::Define( "random_gameplay_mods",
 } )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::randomSpawnerSeed = GameplayMod::Define( "random_spawner_seed", "Random spawner seed" )
+.Description( "Makes random spawns same for all players based on a seed." )
+.Arguments( {
+	Argument( "seed" ).Description( []( const std::string string, float value ) {
+		return "Seed: " + string + " \n";
+	} )
+} )
+.ForceDefaultArguments( "" )
+.CannotBeActivatedRandomly();
+
 GameplayMod &::scoreAttack = GameplayMod::Define( "score_attack", "Score attack" )
 .Description( "Kill enemies to get as much score as possible. Build combos to get even more score." )
 .CannotBeActivatedRandomly();

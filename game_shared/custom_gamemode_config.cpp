@@ -927,7 +927,22 @@ void EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
 		char bottomTexture[256] = "(null)";
 		char upperTexture[256] = "(null)";
 
-		Vector randomPoint = Vector( RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ), RANDOM_FLOAT( -4096, 4096 ) );
+
+		static std::mt19937 gen;
+		static std::uniform_real_distribution<float> posDis( -4096, 4096 );
+		static std::uniform_real_distribution<float> angDis( 0, 360 );
+		if ( auto randomSpawnerSeed = gameplayMods::randomSpawnerSeed.isActive<std::string>() ) {
+			auto seed = std::to_string( gameplayModsData.randomSpawnerCalls ) + *randomSpawnerSeed + STRING( gpGlobals->mapname );
+			gen.seed( std::seed_seq( seed.begin(), seed.end() ) );
+
+			gameplayModsData.randomSpawnerCalls++;
+		}
+
+		float x = posDis( gen );
+		float y = posDis( gen );
+		float z = posDis( gen );
+
+		Vector randomPoint( x, y, z );
 		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
 		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
 
@@ -964,7 +979,7 @@ void EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
 		this->x = randomPoint.x;
 		this->y = randomPoint.y;
 		this->z = randomPoint.z + 4;
-		this->angle = RANDOM_LONG( 0, 360 );
+		this->angle = angDis( gen );
 
 		break;
 

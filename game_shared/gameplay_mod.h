@@ -190,6 +190,8 @@ public:
 	FieldFloat( gungameTimeLeftUntilNextWeapon, 0.0f );
 	FieldInt( gungameSeed, 0 );
 	FieldInt( gungameWeaponSelection, 0 );
+	
+	FieldInt( randomSpawnerCalls, 0 );
 
 	FieldInt( fade, 255 );
 	
@@ -433,6 +435,7 @@ namespace gameplayMods {
 	extern GameplayMod& quakeRockets;
 
 	extern GameplayMod& randomGameplayMods;
+	extern GameplayMod& randomSpawnerSeed;
 
 	extern GameplayMod& scoreAttack;
 
