@@ -41,7 +41,7 @@ void CustomGameModeRecord::Save( CBasePlayer *player ) {
 	// Create the directory if it's not there. Proceed only when directory exists
 	if ( CreateDirectory( directoryPath.c_str(), NULL ) || GetLastError() == ERROR_ALREADY_EXISTS ) {
 
-		float time = gameplayMods::blackMesaMinute.isActive() ?
+		float time = gameplayMods::timeRestriction.isActive() ?
 			( gameplayModsData.time > this->time ? gameplayModsData.time : this->time ) :
 			( gameplayModsData.time < this->time ? gameplayModsData.time : this->time );
 		float realTime = gameplayModsData.realTime < this->realTime ? gameplayModsData.realTime : this->realTime;

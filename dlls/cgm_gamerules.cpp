@@ -1072,9 +1072,9 @@ void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	PauseTimer( pPlayer );
 
-	auto blackMesaMinute = gameplayMods::blackMesaMinute.isActive();
+	auto timeRestriction = gameplayMods::timeRestriction.isActive();
 
-	if ( !config.gameFinishedOnce && blackMesaMinute ) {
+	if ( !config.gameFinishedOnce && timeRestriction ) {
 		config.record.time = 0.0f;
 	}
 
@@ -1100,10 +1100,10 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 	MESSAGE_END();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
-		WRITE_STRING( blackMesaMinute ? "TIME SCORE|PERSONAL BESTS" : "TIME|PERSONAL BESTS" );
+		WRITE_STRING( timeRestriction ? "TIME SCORE|PERSONAL BESTS" : "TIME|PERSONAL BESTS" );
 		WRITE_FLOAT( gameplayModsData.time );
 		WRITE_FLOAT( config.record.time );
-		WRITE_BYTE( blackMesaMinute ? gameplayModsData.time > config.record.time : gameplayModsData.time < config.record.time  );
+		WRITE_BYTE( timeRestriction ? gameplayModsData.time > config.record.time : gameplayModsData.time < config.record.time  );
 	MESSAGE_END();
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
@@ -1113,7 +1113,7 @@ void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
 		WRITE_BYTE( gameplayModsData.realTime < config.record.realTime );
 	MESSAGE_END();
 
-	if ( blackMesaMinute ) {
+	if ( timeRestriction ) {
 		float realTimeMinusTime = max( 0.0f, gameplayModsData.realTime - gameplayModsData.time );
 		MESSAGE_BEGIN( MSG_ONE, gmsgEndTime, NULL, pPlayer->pev );
 			WRITE_STRING( "REAL TIME MINUS SCORE" );
