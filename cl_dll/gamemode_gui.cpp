@@ -393,7 +393,7 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 			const std::vector<std::string> *maps = ( std::vector<std::string> * ) data;
 			*out_text = maps->at( n ).c_str();
 			return true;
-		}, ( void * ) &formattedChapterMaps, formattedChapterMaps.size() );
+		}, ( void * ) &formattedChapterMaps, formattedChapterMaps.size(), 15 );
 		ImGui::PopItemWidth();
 	}
 
