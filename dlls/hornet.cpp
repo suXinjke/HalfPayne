@@ -401,9 +401,9 @@ void CHornet::DieTouch ( CBaseEntity *pOther )
 	{// do the damage
 		static const char *pHitSounds[] =
 		{
-			"agrunt/ag_hornethit1.wav",
-			"agrunt/ag_hornethit2.wav",
-			"agrunt/ag_hornethit3.wav",
+			"hornet/ag_hornethit1.wav",
+			"hornet/ag_hornethit2.wav",
+			"hornet/ag_hornethit3.wav",
 		};
 
 		EMIT_SOUND( ENT( pev ), CHAN_VOICE, RANDOM_SOUND_ARRAY_PAYNED_PAIN_MONSTER( pHitSounds ), 1, ATTN_NORM );
