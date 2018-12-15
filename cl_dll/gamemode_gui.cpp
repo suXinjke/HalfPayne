@@ -362,6 +362,29 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 		}
 	}
 
+	if ( config.configType == CONFIG_TYPE_VANILLA ) {
+		ImGui::TextWrapped( "Difficulty" );
+		ImGui::Separator();
+
+		float skill_cvar = gEngfuncs.pfnGetCvarFloat( "skill" );
+		int skill =
+			skill_cvar >= 3.0f ? 3 :
+			skill_cvar >= 2.0f ? 2 :
+			1;
+
+		if ( ImGui::RadioButton( "Easy", &skill, 1 ) ) {
+			gEngfuncs.Cvar_Set( "skill", "1" );
+		}
+		ImGui::SameLine();
+		if ( ImGui::RadioButton( "Medium", &skill, 2 ) ) {
+			gEngfuncs.Cvar_Set( "skill", "2" );
+		}
+		ImGui::SameLine();
+		if ( ImGui::RadioButton( "Hard", &skill, 3 ) ) {
+			gEngfuncs.Cvar_Set( "skill", "3" );
+		}
+	}
+
 	if ( overrideMap ) {
 		ImGui::TextWrapped( "Starting on a different map will be considered cheating and your personal bests will not be saved." );
 
