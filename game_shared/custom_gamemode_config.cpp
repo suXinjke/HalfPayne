@@ -979,7 +979,24 @@ void EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
 		this->x = randomPoint.x;
 		this->y = randomPoint.y;
 		this->z = randomPoint.z + 4;
-		this->angle = angDis( gen );
+
+		if ( aux::str::startsWith( this->name, "monster" ) ) {
+			auto angleAndDistance = std::make_pair<float, float>( 0.0f, 0.0f );
+			for ( float angle = 0.0f; angle < 360.0f; angle += ( 360.0f / 8.0f ) ) {
+				UTIL_TraceLine( randomPoint, Vector( cos( angle ), sin( angle ), 0 ) * 8192, ignore_monsters, NULL, &tr );
+
+				float distance = ( tr.vecEndPos - randomPoint ).Length();
+
+				if ( distance > angleAndDistance.second ) {
+					angleAndDistance.second = distance;
+					angleAndDistance.first = angle;
+				}
+			}
+
+			this->angle = angleAndDistance.first;
+		} else {
+			this->angle = angDis( gen );
+		}
 
 		break;
 
