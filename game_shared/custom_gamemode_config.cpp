@@ -568,6 +568,67 @@ std::set<std::string> CustomGameModeConfig::GetSoundsToPrecacheForMap( const std
 		}
 	}
 
+	if (
+		gameplayMods::randomGameplayMods.isActive() ||
+		gameplayMods::paynedSoundsHumans.isActive() ||
+		gameplayMods::paynedSoundsMonsters.isActive()
+	) {
+		soundsToPrecache.insert( "payned/alert1.wav" );
+		soundsToPrecache.insert( "payned/alert2.wav" );
+		soundsToPrecache.insert( "payned/alert3.wav" );
+		soundsToPrecache.insert( "payned/alert4.wav" );
+		soundsToPrecache.insert( "payned/alert5.wav" );
+		soundsToPrecache.insert( "payned/alert6.wav" );
+		soundsToPrecache.insert( "payned/alert7.wav" );
+		soundsToPrecache.insert( "payned/attack1.wav" );
+		soundsToPrecache.insert( "payned/attack2.wav" );
+		soundsToPrecache.insert( "payned/attack3.wav" );
+		soundsToPrecache.insert( "payned/die1.wav" );
+		soundsToPrecache.insert( "payned/die2.wav" );
+		soundsToPrecache.insert( "payned/die3.wav" );
+		soundsToPrecache.insert( "payned/die4.wav" );
+		soundsToPrecache.insert( "payned/die5.wav" );
+		soundsToPrecache.insert( "payned/die6.wav" );
+		soundsToPrecache.insert( "payned/die7.wav" );
+		soundsToPrecache.insert( "payned/pain1.wav" );
+		soundsToPrecache.insert( "payned/pain2.wav" );
+		soundsToPrecache.insert( "payned/pain3.wav" );
+		soundsToPrecache.insert( "payned/pain4.wav" );
+		soundsToPrecache.insert( "payned/pain5.wav" );
+		soundsToPrecache.insert( "payned/pain6.wav" );
+		soundsToPrecache.insert( "payned/pain7.wav" );
+		soundsToPrecache.insert( "payned/pain8.wav" );
+		soundsToPrecache.insert( "payned/pain9.wav" );
+	}
+
+	if (
+		gameplayMods::randomGameplayMods.isActive() ||
+		gameplayMods::cncSounds.isActive()
+	) {
+		soundsToPrecache.insert( "cnc/cnc_ded01.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded02.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded03.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded04.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded05.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded06.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded07.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded08.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded09.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded10.wav" );
+		soundsToPrecache.insert( "cnc/cnc_ded11.wav" );
+	}
+
+	if (
+		gameplayMods::randomGameplayMods.isActive() ||
+		gameplayMods::deusExSounds.isActive()
+	) {
+		soundsToPrecache.insert( "deusex/dead01.wav" );
+		soundsToPrecache.insert( "deusex/dead02.wav" );
+		soundsToPrecache.insert( "deusex/dead03.wav" );
+		soundsToPrecache.insert( "deusex/pain01.wav" );
+		soundsToPrecache.insert( "deusex/pain02.wav" );
+	}
+
 	return soundsToPrecache;
 }
 

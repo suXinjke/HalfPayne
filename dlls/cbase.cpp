@@ -430,6 +430,10 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 		delete g_pGameRules;
 		g_pGameRules = NULL;
 		g_pGameRules = new CCustomGameModeRules;
+		
+		if ( auto rules = dynamic_cast<CCustomGameModeRules * >( g_pGameRules ) ) {
+			rules->Precache();
+		}
 	} else if (
 		gameplayModsData.activeGameMode == GAME_MODE_VANILLA &&
 		( strcmp( CVAR_GET_STRING( "gamemode" ), "vanilla" ) != 0 )
@@ -440,6 +444,10 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 		delete g_pGameRules;
 		g_pGameRules = NULL;
 		g_pGameRules = new CHalfLifeRules;
+		
+		if ( auto rules = dynamic_cast<CHalfLifeRules * >( g_pGameRules ) ) {
+			rules->Precache();
+		}
 	}
 
 	return 0;
