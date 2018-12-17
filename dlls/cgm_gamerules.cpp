@@ -17,6 +17,8 @@
 #include	"../twitch/twitch.h"
 #include	"kerotan.h"
 
+extern std::map<std::string, std::pair<const char *, const char *>> paynedModels;
+
 extern Twitch *twitch;
 std::thread twitch_thread;
 
@@ -594,6 +596,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		}
 	}
 
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastPayned, gameplayMods::payned.isActive(), [this]( BOOL on ) {
+		TogglePaynedModels();
+	} );
+
 	if ( twitch && twitch->status == TWITCH_DISCONNECTED && ShouldInitializeTwitch() ) {
 
 		auto twitch_credentials = aux::twitch::readCredentialsFromFile();
@@ -1013,6 +1019,21 @@ void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
 	maxYOffset = max( yOffset, maxYOffset );
 }
 
+void CCustomGameModeRules::TogglePaynedModels() {
+	if ( auto pPlayer = GetPlayer() ) {
+		CBaseEntity *entity = NULL;
+		while ( ( entity = UTIL_FindEntityInSphere( entity, pPlayer->pev->origin, 8192.0f ) ) != NULL ) {
+			if ( paynedModels.find( STRING( entity->pev->classname ) ) != paynedModels.end() ) {
+				auto mins = entity->pev->mins;
+				auto maxs = entity->pev->maxs;
+
+				SET_MODEL_PAYNED( entity );
+				UTIL_SetSize( entity->pev, mins, maxs );
+			}
+		}
+	}
+}
+
 void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {
 	if ( !endMarkersActive ) {
 		endMarkersActive = true;
@@ -1355,6 +1376,10 @@ void CCustomGameModeRules::OnChangeLevel() {
 			}
 		} } );
 	}
+
+	tasks.push_back( { 0.0f, [this]( CBasePlayer *pPlayer ) {
+		TogglePaynedModels();
+	} } );
 }
 
 extern int g_autoSaved;

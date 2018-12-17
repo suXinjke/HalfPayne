@@ -53,6 +53,7 @@ public:
 	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
 
 	void SendHUDMessages( CBasePlayer *pPlayer );
+	void TogglePaynedModels();
 
 	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );
 	bool endMarkersActive;
