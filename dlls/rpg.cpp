@@ -311,10 +311,6 @@ void CRpg::Reload( void )
 {
 	int iResult;
 
-	if ( gameplayMods::quakeRockets.isActive() ) {
-		return;
-	}
-
 	if ( m_iClip == 1 )
 	{
 		// don't bother with any of this if don't need to reload.
@@ -323,6 +319,11 @@ void CRpg::Reload( void )
 
 	if ( m_pPlayer->ammo_rockets <= 0 )
 		return;
+
+	if ( auto quakeRockets = gameplayMods::quakeRockets.isActive<QuakeRocketsInfo>() ) {
+		iResult = DefaultReload( RPG_MAX_CLIP, RPG_IDLE, 0.1 );
+		return;
+	}
 
 	// because the RPG waits to autoreload when no missiles are active while  the LTD is on, the
 	// weapons code is constantly calling into this function, but is often denied because 
@@ -523,15 +524,16 @@ void CRpg::PrimaryAttack()
 
 		m_iClip--; 
 				
-		m_flNextPrimaryAttack = GetNextAttackDelay(1.5);
+		if ( auto quakeRockets = gameplayMods::quakeRockets.isActive<QuakeRocketsInfo>() ) {
+			m_flNextPrimaryAttack = GetNextAttackDelay( quakeRockets->delay );
+			DefaultReload( RPG_MAX_CLIP, RPG_IDLE, quakeRockets->delay );
+		} else {
+			m_flNextPrimaryAttack = GetNextAttackDelay(1.5);
+		}
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
 
 		m_pPlayer->ApplyWeaponPushback( 1000 );
 
-		if ( auto quakeRockets = gameplayMods::quakeRockets.isActive<QuakeRocketsInfo>() ) {
-			m_flNextPrimaryAttack = GetNextAttackDelay( quakeRockets->delay );
-			DefaultReload( RPG_MAX_CLIP, RPG_IDLE, quakeRockets->delay );
-		}
 	}
 	else
 	{
