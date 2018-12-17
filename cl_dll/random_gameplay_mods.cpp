@@ -37,34 +37,39 @@ int CHudRandomGameplayMods::Draw( float flTime )
 		return 1;
 	}
 
-	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
-		if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f || gameplayModsData.timeLeftUntilNextRandomGameplayMod > randomGameplayMods->timeForRandomGameplayModVoting ) {
-			return 1;
-		}
+	auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>();
+	if ( !randomGameplayMods ) {
+		return 1;
 	}
 
 	const int ITEM_WIDTH = 180;
 	const int ITEM_HEIGHT = 40;
 	const int SPACING = 10;
 
-	for ( size_t i = 0; i < timedGameplayMods.size(); i++ ) {
-		auto &timedMod = timedGameplayMods.at( i );
-		if ( !timedMod.mod ) {
-			continue;
+	if ( randomGameplayMods->timeForRandomGameplayMod >= 10.0f ) {
+		for ( size_t i = 0; i < timedGameplayMods.size(); i++ ) {
+			auto &timedMod = timedGameplayMods.at( i );
+			if ( !timedMod.mod ) {
+				continue;
+			}
+
+			int x = ScreenWidth - ITEM_WIDTH * 2;
+
+			int y = CORNER_OFFSET + i * ( gHUD.m_scrinfo.iCharHeight ) + i * 4;
+
+			int r = 255;
+			int g = 255;
+			int b = 255;
+
+			gHUD.DrawHudString( x, y, 0, timedMod.mod->name.c_str(), r, g, b );
+
+			int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
+			FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
 		}
+	}
 
-		int x = ScreenWidth - ITEM_WIDTH * 2;
-
-		int y = CORNER_OFFSET + i * ( gHUD.m_scrinfo.iCharHeight ) + i * 4;
-
-		int r = 255;
-		int g = 255;
-		int b = 255;
-
-		gHUD.DrawHudString( x, y, 0, timedMod.mod->name.c_str(), r, g, b );
-
-		int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
-		FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
+	if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f || gameplayModsData.timeLeftUntilNextRandomGameplayMod > randomGameplayMods->timeForRandomGameplayModVoting ) {
+		return 1;
 	}
 
 	int colAmount = min( 3, ( ScreenWidth - ITEM_WIDTH * 2 ) / ( ITEM_WIDTH + SPACING ) );
