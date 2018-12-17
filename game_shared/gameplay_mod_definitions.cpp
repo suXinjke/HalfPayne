@@ -274,6 +274,13 @@ GameplayMod &::gaussJumping = GameplayMod::Define( "gauss_jumping", "Gauss jumpi
 
 GameplayMod &::gaussNoSelfGauss = GameplayMod::Define( "no_self_gauss", "No self gauss" )
 .Description( "Prevents self gauss effect." )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::randomGameplayMods.isActive() && ::instagib.isActive() ) {
+		return "";
+	}
+
+	return std::nullopt;
+} )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::gibsAlways = GameplayMod::Define( "always_gib", "Always gib" )
