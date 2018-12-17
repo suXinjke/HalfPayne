@@ -310,7 +310,7 @@ int gmsgOnAimClear = 0;
 int gmsgOnPlyUpd = 0;
 int gmsgKillConfirmed = 0;
 
-extern std::set<std::string> paynedClasses;
+extern std::map<std::string, std::pair<const char *, const char *>> paynedModels;
 
 void LinkUserMessages( void )
 {
@@ -5993,11 +5993,11 @@ void CBasePlayer :: UpdateClientData( void )
 	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastPayned, gameplayMods::payned.isActive(), [this]( BOOL on ) {
 		CBaseEntity *entity = NULL;
 		while ( ( entity = UTIL_FindEntityInSphere( entity, pev->origin, 8192.0f ) ) != NULL ) {
-			if ( paynedClasses.find( STRING( entity->pev->classname ) ) != paynedClasses.end() ) {
+			if ( paynedModels.find( STRING( entity->pev->classname ) ) != paynedModels.end() ) {
 				auto mins = entity->pev->mins;
 				auto maxs = entity->pev->maxs;
 
-				SET_MODEL_PAYNED( entity->edict(), STRING( entity->pev->model ) );
+				SET_MODEL_PAYNED( entity );
 				UTIL_SetSize( entity->pev, mins, maxs );
 			}
 		}

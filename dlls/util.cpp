@@ -2780,34 +2780,49 @@ const char * RANDOM_SOUND_ARRAY_PAYNED( const char *originalSound, PaynedSound s
 	return originalSound;
 }
 
-std::set<std::string> originalModels;
-std::set<std::string> paynedModels;
-std::set<std::string> paynedClasses;
+std::map<std::string, std::pair<const char *, const char *>> paynedModels = {
+	{ "monster_alien_grunt", { "models/agrunt.mdl", "models/payned/agrunt.mdl" } },
+	{ "monster_alien_slave", { "models/islave.mdl", "models/payned/islave.mdl" } },
+	{ "monster_vortigaunt", { "models/islave.mdl", "models/payned/islave.mdl" } },
+	{ "monster_apache", { "models/apache.mdl", "models/payned/apache.mdl" } },
+	{ "monster_barnacle", { "models/barnacle.mdl", "models/payned/barnacle.mdl" } },
+	{ "monster_barney", { "models/barney.mdl", "models/payned/barney.mdl" } },
+	{ "monster_barney_dead", { "models/barney.mdl", "models/payned/barney.mdl" } },
+	{ "monster_bigmomma", { "models/big_mom.mdl", "models/payned/big_mom.mdl" } },
+	{ "monster_bullchicken", { "models/bullsquid.mdl", "models/payned/bullsquid.mdl" } },
+	{ "monster_alien_controller", { "models/controller.mdl", "models/payned/controller.mdl" } },
+	{ "monster_gargantua", { "models/garg.mdl", "models/payned/garg.mdl" } },
+	{ "monster_human_assassin", { "models/hassassin.mdl", "models/payned/hassassin.mdl" } },
+	{ "monster_human_grunt", { "models/hgrunt.mdl", "models/payned/hgrunt.mdl" } },
+	{ "monster_hgrunt_dead", { "models/hgrunt.mdl", "models/payned/hgrunt.mdl" } },
+	{ "monster_headcrab", { "models/headcrab.mdl", "models/payned/headcrab.mdl" } },
+	{ "monster_houndeye", { "models/houndeye.mdl", "models/payned/houndeye.mdl" } },
+	{ "monster_leech", { "models/leech.mdl", "models/payned/leech.mdl" } },
+	{ "monster_nihilanth", { "models/nihilanth.mdl", "models/payned/nihilanth.mdl" } },
+	{ "monster_osprey", { "models/osprey.mdl", "models/payned/osprey.mdl" } },
+	{ "monster_cockroach", { "models/roach.mdl", "models/payned/roach.mdl" } },
+	{ "monster_ichthyosaur", { "models/icky.mdl", "models/payned/icky.mdl" } },
+	{ "monster_scientist", { "models/scientist.mdl", "models/payned/scientist.mdl" } },
+	{ "monster_sitting_scientist", { "models/scientist.mdl", "models/payned/scientist.mdl" } },
+	{ "monster_scientist_dead", { "models/scientist.mdl", "models/payned/scientist.mdl" } },
+	{ "monster_tentacle", { "models/tentacle2.mdl", "models/payned/tentacle2.mdl" } },
+	{ "monster_zombie", { "models/zombie.mdl", "models/payned/zombie.mdl" } },
+	{ "xen_tree", { "models/tree.mdl", "models/payned/tree.mdl" } },
+	{ "xen_plantlight", { "models/light.mdl", "models/payned/light.mdl" } },
+};
 
-void PRECACHE_MODEL_PAYNED( CBaseEntity *monster, char *path ) {
-	PRECACHE_MODEL( path );
-	originalModels.insert( path );
+void PRECACHE_MODEL_PAYNED( CBaseEntity *entity ) {
+	auto &modelPair = paynedModels[STRING( entity->pev->classname )];
 
-	if (
-		( !gameplayMods::payned.isActive() && !gameplayMods::randomGameplayMods.isActive() ) ||
-		FStrEq( STRING( monster->pev->classname ), "monster_babycrab" ) // dumb exception because baby crabs call inherited headcrab precache and put theirselves on the list
-	) {
-		return;
+	PRECACHE_MODEL( ( char * ) modelPair.first );
+
+	if ( gameplayMods::payned.isActive() || gameplayMods::randomGameplayMods.isActive() ) {
+		PRECACHE_MODEL( ( char * ) modelPair.second );
 	}
-
-	auto payned_model = aux::str::replace( path, "models", "models/payned" ).c_str();
-	paynedModels.insert( payned_model );
-
-	PRECACHE_MODEL( ( char * ) paynedModels.find( payned_model )->c_str() );
-	paynedClasses.insert( STRING( monster->pev->classname ) );
 }
 
-void SET_MODEL_PAYNED( edict_t *e, const char *path ) {
-	if ( !gameplayMods::payned.isActive() ) {
-		auto original_model = aux::str::replace( path, "models/payned", "models" );
-		SET_MODEL( e, originalModels.find( original_model )->c_str() );
-	} else {
-		auto payned_model = aux::str::replace( path, "models", "models/payned" );
-		SET_MODEL( e, paynedModels.find( payned_model )->c_str() );
-	}
+void SET_MODEL_PAYNED( CBaseEntity *entity ) {
+	auto &modelPair = paynedModels[STRING( entity->pev->classname )];
+
+	SET_MODEL( ENT( entity->pev ), gameplayMods::payned.isActive() ? modelPair.second : modelPair.first );
 }

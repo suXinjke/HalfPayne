@@ -410,7 +410,7 @@ void CBarney :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/barney.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -437,7 +437,7 @@ void CBarney :: Spawn()
 //=========================================================
 void CBarney :: Precache()
 {
-	PRECACHE_MODEL_PAYNED( this, "models/barney.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 
 	PRECACHE_SOUND("barney/ba_attack1.wav" );
 	PRECACHE_SOUND("barney/ba_attack2.wav" );
@@ -809,6 +809,7 @@ class CDeadBarney : public CBaseMonster
 {
 public:
 	void Spawn( void );
+	void Precache( void );
 	int	Classify ( void ) { return	CLASS_PLAYER_ALLY; }
 
 	void KeyValue( KeyValueData *pkvd );
@@ -837,8 +838,8 @@ LINK_ENTITY_TO_CLASS( monster_barney_dead, CDeadBarney );
 //=========================================================
 void CDeadBarney :: Spawn( )
 {
-	PRECACHE_MODEL_PAYNED( this, "models/barney.mdl" );
-	SET_MODEL_PAYNED( ENT(pev), "models/barney.mdl" );
+	Precache();
+	SET_MODEL_PAYNED( this );
 
 	pev->effects		= 0;
 	pev->yaw_speed		= 8;
@@ -854,6 +855,10 @@ void CDeadBarney :: Spawn( )
 	pev->health			= 8;//gSkillData.barneyHealth;
 
 	MonsterInitDead();
+}
+
+void CDeadBarney::Precache( void ) {
+	PRECACHE_MODEL_PAYNED( this );
 }
 
 

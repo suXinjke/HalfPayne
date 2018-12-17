@@ -659,7 +659,7 @@ void CScientist :: Spawn( void )
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/scientist.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -695,7 +695,7 @@ void CScientist :: Spawn( void )
 //=========================================================
 void CScientist :: Precache( void )
 {
-	PRECACHE_MODEL_PAYNED( this, "models/scientist.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 	PRECACHE_SOUND("scientist/sci_pain1.wav");
 	PRECACHE_SOUND("scientist/sci_pain2.wav");
 	PRECACHE_SOUND("scientist/sci_pain3.wav");
@@ -1113,6 +1113,7 @@ class CDeadScientist : public CBaseMonster
 public:
 	void Spawn( void );
 	int	Classify ( void ) { return	CLASS_HUMAN_PASSIVE; }
+	void Precache( void );
 
 	void KeyValue( KeyValueData *pkvd );
 	int	m_iPose;// which sequence to display
@@ -1137,8 +1138,8 @@ LINK_ENTITY_TO_CLASS( monster_scientist_dead, CDeadScientist );
 //
 void CDeadScientist :: Spawn( )
 {
-	PRECACHE_MODEL_PAYNED( this, "models/scientist.mdl" );
-	SET_MODEL_PAYNED(ENT(pev), "models/scientist.mdl");
+	Precache();
+	SET_MODEL_PAYNED( this );
 	
 	pev->effects		= 0;
 	pev->sequence		= 0;
@@ -1165,6 +1166,10 @@ void CDeadScientist :: Spawn( )
 
 	//	pev->skin += 2; // use bloody skin -- UNDONE: Turn this back on when we have a bloody skin again!
 	MonsterInitDead();
+}
+
+void CDeadScientist::Precache( void ) {
+	PRECACHE_MODEL_PAYNED( this );
 }
 
 
@@ -1219,9 +1224,8 @@ SITTING_ANIM_sitting3
 //
 void CSittingScientist :: Spawn( )
 {
-	PRECACHE_MODEL_PAYNED( this, "models/scientist.mdl");
-	SET_MODEL_PAYNED(ENT(pev), "models/scientist.mdl");
 	Precache();
+	SET_MODEL_PAYNED( this );
 	InitBoneControllers();
 
 	UTIL_SetSize(pev, Vector(-14, -14, 0), Vector(14, 14, 36));
@@ -1258,6 +1262,7 @@ void CSittingScientist :: Spawn( )
 
 void CSittingScientist :: Precache( void )
 {
+	PRECACHE_MODEL_PAYNED( this );
 	m_baseSequence = LookupSequence( "sitlookleft" );
 	TalkInit();
 }

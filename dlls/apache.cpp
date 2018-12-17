@@ -121,7 +121,7 @@ void CApache :: Spawn( void )
 	pev->movetype = MOVETYPE_FLY;
 	pev->solid = SOLID_BBOX;
 
-	SET_MODEL_PAYNED(ENT(pev), "models/apache.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize( pev, Vector( -32, -32, -64 ), Vector( 32, 32, 0 ) );
 	UTIL_SetOrigin( pev, pev->origin );
 
@@ -154,7 +154,7 @@ void CApache :: Spawn( void )
 
 void CApache::Precache( void )
 {
-	PRECACHE_MODEL_PAYNED( this, "models/apache.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 
 	PRECACHE_SOUND("apache/ap_rotor1.wav");
 	PRECACHE_SOUND("apache/ap_rotor2.wav");

@@ -661,7 +661,7 @@ void CBullsquid :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/bullsquid.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize( pev, Vector( -32, -32, 0 ), Vector( 32, 32, 64 ) );
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -683,7 +683,7 @@ void CBullsquid :: Spawn()
 //=========================================================
 void CBullsquid :: Precache()
 {
-	PRECACHE_MODEL_PAYNED( this, "models/bullsquid.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 	
 	PRECACHE_MODEL("sprites/bigspit.spr");// spit projectile.
 	

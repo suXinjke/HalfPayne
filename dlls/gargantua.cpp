@@ -751,7 +751,7 @@ void CGargantua :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/garg.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize( pev, Vector( -32, -32, 0 ), Vector( 32, 32, 64 ) );
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -780,7 +780,7 @@ void CGargantua :: Precache()
 {
 	int i;
 
-	PRECACHE_MODEL_PAYNED( this, "models/garg.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 	PRECACHE_MODEL( GARG_EYE_SPRITE_NAME );
 	PRECACHE_MODEL( GARG_BEAM_SPRITE_NAME );
 	PRECACHE_MODEL( GARG_BEAM_SPRITE2 );

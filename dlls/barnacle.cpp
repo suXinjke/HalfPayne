@@ -104,7 +104,7 @@ void CBarnacle :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/barnacle.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize( pev, Vector(-16, -16, -32), Vector(16, 16, 0) );
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -402,7 +402,7 @@ void CBarnacle :: WaitTillDead ( void )
 //=========================================================
 void CBarnacle :: Precache()
 {
-	PRECACHE_MODEL_PAYNED( this, "models/barnacle.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 
 	PRECACHE_SOUND("barnacle/bcl_alert2.wav");//happy, lifting food up
 	PRECACHE_SOUND("barnacle/bcl_bite3.wav");//just got food to mouth

@@ -1013,7 +1013,7 @@ void CHGrunt :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/hgrunt.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -1080,7 +1080,7 @@ void CHGrunt :: Spawn()
 //=========================================================
 void CHGrunt :: Precache()
 {
-	PRECACHE_MODEL_PAYNED( this, "models/hgrunt.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 
 	PRECACHE_SOUND( "hgrunt/gr_mgun1.wav" );
 	PRECACHE_SOUND( "hgrunt/gr_mgun2.wav" );
@@ -2461,6 +2461,7 @@ class CDeadHGrunt : public CBaseMonster
 {
 public:
 	void Spawn( void );
+	void Precache( void );
 	int	Classify ( void ) { return	CLASS_HUMAN_MILITARY; }
 
 	void KeyValue( KeyValueData *pkvd );
@@ -2489,8 +2490,8 @@ LINK_ENTITY_TO_CLASS( monster_hgrunt_dead, CDeadHGrunt );
 //=========================================================
 void CDeadHGrunt :: Spawn( void )
 {
-	PRECACHE_MODEL_PAYNED( this, "models/hgrunt.mdl" );
-	SET_MODEL_PAYNED(ENT(pev), "models/hgrunt.mdl");
+	Precache();
+	SET_MODEL_PAYNED( this );
 
 	pev->effects		= 0;
 	pev->yaw_speed		= 8;
@@ -2537,4 +2538,8 @@ void CDeadHGrunt :: Spawn( void )
 	}
 
 	MonsterInitDead();
+}
+
+void CDeadHGrunt::Precache( void ) {
+	PRECACHE_MODEL_PAYNED( this );
 }

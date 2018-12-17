@@ -279,7 +279,7 @@ void CHeadCrab :: Spawn()
 {
 	Precache( );
 
-	SET_MODEL_PAYNED(ENT(pev), "models/headcrab.mdl");
+	SET_MODEL_PAYNED( this );
 	UTIL_SetSize(pev, Vector(-12, -12, 0), Vector(12, 12, 24));
 
 	pev->solid			= SOLID_SLIDEBOX;
@@ -307,7 +307,7 @@ void CHeadCrab :: Precache()
 	PRECACHE_SOUND_ARRAY(pDeathSounds);
 	PRECACHE_SOUND_ARRAY(pBiteSounds);
 
-	PRECACHE_MODEL_PAYNED( this, "models/headcrab.mdl" );
+	PRECACHE_MODEL_PAYNED( this );
 }	
 
 
