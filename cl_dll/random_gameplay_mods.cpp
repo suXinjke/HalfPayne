@@ -72,6 +72,9 @@ int CHudRandomGameplayMods::Draw( float flTime )
 		return 1;
 	}
 
+	int timeLeftXRight = ScreenWidth - ITEM_WIDTH * 2 - SPACING;
+	int timeLeftXLeft = timeLeftXRight;
+
 	int colAmount = min( 3, ( ScreenWidth - ITEM_WIDTH * 2 ) / ( ITEM_WIDTH + SPACING ) );
 	for ( size_t i = 0; i < proposedGameplayModsClient.size(); i++ ) {
 		auto &proposedMod = proposedGameplayModsClient.at( i );
@@ -80,6 +83,9 @@ int CHudRandomGameplayMods::Draw( float flTime )
 		int col = i % colAmount;
 
 		int x = ScreenWidth - ITEM_WIDTH - col * ITEM_WIDTH - SPACING * col - ITEM_WIDTH * 2 - SPACING;
+		if ( x < timeLeftXLeft ) {
+			timeLeftXLeft = x;
+		}
 
 		int y = CORNER_OFFSET + ITEM_HEIGHT * row;
 
@@ -119,6 +125,9 @@ int CHudRandomGameplayMods::Draw( float flTime )
 			}
 		}
 	}
+
+	int timeLeftWidth = ( gameplayModsData.timeLeftUntilNextRandomGameplayMod / randomGameplayMods->timeForRandomGameplayModVoting ) * ( timeLeftXRight - timeLeftXLeft );
+	FillRGBA( timeLeftXLeft, CORNER_OFFSET - 2, timeLeftWidth, 1, 255, 255, 255, 120 );
 
 	if ( gameplayModsData.timeLeftUntilNextRandomGameplayMod >= 3.0f ) {
 		timeUntilNextHighlight = 0.0f;
