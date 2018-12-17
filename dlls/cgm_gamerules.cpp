@@ -413,6 +413,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			
 			auto filteredMods = aux::ctr::filter( allowedForRandom, [this]( GameplayMod *mod ) {
 
+				if ( aux::ctr::includes( gameplayMods::previouslyProposedRandomMods, mod ) ) {
+					return true;
+				}
+
 				if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod->id ) ) {
 					return false;
 				}
@@ -430,12 +434,15 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 			for ( int i = 0; i < 3; i++ ) {
 				if ( filteredMods.empty() ) {
+					previouslyProposedRandomMods.clear();
 					break;
 				}
 
 				auto randomMod = aux::rand::choice( filteredMods );
 				filteredMods.erase( randomMod );
 				proposedGameplayMods.push_back( { randomMod, randomMod->GetRandomArguments() } );
+
+				previouslyProposedRandomMods.insert( randomMod );
 			}
 
 			if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {

@@ -335,6 +335,7 @@ namespace gameplayMods {
 
 	extern std::map<std::string, GameplayMod *> byString;
 	extern std::set<GameplayMod *> allowedForRandom;
+	extern std::set<GameplayMod *> previouslyProposedRandomMods;
 
 	extern std::map<GameplayMod *, std::vector<Argument>> forceEnabledMods;
 	extern std::set<GameplayMod *> forceDisabledMods;

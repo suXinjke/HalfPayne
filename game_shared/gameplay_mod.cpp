@@ -350,6 +350,7 @@ void GameplayModData::AddArrayFieldDefinitions() {
 
 std::map<std::string, GameplayMod *> gameplayMods::byString;
 std::set<GameplayMod *> gameplayMods::allowedForRandom;
+std::set<GameplayMod *> gameplayMods::previouslyProposedRandomMods;
 std::map<GameplayMod *, std::vector<Argument>> gameplayMods::forceEnabledMods;
 std::set<GameplayMod *> gameplayMods::forceDisabledMods;
 std::vector<ProposedGameplayMod> gameplayMods::proposedGameplayMods;
