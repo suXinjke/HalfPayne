@@ -26,7 +26,7 @@
 #include	"monsters.h"
 #include	"weapons.h"
 #include	"soundent.h"
-
+#include	"gameplay_mod.h"
 
 #define ACT_T_IDLE		1010
 #define ACT_T_TAP			1020
@@ -960,19 +960,18 @@ void CTentacle :: HitTouch( CBaseEntity *pOther )
 	if (tr.pHit == NULL || tr.pHit->v.modelindex != pev->modelindex)
 		return;
 
-	if (tr.iHitgroup >= 3)
-	{
+	if ( gameplayMods::payned.isActive() ) {
 		pOther->TakeDamage( pev, pev, m_iHitDmg, DMG_CRUSH );
-		// ALERT( at_console, "wack %3d : ", m_iHitDmg );
-	}
-	else if (tr.iHitgroup != 0)
-	{
-		pOther->TakeDamage( pev, pev, 20, DMG_CRUSH );
-		// ALERT( at_console, "tap  %3d : ", 20 );
-	}
-	else
-	{
-		return; // Huh?
+	} else {
+		if ( tr.iHitgroup >= 3 ) {
+			pOther->TakeDamage( pev, pev, m_iHitDmg, DMG_CRUSH );
+			// ALERT( at_console, "wack %3d : ", m_iHitDmg );
+		} else if ( tr.iHitgroup != 0 ) {
+			pOther->TakeDamage( pev, pev, 20, DMG_CRUSH );
+			// ALERT( at_console, "tap  %3d : ", 20 );
+		} else {
+			return; // Huh?
+		}
 	}
 
 	m_flHitTime = gpGlobals->time + 0.5;
