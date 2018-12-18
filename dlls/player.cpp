@@ -4007,6 +4007,9 @@ void CBasePlayer::Spawn( void )
 	delayedMusicNoSlowmotionEffects = false;
 
 	g_pGameRules->PlayerSpawn( this );
+
+	MESSAGE_BEGIN( MSG_ALL, gmsgBassStopC );
+	MESSAGE_END();
 }
 
 void CBasePlayer::SayRandomSwear()
