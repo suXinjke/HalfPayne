@@ -624,6 +624,7 @@ void ClientCommand( edict_t *pEntity )
 		}
 
 		GameplayModData::ToggleForceEnabledGameplayMod( CMD_ARGS() );
+		gameplayModsData.usedCheat = true;
 	}
 	else if ( FStrEq( pcmd, "gameplay_demod" ) )
 	{
@@ -632,6 +633,7 @@ void ClientCommand( edict_t *pEntity )
 		}
 
 		GameplayModData::ToggleForceDisabledGameplayMod( CMD_ARGS() );
+		gameplayModsData.usedCheat = true;
 	}
 	else if ( FStrEq( pcmd, "gameplay_mod_can_be_activated_randomly" ) ) {
 		if ( CMD_ARGC() < 2 ) {
@@ -656,7 +658,7 @@ void ClientCommand( edict_t *pEntity )
 			if ( CBasePlayer *player = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
 				if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() ) {
 					cgm->VoteForRandomGameplayMod( player, sender, modIndex );
-					gameplayModsData.cheated = true;
+					gameplayModsData.usedCheat = true;
 				}
 			}
 		}
