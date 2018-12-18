@@ -278,8 +278,6 @@ void GameplayModData::SendToClient() {
 			MESSAGE_END();
 		}
 	} else {
-		gameplayMods::proposedGameplayMods.clear();
-		gameplayMods::timedGameplayMods.clear();
 
 		MESSAGE_BEGIN( MSG_ALL, gmsgGmplayPC );
 			WRITE_LONG( 0 );
@@ -296,6 +294,10 @@ void GameplayModData::SendToClient() {
 			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayCfg );
 				WRITE_STRING( lastConfigFile.c_str() );
 			MESSAGE_END();
+
+			gameplayMods::timedGameplayMods.clear();
+			gameplayMods::proposedGameplayMods.clear();
+			gameplayMods::previouslyProposedRandomMods.clear();
 		}
 	}
 }
@@ -309,8 +311,8 @@ bool gameplayMods::AllowedToVoteOnRandomGameplayMods() {
 	}
 
 	return gameplayMods::proposedGameplayMods.size() > 0 &&
-		randomGameplayMods->timeForRandomGameplayMod >= 10.0f &&
-		gameplayModsData.timeLeftUntilNextRandomGameplayMod < randomGameplayMods->timeForRandomGameplayModVoting;
+		randomGameplayMods->timeForRandomGameplayModVoting >= 10.0f &&
+		gameplayModsData.timeLeftUntilNextRandomGameplayMod <= randomGameplayMods->timeForRandomGameplayModVoting;
 }
 
 bool gameplayMods::PaynedSoundsEnabled( bool isMonster ) {
