@@ -983,6 +983,15 @@ void EntitySpawnData::UpdateSpawnFlags() {
 bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer, bool useSeed ) {
 #ifndef CLIENT_DLL
 
+	if ( aux::str::startsWith( this->name, "monster" ) ) {
+		CBaseEntity *pEntity = NULL;
+		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, Vector( 0, 0, 0 ), 8192.0f ) ) != NULL ) {
+			if ( std::string( STRING( pEntity->pev->classname ) ) == "player_loadsaved" ) {
+				return false;
+			}
+		}
+	}
+
 	static std::mt19937 gen;
 	static std::uniform_real_distribution<float> posDis( -4096, 4096 );
 	static std::uniform_real_distribution<float> angDis( 0, 360 );
@@ -1029,10 +1038,25 @@ bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer, bool use
 
 		randomPoint = tr.vecEndPos;
 
-		// Check there are no monsters around
-		CBaseEntity *list[1] = { NULL };
-		UTIL_MonstersInSphere( list, 1, randomPoint, 32.0f );
-		if ( list[0] != NULL ) {
+		bool hasFaultyEntityNearby = false;
+
+		CBaseEntity *pEntity = NULL;
+		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, randomPoint, 80.0f ) ) != NULL ) {
+			std::string classname = STRING( pEntity->pev->classname );
+			if (
+				aux::str::startsWith( classname, "monster" ) ||
+				classname == "func_door" ||
+				classname == "func_door_rotating" ||
+				classname == "func_rot_button" ||
+				classname == "func_rotating" ||
+				classname == "func_train"
+			) {
+				hasFaultyEntityNearby = true;
+				break;
+			}
+		}
+
+		if ( hasFaultyEntityNearby ) {
 			continue;
 		}
 
