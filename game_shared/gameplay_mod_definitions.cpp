@@ -472,6 +472,10 @@ GameplayMod &::noFallDamage = GameplayMod::Define( "no_fall_damage", "No fall da
 	return std::nullopt;
 } );
 
+GameplayMod &::noGameTitle = GameplayMod::Define( "no_game_title", "No game title" )
+.Description( "Prevents game title from appearing." )
+.CannotBeActivatedRandomly();
+
 GameplayMod &::noJumping = GameplayMod::Define( "no_jumping", "No jumping" )
 .Description( "Don't allow to jump." )
 .CannotBeActivatedRandomly();
@@ -538,6 +542,10 @@ GameplayMod &::noSecondaryAttack = GameplayMod::Define( "no_secondary_attack", "
 
 GameplayMod &::noSmgGrenadePickup = GameplayMod::Define( "no_smg_grenade_pickup", "No SMG grenade pickup" )
 .Description( "You're not allowed to pickup and use SMG (MP5) grenades." )
+.CannotBeActivatedRandomly();
+
+GameplayMod &::noStartDark = GameplayMod::Define( "no_start_dark", "No start dark" )
+.Description( "Prevents game fading out from dark at the start." )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noTargetConstant = GameplayMod::Define( "no_target", "No target" )

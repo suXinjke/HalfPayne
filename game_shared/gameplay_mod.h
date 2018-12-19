@@ -410,6 +410,7 @@ namespace gameplayMods {
 	extern GameplayMod& kerotanDetector;
 
 	extern GameplayMod& noFallDamage;
+	extern GameplayMod& noGameTitle;
 	extern GameplayMod& noJumping;
 	extern GameplayMod& noHealing;
 	extern GameplayMod& noMapMusic;
@@ -417,6 +418,7 @@ namespace gameplayMods {
 	extern GameplayMod& noSaving;
 	extern GameplayMod& noSecondaryAttack;
 	extern GameplayMod& noSmgGrenadePickup;
+	extern GameplayMod& noStartDark;
 	extern GameplayMod& noTargetConstant;
 	extern GameplayMod& noWalking;
 	

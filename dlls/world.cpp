@@ -667,12 +667,12 @@ void CWorld :: Precache( void )
 		}
 	}
 
-	if ( pev->spawnflags & SF_WORLD_DARK )
+	if ( pev->spawnflags & SF_WORLD_DARK && !gameplayMods::noStartDark.isActive() )
 		CVAR_SET_FLOAT( "v_dark", 1.0 );
 	else
 		CVAR_SET_FLOAT( "v_dark", 0.0 );
 
-	if ( pev->spawnflags & SF_WORLD_TITLE )
+	if ( pev->spawnflags & SF_WORLD_TITLE && !gameplayMods::noGameTitle.isActive() )
 		gDisplayTitle = TRUE;		// display the game title if this key is set
 	else
 		gDisplayTitle = FALSE;
