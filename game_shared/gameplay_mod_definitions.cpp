@@ -180,7 +180,7 @@ GameplayMod &::drunkFOV = GameplayMod::Define( "drunk_fov", "Drunk FOV" )
 	Argument( "fov_offset_amplitude" ).IsOptional().MinMax( 0.01, 100 ).RandomMinMax( 0, 30 ).Default( "10" ).Description( []( const std::string string, float value ) {
 		return "FOV offset amplitude: " + std::to_string( value ) + " deg\n";
 	} ),
-	Argument( "fov_offset_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.1, 15 ).Default( "1" ).Description( []( const std::string string, float value ) {
+	Argument( "fov_offset_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.1, 5 ).Default( "1" ).Description( []( const std::string string, float value ) {
 		return "FOV offset frequency: " + std::to_string( value ) + "\n";
 	} ),
 } )
