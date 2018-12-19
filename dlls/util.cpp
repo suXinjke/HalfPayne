@@ -2809,6 +2809,9 @@ std::map<std::string, std::pair<const char *, const char *>> paynedModels = {
 	{ "monster_zombie", { "models/zombie.mdl", "models/payned/zombie.mdl" } },
 	{ "xen_tree", { "models/tree.mdl", "models/payned/tree.mdl" } },
 	{ "xen_plantlight", { "models/light.mdl", "models/payned/light.mdl" } },
+
+	// dumb exception because baby crab calls inherited crab spawn function
+	{ "monster_babycrab", { "models/baby_headcrab.mdl", "models/baby_headcrab.mdl" } },
 };
 
 void PRECACHE_MODEL_PAYNED( CBaseEntity *entity ) {
