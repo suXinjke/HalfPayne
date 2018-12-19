@@ -418,7 +418,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			auto filteredMods = aux::ctr::filter( allowedForRandom, [this]( GameplayMod *mod ) {
 
 				if ( aux::ctr::includes( gameplayMods::previouslyProposedRandomMods, mod ) ) {
-					return true;
+					return false;
 				}
 
 				if ( !config.randomModsWhitelist.empty() && !aux::ctr::includes( config.randomModsWhitelist, mod->id ) ) {
