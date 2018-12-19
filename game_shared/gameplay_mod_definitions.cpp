@@ -706,7 +706,6 @@ GameplayMod &::randomSpawnerSeed = GameplayMod::Define( "random_spawner_seed", "
 		return "Seed: " + string + " \n";
 	} )
 } )
-.ForceDefaultArguments( "" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::scoreAttack = GameplayMod::Define( "score_attack", "Score attack" )

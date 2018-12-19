@@ -191,6 +191,7 @@ public:
 	FieldInt( gungameSeed, 0 );
 	FieldInt( gungameWeaponSelection, 0 );
 	
+	FieldInt( randomSpawnerSeed, 0 );
 	FieldInt( randomSpawnerCalls, 0 );
 
 	FieldInt( fade, 255 );

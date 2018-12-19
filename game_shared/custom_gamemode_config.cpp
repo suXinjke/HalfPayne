@@ -980,15 +980,20 @@ void EntitySpawnData::UpdateSpawnFlags() {
 	}
 }
 
-bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer ) {
+bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer, bool useSeed ) {
 #ifndef CLIENT_DLL
 
 	static std::mt19937 gen;
 	static std::uniform_real_distribution<float> posDis( -4096, 4096 );
 	static std::uniform_real_distribution<float> angDis( 0, 360 );
 
-	if ( auto randomSpawnerSeed = gameplayMods::randomSpawnerSeed.isActive<std::string>() ) {
-		auto seed = std::to_string( gameplayModsData.randomSpawnerCalls ) + *randomSpawnerSeed + STRING( gpGlobals->mapname );
+	if ( useSeed ) {
+		std::string randomSpawnerSeed = std::to_string( gameplayModsData.randomSpawnerSeed );
+		if ( auto configFileSeed = gameplayMods::randomSpawnerSeed.isActive<std::string>() ) {
+			randomSpawnerSeed = *configFileSeed;
+		}
+
+		auto seed = std::to_string( gameplayModsData.randomSpawnerCalls ) + randomSpawnerSeed + STRING( gpGlobals->mapname );
 		gen.seed( std::seed_seq( seed.begin(), seed.end() ) );
 
 		gameplayModsData.randomSpawnerCalls++;
