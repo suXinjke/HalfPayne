@@ -1054,10 +1054,12 @@ GameplayMod &::weaponRestricted = GameplayMod::Define( "weapon_restricted", "Wea
 )
 .CannotBeActivatedRandomly();
 
-
+#ifndef CLIENT_DLL
+extern int gEvilImpulse101;
+#endif
 GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_weapon", "Give random weapon" )
 .OnEventInit( []() -> std::pair<std::string, std::string> {
-
+#ifndef CLIENT_DLL
 	static std::vector<std::pair<const char *, const char *>> allowedRandomWeapons = {
 		{ "weapon_9mmhandgun", "Beretta" },
 		{ "weapon_shotgun", "Shotgun" },
@@ -1080,12 +1082,20 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 		float hud_autoswitch = CVAR_GET_FLOAT( "hud_autoswitch" );
 		auto &weapon = aux::rand::choice( allowedRandomWeapons );
 		CVAR_SET_FLOAT( "hud_autoswitch", 0.0f );
+		
+		gEvilImpulse101 = TRUE;
 		player->GiveNamedItem( weapon.first, true );
+		if ( auto playerWeapon = player->GetPlayerItem( weapon.first ) ) {
+			player->m_rgAmmo[playerWeapon->PrimaryAmmoIndex()] = playerWeapon->iMaxAmmo1();
+		}
+		gEvilImpulse101 = FALSE;
+
 		CVAR_SET_FLOAT( "hud_autoswitch", hud_autoswitch );
 		
 		return { "Received weapon", weapon.second };
 	}
 
+#endif
 	return { "", "" };
 } );
 
