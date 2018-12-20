@@ -1021,7 +1021,7 @@ bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer, bool use
 		sprintf( bottomTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint - gpGlobals->v_up * 8192 ) );
 		sprintf( upperTexture, "%s", g_engfuncs.pfnTraceTexture( NULL, randomPoint, randomPoint + gpGlobals->v_up * 8192 ) );
 
-		if ( FStrEq( bottomTexture, "(null)" ) || FStrEq( bottomTexture, "sky" ) || FStrEq( upperTexture, "(null)" ) ) {
+		if ( FStrEq( bottomTexture, "(null)" ) || FStrEq( bottomTexture, "sky" ) || FStrEq( bottomTexture, "black" ) || FStrEq( upperTexture, "(null)" ) ) {
 			continue;
 		}
 
