@@ -1049,7 +1049,8 @@ bool EntitySpawnData::DetermineBestSpawnPosition( CBasePlayer *pPlayer, bool use
 				classname == "func_door_rotating" ||
 				classname == "func_rot_button" ||
 				classname == "func_rotating" ||
-				classname == "func_train"
+				classname == "func_train" || 
+				classname == "func_tracktrain"
 			) {
 				hasFaultyEntityNearby = true;
 				break;
