@@ -207,8 +207,8 @@ void CCrossbowBolt::ExplodeThink( void )
 	int iContents = UTIL_PointContents ( pev->origin );
 	int iScale;
 	
-	pev->dmg = 40;
-	iScale = 10;
+	pev->dmg = 80;
+	iScale = 20;
 
 	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, pev->origin );
 		WRITE_BYTE( TE_EXPLOSION);		
