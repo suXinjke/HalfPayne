@@ -25,6 +25,7 @@
 #include "cbase.h"
 #include "trains.h"
 #include "saverestore.h"
+#include "gameplay_mod.h"
 
 static void PlatSpawnInsideTrigger(entvars_t* pevPlatform);
 
@@ -1015,14 +1016,23 @@ void CFuncTrackTrain :: Blocked( CBaseEntity *pOther )
 			deltaSpeed = 50;
 		if ( !pevOther->velocity.z )
 			pevOther->velocity.z += deltaSpeed;
+
+		if ( pev->dmg <= 0 && gameplayMods::scoreAttack.isActive() ) {
+			pOther->TakeDamage( pev, pev, 1, DMG_CRUSH );
+		}
 		return;
 	}
 	else
 		pevOther->velocity = (pevOther->origin - pev->origin ).Normalize() * pev->dmg;
 
 	ALERT( at_aiconsole, "TRAIN(%s): Blocked by %s (dmg:%.2f)\n", STRING(pev->targetname), STRING(pOther->pev->classname), pev->dmg );
-	if ( pev->dmg <= 0 )
+	if ( pev->dmg <= 0 ) {
+		if ( gameplayMods::scoreAttack.isActive() ) {
+			pOther->TakeDamage( pev, pev, 1, DMG_CRUSH );
+		}
 		return;
+	}
+
 	// we can't hurt this thing, so we're not concerned with it
 	pOther->TakeDamage(pev, pev, pev->dmg, DMG_CRUSH);
 }
