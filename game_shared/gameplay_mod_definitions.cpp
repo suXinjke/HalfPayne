@@ -394,11 +394,15 @@ GameplayMod &::instagib = GameplayMod::Define( "instagib", "Instagib" )
 GameplayMod &::infiniteAmmo = GameplayMod::Define( "infinite_ammo", "Infinite ammo" )
 .Description( "All weapons get infinite ammo." )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
-	if ( ::gungame.isActive() ) {
-		return "";
-	}
-
 	if ( auto player = GetPlayer() ) {
+		if ( ::gungame.isActive() ) {
+			if ( player->m_pActiveItem && FStrEq( STRING( player->m_pActiveItem->pev->classname ), "weapon_hornetgun" ) ) {
+				return std::nullopt;
+			}
+
+			return "";
+		}
+
 		static std::vector< CBasePlayer::DESPERATION_TYPE> desperations = {
 			CBasePlayer::DESPERATION_TYPE::DESPERATION_FIGHTING,
 			CBasePlayer::DESPERATION_TYPE::DESPERATION_REVENGE
