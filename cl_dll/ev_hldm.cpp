@@ -1168,7 +1168,7 @@ void EV_FireM249( event_args_t *args ) {
 	Vector ShellVelocity;
 	Vector ShellOrigin;
 
-	EV_GetDefaultShellInfo( args, args->origin, args->velocity, ShellVelocity, ShellOrigin, forward, right, up, -28.0, 24.0, 4.0 );
+	EV_GetDefaultShellInfo( args, args->origin, args->velocity, ShellVelocity, ShellOrigin, forward, right, up, 8, -2, 4 );
 
 	EV_EjectBrass( ShellOrigin, ShellVelocity, args->angles[1], iShell, TE_BOUNCE_SHELL );
 
