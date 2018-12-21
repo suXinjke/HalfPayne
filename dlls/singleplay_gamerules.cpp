@@ -340,8 +340,6 @@ CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData,
 	if ( dropResult <= 0 && ( shouldTryToMove && !WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) && !forceSpawn ) {
 		g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
 		return NULL;
-	} else {
-		entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
 	}
 
 	return entity;

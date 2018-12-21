@@ -1747,7 +1747,9 @@ void EntityRandomSpawnerController::Spawn( CBasePlayer *pPlayer ) {
 	}
 
 	if ( spawnData.DetermineBestSpawnPosition( pPlayer ) ) {
-		CCustomGameModeRules::SpawnBySpawnData( spawnData );
+		if ( auto entity = CCustomGameModeRules::SpawnBySpawnData( spawnData ) ) {
+			entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
+		}
 	}
 }
 

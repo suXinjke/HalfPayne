@@ -1178,6 +1178,7 @@ GameplayMod &::eventSpawnRandomMonsters = GameplayMod::Define( "event_spawn_rand
 					entity = rules->SpawnBySpawnData( spawnData );
 				}
 			} while ( !entity );
+			entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
 			spawnedEntities.insert( spawnData.name );
 		}
 	}
