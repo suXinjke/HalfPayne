@@ -252,7 +252,7 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 
 		for ( const auto &entitySpawn : config->entitySpawns ) {
 			if ( entitySpawn.Fits( modelIndex, className, targetName, firstTime ) ) {
-				SpawnBySpawnData( entitySpawn.entity );
+				SpawnBySpawnData( entitySpawn.entity, true );
 			}
 		}
 
@@ -320,7 +320,7 @@ void CHalfLifeRules::Precache()
 	}
 }
 
-CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData ) {
+CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData, bool forceSpawn ) {
 	CBaseEntity *entity = CBaseEntity::Create(
 		allowedEntities[CustomGameModeConfig::GetAllowedEntityIndex( spawnData.name.c_str() )],
 		Vector( spawnData.x, spawnData.y, spawnData.z ),
@@ -335,9 +335,9 @@ CBaseEntity* CHalfLifeRules::SpawnBySpawnData( const EntitySpawnData &spawnData 
 		entity->pev->targetname = ALLOC_STRING( spawnData.targetName.c_str() ); // memory leak
 	}
 
-	int dropResult = DROP_TO_FLOOR( ENT( entity->pev ) );
+	int dropResult = forceSpawn ? -1 : DROP_TO_FLOOR( ENT( entity->pev ) );
 	bool shouldTryToMove = entity->pev->movetype == MOVETYPE_BOUNCE || entity->pev->movetype == MOVETYPE_STEP;
-	if ( dropResult <= 0 && ( shouldTryToMove && !WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) ) {
+	if ( dropResult <= 0 && ( shouldTryToMove && !WALK_MOVE( entity->edict(), 0, 0, WALKMOVE_NORMAL ) ) && !forceSpawn ) {
 		g_engfuncs.pfnRemoveEntity( ENT( entity->pev ) );
 		return NULL;
 	} else {

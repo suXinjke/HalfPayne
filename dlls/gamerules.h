@@ -202,7 +202,7 @@ public:
 	virtual void HookModelIndex( CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName );
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime );
 	virtual void Precache();
-	static CBaseEntity* SpawnBySpawnData( const EntitySpawnData &spawnData );
+	static CBaseEntity* SpawnBySpawnData( const EntitySpawnData &spawnData, bool forceSpawn = false );
 	virtual void ApplyStartPositionToEntity( CBaseEntity *entity, const StartPosition &startPosition );
 
 // GR_Think
