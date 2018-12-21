@@ -2812,6 +2812,9 @@ std::map<std::string, std::pair<const char *, const char *>> paynedModels = {
 
 	// dumb exception because baby crab calls inherited crab spawn function
 	{ "monster_babycrab", { "models/baby_headcrab.mdl", "models/baby_headcrab.mdl" } },
+
+	// dumb exception for dead barney only
+	{ "monster_generic", { "models/barney.mdl", "models/payned/barney.mdl" } },
 };
 
 void PRECACHE_MODEL_PAYNED( CBaseEntity *entity ) {
