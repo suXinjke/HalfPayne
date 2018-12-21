@@ -342,8 +342,6 @@ void CCrossbow::PrimaryAttack( void )
 		return;
 	}
 
-	m_pPlayer->ApplyWeaponPushback( 200 );
-
 	FireBolt();
 }
 
@@ -392,6 +390,8 @@ void CCrossbow::FireSniperBolt()
 		ApplyMultiDamage( pev, m_pPlayer->pev );
 	}
 #endif
+
+	m_pPlayer->ApplyWeaponPushback( 200 );
 }
 
 void CCrossbow::FireBolt()
@@ -472,6 +472,8 @@ void CCrossbow::FireBolt()
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5.0;
 	else
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
+
+	m_pPlayer->ApplyWeaponPushback( 200 );
 }
 
 
