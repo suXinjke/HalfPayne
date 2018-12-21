@@ -493,7 +493,9 @@ void GameModeGUI_DrawConfigFileInfo( CustomGameModeConfig &config ) {
 			auto &mod = *pair.first;
 
 			ImGui::TextColored( ImVec4( 1, 0.66, 0, 1 ), ( ( first ? "" : "\n" ) + mod.name + "\n" ).c_str() );
-			ImGui::TextWrapped( mod.description.c_str() );
+			if ( !mod.description.empty() ) {
+				ImGui::TextWrapped( mod.description.c_str() );
+			}
 
 			for ( const auto &arg : pair.second ) {
 				if ( !arg.description.empty() ) {

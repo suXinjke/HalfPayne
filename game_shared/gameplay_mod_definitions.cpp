@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include "gamerules.h"
+#include "../fmt/printf.h"
 
 #ifdef CLIENT_DLL
 extern CustomGameModeConfig clientConfig;
@@ -16,24 +17,24 @@ using namespace gameplayMods;
 int g_autoSaved = 0;
 
 GameplayMod &::autoSavesOnly = GameplayMod::Define( "autosaves_only", "Autosaves only" )
-.Description( "Only autosaves are allowed. You are not allowed to quicksave." )
+.Description( "Only autosaves are allowed" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::blackMesaMinute = GameplayMod::Define( "black_mesa_minute", "Black Mesa Minute" )
-.Description( "Time-based game mode - rush against a minute, kill enemies to get more time." )
+.Description( "Time-based game mode - rush against a minute and kill enemies to get more time" )
 .CannotBeActivatedRandomly();;
 
 GameplayMod &::bleeding = GameplayMod::Define( "bleeding", "Bleeding" )
-.Description( "After your last painkiller take, you start to lose health." )
+.Description( "After your last painkiller take, you start to lose health" )
 .Arguments( {
 	Argument( "bleeding_handicap" ).IsOptional().MinMax( 0, 99 ).RandomMinMax( 10, 50 ).Default( "20" ).Description( []( const std::string string, float value ) {
-		return "Bleeding until " + std::to_string( value ) + "%% health left\n";
+		return fmt::sprintf( "Bleeding until %.0f health left", value );
 	} ),
 	Argument( "bleeding_update_period" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.1, 0.2 ).Default( "1" ).Description( []( const std::string string, float value ) {
-		return "Bleed update period: " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Bleed update period: %.2f sec", value );
 	} ),
 	Argument( "bleeding_immunity_period" ).IsOptional().MinMax( 0.05 ).RandomMinMax( 3, 10 ).Default( "10" ).Description( []( const std::string string, float value ) {
-		return "Bleed again after healing in: " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Bleed again after healing in: %.1f sec", value );
 	} )
 } );
 
@@ -43,11 +44,11 @@ GameplayMod &::bulletPhysics = GameplayMod::Define( "bullet_physics", "Bullet ph
 		if ( string == "disabled" ) {
 			return "Bullet physics is disabled";
 		} else if ( string == "for_enemies_and_player_on_slowmotion" ) {
-			return "Bullet physics will be active for both enemies and player only when slowmotion is present.";
+			return "Bullet physics will be active for both enemies and player only when slowmotion is present";
 		} else if ( string == "constant" ) {
-			return "Bullet physics is always present, even when slowmotion is NOT present.";
+			return "Bullet physics is always present, even when slowmotion is NOT present";
 		} else {
-			return "Bullet physics will be active only for enemies when slowmotion is present.";
+			return "Bullet physics will be active only for enemies when slowmotion is present";
 		}
 	} ),
 } )
@@ -76,21 +77,21 @@ GameplayMod &::bulletPhysics = GameplayMod::Define( "bullet_physics", "Bullet ph
 .CannotBeActivatedRandomly();
 
 GameplayMod &::bulletDelayOnSlowmotion = GameplayMod::Define( "bullet_delay_on_slowmotion", "Bullet delay on slowmotion" )
-.Description( "When slowmotion is activated, physical bullets shot by you will move slowly until you turn off the slowmotion." );
+.Description( "Physical bullets shot by during slowmotion will move slowly until it's turned off" );
 
 GameplayMod &::bulletRicochet = GameplayMod::Define( "bullet_ricochet", "Bullet ricochet" )
-.Description( "Physical bullets ricochet off the walls." )
+.Description( "Physical bullets ricochet off the walls" )
 .Arguments( {
 	Argument( "bullet_ricochet_count" ).MinMax( 0 ).RandomMinMax( 2, 20 ).Default( "2" ).Description( []( const std::string string, float value ) {
-		return "Max ricochets: " + ( value <= 0 ? "Infinite" : std::to_string( value ) ) + "\n";
+		return value <= 0 ? "Max ricochets: Infinite" : fmt::sprintf( "Max ricochets: %.0f", value );
 	} ),
 	Argument( "bullet_ricochet_max_degree" ).MinMax( 1, 90 ).RandomMinMax( 30, 90 ).Default( "45" ).Description( []( const std::string string, float value ) {
-		return "Max angle for ricochet: " + std::to_string( value ) + " deg \n";
+		return fmt::sprintf( "Max angle for ricochet: %.0f deg", value );
 	} ),
 } );
 
 GameplayMod &::bulletSelfHarm = GameplayMod::Define( "bullet_self_harm", "Bullet self harm" )
-.Description( "Physical bullets shot by player can harm back (ricochet mod is required)." )
+.Description( "Physical bullets shot by player can harm back" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::randomGameplayMods.isActive() && ( ::bulletRicochet.isActive() || ::bulletDelayOnSlowmotion.isActive() ) ) {
 		return "";
@@ -101,7 +102,7 @@ GameplayMod &::bulletSelfHarm = GameplayMod::Define( "bullet_self_harm", "Bullet
 .CannotBeActivatedRandomly();
 
 GameplayMod &::bulletTrail = GameplayMod::Define( "bullet_trail_constant", "Bullet trail constant" )
-.Description( "Physical bullets always get a trail, regardless if slowmotion is present." )
+.Description( "Physical bullets always get a trail, regardless if slowmotion is present" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( auto player = GetPlayer() ) {
 		if ( gameplayMods::IsSlowmotionEnabled() ) {
@@ -118,13 +119,13 @@ GameplayMod &::bulletTrail = GameplayMod::Define( "bullet_trail_constant", "Bull
 .CannotBeActivatedRandomly();
 
 GameplayMod &::cncSounds = GameplayMod::Define( "cnc_sounds", "Command & Conquer death sounds" )
-.Description( "Tribute to one of the best death sounds." )
+.Description( "Tribute to one of the best death sounds" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::deusExSounds.isActive();
 } );
 
 GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive_bolts", "Crossbow explosive bolts" )
-.Description( "Crossbow bolts explode when they hit the wall." )
+.Description( "Crossbow bolts explode when they hit the wall" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
 		return player->HasNamedPlayerItem( "weapon_crossbow" );
@@ -133,55 +134,55 @@ GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive
 } );
 
 GameplayMod &::deusExSounds = GameplayMod::Define( "deus_ex_sounds", "Deus EX death sounds" )
-.Description( "Self explanatory." )
+.Description( "Self explanatory" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::cncSounds.isActive();
 } );
 
 GameplayMod &::difficultyEasy = GameplayMod::Define( "easy", "Easy difficulty" )
-.Description( "Sets up easy level of difficulty." )
+.Description( "Sets up easy level of difficulty" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::difficultyHard = GameplayMod::Define( "hard", "Hard difficulty" )
-.Description( "Sets up hard level of difficulty." )
+.Description( "Sets up hard level of difficulty" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::divingAllowedWithoutSlowmotion = GameplayMod::Define( "diving_allowed_without_slowmotion", "Diving allowed without slowmotion" )
 .Description(
-	"You're still allowed to dive even if you have no slowmotion charge.\n"
-	"In that case you will dive without going into slowmotion."
+	"You're still allowed to dive even if you have no slowmotion charge\n"
+	"In that case you will dive without going into slowmotion"
 )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::divingOnly = GameplayMod::Define( "diving_only", "Diving only" )
 .Description(
-	"The only way to move around is by diving.\n"
-	"This enables Infinite slowmotion by default.\n"
-	"You can dive even when in crouch-like position, like when being in vents etc."
+	"The only way to move around is by diving\n"
+	"This enables Infinite slowmotion by default\n"
+	"You can dive even when in crouch-like position, like when being in vents etc"
 );
 
 GameplayMod &::drunkAim = GameplayMod::Define( "drunk_aim", "Drunk aim" )
-.Description( "Your aim becomes wobbly." )
+.Description( "Your aim becomes wobbly" )
 .Arguments( {
 	Argument( "max_horizontal_wobble" ).IsOptional().MinMax( 0, 25.5 ).RandomMinMax( 2, 25.5 ).Default( "20" ).Description( []( const std::string string, float value ) {
-		return "Max horizontal wobble: " + std::to_string( value ) + " deg\n";
+		return fmt::sprintf( "Max horizontal wobble: %.2f deg", value );
 	} ),
 	Argument( "max_vertical_wobble" ).IsOptional().MinMax( 0, 25.5 ).RandomMinMax( 2, 25.5 ).Default( "5" ).Description( []( const std::string string, float value ) {
-		return "Max vertical wobble: " + std::to_string( value ) + " deg\n";
+		return fmt::sprintf( "Max vertical wobble: %.2f deg", value );
 	} ),
 	Argument( "wobble_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.05, 6 ).Default( "1" ).Description( []( const std::string string, float value ) {
-		return "Wobble frequency: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Wobble frequency: %.2f", value );
 	} ),
 } );
 
 GameplayMod &::drunkFOV = GameplayMod::Define( "drunk_fov", "Drunk FOV" )
-.Description( "Your field of view becomes wobbly." )
+.Description( "Your field of view becomes wobbly" )
 .Arguments( {
 	Argument( "fov_offset_amplitude" ).IsOptional().MinMax( 0.01, 100 ).RandomMinMax( 0, 30 ).Default( "10" ).Description( []( const std::string string, float value ) {
-		return "FOV offset amplitude: " + std::to_string( value ) + " deg\n";
+		return fmt::sprintf( "FOV offset amplitude: %.1f deg", value );
 	} ),
 	Argument( "fov_offset_frequency" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.1, 5 ).Default( "1" ).Description( []( const std::string string, float value ) {
-		return "FOV offset frequency: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "FOV offset frequency: %.2f", value );
 	} ),
 } )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
@@ -193,10 +194,10 @@ GameplayMod &::drunkFOV = GameplayMod::Define( "drunk_fov", "Drunk FOV" )
 } );
 
 GameplayMod &::drunkLook = GameplayMod::Define( "drunk_look", "Drunk look" )
-.Description( "Camera view becomes wobbly and makes aim harder." )
+.Description( "Camera view becomes wobbly and makes aim harder" )
 .Arguments( {
 	Argument( "drunkiness" ).IsOptional().MinMax( 0.1, 1000 ).RandomMinMax( 25, 100 ).Default( "25" ).Description( []( const std::string string, float value ) {
-		return "Drunkiness: " + std::to_string( value ) + "%%\n";
+		return fmt::sprintf( "Drunkiness: %.0f percent", value );
 	} ),
 } )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
@@ -208,7 +209,7 @@ GameplayMod &::drunkLook = GameplayMod::Define( "drunk_look", "Drunk look" )
 } );
 
 GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Explosion jumping" )
-.Description( "Your explosives don't harm you, but you can still do jumps with that." )
+.Description( "Your explosives don't harm you, but you can still do jumps with that" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if (
@@ -233,29 +234,29 @@ GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Exp
 
 GameplayMod &::fadingOut = GameplayMod::Define( "fading_out", "Fading out" )
 .Description(
-	"View is fading out, or in other words it's blacking out until you can't see almost anything.\n"
-	"Take painkillers to restore the vision.\n"
-	"Allows to take painkillers even when you have 100 health and enough time have passed since the last take."
+	"View is fading out, or in other words it's blacking out until you can't see almost anything\n"
+	"Take painkillers to restore the vision\n"
+	"Allows to take painkillers even when you have 100 health and enough time have passed since the last take"
 )
 .Arguments( {
 	Argument( "fade_out_percent" ).IsOptional().MinMax( 0, 100 ).RandomMinMax( 50, 90 ).Default( "90" ).Description( []( const std::string string, float value ) {
-		return "Fade out intensity: " + std::to_string( value ) + "%%\n";
+		return fmt::sprintf( "Fade out intensity: %.0f percent", value );
 	} ),
 	Argument( "fade_out_update_period" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.2, 0.5 ).Default( "0.5" ).Description( []( const std::string string, float value ) {
-		return "Fade out update period: " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Fade out update period: %.1f sec", value );
 	} )
 } );
 
 GameplayMod &::frictionOverride = GameplayMod::Define( "friction", "Friction" )
-.Description( "Changes player's friction." )
+.Description( "Changes player's friction" )
 .Arguments( {
 	Argument( "friction" ).IsOptional().MinMax( 0 ).RandomMinMax( 0, 1 ).Default( "4" ).Description( []( const std::string string, float value ) {
-		return "Friction: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Friction: %.1f", value );
 	} )
 } );
 
 GameplayMod &::gaussFastCharge = GameplayMod::Define( "gauss_fast_charge", "Gauss fast charge" )
-.Description( "Gauss charges faster like in multiplayer." )
+.Description( "Gauss charges faster like in multiplayer" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
 		return player->HasNamedPlayerItem( "weapon_gauss" );
@@ -264,7 +265,7 @@ GameplayMod &::gaussFastCharge = GameplayMod::Define( "gauss_fast_charge", "Gaus
 } );
 	
 GameplayMod &::gaussJumping = GameplayMod::Define( "gauss_jumping", "Gauss jumping" )
-.Description( "Allows for easier gauss jumping like in multiplayer." )
+.Description( "Allows for easier gauss jumping like in multiplayer" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
 		return player->HasNamedPlayerItem( "weapon_gauss" );
@@ -273,7 +274,7 @@ GameplayMod &::gaussJumping = GameplayMod::Define( "gauss_jumping", "Gauss jumpi
 } );
 
 GameplayMod &::gaussNoSelfGauss = GameplayMod::Define( "no_self_gauss", "No self gauss" )
-.Description( "Prevents self gauss effect." )
+.Description( "Prevents self gauss effect" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::randomGameplayMods.isActive() && ::instagib.isActive() ) {
 		return "";
@@ -284,19 +285,19 @@ GameplayMod &::gaussNoSelfGauss = GameplayMod::Define( "no_self_gauss", "No self
 .CannotBeActivatedRandomly();
 
 GameplayMod &::gibsAlways = GameplayMod::Define( "always_gib", "Always gib" )
-.Description( "Kills will always try to result in gibbing." );
+.Description( "Kills will always try to result in gibbing" );
 
 GameplayMod &::gibsEdible = GameplayMod::Define( "edible_gibs", "Edible gibs" )
-.Description( "Allows you to eat gibs by pressing USE when aiming at the gib, which restore your health by 5." );
+.Description( "Allows you to eat gibs by pressing USE when aiming at the gib, which restore your health by 5" );
 
 GameplayMod &::gibsGarbage = GameplayMod::Define( "garbage_gibs", "Garbage gibs" )
-.Description( "Replaces all gibs with garbage." );
+.Description( "Replaces all gibs with garbage" );
 
 GameplayMod &::grenadePellets = GameplayMod::Define( "grenade_pellets", "Grenade pellets" )
 .Description( "Additional pellets will emerge after grenade explosion" )
 .Arguments( {
 	Argument( "pellet_amount" ).IsOptional().MinMax( 4, 64 ).RandomMinMax( 48, 64 ).Default( "48" ).Description( []( const std::string string, float value ) {
-		return "Pellet amount: " + std::to_string( value ) + " \n";
+		return fmt::sprintf( "Pellet amount: %.0f", value );
 	} )
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
@@ -328,20 +329,20 @@ GameplayMod &::grenadePellets = GameplayMod::Define( "grenade_pellets", "Grenade
 } );
 
 GameplayMod &::godConstant = GameplayMod::Define( "god", "God mode" )
-.Description( "You are invincible and it doesn't count as a cheat." )
+.Description( "You are invincible and it doesn't count as a cheat" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::gungame = GameplayMod::Define( "gungame", "Gungame" )
 .Description( "Kill enemies to switch weapons" )
 .Arguments( {
 	Argument( "amount_of_kills" ).IsOptional().MinMax( 0 ).RandomMinMax( 1, 5 ).Default( "1" ).Description( []( const std::string string, float value ) {
-		return "Amount of kills required to get next weapon: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Amount of kills required to get next weapon: %.0f", value );
 	} ),
 	Argument( "weapon_switch_time" ).IsOptional().MinMax( 0 ).Default( "0" ).Description( []( const std::string string, float value ) {
 		if ( value <= 0.0f ) {
-			return std::string( "Weapon won't be switched until you do enough kills\n" );
+			return std::string( "Weapon won't be switched until you do enough kills" );
 		} else {
-			return "Amount of kills required to get next weapon: " + std::to_string( value ) + "\n";
+			return fmt::sprintf( "Amount of kills required to get next weapon: %.0f", value );
 		}
 	} ),
 	Argument( "sequential" ).IsOptional().Default( "" ).Description( []( const std::string string, float value ) {
@@ -350,37 +351,37 @@ GameplayMod &::gungame = GameplayMod::Define( "gungame", "Gungame" )
 } );
 
 GameplayMod &::headshots = GameplayMod::Define( "headshots", "Headshots" )
-.Description( "Headshots dealt to enemies become much more deadly." )
+.Description( "Headshots dealt to enemies become much more deadly" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::healthRegeneration = GameplayMod::Define( "health_regeneration", "Health regeneration" )
-.Description( "Allows for health regeneration options." )
+.Description( "Allows for health regeneration options" )
 .Arguments( {
 	Argument( "regeneration_max" ).IsOptional().MinMax( 0 ).Default( "20" ).Description( []( const std::string string, float value ) {
-		return "Regenerate up to: " + std::to_string( value ) + " HP\n";
+		return fmt::sprintf( "Regenerate up to: %.0f HP", value );
 	} ),
 	Argument( "regeneration_delay" ).IsOptional().MinMax( 0 ).Default( "3" ).Description( []( const std::string string, float value ) {
-		return std::to_string( value ) + " sec after last damage\n";
+		return fmt::sprintf( "%.1f sec after last damage", value );
 	} ),
 	Argument( "regeneration_frequency" ).IsOptional().MinMax( 0.01 ).Default( "0.2" ).Description( []( const std::string string, float value ) {
-		return "Regenerating: " + std::to_string( 1 / value ) + " HP/sec\n";
+		return fmt::sprintf( "Regenerating: %.1f HP/sec", 1.0f / value );
 	} )
 } )
 .ForceDefaultArguments( "20 3 0.2" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::healOnKill = GameplayMod::Define( "heal_on_kill", "Heal on kill" )
-.Description( "Your health will be replenished after killing an enemy." )
+.Description( "Your health will be replenished after killing an enemy" )
 .Arguments( {
-	Argument( "max_health_taken_percent" ).IsOptional().MinMax( 1, 5000 ).RandomMinMax( 50, 100 ).Default( "50" ).Description( []( const std::string string, float value ) {
-		return "Victim's max health taken after kill: " + std::to_string( value ) + "%%\n";
+	Argument( "max_health_taken_percent" ).IsOptional().MinMax( 1, 100 ).RandomMinMax( 50, 100 ).Default( "50" ).Description( []( const std::string string, float value ) {
+		return fmt::sprintf( "Victim's max health percent taken after kill: %.0f", value );
 	} ),
 } );
 
 GameplayMod &::instagib = GameplayMod::Define( "instagib", "Instagib" )
 .Description(
-	"Gauss Gun becomes much more deadly with 9999 damage, also gets red beam and slower rate of fire.\n"
-	"More gibs come out."
+	"Gauss Gun becomes much more deadly with 9999 damage, also gets red beam and slower rate of fire\n"
+	"More gibs come out"
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
@@ -392,7 +393,7 @@ GameplayMod &::instagib = GameplayMod::Define( "instagib", "Instagib" )
 } );
 
 GameplayMod &::infiniteAmmo = GameplayMod::Define( "infinite_ammo", "Infinite ammo" )
-.Description( "All weapons get infinite ammo." )
+.Description( "All weapons get infinite ammo" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( auto player = GetPlayer() ) {
 		if ( ::gungame.isActive() ) {
@@ -417,7 +418,7 @@ GameplayMod &::infiniteAmmo = GameplayMod::Define( "infinite_ammo", "Infinite am
 } );
 
 GameplayMod &::infiniteAmmoClip = GameplayMod::Define( "infinite_ammo_clip", "Infinite ammo clip" )
-.Description( "Most weapons get an infinite ammo clip and need no reloading." )
+.Description( "Most weapons get an infinite ammo clip and need no reloading" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	static std::vector<std::string> clipBasedWeapons = {
 		"weapon_9mmhandgun",
@@ -442,32 +443,32 @@ GameplayMod &::infiniteAmmoClip = GameplayMod::Define( "infinite_ammo_clip", "In
 } );
 
 GameplayMod &::initialClipAmmo = GameplayMod::Define( "initial_clip_ammo", "Initial ammo clip" )
-.Description( "All weapons will have specified ammount of ammo in the clip when first picked up." )
+.Description( "All weapons will have specified ammount of ammo in the clip when first picked up" )
 .Arguments( {
 	Argument( "initial_clip_ammo" ).IsOptional().MinMax( 1 ).Default( "4" ).Description( []( const std::string string, float value ) {
-		return "Initial ammo in the clip: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Initial ammo in the clip: %.0f", value );
 	} )
 } )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::initialHealth = GameplayMod::Define( "starting_health", "Starting Health" )
-.Description( "Start with specified health amount." )
+.Description( "Start with specified health amount" )
 .Arguments( {
 	Argument( "health_amount" ).IsOptional().MinMax( 1 ).Default( "100" ).Description( []( const std::string string, float value ) {
-		return "Health amount: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Health amount: %.0f", value );
 	} )
 } )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::inverseControls = GameplayMod::Define( "inverse_controls", "Inverse controls" )
-.Description( "Movement and view controls become inversed." );
+.Description( "Movement and view controls become inversed" );
 
 GameplayMod &::kerotanDetector = GameplayMod::Define( "kerotan_detector", "Kerotan detector" )
-.Description( "Kerotan frogs will call out to you when you get near them." )
+.Description( "Kerotan frogs will call out to you when you get near them" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noFallDamage = GameplayMod::Define( "no_fall_damage", "No fall damage" )
-.Description( "Self explanatory." )
+.Description( "Self explanatory" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::randomGameplayMods.isActive() && ::vvvvvv.isActive() ) {
 		return "";
@@ -477,19 +478,22 @@ GameplayMod &::noFallDamage = GameplayMod::Define( "no_fall_damage", "No fall da
 } );
 
 GameplayMod &::noGameTitle = GameplayMod::Define( "no_game_title", "No game title" )
-.Description( "Prevents game title from appearing." )
+.Description( "Prevents game title from appearing" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noJumping = GameplayMod::Define( "no_jumping", "No jumping" )
-.Description( "Don't allow to jump." )
+.Description( "Don't allow to jump" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noHealing = GameplayMod::Define( "no_healing", "No healing" )
-.Description( "Don't allow to heal in any way, including Xen healing pools." )
+.Description( "Don't allow to heal in any way, including Xen healing pools" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noMapMusic = GameplayMod::Define( "no_map_music", "No map music" )
-.Description( "Music which is defined by map will not be played.\nOnly the music defined in gameplay config files will play." )
+.Description(
+	"Music which is defined by map will not be played\n"
+	"Only the music defined in gameplay config files will play"
+)
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 #ifndef CLIENT_DLL
 	if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
@@ -511,11 +515,11 @@ GameplayMod &::noMapMusic = GameplayMod::Define( "no_map_music", "No map music" 
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noPainkillers = GameplayMod::Define( "no_pills", "No painkillers" )
-.Description( "Don't allow to take painkillers." )
+.Description( "Don't allow to take painkillers" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noSaving = GameplayMod::Define( "no_saving", "No saving" )
-.Description( "Don't allow to load saved files." )
+.Description( "Don't allow to load saved files" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( gameplayMods::autoSavesOnly.isActive() && !g_autoSaved ) {
 		return "";
@@ -526,7 +530,7 @@ GameplayMod &::noSaving = GameplayMod::Define( "no_saving", "No saving" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noSecondaryAttack = GameplayMod::Define( "no_secondary_attack", "No secondary attack" )
-.Description( "Disables the secondary attack on all weapons." )
+.Description( "Disables the secondary attack on all weapons" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	static std::vector<const char *> weaponsWithSecondaryAttack = { 
 		"weapon_shotgun",
@@ -545,25 +549,25 @@ GameplayMod &::noSecondaryAttack = GameplayMod::Define( "no_secondary_attack", "
 } );
 
 GameplayMod &::noSmgGrenadePickup = GameplayMod::Define( "no_smg_grenade_pickup", "No SMG grenade pickup" )
-.Description( "You're not allowed to pickup and use SMG (MP5) grenades." )
+.Description( "You're not allowed to pickup and use SMG (MP5) grenades" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noStartDark = GameplayMod::Define( "no_start_dark", "No start dark" )
-.Description( "Prevents game fading out from dark at the start." )
+.Description( "Prevents game fading out from dark at the start" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noTargetConstant = GameplayMod::Define( "no_target", "No target" )
-.Description( "You are invisible to everyone and it doesn't count as a cheat." )
+.Description( "You are invisible to everyone and it doesn't count as a cheat" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::noWalking = GameplayMod::Define( "no_walking", "No walking" )
-.Description( "Don't allow to walk, swim, dive, climb ladders." )
+.Description( "Don't allow to walk, swim, dive, climb ladders" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::oneHitKO = GameplayMod::Define( "one_hit_ko", "One hit KO" )
 .Description(
-	"Any hit from an enemy will kill you instantly.\n"
-	"You still get proper damage from falling and environment."
+	"Any hit from an enemy will kill you instantly\n"
+	"You still get proper damage from falling and environment"
 )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::randomGameplayMods.isActive() && ::superHot.isActive() ) {
@@ -574,7 +578,7 @@ GameplayMod &::oneHitKO = GameplayMod::Define( "one_hit_ko", "One hit KO" )
 } );
 
 GameplayMod &::oneHitKOFromPlayer = GameplayMod::Define( "one_hit_ko_from_player", "One hit KO from player" )
-.Description( "All enemies die in one hit." )
+.Description( "All enemies die in one hit" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::randomGameplayMods.isActive() && ::superHot.isActive() ) {
 		return "";
@@ -585,14 +589,14 @@ GameplayMod &::oneHitKOFromPlayer = GameplayMod::Define( "one_hit_ko_from_player
 .CannotBeActivatedRandomly();
 
 GameplayMod &::painkillersInfinite = GameplayMod::Define( "infinite_painkillers", "Infinite painkillers" )
-.Description( "Self explanatory." )
+.Description( "Self explanatory" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::painkillersSlow = GameplayMod::Define( "slow_painkillers", "Slow painkillers" )
-.Description( "Painkillers take time to have an effect, like in original Max Payne." )
+.Description( "Painkillers take time to have an effect, like in original Max Payne" )
 .Arguments( {
 	Argument( "healing_period" ).IsOptional().MinMax( 0.01 ).RandomMinMax( 0.1, 0.3 ).Default( "0.2" ).Description( []( const std::string string, float value ) {
-		return "Healing period " + std::to_string( value ) + " sec\n";
+		return fmt::sprintf( "Healing period %.1f sec", value );
 	} )
 } );
 
@@ -666,18 +670,18 @@ GameplayMod &::paynedSoundsMonsters = GameplayMod::Define( "payned_sounds_monste
 } );
 
 GameplayMod &::preventMonsterMovement = GameplayMod::Define( "prevent_monster_movement", "Prevent monster movement" )
-.Description( "Monsters will always stay at spawn spot." )
+.Description( "Monsters will always stay at spawn spot" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::preventMonsterSpawn = GameplayMod::Define( "prevent_monster_spawn", "Prevent monster spawn" )
 .Description(
-	"Don't spawn predefined monsters (NPCs) when visiting a new map.\n"
-	"This doesn't affect dynamic monster_spawners."
+	"Don't spawn predefined monsters (NPCs) when visiting a new map\n"
+	"This doesn't affect dynamic monster_spawners"
 )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::preventMonsterDrops = GameplayMod::Define( "prevent_monster_drops", "Prevent monster drops" )
-.Description( "Monsters won't drop anything when dying." )
+.Description( "Monsters won't drop anything when dying" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::preserveNightmare = GameplayMod::Define( "preserve_nightmare", "Preserve nightmare" )
@@ -685,34 +689,34 @@ GameplayMod &::preserveNightmare = GameplayMod::Define( "preserve_nightmare", "P
 .CannotBeActivatedRandomly();
 
 GameplayMod &::quakeRockets = GameplayMod::Define( "quake_rockets", "Quake rockets" )
-.Description( "RPG is much more fast and rockets are shot instantly." )
+.Description( "RPG is much more fast and rockets are shot instantly" )
 .Arguments( {
 	Argument( "fire_delay" ).IsOptional().MinMax( 0.1 ).Default( "0.8" ).Description( []( const std::string string, float value ) {
-		return "Fire delay: " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Fire delay: %.1f sec", value );
 	} ),
 	Argument( "speed" ).IsOptional().MinMax( 10, 2000 ).Default( "1500" ).Description( []( const std::string string, float value ) {
-		return "Rocket speed: " + std::to_string( value ) + " units \n";
+		return fmt::sprintf( "Rocket speed: %.0f units", value );
 	} ),
 } )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::randomGameplayMods = GameplayMod::Define( "random_gameplay_mods", "Random gameplay mods" )
-.Description( "Random gameplay mods." )
+.Description( "Random gameplay mods" )
 .Arguments( {
 	Argument( "time_for_random_gameplay_mod" ).IsOptional().MinMax( 1 ).Default( "60" ).Description( []( const std::string string, float value ) {
-		return "Random mod will last for " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Random mod will last for %.0f sec", value );
 	} ),
 	Argument( "time_until_next_random_gameplay_mod" ).IsOptional().MinMax( 2 ).Default( "180" ).Description( []( const std::string string, float value ) {
-		return "Random mods will be applied every: " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Random mods will be applied every %.0f sec", value );
 	} ),
 	Argument( "time_for_random_gameplay_mod_voting" ).IsOptional().MinMax( 0 ).Default( "30" ).Description( []( const std::string string, float value ) {
-		return "Upcoming random mods will be shown for: " + std::to_string( value ) + " sec \n";
+		return fmt::sprintf( "Upcoming random mods will be shown for %.0f sec", value );
 	} )
 } )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::randomSpawnerSeed = GameplayMod::Define( "random_spawner_seed", "Random spawner seed" )
-.Description( "Makes random spawns same for all players based on a seed." )
+.Description( "Makes random spawns same for all players based on a seed" )
 .Arguments( {
 	Argument( "seed" ).Description( []( const std::string string, float value ) {
 		return "Seed: " + string + " \n";
@@ -721,11 +725,11 @@ GameplayMod &::randomSpawnerSeed = GameplayMod::Define( "random_spawner_seed", "
 .CannotBeActivatedRandomly();
 
 GameplayMod &::scoreAttack = GameplayMod::Define( "score_attack", "Score attack" )
-.Description( "Kill enemies to get as much score as possible. Build combos to get even more score." )
+.Description( "Kill enemies to get as much score as possible. Build combos to get even more score" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::shotgunAutomatic = GameplayMod::Define( "shotgun_automatic", "Automatic shotgun" )
-.Description( "Shotgun only fires single shots and doesn't have to be reloaded after each shot." )
+.Description( "Shotgun only fires single shots and doesn't have to be reloaded after each shot" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
 		return player->HasNamedPlayerItem( "weapon_shotgun" );
@@ -738,7 +742,7 @@ GameplayMod &::shootUnderwater = GameplayMod::Define( "shoot_underwater", "Shoot
 .CannotBeActivatedRandomly();
 
 GameplayMod &::slowmotionConstant = GameplayMod::Define( "constant_slowmotion", "Constant slowmotion" )
-.Description( "You start in slowmotion, it's infinite and you can't turn it off." )
+.Description( "You start in slowmotion, it's infinite and you can't turn it off" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( GetMapName() == "nightmare" ) {
 		return "";
@@ -762,19 +766,19 @@ GameplayMod &::slowmotionConstant = GameplayMod::Define( "constant_slowmotion", 
 .CannotBeActivatedRandomly();
 
 GameplayMod &::slowmotionFastWalk = GameplayMod::Define( "slowmotion_fast_walk", "Fast walk in slowmotion" )
-.Description( "You still walk and run almost as fast as when slowmotion is not active." )
+.Description( "You still walk and run almost as fast as when slowmotion is not active" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::slowmotionForbidden.isActive();
 } );
 
 GameplayMod &::slowmotionForbidden = GameplayMod::Define( "no_slowmotion", "No slowmotion" )
-.Description( "You're not allowed to use slowmotion." )
+.Description( "You're not allowed to use slowmotion" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::slowmotionInfinite.isActive();
 } );
 
 GameplayMod &::slowmotionInfinite = GameplayMod::Define( "infinite_slowmotion", "Infinite slowmotion" )
-.Description( "You have infinite slowmotion charge and it's not considered as cheat." )
+.Description( "You have infinite slowmotion charge and it's not considered as cheat" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::slowmotionConstant.isActive() ) {
 		return "";
@@ -798,32 +802,32 @@ GameplayMod &::slowmotionInfinite = GameplayMod::Define( "infinite_slowmotion", 
 } );
 
 GameplayMod &::slowmotionInitialCharge = GameplayMod::Define( "initial_slowmotion_charge", "Initial slowmotion charge" )
-.Description( "Start with specified slowmotion charge." )
+.Description( "Start with specified slowmotion charge" )
 .Arguments( {
 	Argument( "slowmotion_charge" ).IsOptional().MinMax( 0, 100 ).Default( "0" ).Description( []( const std::string string, float value ) {
-		return std::to_string( value ) + "%% of slowmotion charge\n";
+		return fmt::sprintf( "%.0f percent of slowmotion charge", value );
 	} )
 } )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::slowmotionOnDamage = GameplayMod::Define( "slowmotion_on_damage", "Slowmotion on damage" )
-.Description( "You get slowmotion charge when receiving damage." )
+.Description( "You get slowmotion charge when receiving damage" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::slowmotionForbidden.isActive();
 } );
 
 GameplayMod &::slowmotionOnlyDiving = GameplayMod::Define( "slowmotion_only_diving", "Slowmotion only when diving" )
-.Description( "You're allowed to go into slowmotion only by diving." )
+.Description( "You're allowed to go into slowmotion only by diving" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::slowmotionForbidden.isActive();
 } );
 
 GameplayMod &::snarkFriendlyToAllies = GameplayMod::Define( "snark_friendly_to_allies", "Snarks friendly to allies" )
-.Description( "Snarks won't attack player's allies." )
+.Description( "Snarks won't attack player's allies" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::snarkFriendlyToPlayer = GameplayMod::Define( "snark_friendly_to_player", "Snarks friendly to player" )
-.Description( "Snarks won't attack player." )
+.Description( "Snarks won't attack player" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
@@ -834,13 +838,13 @@ GameplayMod &::snarkFriendlyToPlayer = GameplayMod::Define( "snark_friendly_to_p
 } );
 
 GameplayMod &::snarkFromExplosion = GameplayMod::Define( "snark_from_explosion", "Snark from explosion" )
-.Description( "Snarks will spawn in the place of explosion." );
+.Description( "Snarks will spawn in the place of explosion" );
 
 GameplayMod &::snarkInception = GameplayMod::Define( "snark_inception", "Snark inception" )
-.Description( "Killing snark splits it into two snarks." )
+.Description( "Killing snark splits it into two snarks" )
 .Arguments( {
 	Argument( "inception_depth" ).IsOptional().MinMax( 1, 100 ).RandomMinMax( 1, 1 ).Default( "10" ).Description( []( const std::string string, float value ) {
-		return "Inception depth: " + std::to_string( value ) + " snarks\n";
+		return fmt::sprintf( "Inception depth: %.0f snarks", value );
 	} )
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
@@ -854,12 +858,12 @@ GameplayMod &::snarkInception = GameplayMod::Define( "snark_inception", "Snark i
 
 GameplayMod &::snarkInfestation = GameplayMod::Define( "snark_infestation", "Snark infestation" )
 .Description(
-	"Snark will spawn in the body of killed monster (NPC).\n"
-	"Even more snarks spawn if monster's corpse has been gibbed."
+	"Snark will spawn in the body of killed monster (NPC)\n"
+	"Even more snarks spawn if monster's corpse has been gibbed"
 );
 
 GameplayMod &::snarkNuclear = GameplayMod::Define( "snark_nuclear", "Snark nuclear" )
-.Description( "Killing snark produces a grenade-like explosion." )
+.Description( "Killing snark produces a grenade-like explosion" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
@@ -870,7 +874,7 @@ GameplayMod &::snarkNuclear = GameplayMod::Define( "snark_nuclear", "Snark nucle
 } );
 
 GameplayMod &::snarkPenguins = GameplayMod::Define( "snark_penguins", "Snark penguins" )
-.Description( "Replaces snarks with penguins from Opposing Force.\n" )
+.Description( "Replaces snarks with penguins from Opposing Force\n" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
@@ -881,7 +885,7 @@ GameplayMod &::snarkPenguins = GameplayMod::Define( "snark_penguins", "Snark pen
 } );
 
 GameplayMod &::snarkStayAlive = GameplayMod::Define( "snark_stay_alive", "Snark stay alive" )
-.Description( "Snarks will never die on their own, they must be shot." )
+.Description( "Snarks will never die on their own, they must be shot" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
@@ -893,8 +897,8 @@ GameplayMod &::snarkStayAlive = GameplayMod::Define( "snark_stay_alive", "Snark 
 
 GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 .Description(
-	"Time moves forward only when you move around.\n"
-	"Inspired by the game SUPERHOT."
+	"Time moves forward only when you move around\n"
+	"Inspired by the game SUPERHOT"
 )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( auto player = GetPlayer() ) {
@@ -911,22 +915,22 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 
 GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", "SUPERHOT Toggleable" )
 .Description(
-	"After you activate slowmotion, time moves forward only when you move around.\n"
-	"Inspired by the game SUPERHOT."
+	"After you activate slowmotion, time moves forward only when you move around\n"
+	"Inspired by the game SUPERHOT"
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHot.isActive();
 } );
 
 GameplayMod &::swearOnKill = GameplayMod::Define( "swear_on_kill", "Swear on kill" )
-.Description( "Max will swear when killing an enemy. He will still swear even if Max's commentary is turned off." );
+.Description( "Max will swear when killing an enemy. He will still swear even if Max's commentary is turned off" );
 
 GameplayMod &::teleportMaintainVelocity = GameplayMod::Define( "teleport_maintain_velocity", "Teleport maintain velocity" )
-.Description( "Your velocity will be preserved after going through teleporters." )
+.Description( "Your velocity will be preserved after going through teleporters" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::teleportOnKill = GameplayMod::Define( "teleport_on_kill", "Teleport on kill" )
-.Description( "You will be teleported to the enemy you kill." )
+.Description( "You will be teleported to the enemy you kill" )
 .Arguments( {
 	Argument( "teleport_weapon" ).IsOptional().Default( "any" ).Description( []( const std::string string, float value ) {
 		return "Weapon that causes teleport: " + ( string.empty() ? "any" : string ) + "\n";
@@ -934,10 +938,10 @@ GameplayMod &::teleportOnKill = GameplayMod::Define( "teleport_on_kill", "Telepo
 } );
 
 GameplayMod &::timeRestriction = GameplayMod::Define( "time_restriction", "Time restriction" )
-.Description( "You are killed if time runs out." )
+.Description( "You are killed if time runs out" )
 .Arguments( {
 	Argument( "time" ).IsOptional().MinMax( 1 ).Default( "60" ).Description( []( const std::string string, float value ) {
-		return std::to_string( value ) + " seconds\n";
+		return fmt::sprintf( "%.0f seconds", value );
 	} ),
 } )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
@@ -955,7 +959,7 @@ GameplayMod &::timeRestriction = GameplayMod::Define( "time_restriction", "Time 
 .CannotBeActivatedRandomly();
 
 GameplayMod &::timerShown = GameplayMod::Define( "show_timer", "Show timer" )
-.Description( "Timer will be shown. Time is affected by slowmotion." )
+.Description( "Timer will be shown. Time is affected by slowmotion" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::timeRestriction.isActive() ) {
 		return "";
@@ -970,14 +974,14 @@ GameplayMod &::timerShown = GameplayMod::Define( "show_timer", "Show timer" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::timerShownReal = GameplayMod::Define( "show_timer_real_time", "Show timer with real time" )
-.Description( "Time will be shown and it's not affected by slowmotion, which is useful for speedruns." )
+.Description( "Time will be shown and it's not affected by slowmotion, which is useful for speedruns" )
 .CannotBeActivatedRandomly();
 
 GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 .Description( "Changes default timescale" )
 .Arguments( {
 	Argument( "timescale" ).MinMax( 0.1, 10 ).RandomMinMax( 1.3, 2.0 ).Default( "1" ).Description( []( const std::string string, float value ) {
-		return "Timescale: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Timescale: %.1f", value );
 	} ),
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
@@ -986,13 +990,13 @@ GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 .ForceDefaultArguments( "1" );
 
 GameplayMod &::timescaleOnDamage = GameplayMod::Define( "timescale_on_damage", "Timescale on damage" )
-.Description( "Timescale will be increased with each kill you do, and decreased as you get damage." )
+.Description( "Timescale will be increased with each kill you do, and decreased as you get damage" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::superHot.isActive() && !::timescale.isActive( true );
 } );
 
 GameplayMod &::tripminesDetachable = GameplayMod::Define( "detachable_tripmines", "Detachable tripmines" )
-.Description( "Pressing USE button on attached tripmines will detach them." )
+.Description( "Pressing USE button on attached tripmines will detach them" )
 .Arguments( {
 	Argument( "detach_tripmines_instantly" ).IsOptional().Default( "" ).Description( []( const std::string string, float value ) {
 		return string == "instantly" ? "Tripmines will be INSTANTLY added to your inventory if possible" : "";
@@ -1001,7 +1005,7 @@ GameplayMod &::tripminesDetachable = GameplayMod::Define( "detachable_tripmines"
 .CannotBeActivatedRandomly();
 
 GameplayMod &::upsideDown = GameplayMod::Define( "upside_down", "Upside down" )
-.Description( "View becomes turned on upside down." )
+.Description( "View becomes turned on upside down" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( gameplayModsData.reverseGravity && ::vvvvvv.isActive() ) {
 		return "";
@@ -1012,8 +1016,8 @@ GameplayMod &::upsideDown = GameplayMod::Define( "upside_down", "Upside down" )
 
 GameplayMod &::vvvvvv = GameplayMod::Define( "vvvvvv", "VVVVVV" )
 .Description(
-	"Pressing jump reverses gravity for player.\n"
-	"Inspired by the game VVVVVV."
+	"Pressing jump reverses gravity for player\n"
+	"Inspired by the game VVVVVV"
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	std::vector<std::string> allowedMaps = {
@@ -1044,25 +1048,25 @@ GameplayMod &::weaponImpact = GameplayMod::Define( "weapon_impact", "Weapon impa
 )
 .Arguments( {
 	Argument( "impact" ).IsOptional().MinMax( 1 ).RandomMinMax( 3, 8 ).Default( "3" ).Description( []( const std::string string, float value ) {
-		return "Impact multiplier: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Impact multiplier: %.1f", value );
 	} ),
 } );
 
 GameplayMod &::weaponPushBack = GameplayMod::Define( "weapon_push_back", "Weapon push back" )
 .Description(
-	"Shooting weapons pushes you back."
+	"Shooting weapons pushes you back"
 )
 .Arguments( {
 	Argument( "weapon_push_back_multiplier" ).IsOptional().MinMax( 0.1 ).RandomMinMax( 0.8, 1.2 ).Default( "1" ).Description( []( const std::string string, float value ) {
-		return "Push back multiplier: " + std::to_string( value ) + "\n";
+		return fmt::sprintf( "Push back multiplier: %.1f", value );
 	} ),
 } );
 
 GameplayMod &::weaponRestricted = GameplayMod::Define( "weapon_restricted", "Weapon restricted" )
 .Description(
-	"If you have no weapons - you are allowed to pick only one.\n"
-	"You can have several weapons at once if they are specified in [loadout] section.\n"
-	"Weapon stripping doesn't affect you."
+	"If you have no weapons - you are allowed to pick only one\n"
+	"You can have several weapons at once if they are specified in [loadout] section\n"
+	"Weapon stripping doesn't affect you"
 )
 .CannotBeActivatedRandomly();
 
