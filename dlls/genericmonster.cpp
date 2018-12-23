@@ -97,11 +97,7 @@ void CGenericMonster :: Spawn()
 {
 	Precache();
 
-	if ( FStrEq( STRING( pev->model ), "models/barney.mdl" ) ) {
-		SET_MODEL_PAYNED( this );
-	} else {
-		SET_MODEL( ENT( pev ), STRING( pev->model ) );
-	}
+	SET_MODEL_PAYNED( this );
 
 /*
 	if ( FStrEq( STRING(pev->model), "models/player.mdl" ) )
@@ -136,11 +132,7 @@ void CGenericMonster :: Spawn()
 //=========================================================
 void CGenericMonster :: Precache()
 {
-	if ( FStrEq( STRING( pev->model ), "models/barney.mdl" ) ) {
-		PRECACHE_MODEL_PAYNED( this );
-	} else {
-		PRECACHE_MODEL( ( char * ) STRING( pev->model ) );
-	}
+	PRECACHE_MODEL_PAYNED( this );
 }	
 
 //=========================================================

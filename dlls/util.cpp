@@ -2818,7 +2818,13 @@ std::map<std::string, std::pair<const char *, const char *>> paynedModels = {
 };
 
 void PRECACHE_MODEL_PAYNED( CBaseEntity *entity ) {
-	auto &modelPair = paynedModels[STRING( entity->pev->classname )];
+	std::string classname = STRING( entity->pev->classname );
+	if ( classname == "monster_generic" && !FStrEq( STRING( entity->pev->model ), "models/barney.mdl" ) ) {
+		PRECACHE_MODEL( ( char * ) STRING( entity->pev->model ) );
+		return;
+	}
+
+	auto &modelPair = paynedModels[classname];
 
 	PRECACHE_MODEL( ( char * ) modelPair.first );
 
@@ -2828,7 +2834,13 @@ void PRECACHE_MODEL_PAYNED( CBaseEntity *entity ) {
 }
 
 void SET_MODEL_PAYNED( CBaseEntity *entity ) {
-	auto &modelPair = paynedModels[STRING( entity->pev->classname )];
+	std::string classname = STRING( entity->pev->classname );
+	if ( classname == "monster_generic" && !FStrEq( STRING( entity->pev->model ), "models/barney.mdl" ) ) {
+		SET_MODEL( ENT( entity->pev ), STRING( entity->pev->model ) );
+		return;
+	}
+
+	auto &modelPair = paynedModels[classname];
 
 	SET_MODEL( ENT( entity->pev ), gameplayMods::payned.isActive() ? modelPair.second : modelPair.first );
 }
