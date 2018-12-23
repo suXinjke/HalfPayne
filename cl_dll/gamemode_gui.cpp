@@ -587,9 +587,10 @@ void GameModeGUI_DrawTwitchConfig() {
 	ImGui::TextWrapped(
 		"Filling both fields and enabling one of the options below will allow "
 		"your Twitch viewers to affect your gameplay.\n"
-		"This will work only in custom gameplay mods.\n\n"
+		"This works only in custom gameplay mods.\n\n"
 		"Your credentials are stored in half_payne/twitch_credentials.cfg\n"
 		"Don't have the console open while pasting your password to prevent leaking it in console input\n\n"
+		"Save your login info! Otherwise no connection will be made."
 	);
 
 	ImGui::InputText( "Twitch username", twitch_login, 128 );
