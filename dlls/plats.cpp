@@ -26,6 +26,9 @@
 #include "trains.h"
 #include "saverestore.h"
 #include "gameplay_mod.h"
+#include "gamerules.h"
+#include "func_break.h"
+#include "explode.h"
 
 static void PlatSpawnInsideTrigger(entvars_t* pevPlatform);
 
@@ -2112,6 +2115,7 @@ void CFuncTrackAuto :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 // pev->max_health is the amount to reset to each time it starts
 
 #define FGUNTARGET_START_ON			0x0001
+#define FGUNTARGET_BREAKABLE		128
 
 class CGunTarget : public CBaseMonster
 {
@@ -2122,6 +2126,9 @@ public:
 	void EXPORT		Start( void );
 	void EXPORT		Wait( void );
 	void			Stop( void );
+	void			Die();
+	void			Precache();
+	void			KeyValue( KeyValueData* pkvd ) override;
 
 	int				BloodColor( void ) { return DONT_BLEED; }
 	int				Classify( void ) { return CLASS_MACHINE; }
@@ -2135,6 +2142,10 @@ public:
 
 	static	TYPEDESCRIPTION m_SaveData[];
 
+	Materials	m_Material;
+	int			m_idShard;
+	int			m_iszGibModel;
+
 private:
 	BOOL			m_on;
 };
@@ -2144,6 +2155,8 @@ LINK_ENTITY_TO_CLASS( func_guntarget, CGunTarget );
 
 TYPEDESCRIPTION	CGunTarget::m_SaveData[] = 
 {
+	DEFINE_FIELD( CGunTarget, m_Material, FIELD_INTEGER ),
+
 	DEFINE_FIELD( CGunTarget, m_on, FIELD_BOOLEAN ),
 };
 
@@ -2173,6 +2186,8 @@ void CGunTarget::Spawn( void )
 		SetThink( &CGunTarget::Start );
 		pev->nextthink = pev->ltime + 0.3;
 	}
+
+	Precache();
 }
 
 
@@ -2265,6 +2280,14 @@ int	CGunTarget::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 			Stop();
 			if ( pev->message )
 				FireTargets( STRING(pev->message), this, this, USE_TOGGLE, 0 );
+
+			if ( CHalfLifeRules *singlePlayerRules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+				singlePlayerRules->HookModelIndex( this->edict() );
+			}
+
+			if ( pev->spawnflags & FGUNTARGET_BREAKABLE ) {
+				Die();
+			}
 		}
 	}
 	return 0;
@@ -2288,6 +2311,240 @@ void CGunTarget::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 			return;
 		pev->health = pev->max_health;
 		Next();
+	}
+}
+
+void CGunTarget::Die()
+{
+	Vector vecSpot;// shard origin
+	CBaseEntity *pEntity = NULL;
+	char cFlag = 0;
+	int pitch;
+	float fvol;
+	
+	pitch = 95 + RANDOM_LONG(0,29);
+
+	if (pitch > 97 && pitch < 103)
+		pitch = 100;
+
+	// The more negative pev->health, the louder
+	// the sound should be.
+
+	fvol = RANDOM_FLOAT(0.85, 1.0) + (abs(pev->health) / 100.0);
+
+	if (fvol > 1.0)
+		fvol = 1.0;
+
+
+	switch (m_Material)
+	{
+	case matGlass:
+		switch ( RANDOM_LONG(0,1) )
+		{
+		case 0:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustglass1.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		case 1:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustglass2.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		}
+		cFlag = BREAK_GLASS;
+		break;
+
+	case matWood:
+		switch ( RANDOM_LONG(0,1) )
+		{
+		case 0:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustcrate1.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		case 1:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustcrate2.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		}
+		cFlag = BREAK_WOOD;
+		break;
+
+	case matComputer:
+	case matMetal:
+		switch ( RANDOM_LONG(0,1) )
+		{
+		case 0:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustmetal1.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		case 1:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustmetal2.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		}
+		cFlag = BREAK_METAL;
+		break;
+
+	case matFlesh:
+		switch ( RANDOM_LONG(0,1) )
+		{
+		case 0:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustflesh1.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		case 1:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustflesh2.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		}
+		cFlag = BREAK_FLESH;
+		break;
+
+	case matRocks:
+	case matCinderBlock:
+		switch ( RANDOM_LONG(0,1) )
+		{
+		case 0:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustconcrete1.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		case 1:	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustconcrete2.wav", fvol, ATTN_NORM, 0, pitch);	
+			break;
+		}
+		cFlag = BREAK_CONCRETE;
+		break;
+
+	case matCeilingTile:
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustceiling.wav", fvol, ATTN_NORM, 0, pitch);
+		break;
+	}
+    
+	vecSpot = pev->origin + (pev->mins + pev->maxs) * 0.5;
+	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecSpot );
+		WRITE_BYTE( TE_BREAKMODEL);
+
+		// position
+		WRITE_COORD( vecSpot.x );
+		WRITE_COORD( vecSpot.y );
+		WRITE_COORD( vecSpot.z );
+
+		// size
+		WRITE_COORD( pev->size.x);
+		WRITE_COORD( pev->size.y);
+		WRITE_COORD( pev->size.z);
+
+		// velocity
+		WRITE_COORD( 0 ); 
+		WRITE_COORD( 0 );
+		WRITE_COORD( 0 );
+
+		// randomization
+		WRITE_BYTE( 10 ); 
+
+		// Model
+		WRITE_SHORT( m_idShard );	//model id#
+
+		// # of shards
+		WRITE_BYTE( 0 );	// let client decide
+
+		// duration
+		WRITE_BYTE( 25 );// 2.5 seconds
+
+		// flags
+		WRITE_BYTE( cFlag );
+	MESSAGE_END();
+
+	float size = pev->size.x;
+	if ( size < pev->size.y )
+		size = pev->size.y;
+	if ( size < pev->size.z )
+		size = pev->size.z;
+
+	// !!! HACK  This should work!
+	// Build a box above the entity that looks like an 8 pixel high sheet
+	Vector mins = pev->absmin;
+	Vector maxs = pev->absmax;
+	mins.z = pev->absmax.z;
+	maxs.z += 8;
+
+	// BUGBUG -- can only find 256 entities on a breakable -- should be enough
+	CBaseEntity *pList[256];
+	int count = UTIL_EntitiesInBox( pList, 256, mins, maxs, FL_ONGROUND );
+	if ( count )
+	{
+		for ( int i = 0; i < count; i++ )
+		{
+			ClearBits( pList[i]->pev->flags, FL_ONGROUND );
+			pList[i]->pev->groundentity = NULL;
+		}
+	}
+
+	// Don't fire something that could fire myself
+	pev->targetname = 0;
+
+	pev->solid = SOLID_NOT;
+	// Fire targets on break
+	SUB_UseTargets( NULL, USE_TOGGLE, 0 );
+
+	SetThink( &CGunTarget::SUB_Remove );
+	pev->nextthink = pev->ltime + 0.1;
+
+	if ( pev->impulse > 0 ) {
+		ExplosionCreate( Center(), pev->angles, edict(), pev->impulse, TRUE );
+	}
+}
+
+void CGunTarget::Precache() {
+	const char *pGibName;
+
+    switch (m_Material) 
+	{
+	case matWood:
+		pGibName = "models/woodgibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustcrate1.wav");
+		PRECACHE_SOUND("debris/bustcrate2.wav");
+		break;
+	case matFlesh:
+		pGibName = "models/fleshgibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustflesh1.wav");
+		PRECACHE_SOUND("debris/bustflesh2.wav");
+		break;
+	case matComputer:
+		PRECACHE_SOUND("buttons/spark5.wav");
+		PRECACHE_SOUND("buttons/spark6.wav");
+		pGibName = "models/computergibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustmetal1.wav");
+		PRECACHE_SOUND("debris/bustmetal2.wav");
+		break;
+
+	case matUnbreakableGlass:
+	case matGlass:
+		pGibName = "models/glassgibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustglass1.wav");
+		PRECACHE_SOUND("debris/bustglass2.wav");
+		break;
+	case matMetal:
+		pGibName = "models/metalplategibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustmetal1.wav");
+		PRECACHE_SOUND("debris/bustmetal2.wav");
+		break;
+	case matCinderBlock:
+		pGibName = "models/cindergibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustconcrete1.wav");
+		PRECACHE_SOUND("debris/bustconcrete2.wav");
+		break;
+	case matRocks:
+		pGibName = "models/rockgibs.mdl";
+		
+		PRECACHE_SOUND("debris/bustconcrete1.wav");
+		PRECACHE_SOUND("debris/bustconcrete2.wav");
+		break;
+	case matCeilingTile:
+		pGibName = "models/ceilinggibs.mdl";
+		
+		PRECACHE_SOUND ("debris/bustceiling.wav");  
+		break;
+	}
+	CBreakable::MaterialSoundPrecache( m_Material );
+	if ( m_iszGibModel )
+		pGibName = STRING(m_iszGibModel);
+
+	m_idShard = PRECACHE_MODEL( (char *)pGibName );
+}
+
+void CGunTarget::KeyValue( KeyValueData * pkvd ) {
+	if ( FStrEq( pkvd->szKeyName, "explodemagnitude" ) ) {
+		pev->impulse = atoi( pkvd->szValue );
+		pkvd->fHandled = TRUE;
+	} else {
+		CBaseMonster::KeyValue( pkvd );
 	}
 }
 
