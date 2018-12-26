@@ -237,7 +237,7 @@ private:
 	bool ended;
 	float timeStart;
 
-	int creditSprites[9];
+	int creditSprites[10];
 };
 
 //

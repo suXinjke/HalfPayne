@@ -22,10 +22,11 @@ int CHudEndCredits::VidInit(void)
 	creditSprites[2] = gHUD.GetSpriteIndex( "credits3" );
 	creditSprites[3] = gHUD.GetSpriteIndex( "credits4" );
 	creditSprites[4] = gHUD.GetSpriteIndex( "credits5" );
-	creditSprites[5] = gHUD.GetSpriteIndex( "credits6" );
-	creditSprites[6] = gHUD.GetSpriteIndex( "credits10" );
-	creditSprites[7] = gHUD.GetSpriteIndex( "credits11" );
-	creditSprites[8] = gHUD.GetSpriteIndex( "credits12" );
+	creditSprites[5] = gHUD.GetSpriteIndex( "credits5a" );
+	creditSprites[6] = gHUD.GetSpriteIndex( "credits6" );
+	creditSprites[7] = gHUD.GetSpriteIndex( "credits10" );
+	creditSprites[8] = gHUD.GetSpriteIndex( "credits11" );
+	creditSprites[9] = gHUD.GetSpriteIndex( "credits12" );
 
 	return 1;
 };
@@ -109,13 +110,15 @@ int CHudEndCredits::Draw( float flTime )
 	} else if ( time >= 24.0 && time <= 29.8 ) {
 		spriteIndex = 4; // Menu background by NinjaNub
 	} else if ( time >= 30.0 && time <= 35.8 ) {
-		spriteIndex = 5; // Max Payne model and voice
+		spriteIndex = 5; // Nightmare map
 	} else if ( time >= 36.0 && time <= 41.8 ) {
-		spriteIndex = 6; // Valve 1
-	} else if ( time >= 42.0 && time <= 47.8 ) {
-		spriteIndex = 7; // Valve 2
-	} else if ( time >= 48.0 && time <= 53.8 ) {
-		spriteIndex = 8; // Valve 3
+		spriteIndex = 6; // Max Payne model and voice
+	} else if ( time >= 42.0 && time <= 47.5 ) {
+		spriteIndex = 7; // Valve 1
+	} else if ( time >= 47.7 && time <= 52.2 ) {
+		spriteIndex = 8; // Valve 2
+	} else if ( time >= 52.4 && time <= 56.4 ) {
+		spriteIndex = 9; // Valve 3
 	} else if ( time >= 56.681 && time < 132.0f ) {
 
 		spriteIndex = 0; // Half Payne logo
