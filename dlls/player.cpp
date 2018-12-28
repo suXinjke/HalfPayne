@@ -3405,9 +3405,9 @@ void CBasePlayer :: UpdatePlayerSound ( void )
 	//ALERT ( at_console, "%d/%d\n", iVolume, m_iTargetVolume );
 }
 
-void CBasePlayer::TryToPlayMaxCommentary( string_t string, BOOL isImportant )
+void CBasePlayer::TryToPlayMaxCommentary( string_t string, BOOL isImportant, BOOL shortDelay )
 {
-	bool isCommentaryPresent = latestMaxCommentaryTime && ( gpGlobals->time - latestMaxCommentaryTime < 10.0f );
+	bool isCommentaryPresent = latestMaxCommentaryTime && ( gpGlobals->time - latestMaxCommentaryTime < ( shortDelay ? 1.5f : 10.0f ) );
 	if ( !isImportant && isCommentaryPresent ) {
 		return;
 	}
@@ -4024,7 +4024,7 @@ void CBasePlayer::SayRandomSwear()
 	} while ( lastSwearingLine == fileName );
 	lastSwearingLine = fileName;
 
-	TryToPlayMaxCommentary( MAKE_STRING( fileName ), false );
+	TryToPlayMaxCommentary( MAKE_STRING( fileName ), false, true );
 
 	allowedToSwear = gpGlobals->time + 1.5f;
 }

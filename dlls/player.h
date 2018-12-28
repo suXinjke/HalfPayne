@@ -376,7 +376,7 @@ public:
 	void CheckSoundQueue();
 	void AddToSoundQueue( string_t string, float delay, bool isMaxCommentary, bool isImportant = false );
 	void ClearSoundQueue();
-	void TryToPlayMaxCommentary( string_t string, BOOL isImportant );
+	void TryToPlayMaxCommentary( string_t string, BOOL isImportant, BOOL shortDelay = FALSE );
 
 	void AddVisitedMap( string_t mapName );
 	bool HasVisitedMap( string_t mapName );
