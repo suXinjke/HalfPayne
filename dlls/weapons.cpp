@@ -1797,9 +1797,9 @@ IMPLEMENT_SAVERESTORE( CSatchel, CBasePlayerWeapon );
 
 TYPEDESCRIPTION	CM249::m_SaveData[] = 
 {
-	DEFINE_FIELD( CSatchel, stress, FIELD_FLOAT ),
-	DEFINE_FIELD( CSatchel, nextStressDecrease, FIELD_TIME ),
-	DEFINE_FIELD( CSatchel, stress2, FIELD_FLOAT ),
-	DEFINE_FIELD( CSatchel, nextStress2Decrease, FIELD_TIME ),
+	DEFINE_FIELD( CM249, stress, FIELD_FLOAT ),
+	DEFINE_FIELD( CM249, nextStressDecrease, FIELD_TIME ),
+	DEFINE_FIELD( CM249, stress2, FIELD_FLOAT ),
+	DEFINE_FIELD( CM249, nextStress2Decrease, FIELD_TIME ),
 };
 IMPLEMENT_SAVERESTORE( CM249, CBasePlayerWeapon );
