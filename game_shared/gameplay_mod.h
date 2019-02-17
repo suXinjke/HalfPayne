@@ -393,6 +393,8 @@ namespace gameplayMods {
 	extern GameplayMod& gibsEdible;
 	extern GameplayMod& gibsGarbage;
 	
+	extern GameplayMod& gravity;
+
 	extern GameplayMod& grenadePellets;
 	
 	extern GameplayMod& headshots;

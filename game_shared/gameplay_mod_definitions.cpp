@@ -309,6 +309,14 @@ GameplayMod &::gibsEdible = GameplayMod::Define( "edible_gibs", "Edible gibs" )
 GameplayMod &::gibsGarbage = GameplayMod::Define( "garbage_gibs", "Garbage gibs" )
 .Description( "Replaces all gibs with garbage" );
 
+GameplayMod &::gravity = GameplayMod::Define( "gravity", "Gravity" )
+.Description( "Changes gravity value" )
+.Arguments( {
+	Argument( "gravity" ).IsOptional().MinMax( 1, 2000 ).RandomMinMax( 100, 400 ).Default( "200" ).Description( []( const std::string string, float value ) {
+		return fmt::sprintf( "Forced sv_gravity: %.0f", value );
+	} )
+} );
+
 GameplayMod &::grenadePellets = GameplayMod::Define( "grenade_pellets", "Grenade pellets" )
 .Description( "Additional pellets will emerge after grenade explosion" )
 .Arguments( {

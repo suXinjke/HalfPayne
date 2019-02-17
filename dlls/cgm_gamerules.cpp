@@ -16,6 +16,7 @@
 #include	<mutex>
 #include	"../twitch/twitch.h"
 #include	"kerotan.h"
+#include	"game.h"
 
 extern std::map<std::string, std::pair<const char *, const char *>> paynedModels;
 
@@ -606,6 +607,12 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				snprintf( gameplayModsData.gungamePriorWeapon, 128, "" );
 			}
 		}
+	}
+
+	if ( auto gravity = gameplayMods::gravity.isActive<float>() ) {
+		g_psv_gravity->value = *gravity;
+	} else {
+		g_psv_gravity->value = 800;
 	}
 
 	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastPayned, gameplayMods::payned.isActive(), [this]( BOOL on ) {
