@@ -972,6 +972,8 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 		}
 	}
 
+	flDamage = MultiplyDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
+
 	//!!!LATER - make armor consideration here!
 	flTake = flDamage;
 

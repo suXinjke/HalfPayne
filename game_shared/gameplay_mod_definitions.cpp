@@ -133,6 +133,22 @@ GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive
 	return false;
 } );
 
+GameplayMod &::damageMultiplier = GameplayMod::Define( "damage_multiplier", "Damage multiplier" )
+.Description( "Multiplies damage dealt from enemies to you" )
+.Arguments( {
+	Argument( "multipler" ).MinMax( 0.01, 100 ).RandomMinMax( 2.0, 2.0 ).Default( "2" ).Description( []( const std::string string, float value ) {
+		return fmt::sprintf( "Multiplier: %.1f", value );
+	} )
+} );
+
+GameplayMod &::damageMultiplierFromPlayer = GameplayMod::Define( "damage_multiplier_from_player", "Damage multiplier from player" )
+.Description( "Multiplies damage dealt by you" )
+.Arguments( {
+	Argument( "multipler" ).MinMax( 0.01, 100 ).RandomMinMax( 2.0, 2.0 ).Default( "2" ).Description( []( const std::string string, float value ) {
+		return fmt::sprintf( "Multiplier: %.1f", value );
+	} )
+} );
+
 GameplayMod &::deusExSounds = GameplayMod::Define( "deus_ex_sounds", "Deus EX death sounds" )
 .Description( "Self explanatory" )
 .CanOnlyBeActivatedRandomlyWhen( []() {

@@ -360,6 +360,9 @@ namespace gameplayMods {
 
 	extern GameplayMod& crossbowExplosiveBolts;
 
+	extern GameplayMod& damageMultiplier;
+	extern GameplayMod& damageMultiplierFromPlayer;
+
 	extern GameplayMod& deusExSounds;
 	
 	extern GameplayMod& difficultyEasy;

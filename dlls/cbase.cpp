@@ -593,6 +593,8 @@ int CBaseEntity :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, 
 		pev->velocity = pev->velocity + vecDir * flForce;
 	}
 
+	flDamage = MultiplyDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
+
 // do the damage
 	pev->health -= flDamage;
 	if (pev->health <= 0)
@@ -602,6 +604,33 @@ int CBaseEntity :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, 
 	}
 
 	return 1;
+}
+
+float CBaseEntity::MultiplyDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType ) {
+	bool attackedByPlayer = false;
+	if ( CBaseEntity *inflictor = CBaseEntity::Instance( pevInflictor ) ) {
+		if ( inflictor->IsPlayer() || inflictor->ActualOwnerIsPlayer() ) {
+			attackedByPlayer = true;
+		}
+	}
+
+	if ( CBaseEntity *attacker = CBaseEntity::Instance( pevAttacker ) ) {
+		if ( attacker->IsPlayer() || attacker->ActualOwnerIsPlayer() ) {
+			attackedByPlayer = true;
+		}
+	}
+
+	if ( attackedByPlayer && !this->IsPlayer() ) {
+		if ( auto multiplier = gameplayMods::damageMultiplierFromPlayer.isActive<float>() ) {
+			flDamage *= *multiplier;
+		}
+	} else if ( this->IsPlayer() && bitsDamageType & ( DMG_BULLET | DMG_BLAST | DMG_SLASH | DMG_CLUB ) ) {
+		if ( auto multiplier = gameplayMods::damageMultiplier.isActive<float>() ) {
+			flDamage *= *multiplier;
+		}
+	}
+
+	return flDamage;
 }
 
 void CBaseEntity::KilledTryToNotifyPlayer() {
