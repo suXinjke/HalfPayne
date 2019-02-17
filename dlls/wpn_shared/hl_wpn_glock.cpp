@@ -162,6 +162,14 @@ int CGlock::AddDuplicate( CBasePlayerItem *pOriginal ) {
 #endif
 }
 
+int CGlock::Restore( CRestore & restore ) {
+	int result = CBasePlayerWeapon::Restore( restore );
+
+	pev->fuser1 = 0.2f;
+
+	return result;
+}
+
 void CGlock::ItemPostFrame(void) {
 
 	if ( !(m_pPlayer->pev->button & IN_ATTACK) ) {
@@ -183,6 +191,10 @@ void CGlock::ItemPostFrame(void) {
 				stress = 0.0f;
 			}
 		}
+	}
+
+	if ( pev->fuser1 > 0.0f ) {
+		SendWeaponAnim( m_iClip <= 0 ? GLOCK_IDLE_NOSHOT : GLOCK_IDLE1 );
 	}
 
 	CBasePlayerWeapon::ItemPostFrame();
@@ -335,13 +347,7 @@ void CGlock::WeaponIdle( void )
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
-	int anim = GLOCK_IDLE1;
-
-	if ( m_iClip <= 0 ) {
-		anim = GLOCK_IDLE_NOSHOT;
-	}
-
-	SendWeaponAnim( anim, 2 );
+	SendWeaponAnim( m_iClip <= 0 ? GLOCK_IDLE_NOSHOT : GLOCK_IDLE1 );
 }
 
 

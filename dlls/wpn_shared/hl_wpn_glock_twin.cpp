@@ -145,9 +145,15 @@ int CGlockTwin::GetItemInfo( ItemInfo *p ) {
 	return 1;
 }
 
-BOOL CGlockTwin::Deploy() {
-	// pev->body = 1;
+int CGlockTwin::Restore( CRestore & restore ) {
+	int result = CBasePlayerWeapon::Restore( restore );
 
+	pev->fuser1 = 0.2f;
+
+	return result;
+}
+
+BOOL CGlockTwin::Deploy() {
 	bool drawingFromSingle = false;
 
 	if ( m_pPlayer->m_pLastItem ) {
@@ -196,6 +202,10 @@ void CGlockTwin::ItemPostFrame( void ) {
 				stress = 0.0f;
 			}
 		}
+	}
+
+	if ( pev->fuser1 > 0.0f ) {
+		SendWeaponAnim( GetIdleAnimation() );
 	}
 
 	CBasePlayerWeapon::ItemPostFrame();
@@ -393,15 +403,13 @@ void CGlockTwin::WeaponIdle( void ) {
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
-	int anim = GLOCK_TWIN_IDLE;
+	SendWeaponAnim( GetIdleAnimation() );
+}
 
-	if ( m_iClip == 0 && m_iClip2 == 0 ) {
-		anim = GLOCK_TWIN_IDLE_NOSHOT_BOTH;
-	} else if ( m_iClip == 0 ) {
-		anim = GLOCK_TWIN_IDLE_NOSHOT_RIGHT;
-	} else if ( m_iClip2 == 0 ) {
-		anim = GLOCK_TWIN_IDLE_NOSHOT_LEFT;
-	}
-
-	SendWeaponAnim( anim, 2 );
+int CGlockTwin::GetIdleAnimation() {
+	return
+		m_iClip == 0 && m_iClip2 == 0 ? GLOCK_TWIN_IDLE_NOSHOT_BOTH :
+		m_iClip == 0 ? GLOCK_TWIN_IDLE_NOSHOT_RIGHT :
+		m_iClip2 == 0 ? GLOCK_TWIN_IDLE_NOSHOT_LEFT :
+		GLOCK_TWIN_IDLE;
 }

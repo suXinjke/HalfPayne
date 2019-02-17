@@ -66,6 +66,14 @@ int CPython::GetItemInfo(ItemInfo *p)
 	return 1;
 }
 
+int CPython::Restore( CRestore & restore ) {
+	int result = CBasePlayerWeapon::Restore( restore );
+
+	pev->fuser1 = 0.2f;
+
+	return result;
+}
+
 void CPython::Spawn( )
 {
 	pev->classname = MAKE_STRING("weapon_357"); // hack to allow for old names
@@ -139,6 +147,10 @@ void CPython::Holster( int skiplocal /* = 0 */ )
 void CPython::ItemPostFrame( void ) {
 	if (shotOnce && !(m_pPlayer->pev->button & IN_ATTACK)) {
 		shotOnce = false;
+	}
+
+	if ( pev->fuser1 > 0.0f ) {
+		SendWeaponAnim( m_iClip > 0 ? PYTHON_IDLE1 : PYTHON_IDLE_NOSHOT );
 	}
 	
 	CBasePlayerWeapon::ItemPostFrame();

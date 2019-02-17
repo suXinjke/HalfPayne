@@ -495,6 +495,7 @@ public:
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
 	int AddDuplicate( CBasePlayerItem *pItem );
+	int	Restore( CRestore &restore ) override;
 
 	void ItemPostFrame(void);
 	void PrimaryAttack( void );
@@ -532,6 +533,7 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo( ItemInfo *p );
+	int	Restore( CRestore &restore ) override;
 
 	void ItemPostFrame( void );
 	void PrimaryAttack( void );
@@ -540,6 +542,7 @@ public:
 	BOOL Deploy( void );
 	void Reload( void );
 	void WeaponIdle( void );
+	int GetIdleAnimation();
 
 	virtual BOOL UseDecrement( void ) {
 #if defined( CLIENT_WEAPONS )
@@ -598,6 +601,7 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 2; }
 	int GetItemInfo(ItemInfo *p);
+	int	Restore( CRestore &restore ) override;
 	void ItemPostFrame( void );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
@@ -792,13 +796,14 @@ public:
 	void Precache( void );
 	int iItemSlot( void ) { return 3; }
 	int GetItemInfo(ItemInfo *p);
+	int	Restore( CRestore &restore ) override;
 
 	void ItemPostFrame(void);
 	void PrimaryAttack( void );
-	void GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim );
 	BOOL Deploy( void );
 	void Reload( void );
 	void WeaponIdle( void );
+	int GetIdleAnimation();
 
 	virtual BOOL UseDecrement( void )
 	{ 

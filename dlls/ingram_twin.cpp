@@ -58,6 +58,14 @@ int CIngramTwin::GetItemInfo( ItemInfo *p ) {
 	return 1;
 }
 
+int CIngramTwin::Restore( CRestore &restore ) {
+	int result = CBasePlayerWeapon::Restore( restore );
+
+	pev->fuser1 = 0.2f;
+
+	return result;
+}
+
 BOOL CIngramTwin::Deploy() {
 
 	bool drawingFromSingle = false;
@@ -105,6 +113,10 @@ void CIngramTwin::ItemPostFrame( void ) {
 		}
 	}
 
+	if ( pev->fuser1 > 0.0f ) {
+		SendWeaponAnim( GetIdleAnimation() );
+	}
+
 	CBasePlayerWeapon::ItemPostFrame();
 }
 
@@ -124,6 +136,7 @@ void CIngramTwin::PrimaryAttack( void )
 		{
 			PlayEmptySound();
 			m_flNextPrimaryAttack = GetNextAttackDelay( 0.2 );
+			SendWeaponAnim( GetIdleAnimation() );
 		}
 
 		return;
@@ -312,15 +325,13 @@ void CIngramTwin::WeaponIdle( void )
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
-	int anim = INGRAM_TWIN_IDLE;
+	SendWeaponAnim( GetIdleAnimation() );
+}
 
-	if ( m_iClip == 0 && m_iClip2 == 0 ) {
-		anim = INGRAM_TWIN_IDLE_NOSHOT_BOTH;
-	} else if ( m_iClip == 0 ) {
-		anim = INGRAM_TWIN_IDLE_NOSHOT_RIGHT;
-	} else if ( m_iClip2 == 0 ) {
-		anim = INGRAM_TWIN_IDLE_NOSHOT_LEFT;
-	}
-
-	SendWeaponAnim( anim, 2 );
+int CIngramTwin::GetIdleAnimation() {
+	return
+		m_iClip == 0 && m_iClip2 == 0 ? INGRAM_TWIN_IDLE_NOSHOT_BOTH :
+		m_iClip == 0 ? INGRAM_TWIN_IDLE_NOSHOT_RIGHT :
+		m_iClip2 == 0 ? INGRAM_TWIN_IDLE_NOSHOT_LEFT :
+		INGRAM_TWIN_IDLE;
 }
