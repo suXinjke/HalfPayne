@@ -240,7 +240,8 @@ GameplayMod &::divingOnly = GameplayMod::Define( "diving_only", "Diving only" )
 	"The only way to move around is by diving\n"
 	"This enables Infinite slowmotion by default\n"
 	"You can dive even when in crouch-like position, like when being in vents etc"
-);
+)
+.CannotBeActivatedRandomly();
 
 GameplayMod &::drunkAim = GameplayMod::Define( "drunk_aim", "Drunk aim" )
 .Description( "Your aim becomes wobbly" )
@@ -676,6 +677,9 @@ GameplayMod &::oneHitKO = GameplayMod::Define( "one_hit_ko", "One hit KO" )
 	}
 
 	return std::nullopt;
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::snarkNuclear.isActive() && !::teleportOnKill.isActive();
 } );
 
 GameplayMod &::oneHitKOFromPlayer = GameplayMod::Define( "one_hit_ko_from_player", "One hit KO from player" )
@@ -875,7 +879,9 @@ GameplayMod &::slowmotionFastWalk = GameplayMod::Define( "slowmotion_fast_walk",
 GameplayMod &::slowmotionForbidden = GameplayMod::Define( "no_slowmotion", "No slowmotion" )
 .Description( "You're not allowed to use slowmotion" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::slowmotionInfinite.isActive();
+	return
+		!::slowmotionInfinite.isActive() && !::superHotToggleable.isActive() &&
+		!::slowmotionFastWalk.isActive() && !::slowmotionOnlyDiving.isActive() && !::slowmotionOnDamage.isActive();
 } );
 
 GameplayMod &::slowmotionInfinite = GameplayMod::Define( "infinite_slowmotion", "Infinite slowmotion" )
@@ -954,14 +960,19 @@ GameplayMod &::snarkInception = GameplayMod::Define( "snark_inception", "Snark i
 			return true;
 		}
 	}
-	return ::snarkInfestation.isActive() || ::snarkFromExplosion.isActive();
+	return
+		( ::snarkInfestation.isActive() || ::snarkFromExplosion.isActive() ) &&
+		( !::teleportOnKill.isActive() );
 } );
 
 GameplayMod &::snarkInfestation = GameplayMod::Define( "snark_infestation", "Snark infestation" )
 .Description(
 	"Snark will spawn in the body of killed monster (NPC)\n"
 	"Even more snarks spawn if monster's corpse has been gibbed"
-);
+)
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::teleportOnKill.isActive();
+} );
 
 GameplayMod &::snarkNuclear = GameplayMod::Define( "snark_nuclear", "Snark nuclear" )
 .Description( "Killing snark produces a grenade-like explosion" )
@@ -971,7 +982,9 @@ GameplayMod &::snarkNuclear = GameplayMod::Define( "snark_nuclear", "Snark nucle
 			return true;
 		}
 	}
-	return ::snarkInfestation.isActive() || ::snarkFromExplosion.isActive();
+	return
+		( ::snarkInfestation.isActive() || ::snarkFromExplosion.isActive() ) &&
+		( !::oneHitKO.isActive() && !::teleportOnKill.isActive() );
 } );
 
 GameplayMod &::snarkPenguins = GameplayMod::Define( "snark_penguins", "Snark penguins" )
@@ -1011,7 +1024,7 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 	return std::nullopt;
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive();
+	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHotToggleable.isActive();
 } );
 
 GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", "SUPERHOT Toggleable" )
@@ -1020,7 +1033,7 @@ GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", 
 	"Inspired by the game SUPERHOT"
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHot.isActive();
+	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHot.isActive() && !::slowmotionForbidden.isActive();
 } );
 
 GameplayMod &::swearOnKill = GameplayMod::Define( "swear_on_kill", "Swear on kill" )
@@ -1036,6 +1049,11 @@ GameplayMod &::teleportOnKill = GameplayMod::Define( "teleport_on_kill", "Telepo
 	Argument( "teleport_weapon" ).IsOptional().Default( "any" ).Description( []( const std::string string, float value ) {
 		return "Weapon that causes teleport: " + ( string.empty() ? "any" : string ) + "\n";
 	} )
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return
+		!::snarkNuclear.isActive() && !::snarkInfestation.isActive() &&
+		!::snarkInception.isActive() && !::oneHitKO.isActive();
 } );
 
 GameplayMod &::timeRestriction = GameplayMod::Define( "time_restriction", "Time restriction" )
@@ -1088,7 +1106,7 @@ GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 	} ),
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::superHot.isActive() && !::timescaleOnDamage.isActive();
+	return !::superHot.isActive() && !::superHotToggleable.isActive() && !::timescaleOnDamage.isActive();
 } )
 .ForceDefaultArguments( "1" );
 
