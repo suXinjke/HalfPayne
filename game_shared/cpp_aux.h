@@ -322,7 +322,7 @@ namespace aux {
 			std::getline( inp, user );
 			std::getline( inp, password );
 
-			return { user, password };
+			return { aux::str::toLowercase( user ), password };
 		}
 	}
 }
