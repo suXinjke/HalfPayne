@@ -889,11 +889,11 @@ void CCustomGameModeRules::CalculateScoreForScoreAttack( CBasePlayer *pPlayer, C
 	}
 }
 
-void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex ) {
+bool CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex ) {
 	using namespace gameplayMods;
 	
 	if ( modIndex < 0 || modIndex > proposedGameplayMods.size() - 1 ) {
-		return;
+		return false;
 	}
 
 	for ( auto &proposedMod : proposedGameplayMods ) {
@@ -916,17 +916,21 @@ void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const
 		WRITE_SHORT( proposedGameplayMods.size() - 1 - modIndex );
 		WRITE_STRING( voter.c_str() );
 	MESSAGE_END();
+
+	return true;
 }
 
-void CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modStringIndex ) {
+bool CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modStringIndex ) {
 	std::regex vote_index_regex( "^[#!0]*([1-9]{1}).*" );
 	std::smatch base_match;
 	if ( std::regex_match( modStringIndex, base_match, vote_index_regex ) ) {
 		if ( base_match.size() == 2 ) {
 			int modIndex = std::stoi( base_match[1].str() ) - 1;
-			VoteForRandomGameplayMod( pPlayer, voter, modIndex );
+			return VoteForRandomGameplayMod( pPlayer, voter, modIndex );
 		}
 	}
+
+	return false;
 }
 
 void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {

@@ -582,11 +582,13 @@ void GameDLLInit( void )
 		twitch->OnMessage = []( const std::string &sender, const std::string &message ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
-					if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() ) {
-						cgm->VoteForRandomGameplayMod( pPlayer, sender, message );
+					bool votedSuccessfully = false;
+
+					if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) >= 1.0f ) {
+						votedSuccessfully = cgm->VoteForRandomGameplayMod( pPlayer, sender, message );
 					}
 
-					if ( CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
+					if ( !votedSuccessfully && CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
 						std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
 						MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
 							WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );

@@ -49,8 +49,8 @@ public:
 	virtual void CalculateScoreForBlackMesaMinute( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar );
 	virtual void CalculateScoreForScoreAttack( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar );
 
-	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex );
-	void VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
+	bool VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex );
+	bool VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
 
 	void SendHUDMessages( CBasePlayer *pPlayer );
 	void TogglePaynedModels();
