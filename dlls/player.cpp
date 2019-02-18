@@ -973,8 +973,10 @@ int CBasePlayer :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, 
 
 	if ( gameplayMods::oneHitKO.isActive() ) {
 		CBaseMonster *isMonster = dynamic_cast< CBaseMonster * >( pAttacker );
+
 		bool isSquidspit = FStrEq( STRING( pAttacker->pev->classname ), "squidspit" );
-		if ( isMonster || isSquidspit ) {
+		bool isTank = FStrEq( STRING( pAttacker->pev->classname ), "func_tank" );
+		if ( isMonster || isSquidspit || isTank ) {
 			flDamage = pev->health + 1;
 		}
 	}
