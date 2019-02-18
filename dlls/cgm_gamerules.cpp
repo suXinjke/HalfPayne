@@ -204,6 +204,9 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	gameplayModsData.activeGameMode = GAME_MODE_CUSTOM;
 	gameplayModsData.gungameSeed = aux::rand::uniformInt( 0, 10000 );
 	gameplayModsData.randomSpawnerSeed = aux::rand::uniformInt( 0, 10000 );
+	for ( auto &condition : config.endConditions ) {
+		condition.activations = 0;
+	}
 	
 	if ( auto timeRestriction = gameplayMods::timeRestriction.isActive<float>() ) {
 		gameplayModsData.time = *timeRestriction;
