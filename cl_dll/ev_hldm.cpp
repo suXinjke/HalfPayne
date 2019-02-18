@@ -40,6 +40,7 @@ extern engine_studio_api_t IEngineStudio;
 
 static int tracerCount[ 32 ];
 
+extern float spreadMultiplier;
 extern int upsideDown;
 extern int paynedSoundsMonsters;
 
@@ -408,6 +409,9 @@ Go to the trouble of combining multiple pellets into a single damage call.
 */
 void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int cShots, float *vecSrc, float *vecDirShooting, float flDistance, int iBulletType, int iTracerFreq, int *tracerCount, float flSpreadX, float flSpreadY )
 {
+	flSpreadX *= spreadMultiplier;
+	flSpreadY *= spreadMultiplier;
+
 	int i;
 	pmtrace_t tr;
 	int iShot;

@@ -16,6 +16,67 @@ extern CustomGameModeConfig clientConfig;
 using namespace gameplayMods;
 int g_autoSaved = 0;
 
+static std::vector<const char *> weaponsWithBullets = {
+	"weapon_9mmhandgun",
+	"weapon_9mmhandgun_twin",
+	"weapon_357",
+	"weapon_shotgun",
+	"weapon_9mmAR",
+	"weapon_ingram",
+	"weapon_ingram_dual",
+	"weapon_m249"
+};
+
+GameplayMod &::accuracy = GameplayMod::Define( "accuracy", "Accuracy" )
+.Description( "Some of your weapons become less or more accurate" )
+.Arguments( {
+	Argument( "accuracy" ).MinMax( 0.01, 10 ).Default( "1" ).Description( []( const std::string string, float value ) {
+		return fmt::sprintf( "Spread is multiplied by: %.1f", value );
+	} ),
+} )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::accuracyLow.isActive() ) {
+		return "1.66";
+	} else if ( ::accuracyHigh.isActive() ) {
+		return "0.33";
+	}
+
+	return std::nullopt;
+} )
+.CannotBeActivatedRandomly();
+
+GameplayMod &::accuracyLow = GameplayMod::Define( "low_accuracy", "Low accuracy" )
+.Description( "Some of your weapons become inaccurate" )
+.CanOnlyBeActivatedRandomlyWhen( []() -> bool {
+	bool hasBulletBasedWeapon = false;
+	if ( auto player = GetPlayer() ) {
+		for ( auto weapon : weaponsWithBullets ) {
+			if ( player->HasNamedPlayerItem( weapon ) ) {
+				hasBulletBasedWeapon = true;
+				break;
+			}
+		}
+	}
+
+	return hasBulletBasedWeapon && !::accuracyHigh.isActive();
+} );
+
+GameplayMod &::accuracyHigh = GameplayMod::Define( "high_accuracy", "Super accuracy" )
+.Description( "Some of your weapons become super accurate" )
+.CanOnlyBeActivatedRandomlyWhen( []() -> bool {
+	bool hasBulletBasedWeapon = false;
+	if ( auto player = GetPlayer() ) {
+		for ( auto weapon : weaponsWithBullets ) {
+			if ( player->HasNamedPlayerItem( weapon ) ) {
+				hasBulletBasedWeapon = true;
+				break;
+			}
+		}
+	}
+
+	return hasBulletBasedWeapon && !::accuracyLow.isActive();
+} );
+
 GameplayMod &::autoSavesOnly = GameplayMod::Define( "autosaves_only", "Autosaves only" )
 .Description( "Only autosaves are allowed" )
 .CannotBeActivatedRandomly();

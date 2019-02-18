@@ -26,6 +26,7 @@
 #include "pm_defs.h"
 #include "event_api.h"
 #include "r_efx.h"
+#include "gameplay_mod.h"
 
 #include "../hud_iface.h"
 #include "../com_weapons.h"
@@ -293,6 +294,13 @@ Only produces random numbers to match the server ones.
 */
 Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iBulletType, int iTracerFreq, int iDamage, entvars_t *pevAttacker, int shared_rand )
 {
+	if ( auto spreadMultiplier = gameplayMods::accuracy.isActive<float>() ) {
+		if ( *spreadMultiplier > 1.0f && vecSpread.Length() <= 0.001f ) {
+			vecSpread = VECTOR_CONE_5DEGREES;
+		}
+		vecSpread = vecSpread * *spreadMultiplier;
+	}
+
 	float x, y, z;
 
 	for ( ULONG iShot = 1; iShot <= cShots; iShot++ )

@@ -356,6 +356,10 @@ namespace gameplayMods {
 	extern std::vector<ProposedGameplayModClient> proposedGameplayModsClient;
 	extern std::vector<TimedGameplayMod> timedGameplayMods;
 
+	extern GameplayMod& accuracy;
+	extern GameplayMod& accuracyLow;
+	extern GameplayMod& accuracyHigh;
+
 	extern GameplayMod& autoSavesOnly;
 
 	extern GameplayMod& blackMesaMinute;

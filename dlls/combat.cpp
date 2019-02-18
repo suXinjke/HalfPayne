@@ -1709,6 +1709,13 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 {
 	CBasePlayer *player = ( CBasePlayer * ) CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 
+	if ( auto spreadMultiplier = gameplayMods::accuracy.isActive<float>() ) {
+		if ( *spreadMultiplier > 1.0f && vecSpread.Length() <= 0.001f ) {
+			vecSpread = VECTOR_CONE_5DEGREES;
+		}
+		vecSpread = vecSpread * *spreadMultiplier;
+	}
+
 	static int tracerCount;
 	TraceResult tr;
 	Vector vecRight = gpGlobals->v_right;
