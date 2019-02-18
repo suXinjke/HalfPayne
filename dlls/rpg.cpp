@@ -122,6 +122,8 @@ CRpgRocket *CRpgRocket::CreateRpgRocket( Vector vecOrigin, Vector vecAngles, CBa
 //=========================================================
 void CRpgRocket :: Spawn( void )
 {
+	canBeInvisible = FALSE;
+
 	Precache( );
 	// motor
 	pev->movetype = MOVETYPE_BOUNCE;

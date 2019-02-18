@@ -109,6 +109,11 @@ TYPEDESCRIPTION	CBaseMonster::m_SaveData[] =
 
 	DEFINE_FIELD( CBaseMonster, m_scriptState, FIELD_INTEGER ),
 	DEFINE_FIELD( CBaseMonster, m_pCine, FIELD_CLASSPTR ),
+
+	DEFINE_FIELD( CBaseMonster, canBeInvisible, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBaseMonster, isInvisible, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBaseMonster, formerRenderMode, FIELD_INTEGER ),
+	DEFINE_FIELD( CBaseMonster, formerRenderAmount, FIELD_INTEGER ),
 };
 
 //IMPLEMENT_SAVERESTORE( CBaseMonster, CBaseToggle );
@@ -2068,6 +2073,13 @@ void CBaseMonster :: MonsterInit ( void )
 	SetThink( &CBaseMonster::MonsterInitThink );
 	pev->nextthink = gpGlobals->time + 0.1;
 	SetUse ( &CBaseMonster::MonsterUse );
+
+	canBeInvisible = TRUE;
+	isInvisible = FALSE;
+	formerRenderAmount = pev->renderamt;
+	formerRenderMode = pev->rendermode;
+
+	ToggleInvisibility();
 }
 
 //=========================================================
@@ -3463,6 +3475,29 @@ CBaseEntity* CBaseMonster :: DropItem ( char *pszItemName, const Vector &vecPos,
 		return FALSE;
 	}
 
+}
+
+void CBaseMonster::ToggleInvisibility() {
+	if ( !canBeInvisible ) {
+		return;
+	}
+
+	if ( auto invisibilityAmount = gameplayMods::invisibility.isActive<float>() ) {
+		if ( isInvisible ) {
+			return;
+		}
+
+		formerRenderMode = pev->rendermode;
+		formerRenderAmount = pev->renderamt;
+
+		pev->rendermode = kRenderTransTexture;
+		pev->renderamt = 255 - ( *invisibilityAmount / 100.0f ) * 255;
+		isInvisible = TRUE;
+	} else {
+		pev->rendermode = formerRenderMode;
+		pev->renderamt = formerRenderAmount;
+		isInvisible = FALSE;
+	}
 }
 
 

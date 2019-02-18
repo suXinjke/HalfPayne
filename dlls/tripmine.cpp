@@ -100,6 +100,8 @@ IMPLEMENT_SAVERESTORE(CTripmineGrenade,CGrenade);
 
 void CTripmineGrenade :: Spawn( void )
 {
+	canBeInvisible = FALSE;
+
 	Precache( );
 	// motor
 	pev->movetype = MOVETYPE_FLY;

@@ -205,6 +205,7 @@ public:
 	FieldBool( slowmotionInfiniteCheat, FALSE );
 
 	FieldBool( lastGodConstant, FALSE );
+	FieldBool( lastInvisibleEnemies, FALSE );
 	FieldBool( lastNoTargetConstant, FALSE );
 	FieldBool( lastPayned, FALSE );
 	FieldBool( lastSuperHotConstant, FALSE );
@@ -427,6 +428,8 @@ namespace gameplayMods {
 	extern GameplayMod& instagib;
 	
 	extern GameplayMod& inverseControls;
+
+	extern GameplayMod& invisibility;
 
 	extern GameplayMod& kerotanDetector;
 

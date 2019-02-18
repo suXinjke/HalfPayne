@@ -556,6 +556,14 @@ GameplayMod &::initialHealth = GameplayMod::Define( "starting_health", "Starting
 GameplayMod &::inverseControls = GameplayMod::Define( "inverse_controls", "Inverse controls" )
 .Description( "Movement and view controls become inversed" );
 
+GameplayMod &::invisibility = GameplayMod::Define( "invisibility", "Invisibility" )
+.Description( "Everyone is now less visible" )
+.Arguments( {
+	Argument( "invisibilty_amount" ).IsOptional().MinMax( 1, 100 ).RandomMinMax( 70, 90 ).Default( "80" ).Description( []( const std::string string, float value ) {
+		return fmt::sprintf( "Enemies become %.0f percent less visible", value );
+	} )
+} );
+
 GameplayMod &::kerotanDetector = GameplayMod::Define( "kerotan_detector", "Kerotan detector" )
 .Description( "Kerotan frogs will call out to you when you get near them" )
 .CannotBeActivatedRandomly();

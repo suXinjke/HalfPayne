@@ -68,6 +68,8 @@ void CSatchelCharge::Deactivate( void )
 
 void CSatchelCharge :: Spawn( void )
 {
+	canBeInvisible = FALSE;
+
 	Precache( );
 	// motor
 	pev->movetype = MOVETYPE_BOUNCE;

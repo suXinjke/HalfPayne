@@ -739,7 +739,9 @@ void CHAssassin :: RunAI( void )
 	else
 		m_iTargetRanderamt = 20;
 
-	if (pev->renderamt > m_iTargetRanderamt)
+	if ( auto invisibility = gameplayMods::invisibility.isActive() ) {
+		// blank, handled by cgm_gamerules
+	} else if (pev->renderamt > m_iTargetRanderamt)
 	{
 		if (pev->renderamt == 255)
 		{

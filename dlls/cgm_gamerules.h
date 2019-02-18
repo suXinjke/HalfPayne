@@ -54,6 +54,7 @@ public:
 
 	void SendHUDMessages( CBasePlayer *pPlayer );
 	void TogglePaynedModels();
+	void ToggleInvisibleEnemies();
 
 	virtual void ActivateEndMarkers( CBasePlayer *pPlayer = NULL );
 	bool endMarkersActive;

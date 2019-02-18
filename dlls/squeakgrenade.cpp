@@ -177,6 +177,12 @@ void CSqueakGrenade :: Spawn( void )
 
 	pev->sequence = WSQUEAK_RUN;
 	ResetSequenceInfo( );
+
+	canBeInvisible = TRUE;
+	isInvisible = FALSE;
+	formerRenderAmount = pev->renderamt;
+	formerRenderMode = pev->rendermode;
+	ToggleInvisibility();
 }
 
 int CSqueakGrenade::BloodColor() {

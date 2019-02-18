@@ -335,6 +335,12 @@ public:
 	CBaseEntity* DropItem ( char *pszItemName, const Vector &vecPos, const Vector &vecAng );// drop an item.
 
 	edict_t *lastInflictorDuringScript;
+
+	void ToggleInvisibility();
+	BOOL isInvisible;
+	BOOL canBeInvisible;
+	int formerRenderMode;
+	int formerRenderAmount;
 };
 
 

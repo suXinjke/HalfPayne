@@ -407,6 +407,8 @@ void CGrenade :: TumbleThink( void )
 
 void CGrenade:: Spawn( void )
 {
+	canBeInvisible = FALSE;
+
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->classname = MAKE_STRING( "grenade" );
 	

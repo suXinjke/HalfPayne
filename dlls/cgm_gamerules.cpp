@@ -622,6 +622,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		TogglePaynedModels();
 	} );
 
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastInvisibleEnemies, gameplayMods::invisibility.isActive(), [this]( BOOL on ) {
+		ToggleInvisibleEnemies();
+	} );
+
 	if ( twitch && twitch->status == TWITCH_DISCONNECTED && ShouldInitializeTwitch() ) {
 
 		auto twitch_credentials = aux::twitch::readCredentialsFromFile();
@@ -1060,6 +1064,21 @@ void CCustomGameModeRules::TogglePaynedModels() {
 	}
 }
 
+void CCustomGameModeRules::ToggleInvisibleEnemies() {
+	if ( auto pPlayer = GetPlayer() ) {
+		CBaseEntity *entity = NULL;
+		while ( ( entity = UTIL_FindEntityInSphere( entity, pPlayer->pev->origin, 8192.0f ) ) != NULL ) {
+			if ( CBaseMonster *monster = dynamic_cast< CBaseMonster * >( entity ) ) {
+				if ( monster->IsPlayer() ) {
+					continue;
+				}
+
+				monster->ToggleInvisibility();
+			}
+		}
+	}
+}
+
 void CCustomGameModeRules::ActivateEndMarkers( CBasePlayer *pPlayer ) {
 	if ( !endMarkersActive ) {
 		endMarkersActive = true;
@@ -1405,6 +1424,7 @@ void CCustomGameModeRules::OnChangeLevel() {
 
 	tasks.push_back( { 0.0f, [this]( CBasePlayer *pPlayer ) {
 		TogglePaynedModels();
+		ToggleInvisibleEnemies();
 	} } );
 }
 
