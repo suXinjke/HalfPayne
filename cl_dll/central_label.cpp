@@ -87,8 +87,8 @@ int CHudCentralLabel::MsgFunc_CLabelGMod( const char *pszName, int iSize, void *
 	if ( gameplayMods::byString.find( modName ) != gameplayMods::byString.end() ) {
 		auto mod = gameplayMods::byString[modName];
 
-		label = mod->name;
-		auto descriptionSplitted = aux::str::split( mod->description, '\n' );
+		label = mod->GetRandomGameplayModName();
+		auto descriptionSplitted = aux::str::split( mod->GetRandomGameplayModDescription(), '\n' );
 		subLabel = descriptionSplitted.size() > 0 ? descriptionSplitted.at( 0 ) : "";
 		m_iFlags |= HUD_ACTIVE;
 		timeUntilStopDrawing = gEngfuncs.GetAbsoluteTime() + 9.0f;

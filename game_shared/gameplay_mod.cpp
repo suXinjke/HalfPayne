@@ -371,6 +371,16 @@ GameplayMod& GameplayMod::Description( const std::string &description ) {
 	return *this;
 }
 
+GameplayMod &GameplayMod::RandomGameplayModName( const std::string &name ) {
+	this->randomGameplayModName = name;
+	return *this;
+}
+
+GameplayMod &GameplayMod::RandomGameplayModDescription( const std::string &description ) {
+	this->randomGameplayModDescription = description;
+	return *this;
+}
+
 GameplayMod& GameplayMod::IsAlsoActiveWhen( const IsAlsoActiveWhenFunction &func ) {
 	this->isAlsoActiveWhen = func;
 	return *this;

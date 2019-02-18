@@ -61,7 +61,7 @@ int CHudRandomGameplayMods::Draw( float flTime )
 			int g = 255;
 			int b = 255;
 
-			gHUD.DrawHudString( x, y, 0, timedMod.mod->name.c_str(), r, g, b );
+			gHUD.DrawHudString( x, y, 0, timedMod.mod->GetRandomGameplayModName().c_str(), r, g, b );
 
 			int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
 			FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
@@ -93,7 +93,7 @@ int CHudRandomGameplayMods::Draw( float flTime )
 		int g = 255;
 		int b = highlightIndex == i ? 0 : 255;
 		
-		std::string modName = "#" + std::to_string( proposedGameplayModsClient.size() - i ) + "  " + proposedMod.mod->name;
+		std::string modName = "#" + std::to_string( proposedGameplayModsClient.size() - i ) + "  " + proposedMod.mod->GetRandomGameplayModName();
 		auto modNameLines = aux::str::wordWrap( modName.c_str(), ITEM_WIDTH - 20, []( const std::string &str ) -> float {
 			return gHUD.GetStringWidth( str.c_str() );
 		} );

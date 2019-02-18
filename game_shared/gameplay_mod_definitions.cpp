@@ -135,6 +135,8 @@ GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive
 
 GameplayMod &::damageMultiplier = GameplayMod::Define( "damage_multiplier", "Damage multiplier" )
 .Description( "Multiplies damage dealt from enemies to you" )
+.RandomGameplayModName( "Double damage" )
+.RandomGameplayModDescription( "It's double painful now" )
 .Arguments( {
 	Argument( "multipler" ).MinMax( 0.01, 100 ).RandomMinMax( 2.0, 2.0 ).Default( "2" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Multiplier: %.1f", value );
@@ -143,6 +145,8 @@ GameplayMod &::damageMultiplier = GameplayMod::Define( "damage_multiplier", "Dam
 
 GameplayMod &::damageMultiplierFromPlayer = GameplayMod::Define( "damage_multiplier_from_player", "Damage multiplier from player" )
 .Description( "Multiplies damage dealt by you" )
+.RandomGameplayModName( "Double damage from player" )
+.RandomGameplayModDescription( "You deal double damage to enemies" )
 .Arguments( {
 	Argument( "multipler" ).MinMax( 0.01, 100 ).RandomMinMax( 2.0, 2.0 ).Default( "2" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Multiplier: %.1f", value );
@@ -265,6 +269,8 @@ GameplayMod &::fadingOut = GameplayMod::Define( "fading_out", "Fading out" )
 
 GameplayMod &::frictionOverride = GameplayMod::Define( "friction", "Friction" )
 .Description( "Changes player's friction" )
+.RandomGameplayModName( "Low friction" )
+.RandomGameplayModDescription( "Slide around" )
 .Arguments( {
 	Argument( "friction" ).IsOptional().MinMax( 0 ).RandomMinMax( 0, 1 ).Default( "4" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Friction: %.1f", value );
@@ -311,6 +317,8 @@ GameplayMod &::gibsGarbage = GameplayMod::Define( "garbage_gibs", "Garbage gibs"
 
 GameplayMod &::gravity = GameplayMod::Define( "gravity", "Gravity" )
 .Description( "Changes gravity value" )
+.RandomGameplayModName( "Low gravity" )
+.RandomGameplayModDescription( "You start to feel alittle lightheaded" )
 .Arguments( {
 	Argument( "gravity" ).IsOptional().MinMax( 1, 2000 ).RandomMinMax( 100, 400 ).Default( "200" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Forced sv_gravity: %.0f", value );
@@ -1003,6 +1011,8 @@ GameplayMod &::timerShownReal = GameplayMod::Define( "show_timer_real_time", "Sh
 
 GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 .Description( "Changes default timescale" )
+.RandomGameplayModName( "Haste" )
+.RandomGameplayModDescription( "Increased timescale" )
 .Arguments( {
 	Argument( "timescale" ).MinMax( 0.1, 10 ).RandomMinMax( 1.3, 2.0 ).Default( "1" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Timescale: %.1f", value );

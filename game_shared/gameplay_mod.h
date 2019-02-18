@@ -274,7 +274,9 @@ class GameplayMod {
 public:
 	std::string id;
 	std::string name;
+	std::string randomGameplayModName;
 	std::string description;
+	std::string randomGameplayModDescription;
 	std::vector<Argument> arguments;
 	std::string forcedDefaultArguments;
 	std::function<bool()> CanBeActivatedRandomly = [] { return true; };
@@ -287,6 +289,8 @@ public:
 	static GameplayMod& Define( const std::string &id, const std::string &name );
 
 	GameplayMod& Description( const std::string &description );
+	GameplayMod& RandomGameplayModName( const std::string &name );
+	GameplayMod& RandomGameplayModDescription( const std::string &description );
 	GameplayMod& IsAlsoActiveWhen( const IsAlsoActiveWhenFunction &func );
 	GameplayMod& Arguments( const std::vector<Argument> &args );
 	GameplayMod& CannotBeActivatedRandomly();
@@ -302,6 +306,14 @@ public:
 	std::vector<Argument> GetRandomArguments();
 
 	std::optional<std::vector<Argument>> GetArgumentsFromCustomGameplayModeConfig();
+
+	inline std::string GetRandomGameplayModName() {
+		return randomGameplayModName.empty() ? name : randomGameplayModName;
+	}
+
+	inline std::string GetRandomGameplayModDescription() {
+		return randomGameplayModDescription.empty() ? description : randomGameplayModDescription;
+	}
 	
 	template <typename T>
 	std::optional<T> isActive( bool discountForcedArguments = false ) {
