@@ -58,6 +58,10 @@ void CKerotan::Precache() {
 }
 
 int CKerotan::TakeDamage( entvars_t * pevInflictor, entvars_t * pevAttacker, float flDamage, int bitsDamageType ) {
+	if ( !( bitsDamageType & ( DMG_BULLET | DMG_BLAST | DMG_CLUB | DMG_SLASH ) ) ) {
+		return 1;
+	}
+
 	rotationLeft = RANDOM_FLOAT( 40, 70 );
 	rotationDirection = RANDOM_LONG( 0, 1 ) ? 1 : -1;
 
