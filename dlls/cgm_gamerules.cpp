@@ -191,6 +191,95 @@ void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const 
 	MESSAGE_END();
 }
 
+std::string CCustomGameModeRules::SpawnRandomMonsters( CBasePlayer *pPlayer ) {
+	std::vector<std::string> notAllowedMaps = {
+		"c1a0", "c1a0d", "c1a0a", "c1a0b", "c1a0e",
+		"c4a2", "c4a2a", "c4a2b",
+		"c5a1"
+	};
+
+	if ( aux::ctr::includes( notAllowedMaps, GetMapName() ) ) {
+		return "";
+	}
+
+	std::set<std::string> existingEntities;
+	std::set<std::string> spawnedEntities;
+
+	CBaseEntity *pEntity = NULL;
+	while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, pPlayer->pev->origin, 8192.0f ) ) != NULL ) {
+		if ( std::string( STRING( pEntity->pev->classname ) ) == "player_loadsaved" ) {
+			return "";
+		}
+
+		existingEntities.insert( STRING( pEntity->pev->classname ) );
+	}
+
+	static std::map<std::string, std::string> formattedMonsterNames = {
+		{ "monster_alien_controller", "Alien controllers" },
+		{ "monster_alien_grunt", "Alien grunts" },
+		{ "monster_alien_slave", "Vortiguants" },
+		{ "monster_bullchicken", "Bullsquids" },
+		{ "monster_headcrab", "Headcrabs" },
+		{ "monster_houndeye", "Houndeyes" },
+		{ "monster_human_assassin", "Assassins" },
+		{ "monster_human_grunt", "Grunts" },
+		{ "monster_zombie", "Zombies" }
+	};
+
+	std::set<std::string> allowedRandomMonsters;
+	for ( auto &monsterName : formattedMonsterNames ) {
+		allowedRandomMonsters.insert( monsterName.first );
+	}
+
+	std::vector<std::string> allowedMonstersToSpawn;
+	std::set_intersection(
+		allowedRandomMonsters.begin(), allowedRandomMonsters.end(),
+		existingEntities.begin(), existingEntities.end(),
+		std::back_inserter( allowedMonstersToSpawn )
+	);
+
+	if ( allowedMonstersToSpawn.empty() ) {
+		return "";
+	}
+
+	int amountOfMonsters = aux::rand::uniformInt( 7, 15 );
+	for ( int i = 0; i < amountOfMonsters; i++ ) {
+		auto randomMonsterName = aux::rand::choice( allowedMonstersToSpawn );
+		if ( randomMonsterName == "monster_human_grunt" ) {
+			auto choice = aux::rand::choice<std::vector, std::string>( {
+				"monster_human_grunt",
+				"monster_human_grunt_shotgun",
+				"monster_human_grunt_grenade_launcher"
+			} );
+		}
+
+		if ( CHalfLifeRules *rules = dynamic_cast< CHalfLifeRules * >( g_pGameRules ) ) {
+			CBaseEntity *entity = NULL;
+			EntitySpawnData spawnData;
+			spawnData.name = randomMonsterName;
+			spawnData.UpdateSpawnFlags();
+			do {
+				if ( spawnData.DetermineBestSpawnPosition( pPlayer ) ) {
+					entity = rules->SpawnBySpawnData( spawnData );
+				}
+			} while ( !entity );
+			entity->pev->velocity = Vector( RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ), RANDOM_FLOAT( -50, 50 ) );
+			spawnedEntities.insert( spawnData.name );
+		}
+	}
+
+	std::string description;
+	for ( auto i = spawnedEntities.begin(); i != spawnedEntities.end(); ) {
+		description += formattedMonsterNames[*i];
+		i++;
+		if ( i != spawnedEntities.end() ) {
+			description += ", ";
+		}
+	}
+
+	return description;
+}
+
 void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 {
 	if ( config.markedForRestart ) {
@@ -388,7 +477,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			
 			if ( randomGameplayMod->mod->isEvent ) {
 				auto eventResults = randomGameplayMod->mod->EventInit();
-				if ( randomGameplayMods->timeForRandomGameplayMod >= 10.0f ) {
+				if ( randomGameplayMods->timeForRandomGameplayMod >= 10.0f && ( !eventResults.first.empty() || !eventResults.second.empty() ) ) {
 					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
 						WRITE_STRING( eventResults.first.c_str() );
 						WRITE_STRING( eventResults.second.c_str() );
@@ -1328,6 +1417,18 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 					entity->pev->flags |= FL_KILLME;
 				}
 			}
+		}
+	}
+
+	if ( targetName == "on_map_start" && firstTime && gameplayModsData.monsterSpawnAttempts > 0 ) {
+		auto spawnedEntitiesDescription = SpawnRandomMonsters( pPlayer );
+		if ( !spawnedEntitiesDescription.empty() ) {
+			MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
+				WRITE_STRING( "Some enemies have been spawned" );
+				WRITE_STRING( spawnedEntitiesDescription.c_str() );
+			MESSAGE_END();
+
+			gameplayModsData.monsterSpawnAttempts--;
 		}
 	}
 

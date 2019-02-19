@@ -228,6 +228,8 @@ public:
 	FieldInt( score, 0 );
 	FieldInt( comboMultiplier, 1 );
 	FieldFloat( comboMultiplierReset, 0.0f );
+
+	int monsterSpawnAttempts = 0;
 	
 	FieldBool( timerPaused, FALSE );
 

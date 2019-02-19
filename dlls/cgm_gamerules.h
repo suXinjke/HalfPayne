@@ -72,6 +72,7 @@ public:
 
 	void SendGameLogMessage( CBasePlayer *pPlayer, const std::string &message, bool logToConsole = false );
 	void SendGameLogWorldMessage( CBasePlayer *pPlayer, const Vector &location, const std::string &message, const std::string &message2 = "", float flashTime = 1.3f );
+	std::string SpawnRandomMonsters( CBasePlayer *pPlayer );
 
 protected:
 	virtual void OnEnd( CBasePlayer *pPlayer );
