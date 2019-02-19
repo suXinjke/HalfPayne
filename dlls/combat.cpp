@@ -968,7 +968,9 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 			( pAttacker && pAttacker->auxOwner && FStrEq( STRING( pAttacker->auxOwner->v.classname ), "player" ) ) ||
 			( pInflctor && pInflctor->auxOwner && FStrEq( STRING( pInflctor->auxOwner->v.classname ), "player" ) )
 		) {
-			flDamage = pev->health + 1;
+			if ( !FStrEq( STRING( pev->classname ), "monster_bigmomma" ) ) {
+				flDamage = pev->health + 1;
+			}
 		}
 	}
 
