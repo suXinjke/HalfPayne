@@ -1288,6 +1288,7 @@ class CSqueakGrenade : public CGrenade
 	void Killed( entvars_t *pevAttacker, int iGib );
 	void GibMonster( void );
 	virtual int IRelationship( CBaseEntity *pTarget );
+	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType );
 
 	virtual int		Save( CSave &save ); 
 	virtual int		Restore( CRestore &restore );

@@ -123,6 +123,14 @@ int CSqueakGrenade::IRelationship( CBaseEntity *pTarget ) {
 	return CGrenade::IRelationship( pTarget );
 }
 
+int CSqueakGrenade::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType ) {
+	if ( gameplayMods::snarkFromExplosion.isActive() && bitsDamageType & DMG_BLAST ) {
+		return 0;
+	}
+
+	return CBaseMonster::TakeDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
+}
+
 void CSqueakGrenade :: Spawn( void )
 {
 	Precache( );

@@ -31,7 +31,7 @@
 #include "func_break.h"
 #include "player.h"
 #include "gamerules.h"
-#include "gameplay_mod.h"
+#include "cgm_gamerules.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 extern DLL_GLOBAL int			g_iSkillLevel;
@@ -1253,24 +1253,40 @@ void RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacke
 	
 	if ( explicitExplosion ) {
 		if ( gameplayMods::snarkFromExplosion.isActive() ) {
-			for ( int i = 0 ; i < 3 ; i++ ) {	
-				bool ok = false;
-				Vector coords( 0, 0, 0 );
+			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
 
-				while ( !ok ) {
-					CBaseEntity *list[1] = { NULL };
-					UTIL_MonstersInSphere( list, 1, vecSrc + coords, 16.0f );
+				bool hasSnarksNearby = false;
 
-					if ( list[0] != NULL ) {
-						coords = coords + Vector( RANDOM_LONG( 1, 4 ), RANDOM_LONG( 1, 4 ), 0 );
-					} else {
-						ok = true;
+				CBaseEntity *pEntity = NULL;
+				while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, vecSrc, 48.0f ) ) != NULL ) {
+					if ( FStrEq( STRING( pEntity->pev->classname ), "monster_snark" ) ) {
+						hasSnarksNearby = true;
 					}
 				}
 
-				CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", vecSrc + coords, Vector( 0, 120 * i, 0 ), NULL );
-				pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
-				pSqueak->pev->velocity = Vector( RANDOM_LONG( -200, 200 ), RANDOM_LONG( -200, 200 ), RANDOM_LONG( 10, 500 ) );
+				if ( !hasSnarksNearby ) {
+
+					for ( int i = 0; i < 3; i++ ) {
+						bool ok = false;
+						Vector coords( 0, 0, 0 );
+
+						while ( !ok ) {
+							CBaseEntity *list[1] = { NULL };
+							UTIL_MonstersInSphere( list, 1, vecSrc + coords, 16.0f );
+
+							if ( list[0] != NULL ) {
+								coords = coords + Vector( RANDOM_LONG( 1, 4 ), RANDOM_LONG( 1, 4 ), 0 );
+							} else {
+								ok = true;
+							}
+						}
+
+						CBaseEntity *pSqueak = CBaseEntity::Create( "monster_snark", vecSrc + coords, Vector( 0, 120 * i, 0 ), NULL );
+						pSqueak->pev->spawnflags = SF_MONSTER_PRESERVE;
+						pSqueak->pev->velocity = Vector( RANDOM_LONG( -200, 200 ), RANDOM_LONG( -200, 200 ), RANDOM_LONG( 10, 500 ) );
+					}
+
+				}
 			}
 		}
 
