@@ -523,6 +523,7 @@ namespace gameplayMods {
 	extern GameplayMod& weaponRestricted;
 	
 	extern GameplayMod& eventGiveRandomWeapon;
+	extern GameplayMod& eventGivePainkillers;
 	extern GameplayMod& eventModPack;
 	extern GameplayMod& eventSpawnRandomMonsters;
 

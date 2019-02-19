@@ -1224,6 +1224,22 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 	return { "", "" };
 } );
 
+GameplayMod &::eventGivePainkillers = GameplayMod::Define( "event_give_painkillers", "Give painkillers" )
+.OnEventInit( []() -> std::pair<std::string, std::string> {
+	if ( auto player = GetPlayer() ) {
+		player->painkillerCount = MAX_PAINKILLERS;
+	}
+
+	return { "Give painkillers", "Painkillers replenished" };
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	if ( auto player = GetPlayer() ) {
+		return player->painkillerCount <= 3;
+	}
+
+	return false;
+} );
+
 GameplayMod &::eventModPack = GameplayMod::Define( "event_modpack", "Modpack" )
 .OnEventInit( []() -> std::pair<std::string, std::string> {
 #ifndef CLIENT_DLL
