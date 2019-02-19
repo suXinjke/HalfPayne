@@ -111,6 +111,7 @@ cvar_t  *twitch_integration_random_gameplay_mods_voting_result;
 cvar_t  *twitch_integration_mirror_chat;
 cvar_t  *twitch_integration_say;
 cvar_t  *twitch_integration_random_kill_messages;
+cvar_t  *twitch_integration_random_kill_messages_sender;
 /*
 ===============================================================================
 
@@ -1244,6 +1245,7 @@ void InitInput (void)
 	twitch_integration_mirror_chat = gEngfuncs.pfnRegisterVariable( "twitch_integration_mirror_chat", "0", FCVAR_ARCHIVE );
 	twitch_integration_say = gEngfuncs.pfnRegisterVariable( "twitch_integration_say", "0", FCVAR_ARCHIVE );
 	twitch_integration_random_kill_messages = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages", "0", FCVAR_ARCHIVE );
+	twitch_integration_random_kill_messages_sender = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages_sender", "1", FCVAR_ARCHIVE );
 
 	sm_buffer = gEngfuncs.pfnRegisterVariable( "sm_buffer", "96", FCVAR_ARCHIVE );
 

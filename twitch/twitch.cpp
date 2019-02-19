@@ -122,7 +122,7 @@ void event_channel( irc_session_t *session, const char *event, const char *origi
 
 	if ( message.size() > 0 && message.size() < 64 ) {
 		auto &killfeedMessages = ctx->twitch->killfeedMessages;
-		killfeedMessages.push_back( message );
+		killfeedMessages.push_back( { message, origin } );
 		if ( killfeedMessages.size() > 512 ) {
 			killfeedMessages.pop_front();
 		}

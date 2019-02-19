@@ -636,4 +636,10 @@ void GameModeGUI_DrawTwitchConfig() {
 		gEngfuncs.Cvar_Set( "twitch_integration_random_kill_messages", random_kill_messages_checkbox ? "1" : "0" );
 	}
 
+	bool random_kill_messages_sender_checkbox = gEngfuncs.pfnGetCvarFloat( "twitch_integration_random_kill_messages_sender" ) > 0.0f;
+	if ( random_kill_messages_checkbox ) {
+		if ( ImGui::Checkbox( "       and also show the SENDER name", &random_kill_messages_sender_checkbox ) ) {
+			gEngfuncs.Cvar_Set( "twitch_integration_random_kill_messages_sender", random_kill_messages_sender_checkbox ? "1" : "0" );
+		}
+	}
 }

@@ -778,7 +778,9 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		deathPos.z += victim->pev->size.z + 5.0f;
 		auto it = aux::rand::choice( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
 		if ( it != twitch->killfeedMessages.end() ) {
-			SendGameLogWorldMessage( pPlayer, deathPos, *it, "", 3.0f );
+			bool shouldShowSender = CVAR_GET_FLOAT( "twitch_integration_random_kill_messages_sender" ) > 0.0f;
+
+			SendGameLogWorldMessage( pPlayer, deathPos, it->first, shouldShowSender ? it->second : "", 3.0f );
 			twitch->killfeedMessages.erase( it );
 		}
 	}

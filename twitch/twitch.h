@@ -30,7 +30,7 @@ public:
 	std::string user;
 	std::string channel;
 
-	std::list<std::string> killfeedMessages;
+	std::list<std::pair<std::string, std::string>> killfeedMessages;
 
 	TwitchConnectionStatus status = TWITCH_DISCONNECTED;
 
