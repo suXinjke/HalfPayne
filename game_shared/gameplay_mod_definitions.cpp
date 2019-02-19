@@ -708,71 +708,39 @@ GameplayMod &::painkillersSlow = GameplayMod::Define( "slow_painkillers", "Slow 
 GameplayMod &::payned = GameplayMod::Define( "payned", "Payned" )
 .Description( "Payne to the max!" );
 
+GameplayMod &::paynedSounds = GameplayMod::Define( "payned_sounds", "Payned sounds" )
+.Description( "Everyone make sounds of thugs from Max Payne" )
+.CannotBeActivatedRandomly();
+
 GameplayMod &::paynedSoundsHumans = GameplayMod::Define( "payned_sounds_humans", "Payned sounds - humans" )
 .Description( "Humans make sounds of thugs from Max Payne" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::paynedSounds.isActive() ) {
+		return "";
+	}
+
 	if ( ::randomGameplayMods.isActive() && ::payned.isActive() ) {
 		return "";
 	}
 
 	return std::nullopt;
 } )
-.CanOnlyBeActivatedRandomlyWhen( []() {
-	static std::vector<std::string> allowedEntities = {
-		"monster_barney",
-		"monster_human_assassin",
-		"monster_human_grunt",
-		"monster_scientist"
-	};
-
-	if ( auto player = GetPlayer() ) {
-		
-		CBaseEntity *pEntity = NULL;
-		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, player->pev->origin, 8192.0f ) ) != NULL ) {
-			if ( aux::ctr::includes( allowedEntities, STRING( pEntity->pev->classname ) ) ) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-} );
+.CannotBeActivatedRandomly();
 
 GameplayMod &::paynedSoundsMonsters = GameplayMod::Define( "payned_sounds_monsters", "Payned sounds - monsters" )
 .Description( "Monsters make sounds of thugs from Max Payne" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::paynedSounds.isActive() ) {
+		return "";
+	}
+
 	if ( ::randomGameplayMods.isActive() && ::payned.isActive() ) {
 		return "";
 	}
 
 	return std::nullopt;
 } )
-.CanOnlyBeActivatedRandomlyWhen( []() {
-	static std::vector<std::string> allowedEntities = {
-		"monster_alien_controller",
-		"monster_alien_grunt",
-		"monster_alien_slave",
-		"monster_barnacle",
-		"monster_bullchicken",
-		"monster_gargantua",
-		"monster_headcrab",
-		"monster_houndeye",
-		"monster_ichthyosaur",
-		"monster_zombie",
-	};
-
-	if ( auto player = GetPlayer() ) {
-
-		CBaseEntity *pEntity = NULL;
-		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, player->pev->origin, 8192.0f ) ) != NULL ) {
-			if ( aux::ctr::includes( allowedEntities, STRING( pEntity->pev->classname ) ) ) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-} );
+.CannotBeActivatedRandomly();
 
 GameplayMod &::preventMonsterMovement = GameplayMod::Define( "prevent_monster_movement", "Prevent monster movement" )
 .Description( "Monsters will always stay at spawn spot" )

@@ -455,6 +455,7 @@ namespace gameplayMods {
 	extern GameplayMod& painkillersSlow;
 	
 	extern GameplayMod& payned;
+	extern GameplayMod& paynedSounds;
 	extern GameplayMod& paynedSoundsHumans;
 	extern GameplayMod& paynedSoundsMonsters;
 	
