@@ -612,3 +612,32 @@ bool gameplayMods::PlayerShouldProducePhysicalBullets() {
 
 	return false;
 }
+
+std::set<GameplayMod*> gameplayMods::GetFilteredRandomGameplayMods() {
+#ifndef CLIENT_DLL
+	if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
+		return aux::ctr::filter( gameplayMods::allowedForRandom, [cgm]( GameplayMod *mod ) {
+
+			if ( aux::ctr::includes( gameplayMods::previouslyProposedRandomMods, mod ) ) {
+				return false;
+			}
+
+			if ( !cgm->config.randomModsWhitelist.empty() && !aux::ctr::includes( cgm->config.randomModsWhitelist, mod->id ) ) {
+				return false;
+			}
+
+			if ( aux::ctr::includes( cgm->config.randomModsBlacklist, mod->id ) ) {
+				return false;
+			}
+
+			if ( mod->isActive( true ) ) {
+				return false;
+			}
+
+			return mod->CanBeActivatedRandomly();
+		} );
+	}
+#endif
+
+	return {};
+}

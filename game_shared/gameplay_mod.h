@@ -519,12 +519,15 @@ namespace gameplayMods {
 	extern GameplayMod& weaponRestricted;
 	
 	extern GameplayMod& eventGiveRandomWeapon;
+	extern GameplayMod& eventModPack;
 	extern GameplayMod& eventSpawnRandomMonsters;
 
 	bool PlayerShouldProducePhysicalBullets();
 	bool IsSlowmotionEnabled();
 	bool AllowedToVoteOnRandomGameplayMods();
 	bool PaynedSoundsEnabled( bool isMonster );
+
+	std::set<GameplayMod *> GetFilteredRandomGameplayMods();
 
 	template<class T = bool>
 	void OnFlagChange( T &flag, T newValue, const std::function<void( T )> &func ) {

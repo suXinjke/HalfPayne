@@ -1204,6 +1204,52 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 	return { "", "" };
 } );
 
+GameplayMod &::eventModPack = GameplayMod::Define( "event_modpack", "Modpack" )
+.OnEventInit( []() -> std::pair<std::string, std::string> {
+#ifndef CLIENT_DLL
+	auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>();
+
+	if ( !randomGameplayMods ) {
+		return { "", "" };
+	}
+
+	int modAmount = aux::rand::uniformInt( 2, 5 );
+
+	for ( int i = 0; i < modAmount; i++ ) {
+		auto filteredMods = gameplayMods::GetFilteredRandomGameplayMods();
+		aux::ctr::filter( &filteredMods, []( GameplayMod *mod ) {
+			if ( mod->isEvent ) {
+				return false;
+			}
+
+			return true;
+		} );
+
+		if ( filteredMods.empty() ) {
+			previouslyProposedRandomMods.clear();
+			break;
+		}
+
+		auto randomMod = aux::rand::choice( filteredMods );
+		filteredMods.erase( randomMod );
+		
+		timedGameplayMods.push_back( {
+			randomMod,
+			randomMod->GetRandomArguments(),
+			randomGameplayMods->timeForRandomGameplayMod,
+			randomGameplayMods->timeForRandomGameplayMod
+		} );
+
+		previouslyProposedRandomMods.insert( randomMod );
+	}
+
+	return { "Modpack", "Activating several mods at once!" };
+#else 
+	return { "", "" };
+#endif
+
+} );
+
 GameplayMod &::eventSpawnRandomMonsters = GameplayMod::Define( "event_spawn_random_monsters", "Spawn random enemies" )
 .OnEventInit( []() -> std::pair<std::string, std::string> {
 	gameplayModsData.monsterSpawnAttempts = aux::rand::uniformInt( 2, 4 );
