@@ -179,6 +179,9 @@ GameplayMod &::bulletTrail = GameplayMod::Define( "bullet_trail_constant", "Bull
 } )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::chaosEdition = GameplayMod::Define( "chaos_edition", "Chaos edition" )
+.Description( "Rapidly changing mods" );
+
 GameplayMod &::cncSounds = GameplayMod::Define( "cnc_sounds", "Command & Conquer death sounds" )
 .Description( "Tribute to one of the best death sounds" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
@@ -788,6 +791,17 @@ GameplayMod &::randomGameplayMods = GameplayMod::Define( "random_gameplay_mods",
 	Argument( "time_for_random_gameplay_mod_voting" ).IsOptional().MinMax( 0 ).Default( "30" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Upcoming random mods will be shown for %.0f sec", value );
 	} )
+} )
+.IsAlsoActiveWhen( []() -> std::optional<std::string> {
+	if ( ::chaosEdition.isActive() ) {
+		// HACK: should be in OnInit function of sorts, but this is not an event
+		if ( gameplayModsData.timeLeftUntilNextRandomGameplayMod >= 5.0f ) {
+			gameplayModsData.timeLeftUntilNextRandomGameplayMod = 2.0f;
+		}
+		return "4 2 2";
+	}
+
+	return std::nullopt;
 } )
 .CannotBeActivatedRandomly();
 

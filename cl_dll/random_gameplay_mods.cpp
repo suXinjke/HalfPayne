@@ -46,26 +46,29 @@ int CHudRandomGameplayMods::Draw( float flTime )
 	const int ITEM_HEIGHT = 40;
 	const int SPACING = 10;
 
-	if ( randomGameplayMods->timeForRandomGameplayMod >= 10.0f ) {
-		for ( size_t i = 0; i < timedGameplayMods.size(); i++ ) {
-			auto &timedMod = timedGameplayMods.at( i );
-			if ( !timedMod.mod ) {
-				continue;
-			}
-
-			int x = ScreenWidth - ITEM_WIDTH * 2;
-
-			int y = CORNER_OFFSET + i * ( gHUD.m_scrinfo.iCharHeight ) + i * 4;
-
-			int r = 255;
-			int g = 255;
-			int b = 255;
-
-			gHUD.DrawHudString( x, y, 0, timedMod.mod->GetRandomGameplayModName().c_str(), r, g, b );
-
-			int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
-			FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
+	for ( size_t i = 0; i < timedGameplayMods.size(); i++ ) {
+		auto &timedMod = timedGameplayMods.at( i );
+		
+		if ( !timedMod.mod ) {
+			continue;
 		}
+
+		if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f && timedMod.mod != &gameplayMods::chaosEdition ) {
+			continue;
+		}
+
+		int x = ScreenWidth - ITEM_WIDTH * 2;
+
+		int y = CORNER_OFFSET + i * ( gHUD.m_scrinfo.iCharHeight ) + i * 4;
+
+		int r = 255;
+		int g = 255;
+		int b = 255;
+
+		gHUD.DrawHudString( x, y, 0, timedMod.mod->GetRandomGameplayModName().c_str(), r, g, b );
+
+		int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
+		FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
 	}
 
 	if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f || gameplayModsData.timeLeftUntilNextRandomGameplayMod > randomGameplayMods->timeForRandomGameplayModVoting ) {

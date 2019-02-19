@@ -375,6 +375,8 @@ namespace gameplayMods {
 	extern GameplayMod& bulletSelfHarm;
 	extern GameplayMod& bulletTrail;
 
+	extern GameplayMod& chaosEdition;
+
 	extern GameplayMod& cncSounds;
 
 	extern GameplayMod& crossbowExplosiveBolts;
