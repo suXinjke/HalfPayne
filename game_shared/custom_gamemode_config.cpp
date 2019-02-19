@@ -616,6 +616,8 @@ std::set<std::string> CustomGameModeConfig::GetSoundsToPrecacheForMap( const std
 		soundsToPrecache.insert( "cnc/cnc_ded09.wav" );
 		soundsToPrecache.insert( "cnc/cnc_ded10.wav" );
 		soundsToPrecache.insert( "cnc/cnc_ded11.wav" );
+		soundsToPrecache.insert( "cnc/reinforcements.wav" );
+		soundsToPrecache.insert( "cnc/unit_lost.wav" );
 	}
 
 	if (

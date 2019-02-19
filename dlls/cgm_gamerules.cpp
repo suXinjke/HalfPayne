@@ -795,6 +795,10 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 		gameplayModsData.gungameKillsLeft--;
 	}
 
+	if ( gameplayMods::cncSounds.isActive() && aux::rand::uniformInt( 0, 9 ) < 5 ) {
+		EMIT_SOUND( ENT( pPlayer->pev ), CHAN_STATIC, "cnc/unit_lost.wav", 1, ATTN_NORM, true );
+	}
+
 	CHalfLifeRules::OnKilledEntityByPlayer( pPlayer, victim, killedEntity, isHeadshot, killedByExplosion, killedByEnvExplosion, killedByCrowbar );
 }
 
@@ -1429,6 +1433,10 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 			MESSAGE_END();
 
 			gameplayModsData.monsterSpawnAttempts--;
+
+			if ( gameplayMods::cncSounds.isActive() ) {
+				pPlayer->AddToSoundQueue( MAKE_STRING( "cnc/reinforcements.wav" ), 0.33f, false );
+			}
 		}
 	}
 
