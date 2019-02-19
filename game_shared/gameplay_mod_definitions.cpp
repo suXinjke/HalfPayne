@@ -569,6 +569,9 @@ GameplayMod &::kerotanDetector = GameplayMod::Define( "kerotan_detector", "Kerot
 .Description( "Kerotan frogs will call out to you when you get near them" )
 .CannotBeActivatedRandomly();
 
+GameplayMod &::modsDoubleTime = GameplayMod::Define( "double_time_mods", "Double time mods" )
+.Description( "Next mods will last for twice as long" );
+
 GameplayMod &::noFallDamage = GameplayMod::Define( "no_fall_damage", "No fall damage" )
 .Description( "Self explanatory" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
