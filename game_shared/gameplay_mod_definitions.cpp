@@ -205,6 +205,9 @@ GameplayMod &::damageMultiplier = GameplayMod::Define( "damage_multiplier", "Dam
 	Argument( "multipler" ).MinMax( 0.01, 100 ).RandomMinMax( 2.0, 2.0 ).Default( "2" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Multiplier: %.1f", value );
 	} )
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::oneHitKO.isActive();
 } );
 
 GameplayMod &::damageMultiplierFromPlayer = GameplayMod::Define( "damage_multiplier_from_player", "Damage multiplier from player" )
@@ -685,7 +688,7 @@ GameplayMod &::oneHitKO = GameplayMod::Define( "one_hit_ko", "One hit KO" )
 	return std::nullopt;
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::snarkNuclear.isActive() && !::teleportOnKill.isActive();
+	return !::snarkNuclear.isActive() && !::teleportOnKill.isActive() && !::damageMultiplier.isActive();
 } );
 
 GameplayMod &::oneHitKOFromPlayer = GameplayMod::Define( "one_hit_ko_from_player", "One hit KO from player" )
