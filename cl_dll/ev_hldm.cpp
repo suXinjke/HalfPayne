@@ -1892,6 +1892,8 @@ void EV_EgonFire( event_args_t *args )
 	}
 	else
 	{
+		gEngfuncs.pEventAPI->EV_StopSound( idx, CHAN_STATIC, EGON_SOUND_RUN );
+
 		if ( iFireMode == FIRE_WIDE )
 			gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_STATIC, EGON_SOUND_RUN, 0.98, ATTN_NORM, 0, 125 );
 		else
