@@ -474,6 +474,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 			} else {
 				randomGameplayMod = aux::rand::choice( proposedGameplayMods.begin(), proposedGameplayMods.end() )._Ptr;
 			}
+
+			previouslyProposedRandomMods.insert( randomGameplayMod->mod );
 			
 			if ( randomGameplayMod->mod->isEvent ) {
 				auto eventResults = randomGameplayMod->mod->EventInit();
@@ -491,8 +493,6 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 					randomGameplayMods->timeForRandomGameplayMod,
 					randomGameplayMods->timeForRandomGameplayMod
 				} );
-
-				previouslyProposedRandomMods.insert( randomGameplayMod->mod );
 
 				if ( randomGameplayMods->timeForRandomGameplayModVoting >= 10.0f && twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
 					twitch->SendChatMessage( fmt::sprintf( "VOTE ENDED: %s", randomGameplayMod->mod->name ) );
