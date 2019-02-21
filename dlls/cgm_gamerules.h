@@ -51,6 +51,7 @@ public:
 
 	bool VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, size_t modIndex );
 	bool VoteForRandomGameplayMod( CBasePlayer *pPlayer, const std::string &voter, const std::string &modIndex );
+	void ParseTwitchMessages();
 
 	void SendHUDMessages( CBasePlayer *pPlayer );
 	void TogglePaynedModels();

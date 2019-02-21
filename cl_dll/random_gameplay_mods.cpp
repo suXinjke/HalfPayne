@@ -171,7 +171,9 @@ int CHudRandomGameplayMods::MsgFunc_PropModVin( const char *pszName, int iSize, 
 	BEGIN_READ( pbuf, iSize );
 
 	size_t index = READ_SHORT();
-	proposedGameplayModsClient.at( index ).voters.push_back( { 255, READ_STRING() } );
+	if ( index < proposedGameplayModsClient.size() ) {
+		proposedGameplayModsClient.at( index ).voters.push_back( { 255, READ_STRING() } );
+	}
 
 	m_iFlags |= HUD_ACTIVE;
 

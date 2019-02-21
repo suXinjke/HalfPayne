@@ -14,6 +14,7 @@
 #include	"../fmt/printf.h"
 #include	<thread>
 #include	<mutex>
+#include	<regex>
 #include	"../twitch/twitch.h"
 #include	"kerotan.h"
 #include	"game.h"
@@ -718,6 +719,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		SendGameLogMessage( pPlayer, "Disconnecting from Twitch chat", true );
 		twitch->Disconnect();
 	}
+
+	if ( twitch && twitch->status == TWITCH_CONNECTED ) {
+		ParseTwitchMessages();
+	}
 }
 
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) {
@@ -1017,6 +1022,68 @@ bool CCustomGameModeRules::VoteForRandomGameplayMod( CBasePlayer *pPlayer, const
 	}
 
 	return false;
+}
+
+void CCustomGameModeRules::ParseTwitchMessages() {
+
+	auto pPlayer = GetPlayer();
+	if ( !pPlayer ) {
+		return;
+	}
+
+	for ( int i = 0; i < 10 && !twitch->messages.empty(); i++ ) {
+
+		auto &twitchMessage = twitch->messages.front();
+		auto &message = twitchMessage.first;
+		auto &sender = twitchMessage.second;
+
+		bool votedSuccessfully = false;
+
+		if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) >= 1.0f ) {
+			votedSuccessfully = VoteForRandomGameplayMod( pPlayer, sender, message );
+		}
+
+		if ( !votedSuccessfully && CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
+			std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
+			MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
+				WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
+			MESSAGE_END();
+		}
+
+		if ( aux::str::toLowercase( sender ) == "suxinjke" ) {
+			if ( !aux::str::startsWith( message, "+" ) ) {
+				return;
+			}
+
+			static std::regex commandRegex( "\\+(\\w+)\\s*(.+)" );
+			std::smatch commandMatch;
+			if ( std::regex_match( message, commandMatch, commandRegex ) ) {
+				if ( commandMatch.size() < 3 ) {
+					return;
+				}
+
+				auto command = commandMatch[1].str();
+				auto rest = commandMatch[2].str();
+
+				if ( command == "gm" ) {
+					GameplayModData::ToggleForceEnabledGameplayMod( rest );
+				} else if ( command == "gdm" ) {
+					GameplayModData::ToggleForceDisabledGameplayMod( rest );
+				} else if ( command == "p" ) {
+					auto separated = aux::str::split( rest, '|' );
+					auto line1 = separated.at( 0 ).substr( 0, 80 );
+					auto line2 = separated.size() > 1 ? separated.at( 1 ).substr( 0, 80 ) : "";
+
+					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
+						WRITE_STRING( line1.c_str() );
+						WRITE_STRING( line2.c_str() );
+					MESSAGE_END();
+				}
+			}
+		}
+
+		twitch->messages.pop_front();
+	}
 }
 
 void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {

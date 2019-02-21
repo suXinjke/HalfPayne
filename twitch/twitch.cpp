@@ -29,7 +29,7 @@ void event_channel( irc_session_t *session, const char *event, const char *origi
 
 	std::string originalMessage = params[1];
 
-	ctx->twitch->OnMessage( origin, originalMessage );
+	ctx->twitch->messages.push_back( { originalMessage, origin } );
 
 	static std::map<int, std::string> translitDictionary = {
 		{ 1040, "A" }, // А
