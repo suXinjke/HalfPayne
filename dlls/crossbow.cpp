@@ -429,6 +429,7 @@ void CCrossbow::FireBolt()
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( ) - gpGlobals->v_up * 2;
 	Vector vecDir	 = m_pPlayer->GetAimForwardWithOffset();
 
+#ifndef CLIENT_DLL
 	float rightOffset = 4;
 	if ( gameplayMods::upsideDown.isActive() ) {
 		rightOffset *= -1;
@@ -437,7 +438,6 @@ void CCrossbow::FireBolt()
 	vecDir = UTIL_VecSkew( vecSrc, vecDir, rightOffset, ENT( pev ) );
 	vecSrc = vecSrc + gpGlobals->v_right * rightOffset;
 
-#ifndef CLIENT_DLL
 	CCrossbowBolt *pBolt = CCrossbowBolt::BoltCreate();
 	pBolt->pev->origin = vecSrc;
 	pBolt->pev->angles = anglesAim;
