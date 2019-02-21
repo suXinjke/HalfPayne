@@ -221,6 +221,9 @@ GameplayMod &::damageMultiplierFromPlayer = GameplayMod::Define( "damage_multipl
 	Argument( "multipler" ).MinMax( 0.01, 100 ).RandomMinMax( 2.0, 2.0 ).Default( "2" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Multiplier: %.1f", value );
 	} )
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::oneHitKO.isActive();
 } );
 
 GameplayMod &::deusExSounds = GameplayMod::Define( "deus_ex_sounds", "Deus EX death sounds" )
@@ -1015,7 +1018,7 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 	return std::nullopt;
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHotToggleable.isActive();
+	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHotToggleable.isActive() && !::oneHitKO.isActive() && !::oneHitKOFromPlayer.isActive();
 } );
 
 GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", "SUPERHOT Toggleable" )
