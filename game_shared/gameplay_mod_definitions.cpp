@@ -138,7 +138,10 @@ GameplayMod &::bulletPhysics = GameplayMod::Define( "bullet_physics", "Bullet ph
 .CannotBeActivatedRandomly();
 
 GameplayMod &::bulletDelayOnSlowmotion = GameplayMod::Define( "bullet_delay_on_slowmotion", "Bullet delay on slowmotion" )
-.Description( "Physical bullets shot by during slowmotion will move slowly until it's turned off" );
+.Description( "Physical bullets shot by during slowmotion will move slowly until it's turned off" )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::slowmotionForbidden.isActive();
+} );
 
 GameplayMod &::bulletRicochet = GameplayMod::Define( "bullet_ricochet", "Bullet ricochet" )
 .Description( "Physical bullets ricochet off the walls" )
@@ -868,7 +871,7 @@ GameplayMod &::slowmotionForbidden = GameplayMod::Define( "no_slowmotion", "No s
 .Description( "You're not allowed to use slowmotion" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return
-		!::slowmotionInfinite.isActive() && !::superHotToggleable.isActive() &&
+		!::slowmotionInfinite.isActive() && !::superHotToggleable.isActive() && !!::bulletDelayOnSlowmotion.isActive() &&
 		!::slowmotionFastWalk.isActive() && !::slowmotionOnlyDiving.isActive() && !::slowmotionOnDamage.isActive();
 } );
 
