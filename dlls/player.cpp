@@ -3878,7 +3878,7 @@ void CBasePlayer::Spawn( void )
 	slowMotionUpdateTime = 1;
 	nextSmoothTimeScaleChange = 0.0f;
 
-	currentMusicPlaylistIndex = -1;
+	currentMusicPlaylistIndex = 0;
 
 	painkillerCount = 0;
 	painkillerEnergy = 0;

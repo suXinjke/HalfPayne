@@ -294,6 +294,7 @@ void CCustomGameModeRules::PlayerSpawn( CBasePlayer *pPlayer )
 	gameplayModsData.activeGameMode = GAME_MODE_CUSTOM;
 	gameplayModsData.gungameSeed = aux::rand::uniformInt( 0, 10000 );
 	gameplayModsData.randomSpawnerSeed = aux::rand::uniformInt( 0, 10000 );
+	gameplayModsData.musicPlaylistSeed = aux::rand::uniformInt( 0, 10000 );
 	for ( auto &condition : config.endConditions ) {
 		condition.activations = 0;
 	}
@@ -396,17 +397,33 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 		CVAR_GET_FLOAT( "sm_current_pos" ) == 0.0f &&
 		gpGlobals->time > musicSwitchDelay
 	) {
-		size_t musicIndexToPlay = pPlayer->currentMusicPlaylistIndex + 1;
-		if ( config.musicPlaylistShuffle ) {
-			musicIndexToPlay = aux::rand::uniformInt<size_t>( 0, musicPlaylistSize - 1 );
+		std::string path;
+		static std::string lastPath;
+
+		if ( pPlayer->currentMusicPlaylistIndex >= musicPlaylistSize ) {
+			pPlayer->currentMusicPlaylistIndex = 0;
+
+			if ( config.musicPlaylistShuffle ) {
+				gameplayModsData.musicPlaylistSeed++;
+			}
 		}
 
-		if ( musicIndexToPlay >= musicPlaylistSize ) {
-			musicIndexToPlay = 0;
+		if ( config.musicPlaylistShuffle ) {
+			std::mt19937 gen( gameplayModsData.musicPlaylistSeed );
+
+			static std::vector<Sound> musicQueue;
+			musicQueue = config.musicPlaylist;
+			std::shuffle( musicQueue.begin(), musicQueue.end(), gen );
+
+			path = musicQueue.at( pPlayer->currentMusicPlaylistIndex ).path;
+			
+			lastPath = path;
+		} else {
+			path = config.musicPlaylist.at( pPlayer->currentMusicPlaylistIndex ).path;
 		}
-		
-		pPlayer->SendPlayMusicMessage( config.musicPlaylist.at( musicIndexToPlay ).path );
-		pPlayer->currentMusicPlaylistIndex = musicIndexToPlay;
+
+		pPlayer->SendPlayMusicMessage( path );
+		pPlayer->currentMusicPlaylistIndex++;
 
 		musicSwitchDelay = gpGlobals->time + 0.2f;
 	}

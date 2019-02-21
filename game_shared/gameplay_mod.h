@@ -194,6 +194,8 @@ public:
 	FieldInt( randomSpawnerSeed, 0 );
 	FieldInt( randomSpawnerCalls, 0 );
 
+	FieldInt( musicPlaylistSeed, 0 );
+
 	FieldInt( fade, 255 );
 	
 	FieldFloat( timescaleAdditive, 0.0f );
