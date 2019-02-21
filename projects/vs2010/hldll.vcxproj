@@ -21,7 +21,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -64,12 +64,13 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091; 4996</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>$(ProjectDir)..\..\dlls\hl.def</ModuleDefinitionFile>
-      <AdditionalDependencies>C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\libircclient.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
