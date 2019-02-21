@@ -2,8 +2,11 @@
 #include <iostream>
 #include <regex>
 #include <fstream>
+#include <mutex>
 #include "../utf8/utf8.h"
 #include "cpp_aux.h"
+
+std::mutex killfeedMutex;
 
 void event_connect( irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count ) {
 	TwitchContext *ctx = ( TwitchContext * ) irc_get_ctx( session );
@@ -121,6 +124,8 @@ void event_channel( irc_session_t *session, const char *event, const char *origi
 	aux::str::trim( &message );
 
 	if ( message.size() > 0 && message.size() < 64 ) {
+		std::lock_guard<std::mutex> lock( killfeedMutex );
+
 		auto &killfeedMessages = ctx->twitch->killfeedMessages;
 		killfeedMessages.push_back( { message, origin } );
 		if ( killfeedMessages.size() > 512 ) {

@@ -725,6 +725,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	}
 }
 
+extern std::mutex killfeedMutex;
+
 void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) {
 
 	gameplayModsData.kills++;
@@ -766,6 +768,8 @@ void CCustomGameModeRules::OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEn
 	}
 
 	if ( twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_kill_messages" ) > 0.0f && twitch->killfeedMessages.size() > 0 ) {
+		std::lock_guard<std::mutex> lock( killfeedMutex );
+
 		Vector deathPos = victim->pev->origin;
 		deathPos.z += victim->pev->size.z + 5.0f;
 		auto it = aux::rand::choice( twitch->killfeedMessages.begin(), twitch->killfeedMessages.end() );
