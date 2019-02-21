@@ -143,7 +143,7 @@ struct ProposedGameplayModClient {
 	GameplayMod *mod = NULL;
 	int votes = 0;
 	float voteDistributionPercent = 0.0f;
-	std::vector<ProposedRandomGameplayModVoter> voters;
+	std::list<ProposedRandomGameplayModVoter> voters;
 };
 
 struct TimedGameplayMod {
