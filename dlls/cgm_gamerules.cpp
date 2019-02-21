@@ -650,7 +650,9 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				}
 			}
 			
-			pPlayer->SelectItem( nextGungameWeapon );
+			if ( pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->m_iId != WEAPON_CROWBAR ) {
+				pPlayer->SelectItem( nextGungameWeapon );
+			}
 
 			gameplayModsData.gungameKillsLeft = gungameInfo->killsRequired;
 			gameplayModsData.gungameTimeLeftUntilNextWeapon = gungameInfo->changeTime;
@@ -682,7 +684,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 			pPlayer->SendWeaponLockInfo();
 
-			if ( !FStrEq( gameplayModsData.gungamePriorWeapon, "" ) ) {
+			if ( !FStrEq( gameplayModsData.gungamePriorWeapon, "" ) && pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->m_iId != WEAPON_CROWBAR ) {
 				pPlayer->SelectItem( gameplayModsData.gungamePriorWeapon );
 				snprintf( gameplayModsData.gungamePriorWeapon, 128, "" );
 			}
