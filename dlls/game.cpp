@@ -555,21 +555,21 @@ void GameDLLInit( void )
 		twitch = new Twitch();
 		twitch->OnConnected = [] {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( CBasePlayer *pPlayer = GetPlayer() ) {
 					cgm->SendGameLogMessage( pPlayer, "Connected to Twitch chat", true );
 				}
 			}
 		};
 		twitch->OnDisconnected = [] {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( CBasePlayer *pPlayer = GetPlayer() ) {
 					cgm->SendGameLogMessage( pPlayer, "Disconnected from Twitch chat", true );
 				}
 			}
 		};
 		twitch->OnError = []( int errorCode, const std::string &error ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( CBasePlayer *pPlayer = GetPlayer() ) {
 					if ( errorCode != -1 ) {
 						cgm->SendGameLogMessage( pPlayer, fmt::sprintf( "Twitch chat error %d: %s", errorCode, error ).c_str(), true );
 					} else {
@@ -581,7 +581,7 @@ void GameDLLInit( void )
 
 		twitch->OnMessage = []( const std::string &sender, const std::string &message ) {
 			if ( CCustomGameModeRules *cgm = dynamic_cast< CCustomGameModeRules * >( g_pGameRules ) ) {
-				if ( CBasePlayer *pPlayer = dynamic_cast< CBasePlayer* >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) ) ) {
+				if ( CBasePlayer *pPlayer = GetPlayer() ) {
 					bool votedSuccessfully = false;
 
 					if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) >= 1.0f ) {

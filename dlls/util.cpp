@@ -2683,8 +2683,19 @@ int	CRestore::BufferCheckZString( const char *string )
 	return 0;
 }
 
+extern int g_serveractive;
+
 CBasePlayer* GetPlayer() {
-	 return dynamic_cast< CBasePlayer * >( CBasePlayer::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) ) );
+	if ( g_changeLevelOccured || !g_serveractive ) {
+		return 0;
+	}
+
+	auto entity = g_engfuncs.pfnPEntityOfEntIndex( 1 );
+	if ( !entity ) {
+		return 0;
+	}
+
+	return dynamic_cast<CBasePlayer *>( CBasePlayer::Instance( entity ) );
 }
 
 float SHARED_CVAR_GET_FLOAT( const char *cvar ) {
