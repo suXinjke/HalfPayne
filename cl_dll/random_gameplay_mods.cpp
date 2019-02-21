@@ -116,14 +116,14 @@ int CHudRandomGameplayMods::Draw( float flTime )
 			if ( it->alpha <= 0 ) {
 				it = proposedMod.voters.erase( it );
 			} else {
-				int vote_offset = ( ( 255 - it->alpha ) / 255.0f ) * 30;
+				int vote_offset = ( ( 255 - it->alpha ) / 255.0f ) * 60.0f;
 				int vote_r = 255;
 				int vote_g = 255;
 				int vote_b = 255;
 				ScaleColors( vote_r, vote_g, vote_b, it->alpha );
 				gHUD.DrawHudString( x, y + vote_offset + gHUD.m_scrinfo.iCharHeight * 3 + 4, 0, it->name.c_str(), vote_r, vote_g, vote_b );
 
-				it->alpha -= 4;
+				it->alpha -= 2;
 				it++;
 			}
 		}
