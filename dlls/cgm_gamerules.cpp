@@ -195,6 +195,7 @@ void CCustomGameModeRules::SendGameLogWorldMessage( CBasePlayer *pPlayer, const 
 std::string CCustomGameModeRules::SpawnRandomMonsters( CBasePlayer *pPlayer ) {
 	std::vector<std::string> notAllowedMaps = {
 		"c1a0", "c1a0d", "c1a0a", "c1a0b", "c1a0e",
+		"c2a3e", "nightmare",
 		"c4a2", "c4a2a", "c4a2b",
 		"c5a1"
 	};
