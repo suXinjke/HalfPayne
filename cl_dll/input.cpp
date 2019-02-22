@@ -1233,8 +1233,8 @@ void InitInput (void)
 	crosshair_kill_confirmed = gEngfuncs.pfnRegisterVariable( "crosshair_kill_confirmed", "0.5", FCVAR_ARCHIVE );
 
 	slowmotion_effect_change_duration = gEngfuncs.pfnRegisterVariable( "slowmotion_effect_change_duration", "0.7", FCVAR_ARCHIVE );
-	slowmotion_low_pass_cutoff = gEngfuncs.pfnRegisterVariable( "slowmotion_low_pass_cutoff", "1200", FCVAR_ARCHIVE );
-	slowmotion_negative_pitch = gEngfuncs.pfnRegisterVariable( "slowmotion_negative_pitch", "2", FCVAR_ARCHIVE );
+	slowmotion_low_pass_cutoff = gEngfuncs.pfnRegisterVariable( "slowmotion_low_pass_cutoff", "800", FCVAR_ARCHIVE );
+	slowmotion_negative_pitch = gEngfuncs.pfnRegisterVariable( "slowmotion_negative_pitch", "0", FCVAR_ARCHIVE );
 
 	sm_current_pos = gEngfuncs.pfnRegisterVariable( "sm_current_pos", "0", NULL );
 	sm_current_file = gEngfuncs.pfnRegisterVariable( "sm_current_file", "0", NULL );
