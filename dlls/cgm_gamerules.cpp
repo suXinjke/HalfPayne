@@ -1057,7 +1057,7 @@ void CCustomGameModeRules::ParseTwitchMessages() {
 
 	for ( int i = 0; i < 10 && !twitch->messages.empty(); i++ ) {
 
-		auto &twitchMessage = twitch->messages.front();
+		auto twitchMessage = twitch->messages.front();
 		auto &message = twitchMessage.first;
 		auto &sender = twitchMessage.second;
 
@@ -1073,6 +1073,8 @@ void CCustomGameModeRules::ParseTwitchMessages() {
 				WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
 			MESSAGE_END();
 		}
+
+		twitch->messages.pop_front();
 
 		if ( aux::str::toLowercase( sender ) == "suxinjke" ) {
 			if ( !aux::str::startsWith( message, "+" ) ) {
@@ -1105,8 +1107,6 @@ void CCustomGameModeRules::ParseTwitchMessages() {
 				}
 			}
 		}
-
-		twitch->messages.pop_front();
 	}
 }
 
