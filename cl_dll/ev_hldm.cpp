@@ -74,6 +74,7 @@ void EV_FirePython( struct event_args_s *args  );
 void EV_FireGauss( struct event_args_s *args  );
 void EV_SpinGauss( struct event_args_s *args  );
 void EV_Crowbar( struct event_args_s *args  );
+void EV_Chicken( struct event_args_s *args );
 void EV_FireCrossbow( struct event_args_s *args  );
 void EV_FireCrossbow2( struct event_args_s *args  );
 void EV_FireRpg( struct event_args_s *args  );
@@ -1649,6 +1650,43 @@ void EV_Crowbar( event_args_t *args )
 }
 //======================
 //	   CROWBAR END 
+//======================
+
+//======================
+//	   CHICKEN START
+//======================
+
+enum chicken_e {
+	CHICKEN_IDLE_LIGHT1 = 0,
+	CHICKEN_IDLE_LIGHT2,
+	CHICKEN_IDLE_STRONG1,
+	CHICKEN_IDLE_STRONG2,
+	CHICKEN_DRAW_LIGHT,
+	CHICKEN_DRAW_STRONG,
+	CHICKEN_ATTACK_LIGHT1,
+	CHICKEN_ATTACK_LIGHT2,
+	CHICKEN_ATTACK_STRONG,
+	CHICKEN_SWITCH_LIGHT_TO_STRONG,
+	CHICKEN_SWITCH_STRONG_TO_LIGHT
+};
+
+void EV_Chicken( event_args_t *args ) {
+	int idx = args->entindex;;
+	vec3_t origin;
+
+	VectorCopy( args->origin, origin );
+
+	int swing = args->iparam1;
+	int isLight = args->iparam2;
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/cbar_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM );
+
+	if ( EV_IsLocal( idx ) && isLight ) {
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( swing > 0 ? CHICKEN_ATTACK_LIGHT2 : CHICKEN_ATTACK_LIGHT1, 1 );
+	}
+}
+//======================
+//	   CHICKEN END 
 //======================
 
 //======================

@@ -1908,6 +1908,11 @@ void UpdateClientData ( const edict_t *ent, int sendweapons, struct clientdata_s
 						cd->vuser2.z = ( ( CIngramTwin * ) pl->m_pActiveItem )->m_iClip2;
 					}
 
+					if ( pl->m_pActiveItem->m_iId == WEAPON_CHICKEN ) {
+						cd->vuser2.y = ( ( CChicken * ) pl->m_pActiveItem )->isLight;
+						cd->vuser2.z = ( ( CChicken * ) pl->m_pActiveItem )->isAttacking;
+					}
+
 					if ( pl->m_pActiveItem->m_iId == WEAPON_M249 ) {
 						cd->vuser2.z = pl->m_pActiveItem->pev->body;
 					}

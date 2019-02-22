@@ -56,6 +56,7 @@ vec3_t previousorigin;
 CGlock g_Glock;
 CGlockTwin g_GlockTwin;
 CCrowbar g_Crowbar;
+CChicken g_Chicken;
 CPython g_Python;
 CMP5 g_Mp5;
 CCrossbow g_Crossbow;
@@ -630,6 +631,7 @@ void HUD_InitClientWeapons( void )
 	HUD_PrepEntity( &g_Glock	, &player );
 	HUD_PrepEntity( &g_GlockTwin, &player );
 	HUD_PrepEntity( &g_Crowbar	, &player );
+	HUD_PrepEntity( &g_Chicken	, &player );
 	HUD_PrepEntity( &g_Python	, &player );
 	HUD_PrepEntity( &g_Mp5	, &player );
 	HUD_PrepEntity( &g_Crossbow	, &player );
@@ -712,6 +714,10 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	{
 		case WEAPON_CROWBAR:
 			pWeapon = &g_Crowbar;
+			break;
+
+		case WEAPON_CHICKEN:
+			pWeapon = &g_Chicken;
 			break;
 		
 		case WEAPON_GLOCK:
@@ -903,6 +909,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		( ( CIngramTwin * ) player.m_pActiveItem )->m_iClip2 = (int) from->client.vuser2[2];
 	}
 
+	if ( player.m_pActiveItem->m_iId == WEAPON_CHICKEN ) {
+		( ( CChicken * ) player.m_pActiveItem )->isLight = ( int ) from->client.vuser2[1];
+		( ( CChicken * ) player.m_pActiveItem )->isAttacking = ( int ) from->client.vuser2[2];
+	}
+
 	if ( player.m_pActiveItem->m_iId == WEAPON_M249 )
 	{
 		player.m_pActiveItem->pev->body = (int) from->client.vuser2[2];
@@ -989,6 +1000,11 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	if ( player.m_pActiveItem->m_iId == WEAPON_M249 )
 	{
 		from->client.vuser2[2] = player.m_pActiveItem->pev->body;
+	}
+
+	if ( player.m_pActiveItem->m_iId == WEAPON_CHICKEN ) {
+		from->client.vuser2[1] = ( ( CChicken * ) player.m_pActiveItem )->isLight;
+		from->client.vuser2[2] = ( ( CChicken * ) player.m_pActiveItem )->isAttacking;
 	}
 
 	// Make sure that weapon animation matches what the game .dll is telling us

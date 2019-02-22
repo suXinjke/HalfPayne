@@ -83,6 +83,7 @@ public:
 #define	WEAPON_INGRAM			17
 #define	WEAPON_INGRAM_TWIN		18
 #define	WEAPON_M249				19
+#define WEAPON_CHICKEN			20
 
 #define WEAPON_ALLWEAPONS		(~(1<<WEAPON_SUIT))
 
@@ -96,6 +97,7 @@ public:
 
 // weapon weight factors (for auto-switching)   (-1 = noswitch)
 #define CROWBAR_WEIGHT		0
+#define CHICKEN_WEIGHT		0
 #define GLOCK_WEIGHT		10
 #define PYTHON_WEIGHT		15
 #define MP5_WEIGHT			15
@@ -578,7 +580,6 @@ public:
 	void PrimaryAttack( void );
 	int Swing( int fFirst );
 	BOOL Deploy( void );
-	void Holster( int skiplocal = 0 );
 	int m_iSwing;
 	TraceResult m_trHit;
 
@@ -592,6 +593,43 @@ public:
 	}
 private:
 	unsigned short m_usCrowbar;
+};
+
+class CChicken : public CBasePlayerWeapon {
+public:
+#ifndef CLIENT_DLL
+	int		Save( CSave &save );
+	int		Restore( CRestore &restore );
+	static	TYPEDESCRIPTION m_SaveData[];
+#endif
+
+	void Spawn();
+	void Precache();
+	int iItemSlot() { return 1; }
+	int GetItemInfo( ItemInfo *p );
+
+	void PrimaryAttack();
+	void SecondaryAttack();
+	void WeaponIdle();
+	int Swing( int fFirst );
+	BOOL Deploy();
+	int m_iSwing;
+	TraceResult m_trHit;
+
+	BOOL isLight;
+	BOOL isAttacking;
+
+	void ItemPostFrame();
+
+	virtual BOOL UseDecrement() {
+#if defined( CLIENT_WEAPONS )
+		return TRUE;
+#else
+		return FALSE;
+#endif
+	}
+private:
+	unsigned short m_usChicken;
 };
 
 class CPython : public CBasePlayerWeapon

@@ -122,6 +122,7 @@
     <ClCompile Include="..\..\twitch\twitch.cpp" />
     <ClCompile Include="..\..\game_shared\fs_aux.cpp" />
     <ClCompile Include="..\..\dlls\m249.cpp" />
+    <ClCompile Include="..\..\dlls\chicken.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dlls\activity.h" />

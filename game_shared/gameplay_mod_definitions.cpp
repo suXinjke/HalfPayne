@@ -1192,6 +1192,7 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 .OnEventInit( []() -> std::pair<std::string, std::string> {
 #ifndef CLIENT_DLL
 	static std::vector<std::pair<const char *, const char *>> allowedRandomWeapons = {
+		{ "weapon_chicken", "Chicken" },
 		{ "weapon_9mmhandgun", "Beretta" },
 		{ "weapon_shotgun", "Shotgun" },
 		{ "weapon_9mmAR", "SMG" },

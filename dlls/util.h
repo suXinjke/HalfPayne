@@ -641,4 +641,6 @@ inline std::string GetMapName() {
 #endif
 }
 
+void FindHullIntersection( const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity );
+
 #endif // UTIL_H
