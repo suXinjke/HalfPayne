@@ -76,7 +76,7 @@ void SM_Play( ManagedStream &stream, const char *soundPath, int looping ) {
 			return;
 		}
 
-		if ( !SM_Stop( music ) ) {
+		if ( !SM_Stop( stream ) ) {
 			SM_CheckError();
 			return;
 		}
