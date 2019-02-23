@@ -305,7 +305,7 @@ public:
 	void DropPlayerItem ( char *pszItemName );
 	BOOL HasPlayerItem( CBasePlayerItem *pCheckItem );
 	CBasePlayerItem * GetPlayerItem( const char *pszItemName );
-	BOOL HasNamedPlayerItem( const char *pszItemName );
+	BOOL HasNamedPlayerItem( const char *pszItemName, bool ignoreGungameWeapons = false );
 	BOOL HasWeapons( void );// do I have ANY weapons?
 	void SelectPrevItem( int iItem );
 	void SelectNextItem( int iItem );

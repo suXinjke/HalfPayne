@@ -51,7 +51,7 @@ GameplayMod &::accuracyLow = GameplayMod::Define( "low_accuracy", "Low accuracy"
 	bool hasBulletBasedWeapon = false;
 	if ( auto player = GetPlayer() ) {
 		for ( auto weapon : weaponsWithBullets ) {
-			if ( player->HasNamedPlayerItem( weapon ) ) {
+			if ( player->HasNamedPlayerItem( weapon, true ) ) {
 				hasBulletBasedWeapon = true;
 				break;
 			}
@@ -67,7 +67,7 @@ GameplayMod &::accuracyHigh = GameplayMod::Define( "high_accuracy", "Super accur
 	bool hasBulletBasedWeapon = false;
 	if ( auto player = GetPlayer() ) {
 		for ( auto weapon : weaponsWithBullets ) {
-			if ( player->HasNamedPlayerItem( weapon ) ) {
+			if ( player->HasNamedPlayerItem( weapon, true ) ) {
 				hasBulletBasedWeapon = true;
 				break;
 			}
@@ -195,7 +195,7 @@ GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive
 .Description( "Crossbow bolts explode when they hit the wall" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_crossbow" );
+		return player->HasNamedPlayerItem( "weapon_crossbow", true );
 	}
 	return false;
 } );
@@ -307,10 +307,10 @@ GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Exp
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if (
-			player->HasNamedPlayerItem( "weapon_handgrenade" ) ||
-			player->HasNamedPlayerItem( "weapon_satchel" ) ||
-			player->HasNamedPlayerItem( "weapon_tripmine" ) ||
-			player->HasNamedPlayerItem( "weapon_rpg" )
+			player->HasNamedPlayerItem( "weapon_handgrenade", true ) ||
+			player->HasNamedPlayerItem( "weapon_satchel", true ) ||
+			player->HasNamedPlayerItem( "weapon_tripmine", true ) ||
+			player->HasNamedPlayerItem( "weapon_rpg", true )
 		) {
 			return true;
 		}
@@ -355,7 +355,7 @@ GameplayMod &::gaussFastCharge = GameplayMod::Define( "gauss_fast_charge", "Gaus
 .Description( "Gauss charges faster like in multiplayer" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_gauss" );
+		return player->HasNamedPlayerItem( "weapon_gauss", true );
 	}
 	return false;
 } );
@@ -364,7 +364,7 @@ GameplayMod &::gaussJumping = GameplayMod::Define( "gauss_jumping", "Gauss jumpi
 .Description( "Allows for easier gauss jumping like in multiplayer" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_gauss" );
+		return player->HasNamedPlayerItem( "weapon_gauss", true );
 	}
 	return false;
 } );
@@ -415,7 +415,7 @@ GameplayMod &::grenadePellets = GameplayMod::Define( "grenade_pellets", "Grenade
 			}
 		}
 		
-		if ( player->HasNamedPlayerItem( "weapon_handgrenade" ) ) {
+		if ( player->HasNamedPlayerItem( "weapon_handgrenade", true ) ) {
 			return true;
 		}
 
@@ -491,7 +491,7 @@ GameplayMod &::instagib = GameplayMod::Define( "instagib", "Instagib" )
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
-		if ( player->HasNamedPlayerItem( "weapon_gauss" ) ) {
+		if ( player->HasNamedPlayerItem( "weapon_gauss", true ) ) {
 			return true;
 		};
 	}
@@ -539,7 +539,7 @@ GameplayMod &::infiniteAmmoClip = GameplayMod::Define( "infinite_ammo_clip", "In
 
 	if ( auto player = GetPlayer() ) {
 		for ( auto &clipBasedWeapon : clipBasedWeapons ) {
-			if ( player->HasNamedPlayerItem( clipBasedWeapon.c_str() ) ) {
+			if ( player->HasNamedPlayerItem( clipBasedWeapon.c_str(), true ) ) {
 				return true;
 			}
 		}
@@ -657,7 +657,7 @@ GameplayMod &::noSecondaryAttack = GameplayMod::Define( "no_secondary_attack", "
 	};
 	if ( auto player = GetPlayer() ) {
 		for ( auto weapon : weaponsWithSecondaryAttack ) {
-			if ( player->HasNamedPlayerItem( weapon ) ) {
+			if ( player->HasNamedPlayerItem( weapon, true ) ) {
 				return true;
 			}
 		}
@@ -831,7 +831,7 @@ GameplayMod &::shotgunAutomatic = GameplayMod::Define( "shotgun_automatic", "Aut
 .Description( "Shotgun only fires single shots and doesn't have to be reloaded after each shot" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_shotgun" );
+		return player->HasNamedPlayerItem( "weapon_shotgun", true );
 	}
 	return false;
 } );
@@ -931,7 +931,7 @@ GameplayMod &::snarkFriendlyToPlayer = GameplayMod::Define( "snark_friendly_to_p
 .Description( "Snarks won't attack player" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
-		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
+		if ( player->HasNamedPlayerItem( "weapon_snark", true ) ) {
 			return true;
 		}
 	}
@@ -950,7 +950,7 @@ GameplayMod &::snarkInception = GameplayMod::Define( "snark_inception", "Snark i
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
-		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
+		if ( player->HasNamedPlayerItem( "weapon_snark", true ) ) {
 			return true;
 		}
 	}
@@ -972,7 +972,7 @@ GameplayMod &::snarkNuclear = GameplayMod::Define( "snark_nuclear", "Snark nucle
 .Description( "Killing snark produces a grenade-like explosion" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
-		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
+		if ( player->HasNamedPlayerItem( "weapon_snark", true ) ) {
 			return true;
 		}
 	}
@@ -996,7 +996,7 @@ GameplayMod &::snarkStayAlive = GameplayMod::Define( "snark_stay_alive", "Snark 
 .Description( "Snarks will never die on their own, they must be shot" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
-		if ( player->HasNamedPlayerItem( "weapon_snark" ) ) {
+		if ( player->HasNamedPlayerItem( "weapon_snark", true ) ) {
 			return true;
 		}
 	}

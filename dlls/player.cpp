@@ -6549,7 +6549,7 @@ CBasePlayerItem * CBasePlayer::GetPlayerItem( const char *pszItemName ) {
 //=========================================================
 // HasNamedPlayerItem Does the player already have this item?
 //=========================================================
-BOOL CBasePlayer::HasNamedPlayerItem( const char *pszItemName )
+BOOL CBasePlayer::HasNamedPlayerItem( const char *pszItemName, bool ignoreGungameWeapons )
 {
 	CBasePlayerItem *pItem;
 	int i;
@@ -6562,7 +6562,11 @@ BOOL CBasePlayer::HasNamedPlayerItem( const char *pszItemName )
 		{
 			if ( !strcmp( pszItemName, STRING( pItem->pev->classname ) ) )
 			{
-				return TRUE;
+				if ( ignoreGungameWeapons ) {
+					return !pItem->isGungameWeapon;
+				} else {
+					return TRUE;
+				}
 			}
 			pItem = pItem->m_pNext;
 		}
