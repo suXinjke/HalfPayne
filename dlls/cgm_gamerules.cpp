@@ -1061,51 +1061,48 @@ void CCustomGameModeRules::ParseTwitchMessages() {
 		auto &message = twitchMessage.first;
 		auto &sender = twitchMessage.second;
 
-		bool votedSuccessfully = false;
-
-		if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) >= 1.0f ) {
-			votedSuccessfully = VoteForRandomGameplayMod( pPlayer, sender, message );
-		}
-
-		if ( !votedSuccessfully && CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
-			std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
-			MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
-				WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
-			MESSAGE_END();
-		}
-
 		twitch->messages.pop_front();
 
-		if ( aux::str::toLowercase( sender ) == "suxinjke" ) {
-			if ( !aux::str::startsWith( message, "+" ) ) {
-				return;
-			}
+		bool messageCanBeRelayed = true;
+
+		if ( gameplayMods::AllowedToVoteOnRandomGameplayMods() && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) >= 1.0f ) {
+			messageCanBeRelayed = !( VoteForRandomGameplayMod( pPlayer, sender, message ) );
+		}
+
+		if ( aux::str::toLowercase( sender ) == "suxinjke" && aux::str::startsWith( message, "+" ) ) {
 
 			static std::regex commandRegex( "\\+(\\w+)\\s*(.+)" );
 			std::smatch commandMatch;
 			if ( std::regex_match( message, commandMatch, commandRegex ) ) {
-				if ( commandMatch.size() < 3 ) {
-					return;
-				}
+				if ( commandMatch.size() >= 3 ) {
+					auto command = commandMatch[1].str();
+					auto rest = commandMatch[2].str();
 
-				auto command = commandMatch[1].str();
-				auto rest = commandMatch[2].str();
+					if ( command == "gm" ) {
+						GameplayModData::ToggleForceEnabledGameplayMod( rest );
+					} else if ( command == "gdm" ) {
+						GameplayModData::ToggleForceDisabledGameplayMod( rest );
+					} else if ( command == "p" ) {
+						auto separated = aux::str::split( rest, '|' );
+						auto line1 = separated.at( 0 ).substr( 0, 80 );
+						auto line2 = separated.size() > 1 ? separated.at( 1 ).substr( 0, 80 ) : "";
 
-				if ( command == "gm" ) {
-					GameplayModData::ToggleForceEnabledGameplayMod( rest );
-				} else if ( command == "gdm" ) {
-					GameplayModData::ToggleForceDisabledGameplayMod( rest );
-				} else if ( command == "p" ) {
-					auto separated = aux::str::split( rest, '|' );
-					auto line1 = separated.at( 0 ).substr( 0, 80 );
-					auto line2 = separated.size() > 1 ? separated.at( 1 ).substr( 0, 80 ) : "";
+						MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
+							WRITE_STRING( line1.c_str() );
+							WRITE_STRING( line2.c_str() );
+						MESSAGE_END();
+					}
 
-					MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
-						WRITE_STRING( line1.c_str() );
-						WRITE_STRING( line2.c_str() );
-					MESSAGE_END();
+					messageCanBeRelayed = false;
 				}
 			}
+		}
+
+		if ( messageCanBeRelayed && CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) >= 1.0f ) {
+			std::string trimmedMessage = message.substr( 0, 192 - sender.size() - 2 );
+			MESSAGE_BEGIN( MSG_ONE, gmsgSayText2, NULL, pPlayer->pev );
+				WRITE_STRING( ( sender + "|" + trimmedMessage ).c_str() );
+			MESSAGE_END();
 		}
 	}
 }
