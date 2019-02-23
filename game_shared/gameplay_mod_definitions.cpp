@@ -1018,6 +1018,10 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 	return std::nullopt;
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
+	if ( GetMapName() == "c2a3e" ) {
+		return false;
+	}
+
 	return !::timescale.isActive( true ) && !::timescaleOnDamage.isActive() && !::superHotToggleable.isActive() && !::oneHitKO.isActive() && !::oneHitKOFromPlayer.isActive();
 } );
 
