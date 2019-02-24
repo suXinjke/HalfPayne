@@ -1014,8 +1014,7 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 	auto weaponImpact = gameplayMods::weaponImpact.isActive<float>();
 
 	// if this is a player, move him around!
-	if ( weaponImpact.has_value() || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) )
-	{
+	if ( ( weaponImpact.has_value() && !FStrEq( STRING( pev->classname ), "monster_bigmomma" ) ) || ( !FNullEnt( pevInflictor ) ) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER) ) {
 		pev->velocity = pev->velocity + vecDir * -DamageForce( flDamage ) * ( weaponImpact.has_value() ? *weaponImpact : 1.0f );
 	}
 

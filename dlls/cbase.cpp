@@ -620,7 +620,7 @@ float CBaseEntity::MultiplyDamage( entvars_t *pevInflictor, entvars_t *pevAttack
 		}
 	}
 
-	if ( attackedByPlayer && !this->IsPlayer() ) {
+	if ( attackedByPlayer && !this->IsPlayer() && !FStrEq( STRING( pev->classname ), "monster_bigmomma" ) ) {
 		if ( auto multiplier = gameplayMods::damageMultiplierFromPlayer.isActive<float>() ) {
 			flDamage *= *multiplier;
 		}
