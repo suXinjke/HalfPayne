@@ -803,10 +803,6 @@ GameplayMod &::randomGameplayMods = GameplayMod::Define( "random_gameplay_mods",
 } )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( ::chaosEdition.isActive() ) {
-		// HACK: should be in OnInit function of sorts, but this is not an event
-		if ( gameplayModsData.timeLeftUntilNextRandomGameplayMod >= 5.0f ) {
-			gameplayModsData.timeLeftUntilNextRandomGameplayMod = 2.0f;
-		}
 		return "4 2 2";
 	}
 
