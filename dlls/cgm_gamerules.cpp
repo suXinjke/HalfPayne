@@ -576,6 +576,8 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 						if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
 							gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod + 1.0f;
 							proposedGameplayMods.clear();
+							previouslyProposedRandomMods.clear();
+							previouslyProposedRandomMods.insert( i->mod );
 						}
 					}
 
