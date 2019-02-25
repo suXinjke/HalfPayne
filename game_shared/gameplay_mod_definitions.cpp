@@ -1229,6 +1229,9 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 
 #endif
 	return { "", "" };
+} )
+.CanOnlyBeActivatedRandomlyWhen( []() {
+	return !::chaosEdition.isActive();
 } );
 
 GameplayMod &::eventGivePainkillers = GameplayMod::Define( "event_give_painkillers", "Give painkillers" )
