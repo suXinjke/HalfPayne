@@ -14,21 +14,21 @@
     <ProjectGuid>{DC1DD765-CFEB-47DA-A2EA-9F1E20A24272}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>hl_cdll</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -58,9 +58,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;WINDOWS_IGNORE_PACKING_MISMATCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\um;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091; 4996</DisableSpecificWarnings>
@@ -69,7 +69,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc6\vgui.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\wsock32.lib;..\..\lib\public\sdl2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\bass.lib;..\..\lib\public\bass_fx.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\wsock32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\kernel32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\user32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\gdi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\winspool.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\comdlg32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\advapi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\shell32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\ole32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\oleaut32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\uuid.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbc32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbccp32.lib;..\..\utils\vgui\lib\win32_vc6\vgui.lib;..\..\lib\public\sdl2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\bass.lib;..\..\lib\public\bass_fx.lib</AdditionalDependencies>
       <BaseAddress>
       </BaseAddress>
     </Link>
@@ -89,9 +89,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;WINDOWS_IGNORE_PACKING_MISMATCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\um;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -104,7 +104,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\..\utils\vgui\lib\win32_vc6\vgui.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\wsock32.lib;..\..\lib\public\sdl2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\bass.lib;..\..\lib\public\bass_fx.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\kernel32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\user32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\gdi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\winspool.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\comdlg32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\advapi32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\shell32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\ole32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\oleaut32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\uuid.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbc32.lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86\odbccp32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\wsock32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\kernel32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\user32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\gdi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\winspool.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\comdlg32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\advapi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\shell32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\ole32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\oleaut32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\uuid.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbc32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbccp32.lib;..\..\utils\vgui\lib\win32_vc6\vgui.lib;..\..\lib\public\sdl2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\bass.lib;..\..\lib\public\bass_fx.lib</AdditionalDependencies>
       <BaseAddress>
       </BaseAddress>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>

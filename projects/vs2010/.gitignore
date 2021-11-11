@@ -10,3 +10,4 @@ ipch/
 *.opendb
 *.db-shm
 *.db-wal
+.vs

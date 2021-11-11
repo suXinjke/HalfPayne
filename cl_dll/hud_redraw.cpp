@@ -15,7 +15,7 @@
 //
 // hud_redraw.cpp
 //
-#include <math.h>
+#include <cmath>
 #include <string>
 #include "hud.h"
 #include "cl_util.h"
@@ -414,7 +414,7 @@ int CHud::DrawFormattedTime( float time, int x, int y, int r, int g, int b )
 	int actualMinutes = floor( minutes );
 	float seconds = fmod( time, 60.0f );
 	float secondsIntegral;
-	float secondsFractional = modf( seconds, &secondsIntegral );
+	float secondsFractional = std::modf( seconds, &secondsIntegral );
 
 	int actualSeconds = secondsIntegral;
 	int actualMilliseconds = secondsFractional * 100;
