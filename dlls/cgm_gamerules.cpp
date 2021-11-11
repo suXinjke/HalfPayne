@@ -1200,14 +1200,29 @@ void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
 		}
 	}
 	if ( gameplayMods::timescaleOnDamage.isActive() ) {
-		auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
+		auto timescaleOnDamageIsNotTemporary = std::find_if(
+			gameplayMods::timedGameplayMods.begin(),
+			gameplayMods::timedGameplayMods.end(),
+			[] ( TimedGameplayMod &mod ) {
+				return mod.mod == &gameplayMods::timescaleOnDamage;
+			}
+		) == std::end( gameplayMods::timedGameplayMods );
 
-		counterData.push_back( {
-			-1,
-			-1,
-			fmt::sprintf( "TIMESCALE BASE: %.2f", timescale_multiplier ),
-			SPACING - 34
-		} );
+		auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>();
+
+		if (
+			timescaleOnDamageIsNotTemporary ||
+			( randomGameplayMods && randomGameplayMods->timeForRandomGameplayMod >= 10.0f )
+		) {
+			auto timescale_multiplier = *gameplayMods::timescale.isActive<float>() + gameplayModsData.timescaleAdditive;
+
+			counterData.push_back( {
+				-1,
+				-1,
+				fmt::sprintf( "TIMESCALE BASE: %.2f", timescale_multiplier ),
+				SPACING - 34
+			} );
+		}
 	}
 
 	int conditionsHeight = 0;
