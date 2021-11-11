@@ -815,6 +815,7 @@ public:
 
 private:
 	int cheated;
+	int recordBeaten;
 	std::vector< std::string> titleLines;
 
 	std::vector<EndScreenRunningAnimationLine> animationLines;

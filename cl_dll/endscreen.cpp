@@ -122,7 +122,8 @@ int CHudEndScreen::MsgFunc_EndActiv( const char *pszName, int iSize, void *pbuf 
 		animationLine.recordValue->StartRunning();
 	}
 
-	if ( !cheated ) {
+	if ( !cheated && recordBeaten ) {
+		// TODO: refresh only current config file instead of all of them
 		GameModeGUI_RefreshConfigFiles();
 	}
 
@@ -148,7 +149,7 @@ int CHudEndScreen::MsgFunc_EndTime( const char *pszName, int iSize, void *pbuf )
 
 	float time = READ_FLOAT();
 	float recordTime = READ_FLOAT();
-	int recordBeaten = READ_BYTE();
+	recordBeaten = READ_BYTE();
 
 	animationLines.push_back( {
 		messageParts.at( 0 ),
@@ -170,7 +171,7 @@ int CHudEndScreen::MsgFunc_EndScore( const char *pszName, int iSize, void *pbuf 
 
 	float score = READ_LONG();
 	float recordScore = READ_LONG();
-	int recordBeaten = READ_BYTE();
+	recordBeaten = READ_BYTE();
 
 	animationLines.push_back( {
 		messageParts.at( 0 ),
