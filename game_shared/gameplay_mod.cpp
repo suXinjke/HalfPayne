@@ -386,6 +386,11 @@ GameplayMod& GameplayMod::IsAlsoActiveWhen( const IsAlsoActiveWhenFunction &func
 	return *this;
 }
 
+GameplayMod &GameplayMod::IsExcludedFromChaosEdition() {
+	this->excludedFromChaosEdition = true;
+	return *this;
+}
+
 GameplayMod& GameplayMod::ForceDefaultArguments( const std::string &arguments ) {
 	this->forcedDefaultArguments = arguments;
 	return *this;
@@ -631,6 +636,10 @@ std::set<GameplayMod*> gameplayMods::GetFilteredRandomGameplayMods() {
 			}
 
 			if ( mod->isActive( true ) ) {
+				return false;
+			}
+
+			if ( mod->excludedFromChaosEdition && gameplayMods::chaosEdition.isActive() ) {
 				return false;
 			}
 

@@ -287,6 +287,7 @@ public:
 	std::function<bool()> CanBeActivatedRandomly = [] { return true; };
 	bool canBeCancelledAfterChangeLevel = false;
 	bool isEvent = false;
+	bool excludedFromChaosEdition = false;
 	EventInitFunction EventInit = [] { return std::make_pair( "", "" ); };
 
 	GameplayMod( const std::string &id, const std::string &name ) : id( id ), name( name ) {}
@@ -297,6 +298,7 @@ public:
 	GameplayMod& RandomGameplayModName( const std::string &name );
 	GameplayMod& RandomGameplayModDescription( const std::string &description );
 	GameplayMod& IsAlsoActiveWhen( const IsAlsoActiveWhenFunction &func );
+	GameplayMod& IsExcludedFromChaosEdition();
 	GameplayMod& Arguments( const std::vector<Argument> &args );
 	GameplayMod& CannotBeActivatedRandomly();
 	GameplayMod& CanOnlyBeActivatedRandomlyWhen( const std::function<bool()> &randomActivateCondition );

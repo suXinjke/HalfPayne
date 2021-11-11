@@ -97,7 +97,8 @@ GameplayMod &::bleeding = GameplayMod::Define( "bleeding", "Bleeding" )
 	Argument( "bleeding_immunity_period" ).IsOptional().MinMax( 0.05 ).RandomMinMax( 3, 10 ).Default( "10" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Bleed again after healing in: %.1f sec", value );
 	} )
-} );
+} )
+.IsExcludedFromChaosEdition();
 
 GameplayMod &::bulletPhysics = GameplayMod::Define( "bullet_physics", "Bullet physics mode" )
 .Arguments( {
@@ -454,7 +455,8 @@ GameplayMod &::gungame = GameplayMod::Define( "gungame", "Gungame" )
 	Argument( "sequential" ).IsOptional().Default( "" ).Description( []( const std::string string, float value ) {
 		return string == "sequential" ? "Weapons will change sequentially" : "Weapons will change randomly";
 	} ),
-} );
+} )
+.IsExcludedFromChaosEdition();
 
 GameplayMod &::headshots = GameplayMod::Define( "headshots", "Headshots" )
 .Description( "Headshots dealt to enemies become much more deadly" )
@@ -695,7 +697,8 @@ GameplayMod &::oneHitKO = GameplayMod::Define( "one_hit_ko", "One hit KO" )
 } )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::snarkNuclear.isActive() && !::teleportOnKill.isActive() && !::damageMultiplier.isActive();
-} );
+} )
+.IsExcludedFromChaosEdition();
 
 GameplayMod &::oneHitKOFromPlayer = GameplayMod::Define( "one_hit_ko_from_player", "One hit KO from player" )
 .Description( "All enemies die in one hit" )
@@ -1230,9 +1233,7 @@ GameplayMod &::eventGiveRandomWeapon = GameplayMod::Define( "event_give_random_w
 #endif
 	return { "", "" };
 } )
-.CanOnlyBeActivatedRandomlyWhen( []() {
-	return !::chaosEdition.isActive();
-} );
+.IsExcludedFromChaosEdition();
 
 GameplayMod &::eventGivePainkillers = GameplayMod::Define( "event_give_painkillers", "Give painkillers" )
 .OnEventInit( []() -> std::pair<std::string, std::string> {
@@ -1248,7 +1249,8 @@ GameplayMod &::eventGivePainkillers = GameplayMod::Define( "event_give_painkille
 	}
 
 	return false;
-} );
+} )
+.IsExcludedFromChaosEdition();
 
 GameplayMod &::eventModPack = GameplayMod::Define( "event_modpack", "Modpack" )
 .OnEventInit( []() -> std::pair<std::string, std::string> {
@@ -1294,11 +1296,13 @@ GameplayMod &::eventModPack = GameplayMod::Define( "event_modpack", "Modpack" )
 	return { "", "" };
 #endif
 
-} );
+} )
+.IsExcludedFromChaosEdition();
 
 GameplayMod &::eventSpawnRandomMonsters = GameplayMod::Define( "event_spawn_random_monsters", "Spawn random enemies" )
 .OnEventInit( []() -> std::pair<std::string, std::string> {
 	gameplayModsData.monsterSpawnAttempts = aux::rand::uniformInt( 2, 4 );
 
 	return { "Spawn random monsters", "Some of the next maps will have more enemies" };
-} );
+} )
+.IsExcludedFromChaosEdition();
