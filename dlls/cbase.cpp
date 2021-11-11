@@ -608,15 +608,19 @@ int CBaseEntity :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, 
 
 float CBaseEntity::MultiplyDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType ) {
 	bool attackedByPlayer = false;
-	if ( CBaseEntity *inflictor = CBaseEntity::Instance( pevInflictor ) ) {
-		if ( inflictor->IsPlayer() || inflictor->ActualOwnerIsPlayer() ) {
-			attackedByPlayer = true;
+	if ( pevInflictor ) {
+		if ( CBaseEntity *inflictor = CBaseEntity::Instance( pevInflictor ) ) {
+			if ( inflictor->IsPlayer() || inflictor->ActualOwnerIsPlayer() ) {
+				attackedByPlayer = true;
+			}
 		}
 	}
 
-	if ( CBaseEntity *attacker = CBaseEntity::Instance( pevAttacker ) ) {
-		if ( attacker->IsPlayer() || attacker->ActualOwnerIsPlayer() ) {
-			attackedByPlayer = true;
+	if ( pevAttacker ) {
+		if ( CBaseEntity *attacker = CBaseEntity::Instance( pevAttacker ) ) {
+			if ( attacker->IsPlayer() || attacker->ActualOwnerIsPlayer() ) {
+				attackedByPlayer = true;
+			}
 		}
 	}
 
