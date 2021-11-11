@@ -5761,7 +5761,11 @@ void CBasePlayer :: UpdateClientData( void )
 	if ( painkillerEnergy && nextPainkillerEffectTime <= gpGlobals->time && pev->deadflag == DEAD_NO ) {
 		TakeHealth( 1, DMG_GENERIC );
 		painkillerEnergy--;
-		nextPainkillerEffectTime = *gameplayMods::painkillersSlow.isActive<float>() + gpGlobals->time;
+		if ( auto painkillersSlow = gameplayMods::painkillersSlow.isActive<float>() ) {
+			nextPainkillerEffectTime = *painkillersSlow + gpGlobals->time;
+		} else {
+			nextPainkillerEffectTime = 0.0f;
+		}
 	}
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgFadeOut, NULL, pev );
