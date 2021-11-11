@@ -105,7 +105,7 @@ int CHudEndScreen::Draw( float flTime )
 
 	if ( cheated ) {
 		y -= gHUD.m_scrinfo.iCharHeight;
-		gHUD.DrawHudStringKeepCenter( x, y, 300, "YOU'VE BEEN CHEATING - RESULTS WON'T BE SAVED", 200, 0, 0 );
+		gHUD.DrawHudStringKeepCenter( x, y, 300, "YOU'VE BEEN CHEATING OR CHANGED STARTING MAP - RESULTS WON'T BE SAVED", 200, 0, 0 );
 	}
 
 	return 1;

@@ -616,7 +616,6 @@ public:
 	int MsgFunc_TimerDeact( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerValue( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TimerPause( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TimerCheat( const char *pszName, int iSize, void *pbuf );
 
 private:
 	int yOffset;
@@ -624,7 +623,6 @@ private:
 	std::string title;
 
 	bool paused;
-	bool cheated;
 
 	float time;
 	
@@ -650,12 +648,9 @@ public:
 	int MsgFunc_CountLen( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_CountOffse( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_CountValue( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_CountCheat( const char *pszName, int iSize, void *pbuf );
 
 private:
 	int yOffset;
-
-	bool cheated;
 
 	std::vector<CounterValue> values;
 };
@@ -686,12 +681,9 @@ public:
 
 	int MsgFunc_ScoreDeact( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_ScoreValue( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_ScoreCheat( const char *pszName, int iSize, void *pbuf );
 
 private:
 	int yOffset;
-
-	bool cheated;
 
 	int currentScore;
 	int comboMultiplier;

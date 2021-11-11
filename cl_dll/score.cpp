@@ -5,7 +5,6 @@
 
 DECLARE_MESSAGE( m_Score, ScoreDeact )
 DECLARE_MESSAGE( m_Score, ScoreValue )
-DECLARE_MESSAGE( m_Score, ScoreCheat )
 
 extern globalvars_t *gpGlobals;
 
@@ -14,7 +13,6 @@ int CHudScore::Init(void)
 {
 	HOOK_MESSAGE( ScoreDeact );
 	HOOK_MESSAGE( ScoreValue );
-	HOOK_MESSAGE( ScoreCheat );
 	
 	gHUD.AddHudElem( this );
 
@@ -25,7 +23,6 @@ void CHudScore::Reset( void )
 {
 	m_iFlags = 0;
 
-	cheated = false;
 	currentScore = 0;
 	comboMultiplier = 1;
 	comboMultiplierReset = 0.0f;
@@ -40,8 +37,8 @@ int CHudScore::Draw( float flTime )
 	}
 
 	int r = MESSAGE_BRIGHTENESS;
-	int g = !cheated ? MESSAGE_BRIGHTENESS : 0;
-	int b = !cheated ? MESSAGE_BRIGHTENESS : 0;
+	int g = MESSAGE_BRIGHTENESS;
+	int b = MESSAGE_BRIGHTENESS;
 
 	int x = ScreenWidth - CORNER_OFFSET;
 	int y = CORNER_OFFSET + yOffset;
@@ -80,14 +77,6 @@ int CHudScore::MsgFunc_ScoreValue( const char *pszName, int iSize, void *pbuf )
 	yOffset = READ_LONG();
 
 	m_iFlags |= HUD_ACTIVE;
-
-	return 1;
-}
-
-int CHudScore::MsgFunc_ScoreCheat( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	cheated = true;
 
 	return 1;
 }

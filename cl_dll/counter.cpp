@@ -6,7 +6,6 @@
 
 DECLARE_MESSAGE( m_Counter, CountLen )
 DECLARE_MESSAGE( m_Counter, CountValue )
-DECLARE_MESSAGE( m_Counter, CountCheat )
 DECLARE_MESSAGE( m_Counter, CountDeact )
 DECLARE_MESSAGE( m_Counter, CountOffse )
 
@@ -16,7 +15,6 @@ int CHudCounter::Init( void )
 {
 	HOOK_MESSAGE( CountLen );
 	HOOK_MESSAGE( CountValue );
-	HOOK_MESSAGE( CountCheat );
 	HOOK_MESSAGE( CountDeact );
 	HOOK_MESSAGE( CountOffse );
 	
@@ -27,7 +25,6 @@ int CHudCounter::Init( void )
 
 void CHudCounter::Reset( void )
 {
-	cheated = false;
 	values.clear();
 
 	yOffset = 0;
@@ -63,13 +60,13 @@ int CHudCounter::Draw( float flTime )
 			-1;
 
 		if ( isCounter && value.count >= value.maxCount ) {
-			r = !cheated ? 255 : 255;
-			g = !cheated ? 255 : 100;
+			r = 255;
+			g = 255;
 			b = 0;
 		} else {
 			r = MESSAGE_BRIGHTENESS;
-			g = !cheated ? MESSAGE_BRIGHTENESS : 0;
-			b = !cheated ? MESSAGE_BRIGHTENESS : 0;
+			g = MESSAGE_BRIGHTENESS;
+			b = MESSAGE_BRIGHTENESS;
 		}
 
 		gHUD.DrawHudStringKeepRight( x, y, 200, value.title.c_str(), r, g, b );
@@ -125,14 +122,6 @@ int CHudCounter::MsgFunc_CountOffse( const char *pszName, int iSize, void *pbuf 
 	yOffset = READ_SHORT();
 
 	m_iFlags |= HUD_ACTIVE;
-
-	return 1;
-}
-
-int CHudCounter::MsgFunc_CountCheat( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	cheated = true;
 
 	return 1;
 }

@@ -39,17 +39,14 @@ int	gmsgGLogWMsg	= 0;
 int gmsgTimerPause  = 0;
 int gmsgTimerDeact = 0;
 int gmsgTimerValue = 0;
-int gmsgTimerCheat = 0;
 
 int gmsgCountDeact = 0;
 int gmsgCountLen   = 0;
 int gmsgCountValue = 0;
 int gmsgCountOffse = 0;
-int gmsgCountCheat = 0;
 
 int gmsgScoreDeact  = 0;
 int gmsgScoreValue	= 0;
-int gmsgScoreCheat	= 0;
 
 int gmsgRandModLen = 0;
 int gmsgRandModVal = 0;
@@ -100,17 +97,14 @@ CCustomGameModeRules::CCustomGameModeRules( CONFIG_TYPE configType ) : config( c
 
 		gmsgTimerDeact = REG_USER_MSG( "TimerDeact", 0 );
 		gmsgTimerValue = REG_USER_MSG( "TimerValue", -1 );
-		gmsgTimerCheat = REG_USER_MSG( "TimerCheat", 0 );
 
 		gmsgCountDeact = REG_USER_MSG( "CountDeact", 0 );
 		gmsgCountLen = REG_USER_MSG( "CountLen", 2 );
 		gmsgCountValue = REG_USER_MSG( "CountValue", -1 );
 		gmsgCountOffse = REG_USER_MSG( "CountOffse", 4 );
-		gmsgCountCheat = REG_USER_MSG( "CountCheat", 0 );
 
 		gmsgScoreDeact = REG_USER_MSG( "ScoreDeact", 0 );
 		gmsgScoreValue = REG_USER_MSG( "ScoreValue", 16 );
-		gmsgScoreCheat = REG_USER_MSG( "ScoreCheat", 0 );
 
 		gmsgCLabelVal = REG_USER_MSG( "CLabelVal", -1 );
 		gmsgCLabelGMod = REG_USER_MSG( "CLabelGMod", -1 );
@@ -1307,7 +1301,6 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 	}
 
 	if ( gameplayModsData.cheated ) {
-		OnCheated( pPlayer );
 		return;
 	}
 
@@ -1317,24 +1310,9 @@ void CCustomGameModeRules::CheckForCheats( CBasePlayer *pPlayer )
 		gameplayModsData.usedCheat || startMapDoesntMatch ||
 		 std::string( gameplayModsData.activeGameModeConfigHash ) != config.sha1
 	) {
-		SendGameLogMessage( pPlayer, "RESULTS WON'T BE SAVED" );
-		SendGameLogMessage( pPlayer, "YOU'VE BEEN CHEATING" );
 		gameplayModsData.cheated = true;
 	}
 
-}
-
-void CCustomGameModeRules::OnCheated( CBasePlayer *pPlayer ) {
-	cheatedMessageSent = true;
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgTimerCheat, NULL, pPlayer->pev );
-	MESSAGE_END();
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgCountCheat, NULL, pPlayer->pev );
-	MESSAGE_END();
-
-	MESSAGE_BEGIN( MSG_ONE, gmsgScoreCheat, NULL, pPlayer->pev );
-	MESSAGE_END();
 }
 
 void CCustomGameModeRules::OnEnd( CBasePlayer *pPlayer ) {
