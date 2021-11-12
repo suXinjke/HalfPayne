@@ -353,6 +353,7 @@ void GameplayModData::AddArrayFieldDefinitions() {
 std::map<std::string, GameplayMod *> gameplayMods::byString;
 std::set<GameplayMod *> gameplayMods::allowedForRandom;
 std::set<GameplayMod *> gameplayMods::previouslyProposedRandomMods;
+std::set<GameplayMod *> gameplayMods::previouslyProposedRandomModsCopy;
 std::map<GameplayMod *, std::vector<Argument>> gameplayMods::forceEnabledMods;
 std::set<GameplayMod *> gameplayMods::forceDisabledMods;
 std::vector<ProposedGameplayMod> gameplayMods::proposedGameplayMods;
@@ -396,9 +397,19 @@ GameplayMod& GameplayMod::ForceDefaultArguments( const std::string &arguments ) 
 	return *this;
 }
 
+GameplayMod & GameplayMod::OnInit( const InitFunction &func ) {
+	this->Init = func;
+	return *this;
+}
+
 GameplayMod & GameplayMod::OnEventInit( const EventInitFunction &func ) {
 	this->EventInit = func;
 	this->isEvent = true;
+	return *this;
+}
+
+GameplayMod & GameplayMod::OnTimeExpired( const TimeExpiredFunction &func ) {
+	this->TimeExpired = func;
 	return *this;
 }
 

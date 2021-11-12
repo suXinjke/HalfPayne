@@ -518,15 +518,12 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 						WRITE_STRING( randomGameplayMod->mod->id.c_str() );
 					MESSAGE_END();
 				}
+
+				randomGameplayMod->mod->Init();
 			}
 
 			if ( randomGameplayMods->timeForRandomGameplayModVoting >= 10.0f && twitch && twitch->status == TWITCH_CONNECTED && CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) ) {
 				twitch->SendChatMessage( fmt::sprintf( "VOTE ENDED: %s", randomGameplayMod->mod->GetRandomGameplayModName() ) );
-			}
-
-			if ( randomGameplayMod->mod->id == "chaos_edition" ) { // HACK: also updates random gameplay mode info for code below!
-				randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>();
-				gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod;
 			}
 		
 			proposedGameplayMods.clear();
@@ -562,19 +559,11 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				i->time -= realTimeDelta;
 
 				if ( i->time <= 0 ) {
+					auto mod = i->mod;
 					auto mod_id = i->mod->id;
 					
 					i = timedGameplayMods.erase( i );
-
-					if ( mod_id == "chaos_edition" ) { // HACK: ???
-						if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
-							gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod + 1.0f;
-							proposedGameplayMods.clear();
-							previouslyProposedRandomMods.clear();
-							previouslyProposedRandomMods.insert( i->mod );
-						}
-					}
-
+					mod->TimeExpired();
 				} else {
 					i++;
 				}

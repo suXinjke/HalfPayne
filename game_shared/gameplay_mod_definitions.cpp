@@ -184,7 +184,22 @@ GameplayMod &::bulletTrail = GameplayMod::Define( "bullet_trail_constant", "Bull
 .CannotBeActivatedRandomly();
 
 GameplayMod &::chaosEdition = GameplayMod::Define( "chaos_edition", "Chaos edition" )
-.Description( "Rapidly changing mods" );
+.Description( "Rapidly changing mods" )
+.OnInit([] {
+	gameplayMods::previouslyProposedRandomModsCopy = gameplayMods::previouslyProposedRandomMods;
+
+	auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>();
+	gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod;
+})
+.OnTimeExpired([] {
+	if ( auto randomGameplayMods = gameplayMods::randomGameplayMods.isActive<RandomGameplayModsInfo>() ) {
+		gameplayModsData.timeLeftUntilNextRandomGameplayMod = randomGameplayMods->timeUntilNextRandomGameplayMod + 1.0f;
+		proposedGameplayMods.clear();
+	}
+
+	previouslyProposedRandomMods = previouslyProposedRandomModsCopy;
+	previouslyProposedRandomMods.insert( &gameplayMods::chaosEdition );
+});
 
 GameplayMod &::cncSounds = GameplayMod::Define( "cnc_sounds", "Command & Conquer death sounds" )
 .Description( "Tribute to one of the best death sounds" )

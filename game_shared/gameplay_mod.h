@@ -274,7 +274,9 @@ class GameplayMod {
 	using IsAlsoActiveWhenFunction = std::function<std::optional<std::string>()>;
 	IsAlsoActiveWhenFunction isAlsoActiveWhen = [] { return std::nullopt; };
 	
+	using InitFunction = std::function<void()>;
 	using EventInitFunction = std::function<std::pair<std::string, std::string>()>;
+	using TimeExpiredFunction = std::function<void()>;
 
 public:
 	std::string id;
@@ -288,7 +290,9 @@ public:
 	bool canBeCancelledAfterChangeLevel = false;
 	bool isEvent = false;
 	bool excludedFromChaosEdition = false;
+	InitFunction Init = [] {};
 	EventInitFunction EventInit = [] { return std::make_pair( "", "" ); };
+	TimeExpiredFunction TimeExpired = [] {};
 
 	GameplayMod( const std::string &id, const std::string &name ) : id( id ), name( name ) {}
 
@@ -304,7 +308,9 @@ public:
 	GameplayMod& CanOnlyBeActivatedRandomlyWhen( const std::function<bool()> &randomActivateCondition );
 	GameplayMod& CanBeCancelledAfterChangeLevel();
 	GameplayMod& ForceDefaultArguments( const std::string &arguments );
+	GameplayMod& OnInit( const InitFunction &func );
 	GameplayMod& OnEventInit( const EventInitFunction &func );
+	GameplayMod& OnTimeExpired( const TimeExpiredFunction &func );
 
 	std::optional<std::vector<Argument>> getActiveArguments( bool discountForcedArguments = false );
 	bool isActive( bool discountForcedArguments = false );
@@ -356,6 +362,10 @@ namespace gameplayMods {
 	extern std::map<std::string, GameplayMod *> byString;
 	extern std::set<GameplayMod *> allowedForRandom;
 	extern std::set<GameplayMod *> previouslyProposedRandomMods;
+
+	// NOTE: not sure how to name this one, this copy is required
+	// to preserve the original proposed random mods after chaos edition mod is over
+	extern std::set<GameplayMod *> previouslyProposedRandomModsCopy;
 
 	extern std::map<GameplayMod *, std::vector<Argument>> forceEnabledMods;
 	extern std::set<GameplayMod *> forceDisabledMods;
