@@ -25,6 +25,7 @@ extern "C"
 #include "custom_gamemode_config.h"
 #include "soundmanager.h"
 #include "event_api.h"
+#include "fs_aux.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -1258,6 +1259,9 @@ void InitInput (void)
 	// Initialize view system
 	V_Init();
 
+	LoadLibraryA( FS_ResolveModPath( "cl_dlls\\bass.dll" ).c_str() );
+	LoadLibraryA( FS_ResolveModPath( "cl_dlls\\bass_fx.dll" ).c_str() );
+	LoadLibraryA( FS_ResolveModPath( "cl_dlls\\libircclient.dll" ).c_str() );
 	SM_Init();
 }
 

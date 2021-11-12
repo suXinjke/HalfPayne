@@ -155,7 +155,7 @@ void CL_DLLEXPORT HUD_PlayerMove( struct playermove_s *ppmove, int server )
 // One of these random directories will be copied to 'half_payne/resource/background'
 void ShuffleMainMenuBackground() {
 
-	std::string backgroundDir = ".\\half_payne\\resource";
+	std::string backgroundDir = FS_ResolveModPath( "resource" );
 
 	std::vector<std::string> backgroundFolders = FS_GetAllFilesInDirectory( backgroundDir.c_str(), "*", true, true );
 	backgroundFolders.erase( std::remove_if( backgroundFolders.begin(), backgroundFolders.end(), [backgroundDir]( const std::string &folder ) {
@@ -169,8 +169,7 @@ void ShuffleMainMenuBackground() {
 	} ), backgroundFolders.end() );
 
 	if ( backgroundFolders.size() > 0 ) {
-
-		std::string backgroundFolder = ".\\half_payne\\resource\\background";
+		std::string backgroundFolder = FS_ResolveModPath( "resource\\background" );
 		std::string newBackground = aux::rand::choice( backgroundFolders );
 
 		FS_RemoveDirectory( backgroundFolder );

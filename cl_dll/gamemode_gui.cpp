@@ -5,6 +5,8 @@
 #include <algorithm>
 #include "cpp_aux.h"
 #include <Windows.h>
+#include "fs_aux.h"
+#include "../fmt/printf.h"
 
 #include "gamemode_gui.h"
 
@@ -279,9 +281,16 @@ void GameModeGUI_DrawMainWindow() {
 		ImGui::EndChild();
 	}
 
-	const char *launchHint = "Check out half_payne/README_GAME_MODES.txt for customization\n";
-	ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - ImGui::CalcTextSize( launchHint ).x / 2.0f );
-	ImGui::Text( launchHint );
+	static std::string launchHint;
+	if ( launchHint.empty() ) {
+		launchHint = fmt::sprintf(
+			"Check out %s/README_GAME_MODES.txt for customization\n",
+			FS_GetModDirectoryName()
+		);
+	}
+
+	ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - ImGui::CalcTextSize( launchHint.c_str() ).x / 2.0f );
+	ImGui::Text( launchHint.c_str() );
 
 	ImGui::End();
 }
@@ -584,14 +593,21 @@ const std::string GameModeGUI_GetGameModeConfigName( const CustomGameModeConfig 
 }
 
 void GameModeGUI_DrawTwitchConfig() {
-	ImGui::TextWrapped(
-		"Filling both fields and enabling one of the options below will allow "
-		"your Twitch viewers to affect your gameplay.\n"
-		"This works only in custom gameplay mods.\n\n"
-		"Your credentials are stored in half_payne/twitch_credentials.cfg\n"
-		"Don't have the console open while pasting your password to prevent leaking it in console input\n\n"
-		"Save your login info! Otherwise no connection will be made."
-	);
+	static std::string helpMessage;
+	if ( helpMessage.empty() ) {
+		helpMessage = fmt::sprintf(
+			"Filling both fields and enabling one of the options below will allow "
+			"your Twitch viewers to affect your gameplay.\n"
+			"This works only in custom gameplay mods.\n\n"
+			"Your credentials are stored in %s/twitch_credentials.cfg\n"
+			"Don't have the console open while pasting your password to prevent leaking it in console input\n\n"
+			"Save your login info! Otherwise no connection will be made.",
+
+			FS_GetModDirectoryName()
+		);
+	}
+
+	ImGui::TextWrapped( helpMessage.c_str() );
 
 	ImGui::InputText( "Twitch username", twitch_login, 128 );
 	ImGui::InputText( "OAuth password", twitch_chat_oauth_password, 128, ImGuiInputTextFlags_Password );

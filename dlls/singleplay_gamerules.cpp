@@ -26,6 +26,7 @@
 #include	"monsters.h"
 #include	"triggers.h"
 #include	"gameplay_mod.h"
+#include	"fs_aux.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
@@ -109,7 +110,7 @@ void CHalfLifeRules::OnEnd( CBasePlayer *pPlayer )
 		WRITE_COORD( 0 );
 	MESSAGE_END();
 
-	pPlayer->SendPlayMusicMessage( "./half_payne/sound/music/credits.mp3", 0.0f, 0.0f, TRUE );
+	pPlayer->SendPlayMusicMessage( FS_ResolveModPath( "sound\\music\\credits.mp3" ), 0.0f, 0.0f, TRUE );
 }
 
 void CHalfLifeRules::OnChangeLevel()

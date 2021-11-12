@@ -24,7 +24,8 @@ void Subtitles_Init() {
 	gEngfuncs.pfnHookUserMsg( "SubtClear", Subtitles_SubtClear );
 	gEngfuncs.pfnHookUserMsg( "SubtRemove", Subtitles_SubtRemove );
 
-	std::vector<std::string> subtitleFiles = FS_GetAllFilesInDirectory( "half_payne/resource", "txt" );
+	auto resourceDirectory = FS_ResolveModPath( "resource" );
+	std::vector<std::string> subtitleFiles = FS_GetAllFilesInDirectory( resourceDirectory.c_str(), "txt" );
 
 	std::regex rgx( "subtitles_(\\w+)\\.txt" );
 	for ( auto &sub : subtitleFiles ) {

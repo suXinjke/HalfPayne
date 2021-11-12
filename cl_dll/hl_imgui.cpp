@@ -8,6 +8,7 @@
 #include "model_indexes.h"
 #include "aim_entity.h"
 #include "player_info_window.h"
+#include "fs_aux.h"
 
 #include "hl_imgui.h"
 
@@ -107,13 +108,13 @@ void HL_ImGUI_Init() {
 	style->WindowPadding = ImVec2( 8.0f, 4.0f );
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16 );
+	io.Fonts->AddFontFromFileTTF( FS_ResolveModPath( "resource\\DroidSans.ttf" ).c_str(), 16 );
 	ImFontConfig config;
 	config.MergeMode = true;
 	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/fontawesome-webfont.ttf", 14.0f, &config, icon_ranges );
+	io.Fonts->AddFontFromFileTTF( FS_ResolveModPath( "resource\\fontawesome-webfont.ttf" ).c_str(), 14.0f, &config, icon_ranges );
 	static const ImWchar icon_ranges_cyrillic[] = { 0x0410, 0x044F, 0 };
-	io.Fonts->AddFontFromFileTTF( "./half_payne/resource/DroidSans.ttf", 16, &config, icon_ranges_cyrillic );
+	io.Fonts->AddFontFromFileTTF( FS_ResolveModPath( "resource\\DroidSans.ttf" ).c_str(), 16, &config, icon_ranges_cyrillic );
 
 	GameModeGUI_Init();
 	Subtitles_Init();

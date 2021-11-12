@@ -13,6 +13,7 @@
 #include <functional>
 #include <random>
 #include <fstream>
+#include "fs_aux.h"
 
 namespace aux {
 
@@ -306,7 +307,7 @@ namespace aux {
 
 	namespace twitch {
 		inline void saveCredentialsToFile( const std::string &user, const std::string &password ) {
-			std::ofstream out( "./half_payne/twitch_credentials.cfg" );
+			std::ofstream out( FS_ResolveModPath( "twitch_credentials.cfg" ) );
 			out << user << "\n" << password;
 		}
 
@@ -314,7 +315,7 @@ namespace aux {
 			std::string user;
 			std::string password;
 
-			std::ifstream inp( "./half_payne/twitch_credentials.cfg" );
+			std::ifstream inp( FS_ResolveModPath( "twitch_credentials.cfg" ) );
 			if ( !inp.is_open() ) {
 				return { user, password };
 			}

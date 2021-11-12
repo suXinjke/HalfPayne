@@ -1,6 +1,17 @@
 #include "fs_aux.h"
 #include "cpp_aux.h"
 #include <Windows.h>
+#include <filesystem>
+#include <assert.h>
+
+#ifdef CLIENT_DLL
+#include "wrect.h"
+#include "cl_dll.h"
+extern cl_enginefunc_t gEngfuncs;
+#else
+#include	"extdll.h"
+#include	"util.h"
+#endif
 
 void FillTCHAR( TCHAR *tchar, const std::string &str ) {
 	strcpy(tchar, str.c_str());
@@ -36,6 +47,38 @@ void FS_CopyDirectory( const std::string &from, const std::string &to ) {
 	s2.pFrom = fromRaw;
 	s2.pTo = toRaw;
 	SHFileOperation(&s2);
+}
+
+const char * FS_GetModDirectoryName() {
+#ifdef CLIENT_DLL
+	auto modDirectory = gEngfuncs.pfnGetGameDirectory();
+#else
+	static char modDirectory[MAX_PATH];
+	g_engfuncs.pfnGetGameDir( modDirectory );
+#endif
+
+	return modDirectory;
+}
+
+std::string FS_ResolveModPath( const std::string &path ) {
+	namespace fs = std::filesystem;
+
+	assert( aux::str::startsWith( path, "\\" ) == false );
+
+	auto moduleHandle = GetModuleHandle( "hl.exe" );
+
+	auto modDirectory = FS_GetModDirectoryName();
+	char modulePath[MAX_PATH];
+	GetModuleFileName( moduleHandle, modulePath, MAX_PATH );
+
+	auto modPath = fs::path( modulePath )
+		.append( "../" )
+		.append( modDirectory );
+
+	return fs::canonical( modPath )
+		.append( path )
+		.make_preferred()
+		.string();
 }
 
 std::vector<std::string> FS_GetAllFilesInDirectory( const char *path, const char *extension, bool includeDirectories, bool excludeFiles ) {

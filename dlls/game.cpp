@@ -19,6 +19,7 @@
 #include <vector>
 #include <algorithm>
 #include "cgm_gamerules.h"
+#include "fs_aux.h"
 #include "../twitch/twitch.h"
 #include "../fmt/printf.h"
 
@@ -495,7 +496,7 @@ void InitializeTracks() {
 		if ( track.size() == 0 ) {
 			return track;
 		} else {
-			std::vector<std::string> mod_directories = { "half_payne", "valve" };
+			std::vector<std::string> mod_directories = { FS_GetModDirectoryName(), "valve" };
 			for ( auto mod_directory : mod_directories ) {
 				const std::string potentialPath = mod_directory + "\\" + track;
 				HANDLE hFind = NULL;

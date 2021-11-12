@@ -71,8 +71,13 @@ void SM_Play( ManagedStream &stream, const char *soundPath, int looping ) {
 	static std::regex backslashRegex( "\\\\+" );
 	std::string sanitizedSoundPath = std::regex_replace( soundPath, backslashRegex, "/" );
 
+	bool soundPathIsRelative = aux::str::startsWith( sanitizedSoundPath, "./" );
+	if ( soundPathIsRelative ) {
+		sanitizedSoundPath = aux::str::replace( sanitizedSoundPath, "^\\.\\/", FS_ResolveModPath( "" ) );
+	}
+
 	if ( stream.handle ) {
-		if ( stream.loadedSoundPath == sanitizedSoundPath ) {
+		if ( stream.loadedSoundPath == soundPath ) {
 			return;
 		}
 
@@ -128,7 +133,7 @@ void SM_Play( ManagedStream &stream, const char *soundPath, int looping ) {
 		return;
 	}
 
-	stream.loadedSoundPath = sanitizedSoundPath;
+	stream.loadedSoundPath = soundPath;
 }
 
 void SM_PlayMusic( const char *soundPath, int looping ) {
@@ -136,7 +141,8 @@ void SM_PlayMusic( const char *soundPath, int looping ) {
 }
 
 void SM_PlayRandomMainMenuMusic() {
-	std::vector<std::string> musicFiles = FS_GetAllFilesInDirectory( ".\\half_payne\\media\\menu" );
+	auto menuMusicDirectory = FS_ResolveModPath( "media\\menu" );
+	std::vector<std::string> musicFiles = FS_GetAllFilesInDirectory( menuMusicDirectory.c_str() );
 
 	if ( !musicFiles.empty() ) {
 		SM_Play( music, aux::rand::choice( musicFiles ).c_str() );
@@ -267,7 +273,7 @@ int SM_OnBassStopC( const char *pszName,  int iSize, void *pbuf ) {
 int SM_OnBassComm( const char *pszName,  int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 
-	std::string soundPath = std::string( "./half_payne/sound/" ) + READ_STRING();
+	std::string soundPath = FS_ResolveModPath( "sound\\" ) + READ_STRING();
 
 	SM_Play( commentary, soundPath.c_str() );
 	BASS_ChannelSetAttribute( commentary.handle, BASS_ATTRIB_VOL, volume->value );
