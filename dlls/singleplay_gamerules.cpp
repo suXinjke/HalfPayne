@@ -301,6 +301,10 @@ void CHalfLifeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *acti
 	if ( FStrEq( STRING( gpGlobals->mapname ), "c2a3e" ) && modelIndex == -1 ) {
 		pPlayer->DeactivateSlowMotion();
 	}
+	if ( FStrEq( STRING( gpGlobals->mapname ), "c1a0d" ) && modelIndex == -1 && firstTime ) {
+		CBaseEntity *door = CBaseEntity::Instance( FIND_ENTITY_BY_TARGETNAME( NULL, "freeman_locker" ) );
+		door->pev->angles = Vector( 0, 18.0f, 0 );
+	}
 }
 void CHalfLifeRules::Precache()
 {
