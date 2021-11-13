@@ -44,7 +44,7 @@ void GameplayModData::Init() {
 		gmsgGmplayP = REG_USER_MSG( "GmplayP", -1 );
 		
 		gmsgGmplayTC = REG_USER_MSG( "GmplayTC", 4 );
-		gmsgGmplayT = REG_USER_MSG( "GmplayT", -1 );
+		gmsgGmplayT = REG_USER_MSG( "GmplayT", 4 );
 	}
 #else
 	gEngfuncs.pfnHookUserMsg( "GmplayMod", []( const char *pszName, int iSize, void *pbuf ) -> int {
@@ -154,34 +154,16 @@ void GameplayModData::Init() {
 		return 1;
 	} );
 
+	// HACK: previously I sent all timed mods data with messages, and that included
+	// strings to identify mods with. Strings bloated the data sent to client,
+	// which often resulted in crashes during level changes. Because Half-Payne is
+	// single-player mod, I just provide client the pointer to directly copy
+	// the data from. This hack could be used all over the place, but it's too late for that.
 	gEngfuncs.pfnHookUserMsg( "GmplayT", []( const char *pszName, int iSize, void *pbuf ) -> int {
 		BEGIN_READ( pbuf, iSize );
 
-		size_t index = READ_LONG();
-		auto time = READ_FLOAT();
-		auto timeInitial = READ_FLOAT();
-		
-		auto modString = aux::str::split( READ_STRING(), '|' );
-		if ( modString.empty() ) {
-			return 1;
-		}
-		auto modName = modString.at( 0 );
-		auto argString = modString.size() >= 2 ? modString.at( 1 ) : "";
-
-		using namespace gameplayMods;
-		if ( index >= timedGameplayMods.size() ) {
-			return 1;
-		}
-
-		if ( byString.find( modName ) != byString.end() ) {
-			auto mod = byString[modName];
-			timedGameplayMods[index] = {
-				mod,
-				mod->ParseStringArguments( argString ),
-				time,
-				timeInitial
-			};
-		}
+		auto serverTimedGameplayMods = ( std::vector<TimedGameplayMod> * ) READ_LONG();
+		gameplayMods::timedGameplayMods = *serverTimedGameplayMods;
 
 		return 1;
 	} );
@@ -269,12 +251,9 @@ void GameplayModData::SendToClient() {
 				modString += arg.string + " ";
 			}
 			aux::str::rtrim( &modString );
-
+			
 			MESSAGE_BEGIN( MSG_ALL, gmsgGmplayT );
-				WRITE_LONG( i );
-				WRITE_FLOAT( timedMod.time );
-				WRITE_FLOAT( timedMod.initialTime );
-				WRITE_STRING( modString.c_str() );
+				WRITE_LONG( ( unsigned int ) &timedGameplayMods );
 			MESSAGE_END();
 		}
 	} else {
@@ -547,7 +526,9 @@ std::optional<std::vector<Argument>> GameplayMod::getActiveArguments( bool disco
 	}
 
 	for ( auto &timedMod : timedGameplayMods ) {
-		if ( timedMod.mod == this ) {
+		// HACK: previously compared pointers, but due to copying timedGameplayMods from
+		// server to client, it has to be compared by strings instead
+		if ( timedMod.mod->id == this->id ) {
 			return timedMod.args;
 		}
 	}

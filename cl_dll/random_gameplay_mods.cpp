@@ -53,7 +53,7 @@ int CHudRandomGameplayMods::Draw( float flTime )
 			continue;
 		}
 
-		if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f && timedMod.mod != &gameplayMods::chaosEdition ) {
+		if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f && timedMod.mod->id != "chaos_edition" ) {
 			continue;
 		}
 
