@@ -46,8 +46,9 @@ int CHudRandomGameplayMods::Draw( float flTime )
 	const int ITEM_HEIGHT = 40;
 	const int SPACING = 10;
 
-	for ( size_t i = 0; i < timedGameplayMods.size(); i++ ) {
-		auto &timedMod = timedGameplayMods.at( i );
+	int modRowIndex = 0;
+
+	for ( auto &timedMod : timedGameplayMods ) {
 		
 		if ( !timedMod.mod ) {
 			continue;
@@ -59,7 +60,7 @@ int CHudRandomGameplayMods::Draw( float flTime )
 
 		int x = ScreenWidth - ITEM_WIDTH * 2;
 
-		int y = CORNER_OFFSET + i * ( gHUD.m_scrinfo.iCharHeight ) + i * 4;
+		int y = CORNER_OFFSET + modRowIndex * ( gHUD.m_scrinfo.iCharHeight ) + modRowIndex * 4;
 
 		int r = 255;
 		int g = 255;
@@ -69,6 +70,8 @@ int CHudRandomGameplayMods::Draw( float flTime )
 
 		int timeWidth = ( timedMod.time / timedMod.initialTime ) * ITEM_WIDTH;
 		FillRGBA( x, y + gHUD.m_scrinfo.iCharHeight, timeWidth, 1, r, g, b, 120 );
+
+		modRowIndex++;
 	}
 
 	if ( randomGameplayMods->timeForRandomGameplayMod < 10.0f || gameplayModsData.timeLeftUntilNextRandomGameplayMod > randomGameplayMods->timeForRandomGameplayModVoting ) {
