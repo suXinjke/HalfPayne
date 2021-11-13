@@ -32,6 +32,7 @@ public:
 	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 	virtual void RefreshSkillData();
 	virtual void PlayerThink( CBasePlayer *pPlayer );
+	virtual void PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
 	virtual void OnKilledEntityByPlayer( CBasePlayer *pPlayer, CBaseEntity *victim, KILLED_ENTITY_TYPE killedEntity, BOOL isHeadshot, BOOL killedByExplosion, BOOL killedByEnvExplosion, BOOL killedByCrowbar ) override;
 
 	virtual void OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity *activator, int modelIndex, const std::string &className, const std::string &targetName, bool firstTime );

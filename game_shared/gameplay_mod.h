@@ -209,6 +209,7 @@ public:
 	FieldBool( lastGodConstant, FALSE );
 	FieldBool( lastInvisibleEnemies, FALSE );
 	FieldBool( lastNoTargetConstant, FALSE );
+	FieldBool( lastGungame, FALSE );
 	FieldBool( lastPayned, FALSE );
 	FieldBool( lastSuperHotConstant, FALSE );
 	FieldBool( lastSnarkPenguins, FALSE );

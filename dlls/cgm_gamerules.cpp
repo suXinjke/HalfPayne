@@ -574,8 +574,7 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	auto gungameInfo = gameplayMods::gungame.isActive<GunGameInfo>();
 
-	static bool lastGunGame = gungameInfo.has_value();
-	gameplayMods::OnFlagChange<bool>( lastGunGame, gungameInfo.has_value(), [this, pPlayer, gungameInfo]( bool on ) {
+	gameplayMods::OnFlagChange<BOOL>( gameplayModsData.lastGungame, gungameInfo.has_value(), [this, pPlayer, gungameInfo]( BOOL on ) {
 		if ( on ) {
 			gameplayModsData.gungameKillsLeft = 0;
 			gameplayModsData.gungameTimeLeftUntilNextWeapon = gungameInfo->changeTime;
@@ -668,7 +667,9 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 				}
 			}
 			
-			if ( pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->m_iId != WEAPON_CROWBAR ) {
+			if ( !pPlayer->m_pActiveItem ||
+				( pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->m_iId != WEAPON_CROWBAR )
+			) {
 				pPlayer->SelectItem( nextGungameWeapon );
 			}
 
@@ -702,7 +703,10 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 			pPlayer->SendWeaponLockInfo();
 
-			if ( !FStrEq( gameplayModsData.gungamePriorWeapon, "" ) && pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->m_iId != WEAPON_CROWBAR ) {
+			if (
+				!FStrEq( gameplayModsData.gungamePriorWeapon, "" ) &&
+				!( pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->m_iId != WEAPON_CROWBAR )
+			) {
 				pPlayer->SelectItem( gameplayModsData.gungamePriorWeapon );
 				snprintf( gameplayModsData.gungamePriorWeapon, 128, "" );
 			}
@@ -742,6 +746,17 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 
 	if ( twitch && twitch->status == TWITCH_CONNECTED ) {
 		ParseTwitchMessages();
+	}
+}
+
+void CCustomGameModeRules::PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon ) {
+	CHalfLifeRules::PlayerGotWeapon( pPlayer, pWeapon );
+
+	if ( auto gungame = gameplayMods::gungame.isActive() ) {
+		if ( pWeapon->m_iId != WEAPON_CROWBAR && !FStrEq( gameplayModsData.gungameWeapon, STRING( pWeapon->pev->classname ) ) ) {
+			pWeapon->locked = TRUE;
+			pPlayer->SendWeaponLockInfo();
+		}
 	}
 }
 

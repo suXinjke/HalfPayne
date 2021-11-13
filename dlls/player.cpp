@@ -5309,13 +5309,6 @@ int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem )
 		pItem->m_pNext = m_rgpPlayerItems[pItem->iItemSlot()];
 		m_rgpPlayerItems[pItem->iItemSlot()] = pItem;
 
-		if ( auto gungame = gameplayMods::gungame.isActive() ) {
-			if ( pItem->m_iId != WEAPON_CROWBAR && !FStrEq( gameplayModsData.gungameWeapon, STRING( pItem->pev->classname ) ) ) {
-				pItem->locked = TRUE;
-				SendWeaponLockInfo();
-			}
-		}
-
 		// should we switch to this item?
 		if ( g_pGameRules->FShouldSwitchWeapon( this, pItem ) )
 		{
