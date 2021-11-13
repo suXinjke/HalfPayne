@@ -1202,7 +1202,7 @@ void CCustomGameModeRules::SendHUDMessages( CBasePlayer *pPlayer ) {
 			counterData.push_back( {
 				-1,
 				-1,
-				fmt::sprintf( "TIMESCALE BASE: %.2f", timescale_multiplier ),
+				fmt::sprintf( "TIMESCALE: %.0f%%", timescale_multiplier * 100 ),
 				SPACING - 34
 			} );
 		}
