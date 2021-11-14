@@ -1412,7 +1412,10 @@ void CBasePlayer::SendWeaponLockInfo() {
 
 void CBasePlayer::RemoveAllItems( BOOL removeSuit )
 {
-	painkillerCount = 0;
+	while ( painkillerCount > 0 ) {
+		TakeHealth( 20, DMG_GENERIC );
+		painkillerCount--;
+	}
 
 	if ( gameplayMods::weaponRestricted.isActive() && pev->deadflag == DEAD_NO ) {
 		return;
