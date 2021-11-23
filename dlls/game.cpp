@@ -523,6 +523,7 @@ extern int gmsgCLabelVal;
 void GameDLLInit( void )
 {
 	// Register cvars here:
+	FS_InitModule();
 
 	g_psv_gravity = CVAR_GET_POINTER( "sv_gravity" );
 	g_psv_aim = CVAR_GET_POINTER( "sv_aim" );

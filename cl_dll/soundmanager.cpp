@@ -70,11 +70,7 @@ void SM_Play( ManagedStream &stream, const char *soundPath, int looping ) {
 
 	static std::regex backslashRegex( "\\\\+" );
 	std::string sanitizedSoundPath = std::regex_replace( soundPath, backslashRegex, "/" );
-
-	bool soundPathIsRelative = aux::str::startsWith( sanitizedSoundPath, "./" );
-	if ( soundPathIsRelative ) {
-		sanitizedSoundPath = aux::str::replace( sanitizedSoundPath, "^\\.\\/", FS_ResolveModPath( "" ) );
-	}
+	sanitizedSoundPath = FS_ResolveModPath( sanitizedSoundPath );
 
 	if ( stream.handle ) {
 		if ( stream.loadedSoundPath == soundPath ) {
@@ -273,7 +269,7 @@ int SM_OnBassStopC( const char *pszName,  int iSize, void *pbuf ) {
 int SM_OnBassComm( const char *pszName,  int iSize, void *pbuf ) {
 	BEGIN_READ( pbuf, iSize );
 
-	std::string soundPath = FS_ResolveModPath( "sound\\" ) + READ_STRING();
+	std::string soundPath = FS_ResolveModPath( std::string( "sound\\" ) + READ_STRING() );
 
 	SM_Play( commentary, soundPath.c_str() );
 	BASS_ChannelSetAttribute( commentary.handle, BASS_ATTRIB_VOL, volume->value );

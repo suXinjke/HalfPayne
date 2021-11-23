@@ -191,6 +191,7 @@ int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
 	EV_HookEvents();
 	CL_LoadParticleMan();
 
+	FS_InitModule();
 	HL_ImGUI_Init();
 
 	gameplayModsData.Init();

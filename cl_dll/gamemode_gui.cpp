@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "cpp_aux.h"
 #include <Windows.h>
+#include <filesystem>
 #include "fs_aux.h"
 #include "../fmt/printf.h"
 
@@ -283,10 +284,23 @@ void GameModeGUI_DrawMainWindow() {
 
 	static std::string launchHint;
 	if ( launchHint.empty() ) {
-		launchHint = fmt::sprintf(
-			"Check out %s/README_GAME_MODES.txt for customization\n",
-			FS_GetModDirectoryName()
-		);
+		auto filePath = FS_ResolveModPath( "README_GAME_MODES.txt" );
+
+		if ( filePath.empty() ) {
+			launchHint = "Check out README_GAME_MODES.txt for customization";
+		} else {
+			auto moduleHandle = GetModuleHandle( "hl.exe" );
+			char modulePath[MAX_PATH];
+			GetModuleFileName( moduleHandle, modulePath, MAX_PATH );
+
+			launchHint = fmt::sprintf(
+				"Check out %s for customization\n",
+				std::filesystem::relative(
+					filePath,
+					std::filesystem::path( modulePath ).append( ".." )
+				).string()
+			);
+		}
 	}
 
 	ImGui::SetCursorPosX( ImGui::GetWindowWidth() / 2.0f - ImGui::CalcTextSize( launchHint.c_str() ).x / 2.0f );

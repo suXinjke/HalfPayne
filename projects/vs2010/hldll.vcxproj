@@ -238,6 +238,7 @@
     <ClCompile Include="..\..\pm_shared\pm_debug.c" />
     <ClCompile Include="..\..\pm_shared\pm_math.c" />
     <ClCompile Include="..\..\pm_shared\pm_shared.c" />
+    <ClCompile Include="..\..\public\interface.cpp" />
     <ClCompile Include="..\..\twitch\twitch.cpp" />
   </ItemGroup>
   <ItemGroup>

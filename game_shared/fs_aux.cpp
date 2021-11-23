@@ -13,6 +13,8 @@ extern cl_enginefunc_t gEngfuncs;
 #include	"util.h"
 #endif
 
+#include "FileSystem.h"
+
 void FillTCHAR( TCHAR *tchar, const std::string &str ) {
 	strcpy(tchar, str.c_str());
 	tchar[str.size() + 1] = NULL;
@@ -60,25 +62,23 @@ const char * FS_GetModDirectoryName() {
 	return modDirectory;
 }
 
-std::string FS_ResolveModPath( const std::string &path ) {
-	namespace fs = std::filesystem;
+IFileSystem *fsEngineModule = NULL;
 
+void FS_InitModule() {
+	if ( !fsEngineModule ) {
+		auto fsModuleHandle = Sys_LoadModule( "FileSystem_Stdio.dll" );
+		auto fsFactory = Sys_GetFactory( fsModuleHandle );
+		fsEngineModule = ( IFileSystem * ) fsFactory( "VFileSystem009", NULL );
+	}
+}
+
+std::string FS_ResolveModPath( const std::string &path ) {
 	assert( aux::str::startsWith( path, "\\" ) == false );
 
-	auto moduleHandle = GetModuleHandle( "hl.exe" );
+	static char localPath[MAX_PATH] = {};
+	fsEngineModule->GetLocalPath( path.c_str(), localPath, MAX_PATH );
 
-	auto modDirectory = FS_GetModDirectoryName();
-	char modulePath[MAX_PATH];
-	GetModuleFileName( moduleHandle, modulePath, MAX_PATH );
-
-	auto modPath = fs::path( modulePath )
-		.append( "../" )
-		.append( modDirectory );
-
-	return fs::canonical( modPath )
-		.append( path )
-		.make_preferred()
-		.string();
+	return std::filesystem::canonical( localPath ).make_preferred().string();
 }
 
 std::vector<std::string> FS_GetAllFilesInDirectory( const char *path, const char *extension, bool includeDirectories, bool excludeFiles ) {
@@ -117,6 +117,22 @@ std::vector<std::string> FS_GetAllFilesInDirectory( const char *path, const char
 	} while ( FindNextFile( hFind, &fdFile ) );
 
 	FindClose( hFind );
+
+	return result;
+}
+
+std::set<std::string> FS_GetAllFileNamesByWildcard( const char *wildCard ) {
+	std::set<std::string> result;
+
+	FileFindHandle_t handle;
+
+	const char *foundFileName = fsEngineModule->FindFirst( wildCard, &handle );
+	while ( foundFileName ) {
+		result.insert( foundFileName );
+		foundFileName = fsEngineModule->FindNext( handle );
+	}
+
+	fsEngineModule->FindClose( handle );
 
 	return result;
 }

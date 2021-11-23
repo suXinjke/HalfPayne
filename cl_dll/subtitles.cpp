@@ -25,7 +25,7 @@ void Subtitles_Init() {
 	gEngfuncs.pfnHookUserMsg( "SubtRemove", Subtitles_SubtRemove );
 
 	auto resourceDirectory = FS_ResolveModPath( "resource" );
-	std::vector<std::string> subtitleFiles = FS_GetAllFilesInDirectory( resourceDirectory.c_str(), "txt" );
+	auto subtitleFiles = FS_GetAllFileNamesByWildcard( "resource\\subtitles_*.txt" );
 
 	std::regex rgx( "subtitles_(\\w+)\\.txt" );
 	for ( auto &sub : subtitleFiles ) {
@@ -33,7 +33,10 @@ void Subtitles_Init() {
 		std::regex_search( sub, match, rgx );
 
 		if ( match.size() > 1 ) {
-			Subtitles_ParseSubtitles( sub, match.str( 1 ) );
+			Subtitles_ParseSubtitles(
+				FS_ResolveModPath( std::string( "resource\\" ) + sub ),
+				match.str( 1 )
+			);
 		}
 	}
 }
