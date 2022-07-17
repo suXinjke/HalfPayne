@@ -86,7 +86,7 @@ GameplayMod &::blackMesaMinute = GameplayMod::Define( "black_mesa_minute", "Blac
 .CannotBeActivatedRandomly();;
 
 GameplayMod &::bleeding = GameplayMod::Define( "bleeding", "Bleeding" )
-.Description( "After your last painkiller take, you start to lose health" )
+.Description( "You're gradually losing health until certain limit" )
 .Arguments( {
 	Argument( "bleeding_handicap" ).IsOptional().MinMax( 0, 99 ).RandomMinMax( 10, 50 ).Default( "20" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Bleeding until %.0f health left", value );
@@ -139,7 +139,7 @@ GameplayMod &::bulletPhysics = GameplayMod::Define( "bullet_physics", "Bullet ph
 .CannotBeActivatedRandomly();
 
 GameplayMod &::bulletDelayOnSlowmotion = GameplayMod::Define( "bullet_delay_on_slowmotion", "Bullet delay on slowmotion" )
-.Description( "Physical bullets shot by during slowmotion will move slowly until it's turned off" )
+.Description( "Your bullets almost stay still during slowmotion, and go at once when you disable it" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::slowmotionForbidden.isActive();
 } );
@@ -304,7 +304,7 @@ GameplayMod &::drunkFOV = GameplayMod::Define( "drunk_fov", "Drunk FOV" )
 } );
 
 GameplayMod &::drunkLook = GameplayMod::Define( "drunk_look", "Drunk look" )
-.Description( "Camera view becomes wobbly and makes aim harder" )
+.Description( "Camera is wobbly and makes aim harder" )
 .Arguments( {
 	Argument( "drunkiness" ).IsOptional().MinMax( 0.1, 1000 ).RandomMinMax( 25, 100 ).Default( "25" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Drunkiness: %.0f percent", value );
@@ -319,7 +319,7 @@ GameplayMod &::drunkLook = GameplayMod::Define( "drunk_look", "Drunk look" )
 } );
 
 GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Explosion jumping" )
-.Description( "Your explosives don't harm you, but you can still do jumps with that" )
+.Description( "Jupming off your own rockets and grenades is harmless" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if (
@@ -344,8 +344,7 @@ GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Exp
 
 GameplayMod &::fadingOut = GameplayMod::Define( "fading_out", "Fading out" )
 .Description(
-	"View is fading out, or in other words it's blacking out until you can't see almost anything\n"
-	"Take painkillers to restore the vision\n"
+	"It's getting darker, take painkillers to see better\n"
 	"Allows to take painkillers even when you have 100 health and enough time have passed since the last take"
 )
 .Arguments( {
@@ -400,7 +399,7 @@ GameplayMod &::gibsAlways = GameplayMod::Define( "always_gib", "Always gib" )
 .Description( "Kills will always try to result in gibbing" );
 
 GameplayMod &::gibsEdible = GameplayMod::Define( "edible_gibs", "Edible gibs" )
-.Description( "Allows you to eat gibs by pressing USE when aiming at the gib, which restore your health by 5" );
+.Description( "Eat gibs and heal yourself by pressing USE when aiming at the gib" );
 
 GameplayMod &::gibsGarbage = GameplayMod::Define( "garbage_gibs", "Garbage gibs" )
 .Description( "Replaces all gibs with garbage" );
@@ -956,7 +955,7 @@ GameplayMod &::snarkFromExplosion = GameplayMod::Define( "snark_from_explosion",
 .Description( "Snarks will spawn in the place of explosion" );
 
 GameplayMod &::snarkInception = GameplayMod::Define( "snark_inception", "Snark inception" )
-.Description( "Killing snark splits it into two snarks" )
+.Description( "Killing a snark splits it into two snarks" )
 .Arguments( {
 	Argument( "inception_depth" ).IsOptional().MinMax( 1, 100 ).RandomMinMax( 1, 1 ).Default( "10" ).Description( []( const std::string string, float value ) {
 		return fmt::sprintf( "Inception depth: %.0f snarks", value );
@@ -975,15 +974,15 @@ GameplayMod &::snarkInception = GameplayMod::Define( "snark_inception", "Snark i
 
 GameplayMod &::snarkInfestation = GameplayMod::Define( "snark_infestation", "Snark infestation" )
 .Description(
-	"Snark will spawn in the body of killed monster (NPC)\n"
-	"Even more snarks spawn if monster's corpse has been gibbed"
+	"Snark will spawn in the body of killed NPC\n"
+	"Even more snarks spawn if NPC's corpse has been gibbed"
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::teleportOnKill.isActive();
 } );
 
 GameplayMod &::snarkNuclear = GameplayMod::Define( "snark_nuclear", "Snark nuclear" )
-.Description( "Killing snark produces a grenade-like explosion" )
+.Description( "Killing a snark produces a grenade-like explosion" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if ( player->HasNamedPlayerItem( "weapon_snark", true ) ) {
@@ -1019,7 +1018,7 @@ GameplayMod &::snarkStayAlive = GameplayMod::Define( "snark_stay_alive", "Snark 
 
 GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 .Description(
-	"Time moves forward only when you move around\n"
+	"Time moves forward only when you move around, everyone dies in one hit\n"
 	"Inspired by the game SUPERHOT"
 )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
@@ -1041,7 +1040,7 @@ GameplayMod &::superHot = GameplayMod::Define( "superhot", "SUPERHOT" )
 
 GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", "SUPERHOT Toggleable" )
 .Description(
-	"After you activate slowmotion, time moves forward only when you move around\n"
+	"After you activate slowmotion, time moves forward only when you move around and everyone dies in one hit\n"
 	"Inspired by the game SUPERHOT"
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
@@ -1049,7 +1048,7 @@ GameplayMod &::superHotToggleable = GameplayMod::Define( "superhot_toggleable", 
 } );
 
 GameplayMod &::swearOnKill = GameplayMod::Define( "swear_on_kill", "Swear on kill" )
-.Description( "Max will swear when killing an enemy. He will still swear even if Max's commentary is turned off" );
+.Description( "Max will swear after killing an enemy" );
 
 GameplayMod &::teleportMaintainVelocity = GameplayMod::Define( "teleport_maintain_velocity", "Teleport maintain velocity" )
 .Description( "Your velocity will be preserved after going through teleporters" )
@@ -1123,7 +1122,7 @@ GameplayMod &::timescale = GameplayMod::Define( "timescale", "Timescale" )
 .ForceDefaultArguments( "1" );
 
 GameplayMod &::timescaleOnDamage = GameplayMod::Define( "timescale_on_damage", "Timescale on damage" )
-.Description( "Timescale will be increased with each kill you do, and decreased as you get damage" )
+.Description( "You kill - time goes faster, you're hit - time goes slower" )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	return !::superHot.isActive() && !::timescale.isActive( true );
 } );
@@ -1138,7 +1137,7 @@ GameplayMod &::tripminesDetachable = GameplayMod::Define( "detachable_tripmines"
 .CannotBeActivatedRandomly();
 
 GameplayMod &::upsideDown = GameplayMod::Define( "upside_down", "Upside down" )
-.Description( "View becomes turned on upside down" )
+.Description( "You see the world upside down" )
 .IsAlsoActiveWhen( []() -> std::optional<std::string> {
 	if ( gameplayModsData.reverseGravity && ::vvvvvv.isActive() ) {
 		return "";
