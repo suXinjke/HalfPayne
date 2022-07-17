@@ -870,6 +870,30 @@ void CBasePlayerItem::AttachToPlayer ( CBasePlayer *pPlayer )
 	SetTouch( NULL );
 }
 
+BOOL CBasePlayerWeapon::HasPrimaryAmmo() {
+	auto ammoIndex = PrimaryAmmoIndex();
+	if ( ammoIndex == -1 ) {
+		return FALSE;
+	}
+	return
+		m_iClip > 0 ||
+		m_iClip2 > 0 ||
+		m_pPlayer->m_rgAmmo[ammoIndex] > 0;
+}
+
+BOOL CBasePlayerWeapon::HasSecondaryAmmo() {
+	auto ammoIndex = SecondaryAmmoIndex();
+	if ( ammoIndex == -1 ) {
+		return FALSE;
+	}
+
+	return m_pPlayer->m_rgAmmo[ammoIndex] > 0;
+}
+
+BOOL CBasePlayerWeapon::HasAmmo() {
+	return HasPrimaryAmmo() || HasSecondaryAmmo();
+}
+
 // CALLED THROUGH the newly-touched weapon's instance. The existing player weapon is pOriginal
 int CBasePlayerWeapon::AddDuplicate( CBasePlayerItem *pOriginal )
 {

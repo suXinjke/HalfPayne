@@ -282,6 +282,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse ) { }
 int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem ) { return FALSE; }
 int CBasePlayer::RemovePlayerItem( CBasePlayerItem *pItem ) { return FALSE; }
 BOOL CBasePlayer::HasNamedPlayerItem( const char *name, bool ignoreGungameWeapons ) { return FALSE; }
+BOOL CBasePlayer::HasNamedPlayerWeaponWithAmmo( const char *name, bool ignoreGungameWeapons ) { return FALSE; }
 CBasePlayerItem * CBasePlayer::GetPlayerItem( const char *name ) { return NULL; }
 void CBasePlayer::GiveNamedItem( const char *szName, bool nonCheat ) {}
 void CBasePlayer::ItemPreFrame() { }
@@ -337,6 +338,9 @@ void CBasePlayerItem::Drop( void ) { }
 void CBasePlayerItem::Kill( void ) { }
 void CBasePlayerItem::Holster( int skiplocal ) { }
 void CBasePlayerItem::AttachToPlayer ( CBasePlayer *pPlayer ) { }
+BOOL CBasePlayerWeapon::HasPrimaryAmmo() { return FALSE; }
+BOOL CBasePlayerWeapon::HasSecondaryAmmo() { return FALSE; }
+BOOL CBasePlayerWeapon::HasAmmo() { return FALSE; }
 int CBasePlayerWeapon::AddDuplicate( CBasePlayerItem *pOriginal ) { return 0; }
 int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer ) { return FALSE; }
 int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer ) { return 0; }

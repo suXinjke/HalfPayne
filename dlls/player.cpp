@@ -6551,28 +6551,35 @@ CBasePlayerItem * CBasePlayer::GetPlayerItem( const char *pszItemName ) {
 //=========================================================
 BOOL CBasePlayer::HasNamedPlayerItem( const char *pszItemName, bool ignoreGungameWeapons )
 {
-	CBasePlayerItem *pItem;
-	int i;
- 
-	for ( i = 0 ; i < MAX_ITEM_TYPES ; i++ )
-	{
-		pItem = m_rgpPlayerItems[ i ];
-		
-		while (pItem)
-		{
-			if ( !strcmp( pszItemName, STRING( pItem->pev->classname ) ) )
-			{
-				if ( ignoreGungameWeapons ) {
-					return !pItem->isGungameWeapon;
-				} else {
-					return TRUE;
-				}
-			}
-			pItem = pItem->m_pNext;
-		}
+	CBasePlayerItem *pItem = GetPlayerItem( pszItemName );
+	if ( !pItem ) {
+		return FALSE;
 	}
 
-	return FALSE;
+	if ( ignoreGungameWeapons && pItem->isGungameWeapon ) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL CBasePlayer::HasNamedPlayerWeaponWithAmmo( const char *pszItemName, bool ignoreGungameWeapons )
+{
+	CBasePlayerItem *pItem = GetPlayerItem( pszItemName );
+	if ( !pItem ) {
+		return FALSE;
+	}
+
+	if ( ignoreGungameWeapons && pItem->isGungameWeapon ) {
+		return FALSE;
+	}
+
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
+	if ( !pWeapon ) {
+		return FALSE;
+	}
+
+	return pWeapon->HasAmmo();
 }
 
 //=========================================================

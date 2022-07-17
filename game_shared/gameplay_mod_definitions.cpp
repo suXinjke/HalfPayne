@@ -211,7 +211,7 @@ GameplayMod &::crossbowExplosiveBolts = GameplayMod::Define( "crossbow_explosive
 .Description( "Crossbow bolts explode when they hit the wall" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_crossbow", true );
+		return player->HasNamedPlayerWeaponWithAmmo( "weapon_crossbow", true );
 	}
 	return false;
 } );
@@ -323,18 +323,19 @@ GameplayMod &::explosionJumping = GameplayMod::Define( "explosion_jumping", "Exp
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
 		if (
-			player->HasNamedPlayerItem( "weapon_handgrenade", true ) ||
-			player->HasNamedPlayerItem( "weapon_satchel", true ) ||
-			player->HasNamedPlayerItem( "weapon_tripmine", true ) ||
-			player->HasNamedPlayerItem( "weapon_rpg", true )
+			player->HasNamedPlayerWeaponWithAmmo( "weapon_handgrenade", true ) ||
+			player->HasNamedPlayerWeaponWithAmmo( "weapon_satchel", true ) ||
+			player->HasNamedPlayerWeaponWithAmmo( "weapon_tripmine", true ) ||
+			player->HasNamedPlayerWeaponWithAmmo( "weapon_rpg", true )
 		) {
 			return true;
 		}
 
-		if ( auto mp5 = player->GetPlayerItem( "weapon_9mmAR" ) ) {
-			auto grenadeAmmoIndex = mp5->SecondaryAmmoIndex();
-			if ( player->m_rgAmmo[grenadeAmmoIndex] > 0 ) {
-				return true;
+		if ( auto mp5Item = player->GetPlayerItem( "weapon_9mmAR" ) ) {
+			if ( auto mp5 = dynamic_cast<CBasePlayerWeapon *>( mp5Item ) ) {
+				if ( mp5->HasSecondaryAmmo() ) {
+					return true;
+				}
 			}
 		}
 	}
@@ -370,7 +371,7 @@ GameplayMod &::gaussFastCharge = GameplayMod::Define( "gauss_fast_charge", "Gaus
 .Description( "Gauss charges faster like in multiplayer" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_gauss", true );
+		return player->HasNamedPlayerWeaponWithAmmo( "weapon_gauss", true );
 	}
 	return false;
 } );
@@ -379,7 +380,7 @@ GameplayMod &::gaussJumping = GameplayMod::Define( "gauss_jumping", "Gauss jumpi
 .Description( "Allows for easier gauss jumping like in multiplayer" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_gauss", true );
+		return player->HasNamedPlayerWeaponWithAmmo( "weapon_gauss", true );
 	}
 	return false;
 } );
@@ -481,7 +482,7 @@ GameplayMod &::instagib = GameplayMod::Define( "instagib", "Instagib" )
 )
 .CanOnlyBeActivatedRandomlyWhen( []() {
 	if ( auto player = GetPlayer() ) {
-		if ( player->HasNamedPlayerItem( "weapon_gauss", true ) ) {
+		if ( player->HasNamedPlayerWeaponWithAmmo( "weapon_gauss", true ) ) {
 			return true;
 		};
 	}
@@ -818,7 +819,7 @@ GameplayMod &::shotgunAutomatic = GameplayMod::Define( "shotgun_automatic", "Aut
 .Description( "Shotgun only fires single shots and doesn't have to be reloaded after each shot" )
 .CanOnlyBeActivatedRandomlyWhen( []() -> bool {
 	if ( auto player = GetPlayer() ) {
-		return player->HasNamedPlayerItem( "weapon_shotgun", true );
+		return player->HasNamedPlayerWeaponWithAmmo( "weapon_shotgun", true );
 	}
 	return false;
 } );
