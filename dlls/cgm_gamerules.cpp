@@ -1517,7 +1517,12 @@ void CCustomGameModeRules::OnHookedModelIndex( CBasePlayer *pPlayer, CBaseEntity
 		}
 	}
 
-	if ( targetName == "on_map_start" && firstTime && gameplayModsData.monsterSpawnAttempts > 0 ) {
+	if (
+		gameplayModsData.monsterSpawnAttempts > 0 &&
+		targetName == "on_map_start" &&
+		firstTime &&
+		std::string( STRING( gpGlobals->mapname ) ) != "c2a5d"
+	) {
 		auto spawnedEntitiesDescription = SpawnRandomMonsters( pPlayer );
 		if ( !spawnedEntitiesDescription.empty() ) {
 			MESSAGE_BEGIN( MSG_ONE, gmsgCLabelVal, NULL, pPlayer->pev );
