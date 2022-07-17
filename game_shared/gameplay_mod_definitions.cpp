@@ -421,33 +421,7 @@ GameplayMod &::grenadePellets = GameplayMod::Define( "grenade_pellets", "Grenade
 		return fmt::sprintf( "Pellet amount: %.0f", value );
 	} )
 } )
-.CanOnlyBeActivatedRandomlyWhen( []() -> bool {
-	if ( auto player = GetPlayer() ) {
-		if ( auto mp5 = player->GetPlayerItem( "weapon_9mmAR" ) ) {
-			auto grenadeAmmoIndex = mp5->SecondaryAmmoIndex();
-			if ( player->m_rgAmmo[grenadeAmmoIndex] > 0 ) {
-				return true;
-			}
-		}
-		
-		if ( player->HasNamedPlayerItem( "weapon_handgrenade", true ) ) {
-			return true;
-		}
-
-		CBaseEntity *pEntity = NULL;
-		while ( ( pEntity = UTIL_FindEntityInSphere( pEntity, player->pev->origin, 8192.0f ) ) != NULL ) {
-			if (
-				FStrEq( STRING( pEntity->pev->classname ), "monster_human_grunt" ) &&
-				pEntity->pev->weapons & ( 1 << 2 ) // HGRUNT_GRENADELAUNCHER flag
-			) {
-				return true;
-			}
-		}
-	}
-
-
-	return false;
-} );
+.CannotBeActivatedRandomly();
 
 GameplayMod &::godConstant = GameplayMod::Define( "god", "God mode" )
 .Description( "You are invincible and it doesn't count as a cheat" )
