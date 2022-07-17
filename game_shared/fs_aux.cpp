@@ -74,8 +74,8 @@ void FS_InitModule() {
 
 std::string FS_ResolveModPath( const std::string &path ) {
 	assert( aux::str::startsWith( path, "\\" ) == false );
-
-	static char localPath[MAX_PATH] = {};
+	
+	char localPath[MAX_PATH] = {};
 	fsEngineModule->GetLocalPath( path.c_str(), localPath, MAX_PATH );
 
 	return std::filesystem::canonical( localPath ).make_preferred().string();
