@@ -304,26 +304,4 @@ namespace aux {
 			return dis( gen );
 		}
 	}
-
-	namespace twitch {
-		inline void saveCredentialsToFile( const std::string &user, const std::string &password ) {
-			std::ofstream out( FS_ResolveModPath( "twitch_credentials.cfg" ) );
-			out << user << "\n" << password;
-		}
-
-		inline std::pair<std::string, std::string> readCredentialsFromFile() {
-			std::string user;
-			std::string password;
-
-			std::ifstream inp( FS_ResolveModPath( "twitch_credentials.cfg" ) );
-			if ( !inp.is_open() ) {
-				return { user, password };
-			}
-
-			std::getline( inp, user );
-			std::getline( inp, password );
-
-			return { aux::str::toLowercase( user ), password };
-		}
-	}
 }

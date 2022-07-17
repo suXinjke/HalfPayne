@@ -14,4 +14,11 @@ std::set<std::string> FS_GetAllFileNamesByWildcard( const char *wildCard );
 const char * FS_GetModDirectoryName();
 std::string FS_ResolveModPath( const std::string &path );
 
+namespace aux {
+	namespace twitch {
+		void saveCredentialsToFile( const std::string &user, const std::string &password );
+		std::pair<std::string, std::string> readCredentialsFromFile();
+	}
+}
+
 #endif // FS_AUX_H

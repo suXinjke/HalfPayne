@@ -630,8 +630,41 @@ void GameModeGUI_DrawTwitchConfig() {
 		ShellExecute( 0, 0, "https://twitchapps.com/tmi/", 0, 0, SW_SHOW );
 	}
 	ImGui::SameLine();
+
+	static int credentialSaveErrorCode = 0;
 	if ( ImGui::Button( "Save login info" ) ) {
-		aux::twitch::saveCredentialsToFile( twitch_login, twitch_chat_oauth_password );
+		try {
+			aux::twitch::saveCredentialsToFile( twitch_login, twitch_chat_oauth_password );
+		} catch ( std::ifstream::failure e ) {
+			credentialSaveErrorCode = GetLastError();
+		}
+
+		ImGui::OpenPopup( "Save login info" );
+	}
+
+	if ( ImGui::BeginPopupModal( "Save login info" ) ) {
+
+		if ( credentialSaveErrorCode ) {
+			ImGui::Text(
+				"Failed to save credentials, error code: %d\n"
+				"%s",
+
+				credentialSaveErrorCode,
+				credentialSaveErrorCode == 5 ?
+				"Error code 5 may indicate denied access, "
+				"check that you don't have read-only flag set on mod directory" :
+				""
+			);
+		} else {
+			ImGui::Text( "Successfully saved the credentials" );
+		}
+
+		if ( ImGui::Button( "OK" ) ) {
+			credentialSaveErrorCode = 0;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
 	}
 
 	ImGui::Text( "\n" );

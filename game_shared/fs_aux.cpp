@@ -139,3 +139,25 @@ std::set<std::string> FS_GetAllFileNamesByWildcard( const char *wildCard ) {
 	return result;
 }
 
+
+void aux::twitch::saveCredentialsToFile( const std::string &user, const std::string &password ) {
+	std::ofstream out;
+	out.exceptions( std::ifstream::failbit | std::ifstream::badbit );
+	out.open( FS_ResolveModPath( "twitch_credentials.cfg" ) );
+	out << user << "\n" << password;
+}
+
+std::pair<std::string, std::string> aux::twitch::readCredentialsFromFile() {
+	std::string user;
+	std::string password;
+
+	std::ifstream inp( FS_ResolveModPath( "twitch_credentials.cfg" ) );
+	if ( !inp.is_open() ) {
+		return { user, password };
+	}
+
+	std::getline( inp, user );
+	std::getline( inp, password );
+
+	return { aux::str::toLowercase( user ), password };
+}
