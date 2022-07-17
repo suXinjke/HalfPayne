@@ -9,6 +9,7 @@
 #include "fs_aux.h"
 #include "../fmt/printf.h"
 
+#include "shared_memory.h"
 #include "gamemode_gui.h"
 
 std::vector<std::pair<std::string, std::string>>chapterMaps = {
@@ -112,6 +113,8 @@ std::vector<std::pair<std::string, std::string>>chapterMaps = {
 
 std::vector<std::string> formattedChapterMaps;
 
+extern SharedMemory sharedMemory;
+
 extern SDL_Window *window;
 
 std::map<std::string, std::vector<CustomGameModeConfig>> configs;
@@ -122,9 +125,6 @@ std::vector<CustomGameModeConfig> vanillaConfigs;
 int configAmount;
 int configCompleted;
 float configCompletedPercent;
-
-char twitch_login[128] = "";
-char twitch_chat_oauth_password[128] = "";
 
 CustomGameModeConfig *selectedConfig = nullptr;
 bool drawingTwitchSettings = false;
@@ -144,8 +144,8 @@ void GameModeGUI_Init() {
 	GameModeGUI_RefreshConfigFiles();
 
 	auto twitch_credentials = aux::twitch::readCredentialsFromFile();
-	snprintf( twitch_login, 128, "%s", twitch_credentials.first.c_str() );
-	snprintf( twitch_chat_oauth_password, 128, "%s", twitch_credentials.second.c_str() );
+	snprintf( sharedMemory.twitchCredentials.login, 128, "%s", twitch_credentials.first.c_str() );
+	snprintf( sharedMemory.twitchCredentials.oAuthPassword, 128, "%s", twitch_credentials.second.c_str() );
 }
 
 void GameModeGUI_RefreshConfigFiles() {
@@ -615,7 +615,7 @@ void GameModeGUI_DrawTwitchConfig() {
 			"This works only in custom gameplay mods.\n\n"
 			"Your credentials are stored in %s/twitch_credentials.cfg\n"
 			"Don't have the console open while pasting your password to prevent leaking it in console input\n\n"
-			"Save your login info! Otherwise no connection will be made.",
+			"Don't forget to save your login info to avoid entering the credentials every time.",
 
 			FS_GetModDirectoryName()
 		);
@@ -623,8 +623,8 @@ void GameModeGUI_DrawTwitchConfig() {
 
 	ImGui::TextWrapped( helpMessage.c_str() );
 
-	ImGui::InputText( "Twitch username", twitch_login, 128 );
-	ImGui::InputText( "OAuth password", twitch_chat_oauth_password, 128, ImGuiInputTextFlags_Password );
+	ImGui::InputText( "Twitch username", sharedMemory.twitchCredentials.login, 128 );
+	ImGui::InputText( "OAuth password", sharedMemory.twitchCredentials.oAuthPassword, 128, ImGuiInputTextFlags_Password );
 
 	if ( ImGui::Button( "Get OAuth password..." ) ) {
 		ShellExecute( 0, 0, "https://twitchapps.com/tmi/", 0, 0, SW_SHOW );
@@ -634,7 +634,7 @@ void GameModeGUI_DrawTwitchConfig() {
 	static int credentialSaveErrorCode = 0;
 	if ( ImGui::Button( "Save login info" ) ) {
 		try {
-			aux::twitch::saveCredentialsToFile( twitch_login, twitch_chat_oauth_password );
+			aux::twitch::saveCredentialsToFile( sharedMemory.twitchCredentials.login, sharedMemory.twitchCredentials.oAuthPassword );
 		} catch ( std::ifstream::failure e ) {
 			credentialSaveErrorCode = GetLastError();
 		}
@@ -647,6 +647,8 @@ void GameModeGUI_DrawTwitchConfig() {
 		if ( credentialSaveErrorCode ) {
 			ImGui::Text(
 				"Failed to save credentials, error code: %d\n"
+				"You can still play with the Twitch integration on, but you will\n"
+				"have to enter the credentials again after restarting the game\n"
 				"%s",
 
 				credentialSaveErrorCode,

@@ -53,6 +53,7 @@ extern "C"
 #include "vgui_TeamFortressViewport.h"
 #include "../public/interface.h"
 
+#include "shared_memory.h"
 #include "hl_imgui.h"
 
 cl_enginefunc_t gEngfuncs;
@@ -62,6 +63,8 @@ TeamFortressViewport *gViewPort = NULL;
 #include "particleman.h"
 CSysModule *g_hParticleManModule = NULL;
 IParticleMan *g_pParticleMan = NULL;
+
+SharedMemory sharedMemory;
 
 void CL_LoadParticleMan( void );
 void CL_UnloadParticleMan( void );

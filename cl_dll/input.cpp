@@ -26,8 +26,11 @@ extern "C"
 #include "soundmanager.h"
 #include "event_api.h"
 #include "fs_aux.h"
+#include "shared_memory.h"
 
 #include "vgui_TeamFortressViewport.h"
+
+extern SharedMemory sharedMemory;
 
 extern int g_iAlive;
 
@@ -1249,6 +1252,12 @@ void InitInput (void)
 	twitch_integration_random_kill_messages_sender = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages_sender", "1", FCVAR_ARCHIVE );
 
 	sm_buffer = gEngfuncs.pfnRegisterVariable( "sm_buffer", "96", FCVAR_ARCHIVE );
+
+	{
+		auto __shared_mem_ptr = gEngfuncs.pfnRegisterVariable( "__shared_mem_ptr", "0", NULL );
+		auto sharedMemoryAddress = (unsigned int) &sharedMemory;
+		__shared_mem_ptr->value = *( float * ) &sharedMemoryAddress;
+	}
 
 	// Initialize third person camera controls.
 	CAM_Init();

@@ -298,6 +298,7 @@
     <ClInclude Include="..\..\game_shared\fs_aux.h" />
     <ClInclude Include="..\..\game_shared\gameplay_mod.h" />
     <ClInclude Include="..\..\game_shared\sha1.h" />
+    <ClInclude Include="..\..\game_shared\shared_memory.h" />
     <ClInclude Include="..\..\pm_shared\pm_debug.h" />
     <ClInclude Include="..\..\pm_shared\pm_defs.h" />
     <ClInclude Include="..\..\pm_shared\pm_info.h" />

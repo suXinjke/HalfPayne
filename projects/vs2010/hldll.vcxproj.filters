@@ -198,5 +198,6 @@
     <ClInclude Include="..\..\utf8\core.h" />
     <ClInclude Include="..\..\utf8\unchecked.h" />
     <ClInclude Include="..\..\utf8\utf8.h" />
+    <ClInclude Include="..\..\game_shared\shared_memory.h" />
   </ItemGroup>
 </Project>

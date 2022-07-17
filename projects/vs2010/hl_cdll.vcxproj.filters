@@ -650,6 +650,9 @@
     <ClInclude Include="..\..\game_shared\fs_aux.h">
       <Filter>Header Files\game_shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\game_shared\shared_memory.h">
+      <Filter>Header Files\game_shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\lib\public\game_controls.lib" />

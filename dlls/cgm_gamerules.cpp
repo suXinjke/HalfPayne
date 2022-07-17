@@ -18,6 +18,7 @@
 #include	"../twitch/twitch.h"
 #include	"kerotan.h"
 #include	"game.h"
+#include	"shared_memory.h"
 
 extern std::map<std::string, std::pair<const char *, const char *>> paynedModels;
 
@@ -728,10 +729,11 @@ void CCustomGameModeRules::PlayerThink( CBasePlayer *pPlayer )
 	} );
 
 	if ( twitch && twitch->status == TWITCH_DISCONNECTED && ShouldInitializeTwitch() ) {
-
-		auto twitch_credentials = aux::twitch::readCredentialsFromFile();
-		auto login = twitch_credentials.first;
-		auto password = twitch_credentials.second;
+		auto cvar = CVAR_GET_POINTER( "__shared_mem_ptr" );
+		auto sharedMemory = ( SharedMemory * ) *( unsigned int * ) &cvar->value;
+		
+		auto login = std::string(sharedMemory->twitchCredentials.login);
+		auto password = std::string(sharedMemory->twitchCredentials.oAuthPassword);
 		if ( !login.empty() && !password.empty() ) {
 			SendGameLogMessage( pPlayer, "Connecting to Twitch chat...", true );
 
