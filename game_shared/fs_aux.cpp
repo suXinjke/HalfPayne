@@ -81,6 +81,8 @@ std::string FS_ResolveModPath( const std::string &path ) {
 	return std::filesystem::canonical( localPath ).make_preferred().string();
 }
 
+// Based on this answer
+// http://stackoverflow.com/questions/2314542/listing-directory-contents-using-c-and-windows
 std::vector<std::string> FS_GetAllFilesInDirectory( const char *path, const char *extension, bool includeDirectories, bool excludeFiles ) {
 	std::vector<std::string> result;
 
@@ -137,5 +139,3 @@ std::set<std::string> FS_GetAllFileNamesByWildcard( const char *wildCard ) {
 	return result;
 }
 
-// Based on this answer
-// http://stackoverflow.com/questions/2314542/listing-directory-contents-using-c-and-windows
