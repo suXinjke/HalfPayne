@@ -319,16 +319,18 @@ void CustomGameModeConfig::InitConfigSections() {
 				return "";
 			}
 
+			auto resolvedPath = FS_ResolveModPath( line );
+
 			WIN32_FIND_DATA fdFile;
 
-			if ( FindFirstFile( line.c_str(), &fdFile ) == INVALID_HANDLE_VALUE ) {
+			if ( FindFirstFile( resolvedPath.c_str(), &fdFile ) == INVALID_HANDLE_VALUE ) {
 				return "";
 			}
 
 			if ( strcmp( fdFile.cFileName, "." ) != 0 && strcmp( fdFile.cFileName, ".." ) != 0 ) {
 				std::vector<std::string> files;
 				if ( fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) {
-					files = GetAllFileNames( line.c_str(), { "wav", "ogg", "mp3" }, true );
+					files = GetAllFileNames( resolvedPath.c_str(), { "wav", "ogg", "mp3" }, true );
 				} else {
 					files.push_back( line );
 				}
