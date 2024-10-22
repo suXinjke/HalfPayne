@@ -58,9 +58,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;WINDOWS_IGNORE_PACKING_MISMATCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;WINDOWS_IGNORE_PACKING_MISMATCH;SUBHOOK_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\um;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\um;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;..\..\subhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091; 4996</DisableSpecificWarnings>
@@ -92,9 +92,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;WINDOWS_IGNORE_PACKING_MISMATCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CLIENT_DLL;CLIENT_WEAPONS;HL_DLL;WINDOWS_IGNORE_PACKING_MISMATCH;SUBHOOK_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\um;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\um;..\..\dlls;..\..\cl_dll;..\..\public;..\..\common;..\..\pm_shared;..\..\engine;..\..\utils\vgui\include;..\..\game_shared;..\..\external;..\..\subhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -242,6 +242,7 @@
     <ClCompile Include="..\..\pm_shared\pm_math.c" />
     <ClCompile Include="..\..\pm_shared\pm_shared.c" />
     <ClCompile Include="..\..\public\interface.cpp" />
+    <ClCompile Include="..\..\subhook\subhook.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\aim_entity.h" />
@@ -317,6 +318,8 @@
     <ClInclude Include="..\..\pm_shared\pm_materials.h" />
     <ClInclude Include="..\..\pm_shared\pm_movevars.h" />
     <ClInclude Include="..\..\pm_shared\pm_shared.h" />
+    <ClInclude Include="..\..\subhook\subhook.h" />
+    <ClInclude Include="..\..\subhook\subhook_private.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\lib\public\game_controls.lib" />

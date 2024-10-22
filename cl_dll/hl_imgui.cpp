@@ -11,73 +11,27 @@
 #include "fs_aux.h"
 
 #include "hl_imgui.h"
+#include <subhook.h>
 
 extern cl_enginefunc_t gEngfuncs;
 extern int isPaused;
 extern bool inMainMenu;
 SDL_Window *window = NULL;
 
+subhook::Hook swapWindowHookController;
+
 // To draw imgui on top of Half-Life, we take a detour from certain engine's function into HL_ImGUI_Draw function
 void HL_ImGUI_Init() {
-
-	// One of the final steps before drawing a frame is calling SDL_GL_SwapWindow function
-	// It must be prevented, so imgui could be drawn before calling SDL_GL_SwapWindow
-
-	// This will hold the constant address of x86 CALL command, which looks like this
-	// E8 FF FF FF FF
-	// Last 4 bytes specify an offset from this address + 5 bytes of command itself
-	unsigned int origin = NULL;
-
-	// We're scanning 1 MB at the beginning of hw.dll for a certain sequence of bytes
-	// Based on location of that sequnce, the location of CALL command is calculated
-	MODULEINFO module_info;
-	if ( GetModuleInformation( GetCurrentProcess(), GetModuleHandle( "hw.dll" ), &module_info, sizeof( module_info ) ) ) {
-		origin = ( unsigned int ) module_info.lpBaseOfDll;
-		
-		const int MEGABYTE = 1024 * 1024;
-		char *slice = new char[MEGABYTE];
-		ReadProcessMemory( GetCurrentProcess(), ( const void * ) origin, slice, MEGABYTE, NULL );
-
-		unsigned char magic[] = { 0x8B, 0x4D, 0x08, 0x83, 0xC4, 0x08, 0x89, 0x01, 0x5D, 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0xA1 };
-
-		for ( unsigned int i = 0 ; i < MEGABYTE - 16; i++ ) {
-			bool sequenceIsMatching = memcmp( slice + i, magic, 16 ) == 0;
-			if ( sequenceIsMatching ) {
-				origin += i + 27;
-				break;
-			}
-		}
-
-		delete[] slice;
-
-		char opCode[1];
-		ReadProcessMemory( GetCurrentProcess(), ( const void * ) origin, opCode, 1, NULL );
-		if ( opCode[0] != 0xFFFFFFE8 ) {
-			gEngfuncs.Con_DPrintf( "Failed to embed ImGUI: expected CALL OP CODE, but it wasn't there\n" );
-			return;
-		}
-	} else {
-		gEngfuncs.Con_DPrintf( "Failed to embed ImGUI: failed to get hw.dll memory base address\n" );
+	auto moduleHandle = GetModuleHandle( "SDL2.dll" );
+	if ( moduleHandle == NULL ) {
+		gEngfuncs.Con_DPrintf( "Failed to get a handle on SDL module: %d\n", GetLastError() );
 		return;
 	}
+	auto OriginalSwapWindow = GetProcAddress( moduleHandle, "SDL_GL_SwapWindow" );
+	swapWindowHookController.Install( ( void * ) OriginalSwapWindow, ( void * ) HL_ImGUI_Draw );
 
 	window = SDL_GetWindowFromID( 1 );
 	ImGui_ImplSdl_Init( window );
-
-	// To make a detour, an offset to dedicated function must be calculated and then correctly replaced
-	unsigned int detourFunctionAddress = ( unsigned int ) &HL_ImGUI_Draw;
-	unsigned int offset = ( detourFunctionAddress ) - origin - 5;
-
-	// The resulting offset must be little endian, so 
-	// 0x0A852BA1 => A1 2B 85 0A
-	char offsetBytes[4];
-	for ( int i = 0; i < 4; i++ ) {
-		offsetBytes[i] = ( offset >> ( i * 8 ) );
-	}
-
-	// This is WinAPI call, blatantly overwriting the memory with raw pointer would crash the program
-	// Notice the 1 byte offset from the origin
-	WriteProcessMemory( GetCurrentProcess(), ( void * ) ( origin + 1 ), offsetBytes, 4, NULL );
 
 	SDL_AddEventWatch( HL_ImGUI_ProcessEvent, NULL );
 
@@ -135,6 +89,8 @@ extern cvar_t  *printmodelindexes;
 extern cvar_t  *print_aim_entity;
 extern cvar_t  *print_player_info;
 void HL_ImGUI_Draw() {
+
+	subhook::ScopedHookRemove remove( &swapWindowHookController );
 
 	ImGui_ImplSdl_NewFrame( window );
 
