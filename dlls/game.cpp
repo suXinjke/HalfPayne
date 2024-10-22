@@ -532,20 +532,34 @@ void GameDLLInit( void )
 	g_host_framerate = CVAR_GET_POINTER( "host_framerate" );
 	g_gl_vsync = CVAR_GET_POINTER( "gl_vsync" );
 
-	// sys_timescale was always here, just 36 bytes back
+	// sys_timescale was always here, just several bytes back
 	// Thanks a lot to SoloKiller for hinting towards sys_timescale existence and locating it in memory
 	// https://github.com/ValveSoftware/halflife/issues/1749
 
-	g_sys_timescale = ( cvar_t * ) ( ( char * ) CVAR_GET_POINTER( "fps_max" ) - 36 );
+	// Store the pointer on where fps_max string is located, and assume
+	// sys_timescale string is also in that memory region.
 
-	bool pointingToGarbage = abs( g_sys_timescale->name - g_fps_max->name ) > 1024; // heuristic
-	if ( !pointingToGarbage ) {
-		using_sys_timescale = memcmp( g_sys_timescale->name, "sys_timescale", 14 ) == 0;
+	// Avoid dereferencing addresses that are not in that memory region
+	// while looking for sys_timescale string.
+	// When that string is found, cvar is also found.
+	auto fps_max_name_ptr = ( unsigned int ) g_fps_max->name;
+
+	auto cvar_name_candidate = ( unsigned int * ) g_fps_max;
+	for ( int i = 0; i < 512; i++ ) {
+		cvar_name_candidate -= 1;
+		if (
+			*cvar_name_candidate >= fps_max_name_ptr - 0x10000 &&
+			*cvar_name_candidate <= fps_max_name_ptr + 0x10000 &&
+			strcmp( ( char * ) *cvar_name_candidate, "sys_timescale" ) == 0
+		) {
+			g_sys_timescale = ( cvar_t *) cvar_name_candidate;
+			CVAR_REGISTER( g_sys_timescale );
+			using_sys_timescale = true;
+			break;
+		}
 	}
 
-	if ( using_sys_timescale ) {
-		CVAR_REGISTER( g_sys_timescale );
-	} else {
+	if ( !using_sys_timescale ) {
 		g_engfuncs.pfnServerPrint( "Failed to register sys_timescale cvar, falling back to old slowmotion implementation\n" );
 	}
 
