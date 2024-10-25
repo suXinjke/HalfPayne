@@ -1012,11 +1012,17 @@ public:
 	void EXPORT QuakeThink( void );
 	void EXPORT IgniteThink( void );
 	void EXPORT RocketTouch( CBaseEntity *pOther );
+
+	virtual void Explode( TraceResult *pTrace, int bitsDamageType );
+
 	static CRpgRocket *CreateRpgRocket( Vector vecOrigin, Vector vecAngles, CBaseEntity *pOwner, CRpg *pLauncher );
+
+	CRpg *GetLauncher();
 
 	int m_iTrail;
 	float m_flIgniteTime;
-	CRpg *m_pLauncher;// pointer back to the launcher that fired me. 
+
+	EHANDLE m_hLauncher; // pointer back to the launcher that fired me.
 };
 
 class CGauss : public CBasePlayerWeapon
