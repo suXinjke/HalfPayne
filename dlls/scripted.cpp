@@ -940,9 +940,9 @@ public:
 	
 	static	TYPEDESCRIPTION m_SaveData[];
 
-	CBaseMonster *FindEntity( void );
-	BOOL AcceptableSpeaker( CBaseMonster *pMonster );
-	BOOL StartSentence( CBaseMonster *pTarget );
+	CBaseToggle *FindEntity( void );
+	BOOL AcceptableSpeaker( CBaseToggle *pTarget );
+	BOOL StartSentence( CBaseToggle *pTarget );
 
 
 private:
@@ -1078,10 +1078,10 @@ void CScriptedSentence :: Spawn( void )
 
 void CScriptedSentence :: FindThink( void )
 {
-	CBaseMonster *pMonster = FindEntity();
-	if ( pMonster )
+	CBaseToggle* pEnt = FindEntity();
+	if ( pEnt )
 	{
-		StartSentence( pMonster );
+		StartSentence( pEnt );
 		if ( pev->spawnflags & SF_SENTENCE_ONCE )
 			UTIL_Remove( this );
 		SetThink( &CScriptedSentence::DelayThink );
@@ -1106,8 +1106,15 @@ void CScriptedSentence :: DelayThink( void )
 }
 
 
-BOOL CScriptedSentence :: AcceptableSpeaker( CBaseMonster *pMonster )
+BOOL CScriptedSentence :: AcceptableSpeaker( CBaseToggle *pTarget )
 {
+	CBaseMonster *pMonster;
+	pMonster = NULL;
+	if (pTarget)
+	{
+		pMonster = pTarget->MyMonsterPointer();
+	}
+
 	if ( pMonster )
 	{
 		if ( pev->spawnflags & SF_SENTENCE_FOLLOWERS )
@@ -1123,27 +1130,40 @@ BOOL CScriptedSentence :: AcceptableSpeaker( CBaseMonster *pMonster )
 		if ( pMonster->CanPlaySentence( override ) )
 			return TRUE;
 	}
+	else
+	{
+		// targeting something other than a monster, sure it can speak
+		if( pTarget && pTarget->IsAllowedToSpeak() )
+			return TRUE;
+	}
+
+
 	return FALSE;
 }
 
 
-CBaseMonster *CScriptedSentence :: FindEntity( void )
+CBaseToggle *CScriptedSentence :: FindEntity( void )
 {
 	edict_t *pentTarget;
-	CBaseMonster *pMonster;
+	CBaseToggle *pSpeakingEnt;
 
 
 	pentTarget = FIND_ENTITY_BY_TARGETNAME(NULL, STRING(m_iszEntity));
-	pMonster = NULL;
+	pSpeakingEnt = NULL;
 
 	while (!FNullEnt(pentTarget))
 	{
-		pMonster = GetMonsterPointer( pentTarget );
-		if ( pMonster != NULL )
+		CBaseEntity *pEnt = Instance(pentTarget);
+		pSpeakingEnt = pEnt ? pEnt->MyTogglePointer() : NULL;
+
+		if (pSpeakingEnt != NULL )
 		{
-			if ( AcceptableSpeaker( pMonster ) )
-				return pMonster;
-//			ALERT( at_console, "%s (%s), not acceptable\n", STRING(pMonster->pev->classname), STRING(pMonster->pev->targetname) );
+			if (AcceptableSpeaker(pSpeakingEnt))
+			{
+				//ALERT(at_console, "acceptable speaker\n");
+				return pSpeakingEnt;
+			}
+			//ALERT(at_console, "found unacceptable speaker\n");
 		}
 		pentTarget = FIND_ENTITY_BY_TARGETNAME(pentTarget, STRING(m_iszEntity));
 	}
@@ -1155,9 +1175,9 @@ CBaseMonster *CScriptedSentence :: FindEntity( void )
 		{
 			if ( FBitSet( pEntity->pev->flags, FL_MONSTER ))
 			{
-				pMonster = pEntity->MyMonsterPointer( );
-				if ( AcceptableSpeaker( pMonster ) )
-					return pMonster;
+				pSpeakingEnt = pEntity->MyTogglePointer( );
+				if ( AcceptableSpeaker( pSpeakingEnt ) )
+					return pSpeakingEnt;
 			}
 		}
 	}
@@ -1166,7 +1186,7 @@ CBaseMonster *CScriptedSentence :: FindEntity( void )
 }
 
 
-BOOL CScriptedSentence :: StartSentence( CBaseMonster *pTarget )
+BOOL CScriptedSentence :: StartSentence( CBaseToggle *pTarget )
 {
 	if ( !pTarget )
 	{
