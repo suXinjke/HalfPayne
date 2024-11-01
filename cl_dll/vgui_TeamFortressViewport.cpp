@@ -58,7 +58,7 @@
 #include "shake.h"
 #include "screenfade.h"
 
-void IN_SetVisibleMouse(bool visible);
+extern int g_iVisibleMouse;
 class CCommandMenu;
 int g_iPlayerClass;
 int g_iTeamNumber;
@@ -78,6 +78,7 @@ int g_iUser3 = 0;
 #define SBOARD_INDENT_Y_400		20
 
 void IN_ResetMouse( void );
+void IN_ResetRelativeMouseState( void );
 extern CMenuPanel *CMessageWindowPanel_Create( const char *szMOTD, const char *szTitle, int iShadeFullscreen, int iRemoveMe, int x, int y, int wide, int tall );
 extern float * GetClientColor( int clientIndex );
 
@@ -2059,7 +2060,7 @@ void TeamFortressViewport::UpdateCursorState()
 	// Need cursor if any VGUI window is up
 	if ( m_pSpectatorPanel->m_menuVisible || m_pCurrentMenu || m_pTeamMenu->isVisible() || m_pServerBrowser->isVisible() || GetClientVoiceMgr()->IsInSquelchMode() )
 	{
-		IN_SetVisibleMouse( true );
+		g_iVisibleMouse = true;
 		App::getInstance()->setCursorOveride( App::getInstance()->getScheme()->getCursor(Scheme::scu_arrow) );
 		return;
 	}
@@ -2068,20 +2069,26 @@ void TeamFortressViewport::UpdateCursorState()
 		// commandmenu doesn't have cursor if hud_capturemouse is turned off
 		if ( gHUD.m_pCvarStealMouse->value != 0.0f )
 		{
-			IN_SetVisibleMouse( true );
+			g_iVisibleMouse = true;
 			App::getInstance()->setCursorOveride( App::getInstance()->getScheme()->getCursor(Scheme::scu_arrow) );
 			return;
 		}
 	}
-
-	App::getInstance()->setCursorOveride( App::getInstance()->getScheme()->getCursor(Scheme::scu_none) );
-	IN_SetVisibleMouse( false );
 
 	// Don't reset mouse in demo playback
 	if ( !gEngfuncs.pDemoAPI->IsPlayingback() )
 	{
 		IN_ResetMouse();
 	}
+
+	if ( g_iVisibleMouse )
+	{
+		//Clear any residual input so our camera doesn't jerk when dismissing the UI
+		IN_ResetRelativeMouseState();
+	}
+
+	g_iVisibleMouse = false;
+	App::getInstance()->setCursorOveride( App::getInstance()->getScheme()->getCursor(Scheme::scu_none) );
 }
 
 void TeamFortressViewport::UpdateHighlights()
