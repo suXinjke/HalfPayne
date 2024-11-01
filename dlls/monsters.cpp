@@ -2573,7 +2573,19 @@ float CBaseMonster::ChangeYaw ( int yawSpeed )
 	ideal = pev->ideal_yaw;
 	if (current != ideal)
 	{
-		speed = (float)yawSpeed * gpGlobals->frametime * 10;
+		if ( m_flLastYawTime == 0.f )
+		{
+			m_flLastYawTime = gpGlobals->time - gpGlobals->frametime;
+		}
+
+		float delta = gpGlobals->time - m_flLastYawTime;
+		m_flLastYawTime = gpGlobals->time;
+
+		// Clamp delta like the engine does with frametime
+		if ( delta > 0.25f )
+			delta = 0.25f;
+
+		speed = (float)yawSpeed * delta * 2;
 		move = ideal - current;
 
 		if (ideal > current)
@@ -2597,7 +2609,7 @@ float CBaseMonster::ChangeYaw ( int yawSpeed )
 			if (move < -speed)
 				move = -speed;
 		}
-		
+
 		pev->angles.y = UTIL_AngleMod (current + move);
 
 		// turn head in desired direction only if they have a turnable head
