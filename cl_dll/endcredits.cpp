@@ -5,6 +5,7 @@
 DECLARE_MESSAGE( m_endCredits, EndCredits )
 
 extern globalvars_t *gpGlobals;
+extern bool creditsException;
 
 int CHudEndCredits::Init(void)
 {
@@ -119,7 +120,7 @@ int CHudEndCredits::Draw( float flTime )
 		spriteIndex = 8; // Valve 2
 	} else if ( time >= 52.4 && time <= 56.4 ) {
 		spriteIndex = 9; // Valve 3
-	} else if ( time >= 56.681 && time < 132.0f ) {
+	} else if ( time >= 56.681 && time < 96.4f ) {
 
 		spriteIndex = 0; // Half Payne logo
 
@@ -127,7 +128,7 @@ int CHudEndCredits::Draw( float flTime )
 		float max = 7.3f;
 
 		alpha = ( ( max - difference ) / max ) * 255;
-	} else if ( time >= 132.0f ) {
+	} else if ( time >= 96.4f ) {
 		gEngfuncs.pfnClientCmd( "disconnect" );
 	}
 
@@ -156,6 +157,7 @@ int CHudEndCredits::MsgFunc_EndCredits( const char *pszName, int iSize, void *pb
 
 	ended = true;
 	timeStart = gEngfuncs.GetAbsoluteTime();
+	creditsException = true;
 	
 	m_iFlags |= HUD_ACTIVE;
 

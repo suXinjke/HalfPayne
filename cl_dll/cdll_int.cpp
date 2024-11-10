@@ -310,6 +310,7 @@ Called by engine every frame that client .dll is loaded
 
 bool inMainMenu = true;
 bool lastInMainMenu = false;
+bool creditsException = false;
 extern float isPausedLastUpdate;
 void CL_DLLEXPORT HUD_Frame( double time )
 {
@@ -320,8 +321,12 @@ void CL_DLLEXPORT HUD_Frame( double time )
 	inMainMenu = ( ( unsigned int ) gEngfuncs.GetLocalPlayer() ) <= 4098 && gEngfuncs.GetAbsoluteTime() - isPausedLastUpdate > 2.0f;
 	if ( inMainMenu != lastInMainMenu ) {
 		if ( inMainMenu ) { // IF DISCONNECT
-			SM_StopMusic();
-			SM_PlayRandomMainMenuMusic();
+			if ( creditsException ) {
+				creditsException = false;
+			} else {
+				SM_StopMusic();
+				SM_PlayRandomMainMenuMusic();
+			}
 		}
 		lastInMainMenu = inMainMenu;
 	}

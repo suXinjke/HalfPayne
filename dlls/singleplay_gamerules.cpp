@@ -102,14 +102,6 @@ void CHalfLifeRules::OnEnd( CBasePlayer *pPlayer )
 	MESSAGE_BEGIN( MSG_ONE, gmsgEndCredits, NULL, pPlayer->pev );
 	MESSAGE_END();
 
-	MESSAGE_BEGIN( MSG_ALL, gmsgOnSound );
-		WRITE_STRING( "HP_CREDITS" );
-		WRITE_BYTE( true );
-		WRITE_COORD( 0 );
-		WRITE_COORD( 0 );
-		WRITE_COORD( 0 );
-	MESSAGE_END();
-
 	pPlayer->SendPlayMusicMessage( FS_ResolveModPath( "sound\\music\\credits.mp3" ), 0.0f, 0.0f, TRUE );
 }
 
