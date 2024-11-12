@@ -786,7 +786,7 @@ void CBasePlayer::OnKilledEntity( CBaseEntity *victim )
 		}
 	}
 
-	if ( ( maySwearAfterKill && gameplayMods::swearOnKill.isActive() ) || desperation == DESPERATION_FIGHTING ) {
+	if ( ( maySwearAfterKill && gameplayMods::swearOnKill.isActive() ) ) {
 		SayRandomSwear();
 	}
 
