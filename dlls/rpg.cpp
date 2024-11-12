@@ -518,6 +518,9 @@ void CRpg::PrimaryAttack()
 		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 		int rightOffset = 8;
 		int upOffset = -8;
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
 		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			upOffset = 0;

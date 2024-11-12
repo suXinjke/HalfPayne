@@ -751,6 +751,7 @@ if active == 1 then we are 1) not playing back demos ( where our commands are ig
 ================
 */
 extern int g_inverseControls;
+extern int g_mirror;
 
 void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int active )
 {	
@@ -772,7 +773,8 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 		
 		gEngfuncs.SetViewAngles( (float *)viewangles );
 
-		int inverseMultiplier = g_inverseControls ? -1 : 1;
+		int inverseHorizontalMultiplier = g_inverseControls ? -1 : 1;
+		int inverseMultiplier = g_mirror ? -inverseHorizontalMultiplier : inverseHorizontalMultiplier;
 
 		if ( !upsideDown ) {
 			if ( in_strafe.state & 1 )
@@ -794,13 +796,13 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 			cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_moveleft) * inverseMultiplier;
 		}
 
-		cmd->upmove += cl_upspeed->value * CL_KeyState (&in_up) * inverseMultiplier;
-		cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down) * inverseMultiplier;
+		cmd->upmove += cl_upspeed->value * CL_KeyState (&in_up) * inverseHorizontalMultiplier;
+		cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down) * inverseHorizontalMultiplier;
 
 		if ( !(in_klook.state & 1 ) )
 		{	
-			cmd->forwardmove += cl_forwardspeed->value * CL_KeyState (&in_forward) * inverseMultiplier;
-			cmd->forwardmove -= cl_backspeed->value * CL_KeyState (&in_back) * inverseMultiplier;
+			cmd->forwardmove += cl_forwardspeed->value * CL_KeyState (&in_forward) * inverseHorizontalMultiplier;
+			cmd->forwardmove -= cl_backspeed->value * CL_KeyState (&in_back) * inverseHorizontalMultiplier;
 		}	
 
 		// adjust for speed key
@@ -933,24 +935,29 @@ int CL_ButtonBits( int bResetState )
 		bits |= IN_CANCEL;
 	}
 
+	bool inverse = g_inverseControls;
+	if ( g_mirror ) {
+		inverse = !inverse;
+	}
+
 	if ( in_left.state & 3 )
 	{
-		bits |= ( g_inverseControls ? IN_RIGHT: IN_LEFT );
+		bits |= ( inverse ? IN_RIGHT: IN_LEFT );
 	}
 	
 	if (in_right.state & 3)
 	{
-		bits |= ( g_inverseControls ? IN_LEFT : IN_RIGHT );
+		bits |= ( inverse ? IN_LEFT : IN_RIGHT );
 	}
 	
 	if ( in_moveleft.state & 3 )
 	{
-		bits |= ( g_inverseControls ? IN_MOVERIGHT : IN_MOVELEFT );
+		bits |= ( inverse ? IN_MOVERIGHT : IN_MOVELEFT );
 	}
 	
 	if (in_moveright.state & 3)
 	{
-		bits |= ( g_inverseControls ? IN_MOVELEFT : IN_MOVERIGHT );
+		bits |= ( inverse ? IN_MOVELEFT : IN_MOVERIGHT );
 	}
 
 	if (in_attack2.state & 3)

@@ -8,6 +8,7 @@ GameplayModData gameplayModsData;
 #ifdef CLIENT_DLL
 #include "parsemsg.h"
 int g_inverseControls = 0;
+int g_mirror = 0;
 int g_musicSlowmotion = 0;
 CustomGameModeConfig clientConfig( CONFIG_TYPE_CGM );
 #else
@@ -52,6 +53,7 @@ void GameplayModData::Init() {
 		gameplayModsData.reverseGravity = READ_BYTE();
 		gameplayModsData.holdingTwinWeapons = READ_BYTE();
 		g_inverseControls = READ_BYTE();
+		g_mirror = READ_BYTE();
 		g_musicSlowmotion = READ_BYTE();
 		gameplayModsData.timeLeftUntilNextRandomGameplayMod = READ_FLOAT();
 
@@ -218,6 +220,7 @@ void GameplayModData::SendToClient() {
 		WRITE_BYTE( reverseGravity );
 		WRITE_BYTE( holdingTwinWeapons );
 		WRITE_BYTE( gameplayMods::inverseControls.isActive() );
+		WRITE_BYTE( gameplayMods::mirror.isActive() );
 		WRITE_BYTE( musicSlowmotion );
 		WRITE_FLOAT( timeLeftUntilNextRandomGameplayMod );
 	MESSAGE_END();

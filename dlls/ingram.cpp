@@ -194,6 +194,9 @@ void CIngram::PrimaryAttack( void )
 		float rightOffset = 8;
 
 		vecSrc = vecSrc + forward * 5;
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
 		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );

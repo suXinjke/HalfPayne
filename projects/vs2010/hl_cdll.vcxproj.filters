@@ -438,6 +438,9 @@
     <ClCompile Include="..\..\subhook\subhook.c">
       <Filter>Source Files\subhook</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cl_dll\gl_hack.cpp">
+      <Filter>Source Files\cl_dll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cl_dll\kbutton.h">
@@ -664,6 +667,9 @@
     </ClInclude>
     <ClInclude Include="..\..\subhook\subhook_private.h">
       <Filter>Source Files\subhook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cl_dll\gl_hack.h">
+      <Filter>Header Files\cl_dll</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -452,6 +452,7 @@ namespace gameplayMods {
 
 	extern GameplayMod& kerotanDetector;
 
+	extern GameplayMod& mirror;
 	extern GameplayMod& modsDoubleTime;
 
 	extern GameplayMod& noFallDamage;

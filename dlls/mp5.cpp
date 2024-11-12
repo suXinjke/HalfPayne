@@ -183,6 +183,9 @@ void CMP5::PrimaryAttack()
 	if ( gameplayMods::PlayerShouldProducePhysicalBullets() ) {
 
 		float rightOffset = 2;
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
 		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );

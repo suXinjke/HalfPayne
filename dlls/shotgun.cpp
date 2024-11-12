@@ -186,6 +186,9 @@ void CShotgun::PrimaryAttack()
 
 		float rightOffset = 2;
 
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
 		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );
@@ -297,6 +300,9 @@ void CShotgun::SecondaryAttack( void )
 		
 		float rightOffset = 2;
 
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
 		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;
 			vecSrc = vecSrc + Vector( 0, 0, 6 );

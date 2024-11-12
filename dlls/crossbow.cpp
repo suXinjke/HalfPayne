@@ -431,6 +431,9 @@ void CCrossbow::FireBolt()
 
 #ifndef CLIENT_DLL
 	float rightOffset = 4;
+	if ( gameplayMods::mirror.isActive() ) {
+		rightOffset *= -1;
+	}
 	if ( gameplayMods::upsideDown.isActive() ) {
 		rightOffset *= -1;
 		vecSrc = vecSrc + Vector( 0, 0, 12 );

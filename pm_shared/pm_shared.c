@@ -162,6 +162,7 @@ int g_noJumping = 0;
 int g_noWalking = 0;
 int g_upsideDown = 0;
 int g_inverseControls = 0;
+int g_mirror = 0;
 int landedAfterDiving = 1;
 float timeBeginStandingUp = 0.0f;
 float timeEndStandingUp = 0.0f;

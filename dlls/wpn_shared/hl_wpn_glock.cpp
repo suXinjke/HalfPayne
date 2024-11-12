@@ -283,6 +283,10 @@ void CGlock::GlockFire( float flSpread , float flCycleTime, BOOL fUseAutoAim )
 
 		float rightOffset = 8;
 
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
+
 		vecSrc = vecSrc + forward * 5;
 		if ( gameplayMods::upsideDown.isActive() ) {
 			rightOffset *= -1;

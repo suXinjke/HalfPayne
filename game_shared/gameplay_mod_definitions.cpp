@@ -11,6 +11,7 @@
 
 #ifdef CLIENT_DLL
 extern CustomGameModeConfig clientConfig;
+#include "gl_hack.h"
 #endif
 
 using namespace gameplayMods;
@@ -571,6 +572,9 @@ GameplayMod &::invisibility = GameplayMod::Define( "invisibility", "Invisibility
 GameplayMod &::kerotanDetector = GameplayMod::Define( "kerotan_detector", "Kerotan detector" )
 .Description( "Kerotan frogs will call out to you when you get near them" )
 .CannotBeActivatedRandomly();
+
+GameplayMod &::mirror = GameplayMod::Define( "mirror", "Mirror mode" )
+.Description( "Mirrors the world, causing the mindbender" );
 
 GameplayMod &::modsDoubleTime = GameplayMod::Define( "double_time_mods", "Double time mods" )
 .Description( "Next mods will last for twice as long" );

@@ -11,6 +11,7 @@
 #include "fs_aux.h"
 
 #include "hl_imgui.h"
+#include "gl_hack.h"
 #include <subhook.h>
 
 extern cl_enginefunc_t gEngfuncs;
@@ -91,6 +92,10 @@ extern cvar_t  *print_player_info;
 void HL_ImGUI_Draw() {
 
 	subhook::ScopedHookRemove remove( &swapWindowHookController );
+
+	// HACK: shouldn't be here because it got nothing
+	// to do with ImGUI, but placement is convenient
+	glHackThink();
 
 	ImGui_ImplSdl_NewFrame( window );
 

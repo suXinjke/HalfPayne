@@ -43,6 +43,7 @@ static int tracerCount[ 32 ];
 extern float spreadMultiplier;
 extern int upsideDown;
 extern int paynedSoundsMonsters;
+extern bool shouldRenderMirrored;
 
 extern "C"
 {
@@ -100,6 +101,16 @@ void EV_TrainPitchAdjust( struct event_args_s *args );
 #define VECTOR_CONE_10DEGREES Vector( 0.08716, 0.08716, 0.08716 )
 #define VECTOR_CONE_15DEGREES Vector( 0.13053, 0.13053, 0.13053 )
 #define VECTOR_CONE_20DEGREES Vector( 0.17365, 0.17365, 0.17365 )
+
+inline void EV_GetDefaultShellInfoHook( event_args_t *args, float *origin, float *velocity, float *ShellVelocity, float *ShellOrigin, float *forward, float *right, float *up, float forwardScale, float upScale, float rightScale ) {
+	if ( shouldRenderMirrored ) {
+		rightScale *= -1;
+	}
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, forwardScale, upScale, rightScale );
+	if ( shouldRenderMirrored ) {
+		ShellVelocity[PITCH] *= -1;
+	}
+}
 
 // DUMBEST HACK to prevent double executing of the event
 // The root cause is client prediction - cl_lw 0 would fix the issue,
@@ -549,7 +560,7 @@ void EV_FireGlock1( event_args_t *args )
 		V_PunchAxis( 0, -2.0 * ( upsideDown ? -1 : 1 ) );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+	EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
@@ -603,7 +614,7 @@ void EV_FireGlock2( event_args_t *args )
 		V_PunchAxis( 0, -2.0 * ( upsideDown ? -1 : 1 ) );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
+	EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
@@ -686,9 +697,9 @@ void EV_FireGlockTwin( event_args_t *args ) {
 	}
 
 	if ( shootingRight ) {
-		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+		EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
 	} else {
-		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -2, -10 );
+		EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -2, -10 );
 	}
 
 	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
@@ -754,7 +765,7 @@ void EV_FireIngram( event_args_t *args )
 		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -stress * 0.25f, stress * 0.25f ) * ( upsideDown ? -1 : 1 ) );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+	EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
@@ -845,12 +856,12 @@ void EV_FireIngramTwin( event_args_t *args ) {
 	}
 
 	if ( !empty ) {
-		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+		EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
 		EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
 	}
 
 	if ( !empty2 ) {
-		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -3, -10 );
+		EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -3, -10 );
 		EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
 	}
 
@@ -945,7 +956,7 @@ void EV_FireShotGunDouble( event_args_t *args )
 
 	for ( j = 0; j < 2; j++ )
 	{
-		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 18 );
+		EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 18 );
 
 		EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHOTSHELL ); 
 	}
@@ -1012,7 +1023,7 @@ void EV_FireShotGunSingle( event_args_t *args )
 		V_PunchAxisAdditive( 0, -2.5 * ( upsideDown ? -1 : 1 ) );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 18 );
+	EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 18 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHOTSHELL ); 
 
@@ -1086,7 +1097,7 @@ void EV_FireMP5( event_args_t *args )
 		V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -stress * 0.5f, stress * 0.5f ) * ( upsideDown ? -1 : 1 ) );
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
+	EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 
@@ -1183,7 +1194,7 @@ void EV_FireM249( event_args_t *args ) {
 	Vector ShellVelocity;
 	Vector ShellOrigin;
 
-	EV_GetDefaultShellInfo( args, args->origin, args->velocity, ShellVelocity, ShellOrigin, forward, right, up, 8, -2, 4 );
+	EV_GetDefaultShellInfoHook( args, args->origin, args->velocity, ShellVelocity, ShellOrigin, forward, right, up, 8, -2, 4 );
 
 	EV_EjectBrass( ShellOrigin, ShellVelocity, args->angles[1], iShell, TE_BOUNCE_SHELL );
 
@@ -1255,7 +1266,7 @@ void EV_FirePython( event_args_t *args )
 		break;
 	}
 
-	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
+	EV_GetDefaultShellInfoHook( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -5, 10 );
 
 	EV_EjectBrass ( ShellOrigin, ShellVelocity, angles[ YAW ], shell, TE_BOUNCE_SHELL ); 
 

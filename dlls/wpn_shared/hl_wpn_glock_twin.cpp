@@ -304,6 +304,9 @@ void CGlockTwin::GlockFire( float flSpread, float flCycleTime, BOOL fUseAutoAim 
 	if ( gameplayMods::PlayerShouldProducePhysicalBullets() ) {
 
 		float rightOffset = shootingRight ? 8 : -8;
+		if ( gameplayMods::mirror.isActive() ) {
+			rightOffset *= -1;
+		}
 
 		vecSrc = vecSrc + forward * 5;
 		if ( gameplayMods::upsideDown.isActive() ) {

@@ -30,6 +30,7 @@
 #define MOUSE_BUTTON_COUNT 5
 
 extern int g_inverseControls;
+extern int g_mirror;
 
 // Set this to 1 to show mouse cursor.  Experimental
 int	g_iVisibleMouse = 0;
@@ -607,7 +608,8 @@ void IN_MouseMove ( float frametime, usercmd_t *cmd)
 		// Apply custom mouse scaling/acceleration
 		IN_ScaleMouse( &mouse_x, &mouse_y );
 		
-		int inverseMultiplier = g_inverseControls ? -1 : 1;
+		int inverseHorizontalMultiplier = g_inverseControls ? -1 : 1;
+		int inverseMultiplier = g_mirror ? -inverseHorizontalMultiplier : inverseHorizontalMultiplier;
 
 		// add mouse X/Y movement to cmd
 		if ( (in_strafe.state & 1) || (lookstrafe->value && (in_mlook.state & 1) ))
@@ -624,9 +626,9 @@ void IN_MouseMove ( float frametime, usercmd_t *cmd)
 		if ( (in_mlook.state & 1) && !(in_strafe.state & 1))
 		{
 			if ( !upsideDown ) {
-				viewangles[PITCH] += m_pitch->value * mouse_y * inverseMultiplier;
+				viewangles[PITCH] += m_pitch->value * mouse_y * inverseHorizontalMultiplier;
 			} else {
-				viewangles[PITCH] += -m_pitch->value * mouse_y * inverseMultiplier;
+				viewangles[PITCH] += -m_pitch->value * mouse_y * inverseHorizontalMultiplier;
 			}
 			if (viewangles[PITCH] > cl_pitchdown->value)
 				viewangles[PITCH] = cl_pitchdown->value;

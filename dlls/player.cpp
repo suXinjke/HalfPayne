@@ -63,6 +63,7 @@ extern "C" float			g_frictionOverride;
 extern "C" int				g_noJumping;
 extern "C" int				g_upsideDown;
 extern "C" int				g_inverseControls;
+extern "C" int				g_mirror;
 extern "C" int				g_noWalking;
 extern "C" int				g_doubleSpeed;
 
@@ -3658,6 +3659,7 @@ pt_end:
 	g_noJumping = gameplayMods::noJumping.isActive();
 	g_upsideDown = gameplayMods::upsideDown.isActive();
 	g_inverseControls = gameplayMods::inverseControls.isActive();
+	g_mirror = gameplayMods::mirror.isActive();
 	g_noWalking = gameplayMods::noWalking.isActive();
 	g_doubleSpeed = gameplayMods::IsSlowmotionEnabled() && gameplayMods::slowmotionFastWalk.isActive();
 

@@ -144,6 +144,9 @@ void CHgun::PrimaryAttack()
 
 	int rightOffset = 8;
 	int upOffset = -12;
+	if ( gameplayMods::mirror.isActive() ) {
+		rightOffset *= -1;
+	}
 	if ( gameplayMods::upsideDown.isActive() ) {
 		rightOffset *= -1;
 		upOffset = 16;
@@ -214,6 +217,9 @@ void CHgun::SecondaryAttack( void )
 
 	int rightOffset = 8;
 	int upOffset = -12;
+	if ( gameplayMods::mirror.isActive() ) {
+		rightOffset *= -1;
+	}
 	if ( gameplayMods::upsideDown.isActive() ) {
 		rightOffset *= -1;
 		upOffset = 16;

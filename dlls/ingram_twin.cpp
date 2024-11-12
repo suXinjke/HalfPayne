@@ -198,6 +198,9 @@ void CIngramTwin::PrimaryAttack( void )
 			float rightOffset = i == 0 ? 8 : -8;
 
 			vecSrc = vecSrc + forward * 5;
+			if ( gameplayMods::mirror.isActive() ) {
+				rightOffset *= -1;
+			}
 			if ( gameplayMods::upsideDown.isActive() ) {
 				rightOffset *= -1;
 				vecSrc = vecSrc + Vector( 0, 0, 6 );

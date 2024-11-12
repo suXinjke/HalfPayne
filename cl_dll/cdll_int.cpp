@@ -308,10 +308,13 @@ Called by engine every frame that client .dll is loaded
 */
 
 
+bool shouldRenderMirrored = false;
 bool inMainMenu = true;
 bool lastInMainMenu = false;
 bool creditsException = false;
 extern float isPausedLastUpdate;
+extern int isPaused;
+extern int g_mirror;
 void CL_DLLEXPORT HUD_Frame( double time )
 {
 //	RecClHudFrame(time);
@@ -330,6 +333,8 @@ void CL_DLLEXPORT HUD_Frame( double time )
 		}
 		lastInMainMenu = inMainMenu;
 	}
+
+	shouldRenderMirrored = g_mirror && !( isPaused || inMainMenu );
 	SM_Think( time );
 
 	static bool changedBackground = false;

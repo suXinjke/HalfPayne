@@ -22,10 +22,14 @@
 #include "StudioModelRenderer.h"
 #include "GameStudioModelRenderer.h"
 #include "cpp_aux.h"
+#include <Windows.h>
+#include <gl/GL.h>
 
 extern cvar_t *tfc_newmodels;
 
 extern extra_player_info_t  g_PlayerExtraInfo[MAX_PLAYERS+1];
+
+extern bool shouldRenderMirrored;
 
 // team colors for old TFC models
 #define TEAM1_COLOR		150
@@ -1205,6 +1209,13 @@ int CStudioModelRenderer::StudioDrawModel( int flags )
 
 	StudioSetUpTransform( 0 );
 
+	if ( m_pCurrentEntity == gEngfuncs.GetViewModel() && ( shouldRenderMirrored ) ) {
+		( *m_protationmatrix )[0][1] *= -1;
+		( *m_protationmatrix )[1][1] *= -1;
+		( *m_protationmatrix )[2][1] *= -1;
+		glFrontFace( GL_CCW );
+	}
+
 	if (flags & STUDIO_RENDER)
 	{
 		// see if the bounding box lets us trivially reject, also sets
@@ -1335,6 +1346,10 @@ int CStudioModelRenderer::StudioDrawModel( int flags )
 		IEngineStudio.StudioSetRemapColors( m_nTopColor, m_nBottomColor );
 
 		StudioRenderModel( );
+	}
+
+	if ( shouldRenderMirrored ) {
+		glFrontFace( GL_CW );
 	}
 
 	return 1;

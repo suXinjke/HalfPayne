@@ -144,6 +144,7 @@
     <ClCompile Include="..\..\cl_dll\game_log.cpp" />
     <ClCompile Include="..\..\cl_dll\game_log_world.cpp" />
     <ClCompile Include="..\..\cl_dll\geiger.cpp" />
+    <ClCompile Include="..\..\cl_dll\gl_hack.cpp" />
     <ClCompile Include="..\..\cl_dll\health.cpp" />
     <ClCompile Include="..\..\cl_dll\hl\hl_baseentity.cpp" />
     <ClCompile Include="..\..\cl_dll\hl\hl_events.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="..\..\cl_dll\flash.h" />
     <ClInclude Include="..\..\cl_dll\gamemode_gui.h" />
     <ClInclude Include="..\..\cl_dll\GameStudioModelRenderer.h" />
+    <ClInclude Include="..\..\cl_dll\gl_hack.h" />
     <ClInclude Include="..\..\cl_dll\health.h" />
     <ClInclude Include="..\..\cl_dll\hl_imgui.h" />
     <ClInclude Include="..\..\cl_dll\hud.h" />
