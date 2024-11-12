@@ -592,7 +592,8 @@ void CBasePlayer::UsePainkiller()
 		if (
 			CVAR_GET_FLOAT( "max_commentary_painkiller_use" ) > 0.0f &&
 			RANDOM_LONG( 0, 100 ) < 33 &&
-			gpGlobals->time > allowedToReactOnPainkillerTake
+			gpGlobals->time > allowedToReactOnPainkillerTake &&
+			desperation == DESPERATION_NO
 		) {
 			char fileName[256];
 			sprintf_s( fileName, "max/painkiller/TAKE_PILLS_%d.wav", RANDOM_LONG( 1, 8 ) );
