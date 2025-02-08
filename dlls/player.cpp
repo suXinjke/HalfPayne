@@ -4918,7 +4918,7 @@ bool CBasePlayer::DeactivateSlowMotion( bool smooth )
 				bullet->lastVelocity = bullet->pev->velocity;
 				bullet->ActivateTrail();
 			}
-		} else if ( FStrEq( STRING( entity->pev->classname ), "bolt" ) ) {
+		} else if ( FStrEq( STRING( entity->pev->classname ), "bolt" ) && entity->pev->velocity.Length() > 0 ) {
 			entity->pev->velocity = entity->pev->velocity.Normalize() * ( entity->pev->waterlevel == 3 ? 1000 : 2000 );
 		}
 	}
