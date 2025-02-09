@@ -2848,10 +2848,6 @@ void PM_Dive(void)
 		if (pmove->cmd.buttons & IN_MOVERIGHT) {
 			resultVector[i] += g_upsideDown ? -pmove->right[i] : pmove->right[i];
 		}	
-
-		if ( g_inverseControls ) {
-			resultVector[i] *= -1;
-		}
 	}
 	VectorNormalize(resultVector);
 
