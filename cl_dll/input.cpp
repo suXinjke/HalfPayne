@@ -915,12 +915,12 @@ int CL_ButtonBits( int bResetState )
 
 	if ( in_forward.state & 3 )
 	{
-		bits |= IN_FORWARD;
+		bits |= ( g_inverseControls ? IN_BACK : IN_FORWARD );
 	}
 	
 	if (in_back.state & 3)
 	{
-		bits |= IN_BACK;
+		bits |= ( g_inverseControls ? IN_FORWARD : IN_BACK );
 	}
 
 	if (in_use.state & 3)
@@ -935,22 +935,22 @@ int CL_ButtonBits( int bResetState )
 
 	if ( in_left.state & 3 )
 	{
-		bits |= IN_LEFT;
+		bits |= ( g_inverseControls ? IN_RIGHT: IN_LEFT );
 	}
 	
 	if (in_right.state & 3)
 	{
-		bits |= IN_RIGHT;
+		bits |= ( g_inverseControls ? IN_LEFT : IN_RIGHT );
 	}
 	
 	if ( in_moveleft.state & 3 )
 	{
-		bits |= IN_MOVELEFT;
+		bits |= ( g_inverseControls ? IN_MOVERIGHT : IN_MOVELEFT );
 	}
 	
 	if (in_moveright.state & 3)
 	{
-		bits |= IN_MOVERIGHT;
+		bits |= ( g_inverseControls ? IN_MOVELEFT : IN_MOVERIGHT );
 	}
 
 	if (in_attack2.state & 3)

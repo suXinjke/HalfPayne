@@ -2262,10 +2262,6 @@ void PM_LadderMove( physent_t *pLadder )
 			flSpeed *= 2;
 		}
 
-		if ( g_inverseControls ) {
-			flSpeed *= -1;
-		}
-
 		AngleVectors( pmove->angles, vpn, v_right, NULL );
 
 		if ( pmove->flags & FL_DUCKING )
