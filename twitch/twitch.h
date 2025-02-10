@@ -6,8 +6,8 @@
 #include <vector>
 #include <thread>
 #include <list>
-#include "libircclient.h"
-#include "libirc_rfcnumeric.h"
+//#include "libircclient.h"
+//#include "libirc_rfcnumeric.h"
 
 struct TwitchContext;
 
@@ -39,8 +39,8 @@ public:
 	std::function<void( int, const std::string & )> OnError = []( int, const std::string & ){};
 	std::function<void()> OnDisconnected = []{};
 
-private:
-	irc_session_t *session = NULL;
+//private:
+//	irc_session_t *session = NULL;
 };
 
 struct TwitchContext {

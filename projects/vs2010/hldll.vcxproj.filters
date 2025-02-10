@@ -186,11 +186,6 @@
     <ClInclude Include="..\..\pm_shared\pm_materials.h" />
     <ClInclude Include="..\..\pm_shared\pm_movevars.h" />
     <ClInclude Include="..\..\pm_shared\pm_shared.h" />
-    <ClInclude Include="..\..\twitch\libircclient.h" />
-    <ClInclude Include="..\..\twitch\libirc_errors.h" />
-    <ClInclude Include="..\..\twitch\libirc_events.h" />
-    <ClInclude Include="..\..\twitch\libirc_options.h" />
-    <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h" />
     <ClInclude Include="..\..\twitch\twitch.h" />
     <ClInclude Include="..\..\game_shared\cpp_aux.h" />
     <ClInclude Include="..\..\game_shared\fs_aux.h" />

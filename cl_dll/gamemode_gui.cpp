@@ -250,11 +250,11 @@ void GameModeGUI_DrawMainWindow() {
 		ImGui::BeginChild( "gamemode_scrollable_data_child", ImVec2( -1, -20 ) );
 
 		ImGui::BeginChild( "LeftHalf", ImVec2( 270, -20 ), false, ImGuiWindowFlags_HorizontalScrollbar ); {
-			ImGui::PushStyleColor( ImGuiCol_Header, ImVec4( 0.50f, 0.50f, 0.90f, 1.00f ) );
-			ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImVec4( 0.70f, 0.70f, 0.90f, 0.63f ) );
-			ImGui::PushStyleColor( ImGuiCol_HeaderActive, ImVec4( 0.70f, 0.70f, 0.70f, 0.51f ) );
-			ImGui::Selectable( "        Twitch integration settings", &drawingTwitchSettings );
-			ImGui::PopStyleColor( 3 );
+			//ImGui::PushStyleColor( ImGuiCol_Header, ImVec4( 0.50f, 0.50f, 0.90f, 1.00f ) );
+			//ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImVec4( 0.70f, 0.70f, 0.90f, 0.63f ) );
+			//ImGui::PushStyleColor( ImGuiCol_HeaderActive, ImVec4( 0.70f, 0.70f, 0.70f, 0.51f ) );
+			//ImGui::Selectable( "        Twitch integration settings", &drawingTwitchSettings );
+			//ImGui::PopStyleColor( 3 );
 
 			if ( ImGui::CollapsingHeader( "Main Game - Vanilla" ) ) {
 				GameModeGUI_DrawGamemodeConfigTable( vanillaConfigs );

@@ -70,7 +70,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>$(ProjectDir)..\..\dlls\hl.def</ModuleDefinitionFile>
-      <AdditionalDependencies>$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\kernel32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\user32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\gdi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\winspool.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\comdlg32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\advapi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\shell32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\ole32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\oleaut32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\uuid.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbc32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\libircclient.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\kernel32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\user32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\gdi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\winspool.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\comdlg32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\advapi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\shell32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\ole32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\oleaut32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\uuid.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbc32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -106,7 +106,7 @@
       <ModuleDefinitionFile>$(ProjectDir)..\..\dlls\hl.def</ModuleDefinitionFile>
       <AddModuleNamesToAssembly>
       </AddModuleNamesToAssembly>
-      <AdditionalDependencies>$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\kernel32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\user32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\gdi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\winspool.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\comdlg32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\advapi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\shell32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\ole32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\oleaut32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\uuid.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbc32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib;..\..\lib\public\libircclient.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\kernel32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\user32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\gdi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\winspool.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\comdlg32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\advapi32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\shell32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\ole32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\oleaut32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\uuid.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbc32.lib;$(WindowsSdkDir)\Lib\$(TargetPlatformVersion)\um\x86\odbccp32.lib;..\..\lib\public\SDL2.lib;..\..\lib\public\OpenGL32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -305,11 +305,6 @@
     <ClInclude Include="..\..\pm_shared\pm_materials.h" />
     <ClInclude Include="..\..\pm_shared\pm_movevars.h" />
     <ClInclude Include="..\..\pm_shared\pm_shared.h" />
-    <ClInclude Include="..\..\twitch\libircclient.h" />
-    <ClInclude Include="..\..\twitch\libirc_errors.h" />
-    <ClInclude Include="..\..\twitch\libirc_events.h" />
-    <ClInclude Include="..\..\twitch\libirc_options.h" />
-    <ClInclude Include="..\..\twitch\libirc_rfcnumeric.h" />
     <ClInclude Include="..\..\twitch\twitch.h" />
     <ClInclude Include="..\..\utf8\checked.h" />
     <ClInclude Include="..\..\utf8\core.h" />

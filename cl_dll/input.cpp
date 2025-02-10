@@ -110,12 +110,12 @@ cvar_t  *sm_buffer;
 
 cvar_t  *crosshair_kill_confirmed;
 
-cvar_t  *twitch_integration_random_gameplay_mods_voting;
-cvar_t  *twitch_integration_random_gameplay_mods_voting_result;
-cvar_t  *twitch_integration_mirror_chat;
-cvar_t  *twitch_integration_say;
-cvar_t  *twitch_integration_random_kill_messages;
-cvar_t  *twitch_integration_random_kill_messages_sender;
+//cvar_t  *twitch_integration_random_gameplay_mods_voting;
+//cvar_t  *twitch_integration_random_gameplay_mods_voting_result;
+//cvar_t  *twitch_integration_mirror_chat;
+//cvar_t  *twitch_integration_say;
+//cvar_t  *twitch_integration_random_kill_messages;
+//cvar_t  *twitch_integration_random_kill_messages_sender;
 /*
 ===============================================================================
 
@@ -1251,12 +1251,12 @@ void InitInput (void)
 	sm_current_file = gEngfuncs.pfnRegisterVariable( "sm_current_file", "0", NULL );
 	sm_looping = gEngfuncs.pfnRegisterVariable( "sm_looping", "0", NULL );
 	
-	twitch_integration_random_gameplay_mods_voting = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_gameplay_mods_voting", "1", FCVAR_ARCHIVE );
-	twitch_integration_random_gameplay_mods_voting_result = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_gameplay_mods_voting_result", "most_votes_wins", FCVAR_ARCHIVE );
-	twitch_integration_mirror_chat = gEngfuncs.pfnRegisterVariable( "twitch_integration_mirror_chat", "0", FCVAR_ARCHIVE );
-	twitch_integration_say = gEngfuncs.pfnRegisterVariable( "twitch_integration_say", "0", FCVAR_ARCHIVE );
-	twitch_integration_random_kill_messages = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages", "1", FCVAR_ARCHIVE );
-	twitch_integration_random_kill_messages_sender = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages_sender", "1", FCVAR_ARCHIVE );
+	//twitch_integration_random_gameplay_mods_voting = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_gameplay_mods_voting", "1", FCVAR_ARCHIVE );
+	//twitch_integration_random_gameplay_mods_voting_result = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_gameplay_mods_voting_result", "most_votes_wins", FCVAR_ARCHIVE );
+	//twitch_integration_mirror_chat = gEngfuncs.pfnRegisterVariable( "twitch_integration_mirror_chat", "0", FCVAR_ARCHIVE );
+	//twitch_integration_say = gEngfuncs.pfnRegisterVariable( "twitch_integration_say", "0", FCVAR_ARCHIVE );
+	//twitch_integration_random_kill_messages = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages", "1", FCVAR_ARCHIVE );
+	//twitch_integration_random_kill_messages_sender = gEngfuncs.pfnRegisterVariable( "twitch_integration_random_kill_messages_sender", "1", FCVAR_ARCHIVE );
 
 	sm_buffer = gEngfuncs.pfnRegisterVariable( "sm_buffer", "96", FCVAR_ARCHIVE );
 
@@ -1277,7 +1277,6 @@ void InitInput (void)
 
 	LoadLibraryA( FS_ResolveModPath( "cl_dlls\\bass.dll" ).c_str() );
 	LoadLibraryA( FS_ResolveModPath( "cl_dlls\\bass_fx.dll" ).c_str() );
-	LoadLibraryA( FS_ResolveModPath( "cl_dlls\\libircclient.dll" ).c_str() );
 	SM_Init();
 }
 

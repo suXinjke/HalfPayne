@@ -60,6 +60,8 @@ int gmsgCLabelGMod  = 0;
 int gmsgSayText2 = 0;
 
 bool ShouldInitializeTwitch() {
+	return false;
+
 	return
 		CVAR_GET_FLOAT( "twitch_integration_random_gameplay_mods_voting" ) > 0.0f ||
 		CVAR_GET_FLOAT( "twitch_integration_mirror_chat" ) > 0.0f ||
